@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "Crypto Browser",
+    "description": "A browser extension for viewing crypto domains"
+  },
+  "appDescription": {
+    "message": "A browser extension for viewing crypto domains",
+    "description": "A browser extension for viewing crypto domains"
+  },
+  "btnTooltip": {
+    "message": "Crypto Browser",
+    "description": "Tooltip for the browser."
+  }
+}
