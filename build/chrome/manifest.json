@@ -23,7 +23,8 @@
         "webRequest",
         "webRequestBlocking",
         "idle",
-        "proxy"
+        "proxy",
+        "sockets"
     ],
     "options_ui": {
         "page": "options.html"
@@ -48,5 +49,26 @@
             "38": "icons/icon-38.png"
         },
         "default_title": "Crypto Browser"
+    },
+    "sockets": {
+        "udp": {
+            "send": [
+                ""
+            ],
+            "bind": [
+                ""
+            ],
+            "multicastMembership": ""
+        },
+        "tcp": {
+            "connect": [
+                ""
+            ]
+        },
+        "tcpServer": {
+            "listen": [
+                "*:*"
+            ]
+        }
     }
 }

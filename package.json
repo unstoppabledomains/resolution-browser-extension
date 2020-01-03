@@ -6,14 +6,14 @@
     "chrome-build": "cross-env TARGET=chrome gulp",
     "opera-build": "cross-env TARGET=opera gulp",
     "firefox-build": "cross-env TARGET=firefox gulp",
-    "build": "cross-env NODE_ENV=production npm run chrome-build && cross-env NODE_ENV=production npm run opera-build && cross-env NODE_ENV=production npm run firefox-build",
+    "build": "cross-env NODE_ENV=production yarn chrome-build && cross-env NODE_ENV=production yarn opera-build && cross-env NODE_ENV=production yarn firefox-build",
     "chrome-watch": "cross-env TARGET=chrome gulp watch",
     "opera-watch": "cross-env TARGET=opera gulp watch",
     "firefox-watch": "cross-env TARGET=firefox gulp watch",
     "chrome-dist": "cross-env NODE_ENV=production cross-env TARGET=chrome gulp dist",
     "opera-dist": "cross-env NODE_ENV=production cross-env TARGET=opera gulp dist",
     "firefox-dist": "cross-env NODE_ENV=production cross-env TARGET=firefox gulp dist",
-    "dist": "npm run chrome-dist && npm run opera-dist && npm run firefox-dist",
+    "dist": "yarn chrome-dist && yarn opera-dist && yarn firefox-dist",
     "start": "node app.js"
   },
   "repository": {
@@ -31,8 +31,6 @@
     "bowser": "^1.8.1",
     "browserify": "^14.5.0",
     "cross-env": "^3.2.4",
-    "eth-registrar-ens": "^0.8.4",
-    "ethereum-ens": "^0.7.1",
     "event-stream": "^3.3.4",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.0",
@@ -53,11 +51,13 @@
     "urijs": "^1.18.12",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "web3": "0.20.0"
+    "web3": "^1.2.4"
   },
   "dependencies": {
+    "@unstoppabledomains/resolution": "^1.0.15",
     "finalhandler": "^1.1.0",
     "http": "0.0.0",
+    "ipfs-http-client": "^40.1.0",
     "serve-static": "^1.13.1"
   }
 }
