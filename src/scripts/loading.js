@@ -1,1 +1,0 @@
-// Script for loading.html

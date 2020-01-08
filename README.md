@@ -1,28 +1,69 @@
-### List of .eth sites to test: [http://almonit.club](http://almonit.club/)
+The Unstoppable Browser is used to access decentralized blockchain domains. These domains are stored on the blockchain and hosted on decentralized storage networks like IPFS. This extension resolves these names inside chrome by redirecting queries to IPFS gateways. This technology allows users to publish, maintain and find uncensorable content enabling global free speech.
 
-## Installation
-1. Run `npm install`
-2. Run `npm run build`
+// "version_name": "aString",
 
-##### Load the extension in Chrome & Opera
-1. Open Chrome/Opera browser and navigate to chrome://extensions
-2. Select "Developer Mode" and then click "Load unpacked extension..."
-3. From the file browser, choose to `./build/chrome` or (`./build/opera`)
+// "minimum_chrome_version": "versionString",
 
-##### Load the extension in Firefox
-1. Open Firefox browser and navigate to about:debugging
-2. Click "Load Temporary Add-on" and from the file browser, choose `./build/firefox`
+// "default_locale": "en",
 
-## Developing
-The following tasks can be used when you want to start developing the extension and want to enable live reload - 
+    // "19": "icon/19.png",
 
-- `npm run chrome-watch`
-- `npm run opera-watch`
-- `npm run firefox-watch`
+    // "38": "icon/38.png",
 
-## Packaging
-Run `npm run dist` to create a zipped, production-ready extension for each browser. You can then upload that to the appstore.
+// "chrome_settings_overrides": {...},
 
+// "chrome_ui_overrides": {
 
-## Platform specific & Environment specific variables
-Config variables can be set in the `/config` directory 
+// "bookmarks_ui": {
+
+// "remove_bookmark_shortcut": true,
+
+// "remove_button": true
+
+// }
+
+// },
+
+// "commands": {...},
+
+// "content_scripts": [{...}],
+
+// "content_security_policy": "policyString",
+
+// "current_locale": ...,
+
+// "import": [{"id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
+
+// "incognito": "spanning, split, or not_allowed",
+
+// "key": "publicKey",
+
+// "optional_permissions": [],
+
+// "options_ui": {
+
+// "chrome_style": true,
+
+// "page": "options.html"
+
+// },
+
+    // "*://*.bing.com/*", // /search?q=
+
+    // "*://*.duckduckgo.com/*", // /?q=
+
+    // "*://*.yahoo.com/*", // /search?p=
+
+    // "*://*.ask.com/*", // /web?q=
+
+// "signature": ...,
+
+// "storage": {
+
+// "managed_schema": "schema.json"
+
+// },
+
+// "update_url": "http://path/to/updateInfo.xml",
+
+// "web_accessible_resources": [...]

@@ -1,0 +1,41 @@
+{
+  "manifest_version": 2,
+
+  "name": "Unstoppable Browser, View Blockchain Domains",
+  "short_name": "Unstoppable Browser",
+
+  "version": "1",
+
+  "description": "The Unstoppable Browser is used to access decentralized blockchain domains.",
+  "icons": {
+    "16": "icon/16.png",
+    "48": "icon/48.png",
+    "128": "icon/128.png"
+  },
+
+  "homepage_url": "http://unstoppabledomains.com",
+  "author": "Unstoppable Domains <support@unstoppabledomains.com>",
+
+  "browser_action": {
+    "default_popup": "index.html"
+  },
+
+  "background": {
+    "persistent": true,
+    "scripts": ["scripts/background.js"]
+  },
+  "options_page": "index.html",
+
+  "offline_enabled": false,
+  "permissions": [
+    "*://*.crypto/*",
+    "*://*.zil/*",
+
+    "*://*.google.com/*",
+
+    "storage",
+    "tabs",
+    "webRequest",
+    "webRequestBlocking"
+  ]
+}

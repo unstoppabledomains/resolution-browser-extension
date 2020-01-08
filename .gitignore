@@ -1,10 +1,5 @@
-node_modules
-temp
-.tmp
-dist
-.sass-cache
-.DS_Store
-build/firefox
-build/opera
-.idea
-.idea/workspace.xml
+node_modules/
+build/
+*.zip
+.cache/
+old/
