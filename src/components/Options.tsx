@@ -49,6 +49,7 @@ export default () => {
         padding: '.75em 1em',
         display: 'flex',
         minWidth: '400px',
+        maxWidth: '600px',
         alignItems: 'center',
         fontSize: '.875rem',
       }}

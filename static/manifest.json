@@ -24,8 +24,10 @@
     "persistent": true,
     "scripts": ["scripts/background.js"]
   },
-  "options_page": "index.html",
-
+  "options_ui": {
+    "page": "index.html#/options",
+    "open_in_tab": false
+  },
   "offline_enabled": false,
   "permissions": [
     "*://*.crypto/*",

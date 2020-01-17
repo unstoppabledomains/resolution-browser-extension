@@ -16,8 +16,8 @@ chrome.runtime.onInstalled.addListener(details => {
     }
   })
 
-  if (details.reason == 'install') {
-    // chrome.tabs.update({url: chrome.extension.getURL('index.html?welcome')})
-  }
+  // if (details.reason == 'install') {
+  chrome.tabs.create({url: 'index.html#install'})
+
   console.log('Installed!')
 })
