@@ -19,12 +19,10 @@ const Footer:React.FC<Props> = ({classes}) =>  {
           <i className="material-icons md-24">folder</i>
         </Grid>
         <Grid item xs zeroMinWidth>
-        
-            <Link onClick={navigateToList}><Typography variant="subtitle1" className={classes.title}>
-              View list of websites
-            </Typography>
-            </Link>
-          
+          <Link onClick={navigateToList}><Typography variant="subtitle1" className={classes.title}>
+            View list of websites
+          </Typography>
+          </Link>
         </Grid>
         <Grid item className={classes.trailing}>
         <i className="material-icons md-24">home</i>
