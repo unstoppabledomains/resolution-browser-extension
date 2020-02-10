@@ -14,6 +14,7 @@
     "postbuild": "zip -r archive.zip build"
   },
   "dependencies": {
+    "@material-ui/core": "^4.9.1",
     "@unstoppabledomains/resolution": "^1.0.16",
     "ipfs": "^0.40.0",
     "react": "^16.12.0",

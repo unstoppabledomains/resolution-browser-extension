@@ -1,18 +1,24 @@
-import React from 'react'
-import {HashRouter as Router, Route, Switch} from 'react-router-dom'
-import Install from './Install'
-import Options from './Options'
+import React from 'react';
+import { Paper, WithStyles, withStyles, Divider } from '@material-ui/core';
+import styles from '../styles/root.style';
+import Header from './Header';
+import Footer from './Footer';
+import MainScreen from './MainScreen';
 
-export default () => (
-  <Router>
-    <Switch>
-      <Route path="/install">
-        <Install />
-        <Options />
-      </Route>
-      <Route>
-        <Options />
-      </Route>
-    </Switch>
-  </Router>
+interface Props extends WithStyles<typeof styles>{
+}
+
+const Root:React.FC<Props> = ({classes}) => (
+  <Paper className={classes.root}>
+    <div className={classes.topLayout}>
+      <div className={classes.middleLayout}>
+        <Header />
+        <Divider />
+        <MainScreen />
+      </div>
+      <Footer />
+    </div>
+  </Paper>
 )
+
+export default withStyles(styles)(Root);
