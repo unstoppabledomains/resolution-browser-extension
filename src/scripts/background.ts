@@ -44,5 +44,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 
     return {cancel: true}
   },
-  {urls: ['*://*.crypto/*', '*://*.zil/*'], types: ['main_frame']},
+  {
+    urls: [
+      '*://*.crypto/*',
+      '*://*.zil/*'
+    ],
+    types: ['main_frame']},
 )

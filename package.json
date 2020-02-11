@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.9.1",
-    "@unstoppabledomains/resolution": "^1.0.16",
+    "@unstoppabledomains/resolution": "^1.0.24",
     "ipfs": "^0.40.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",

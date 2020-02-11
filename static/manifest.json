@@ -1,12 +1,12 @@
 {
   "manifest_version": 2,
 
-  "name": "Unstoppable Browser, View Blockchain Domains",
-  "short_name": "Unstoppable Browser",
+  "name": "Unstoppable Extension, View blockchain site",
+  "short_name": "Unstoppable Extension",
 
   "version": "1",
 
-  "description": "The Unstoppable Browser is used to access decentralized blockchain domains.",
+  "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
   "icons": {
     "16": "icon/16.png",
     "48": "icon/48.png",
