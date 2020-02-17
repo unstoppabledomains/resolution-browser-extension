@@ -1,9 +1,13 @@
 import {createStyles, Theme} from '@material-ui/core';
 
-const ListStyles = ({spacing, palette} : Theme)  => createStyles({
+const SomethingWentWrongStyles = ({spacing, palette} : Theme)  => createStyles({
   background: {
     height: '100vh',
     width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
     color: 'white',
     background: `radial-gradient(${palette.primary.main}, rgb(150,123,194)) !important`
   },
@@ -15,10 +19,10 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
     padding: spacing(1),
     alignItems: 'center'
   },
-  grid: {
-    justifyContent:"center",
-    alignItems: "center"
+  spinner: {
+    marginTop: spacing(3),
+    color: 'white'
   }
 });
 
-export default ListStyles;
+export default SomethingWentWrongStyles;

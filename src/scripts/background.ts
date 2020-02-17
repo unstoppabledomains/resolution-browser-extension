@@ -1,13 +1,14 @@
-import Resolution from '@unstoppabledomains/resolution'
+import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledomains/resolution'
 import '../subscripts/onInstalled'
 import {chromeStorageSyncGet, StorageSyncKey} from '../util/chromeStorageSync'
 import isValidDNSHostname from '../util/isValidDNSHostname'
+import { invert } from '../util/helpers'
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     const url = new URL(requestDetails.url)
     const q = url.searchParams.get('q').trim()
-
+    console.log({q});
     if (
       !q ||
       !isValidDNSHostname(q) ||
@@ -25,23 +26,38 @@ chrome.webRequest.onBeforeRequest.addListener(
   ['blocking'],
 )
 
-const resolution = new Resolution()
+const resolution = new Resolution({
+  blockchain: {
+    ens: {
+      url: 'https://mainnet.infura.io/v3/213fff28936343858ca9c5115eff1419'
+    },
+    cns: {
+      url: 'https://mainnet.infura.io/v3/213fff28936343858ca9c5115eff1419' 
+    }
+  }
+})
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
-    chrome.tabs.update({url: '/loading.html'}, async () => {
+    chrome.tabs.update({url: 'index.html#loading'}, async (tab: chrome.tabs.Tab) => {
       const gatewayBaseURL = new URL(
         (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
           'http://gateway.ipfs.io',
       ).href
-
-      chrome.tabs.update({
-        url: `${gatewayBaseURL}ipfs/${await resolution.ipfsHash(
-          new URL(requestDetails.url).hostname,
-        )}`,
-      })
-    })
-
+      try {
+        const url = new URL(requestDetails.url).hostname;
+        const ipfsHash = await resolution.ipfsHash(url);
+        chrome.tabs.update({
+          url: `${gatewayBaseURL}ipfs/${ipfsHash}`,
+        });
+      }catch(err) {
+        let message = err.message
+        if (err instanceof ResolutionError) {
+          if (err.code === ResolutionErrorCode.RecordNotFound) message = "Ipfs page not found";
+        }       
+        chrome.tabs.update({url: `index.html#error?reason=${message}`});
+      }
+    });
     return {cancel: true}
   },
   {

@@ -9,7 +9,7 @@ const websitesListURL = 'https://ipfs.github.io/public-gateway-checker/';
 
 const Footer:React.FC<Props> = ({classes}) =>  {
   const navigateToList = () => {
-    return chrome.tabs.update({url: '/websites.html'})
+    return chrome.tabs.update({url: 'index.html#list'})
   }
 
   return (

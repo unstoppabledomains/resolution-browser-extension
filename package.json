@@ -17,9 +17,11 @@
     "@material-ui/core": "^4.9.1",
     "@unstoppabledomains/resolution": "^1.0.24",
     "ipfs": "^0.40.0",
+    "query-string": "^6.11.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-router-dom": "^5.1.2"
+    "react-router-dom": "^5.1.2",
+    "use-async-effect": "^2.2.2"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.91",
