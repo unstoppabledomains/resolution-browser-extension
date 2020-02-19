@@ -15,7 +15,7 @@ const Install:React.FC<Props> = ({classes}) => {
         <Typography variant="h3">How to use</Typography>
         <ol style={{fontSize: '1.15rem', marginLeft: '0'}}>
           <li style={{marginTop: '.5em'}}>
-            Enter a domain into the search bar. ex. http://57smiles.zil
+            Enter a domain into the search bar. ex. http://57smiles.crypto
           </li>
           <li style={{marginTop: '.5em'}}>
             The browser will redirect you using the gateway url below.

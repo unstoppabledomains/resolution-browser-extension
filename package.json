@@ -9,23 +9,26 @@
   "scripts": {
     "prebuild": "rm -R build && cp -R ./static build",
     "predev": "yarn prebuild",
-    "dev": "parcel watch -d build src/index.html src/scripts/background.ts",
+    "dev": "DEV=true",
+    "postdev": "parcel watch -d build src/index.html src/scripts/background.ts",
     "build": "parcel build --no-source-maps -d build src/index.html src/scripts/background.ts",
     "postbuild": "zip -r archive.zip build"
   },
   "dependencies": {
-    "@material-ui/core": "^4.9.1",
+    "@material-ui/core": "^4.0.0",
+    "@material-ui/icons": "^4.9.1",
     "@unstoppabledomains/resolution": "^1.0.24",
+    "dotenv": "^8.2.0",
     "ipfs": "^0.40.0",
     "query-string": "^6.11.0",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "react-router-dom": "^5.1.2",
     "use-async-effect": "^2.2.2"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.91",
-    "@types/react": "^16.9.17",
+    "@types/react": "^16.8.6",
     "parcel-bundler": "^1.12.4",
     "prettier": "^1.19.1",
     "typescript": "^3.7.4"

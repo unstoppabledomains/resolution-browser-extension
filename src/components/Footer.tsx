@@ -5,8 +5,6 @@ import styles from '../styles/footer.style';
 interface Props extends WithStyles<typeof styles>{
 }
 
-const websitesListURL = 'https://ipfs.github.io/public-gateway-checker/';
-
 const Footer:React.FC<Props> = ({classes}) =>  {
   const navigateToList = () => {
     return chrome.tabs.update({url: 'index.html#list'})
@@ -25,7 +23,7 @@ const Footer:React.FC<Props> = ({classes}) =>  {
           </Link>
         </Grid>
         <Grid item className={classes.trailing}>
-        <i className="material-icons md-24">home</i>
+          <i className="material-icons md-24">home</i>
         </Grid>
       </Grid>
     </div>

@@ -3,7 +3,7 @@ import { Paper, WithStyles, withStyles, Divider } from '@material-ui/core';
 import styles from '../../styles/extension.style';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import MainScreen from '../../components/MainScreen';
+import MainScreen from './MainScreen';
 
 interface Props extends WithStyles<typeof styles>{
 }

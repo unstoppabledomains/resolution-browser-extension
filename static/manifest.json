@@ -1,27 +1,19 @@
 {
   "manifest_version": 2,
-
   "name": "Unstoppable Extension, View blockchain site",
   "short_name": "Unstoppable Extension",
-
-  "version": "1.0.1",
-
+  "version": "1.0.3",
   "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
   "icons": {
     "16": "icon/16.png",
     "48": "icon/48.png",
     "128": "icon/128.png"
   },
-
   "homepage_url": "http://unstoppabledomains.com",
   "author": "Unstoppable Domains <support@unstoppabledomains.com>",
-
   "browser_action": {
     "default_popup": "index.html"
   },
-
-  "content_security_policy": "script-src 'self' 'sha256-nHKLQ2A1kK023iXgW+lF4Ly2gHbE2mhlqnDhZBLshPg='; object-src 'self'",
-
   "background": {
     "persistent": true,
     "scripts": ["scripts/background.js"]
@@ -34,9 +26,7 @@
   "permissions": [
     "*://*.crypto/*",
     "*://*.zil/*",
-
     "*://*.google.com/*",
-
     "storage",
     "tabs",
     "webRequest",

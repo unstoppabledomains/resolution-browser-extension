@@ -2,13 +2,11 @@ import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledo
 import '../subscripts/onInstalled'
 import {chromeStorageSyncGet, StorageSyncKey} from '../util/chromeStorageSync'
 import isValidDNSHostname from '../util/isValidDNSHostname'
-import { invert } from '../util/helpers'
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     const url = new URL(requestDetails.url)
-    const q = url.searchParams.get('q').trim()
-    console.log({q});
+    const q = url.searchParams.get('q').trim().toLowerCase()
     if (
       !q ||
       !isValidDNSHostname(q) ||
@@ -47,23 +45,25 @@ chrome.webRequest.onBeforeRequest.addListener(
       try {
         const url = new URL(requestDetails.url).hostname;
         const ipfsHash = await resolution.ipfsHash(url);
+        const displayUrl  = `${gatewayBaseURL}ipfs/${ipfsHash}`;
         chrome.tabs.update({
-          url: `${gatewayBaseURL}ipfs/${ipfsHash}`,
+          url: displayUrl,
         });
-      }catch(err) {
-        let message = err.message
+      } catch(err) {
+        let message = err.message;
         if (err instanceof ResolutionError) {
           if (err.code === ResolutionErrorCode.RecordNotFound) message = "Ipfs page not found";
         }       
         chrome.tabs.update({url: `index.html#error?reason=${message}`});
       }
     });
-    return {cancel: true}
+    return { cancel: true }
   },
   {
     urls: [
       '*://*.crypto/*',
       '*://*.zil/*'
     ],
-    types: ['main_frame']},
+    types: ['main_frame']
+  }
 )

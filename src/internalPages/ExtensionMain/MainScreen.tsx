@@ -3,9 +3,18 @@ import {
   chromeStorageSyncGet,
   chromeStorageSyncSet,
   StorageSyncKey,
-} from '../util/chromeStorageSync';
-import { Paper, WithStyles, withStyles, Typography, FormControl, InputLabel, Select, MenuItem, TextField } from '@material-ui/core';
-import styles from '../styles/mainscreen.style';
+} from '../../util/chromeStorageSync';
+import { 
+  WithStyles,
+  withStyles,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField
+} from '@material-ui/core';
+import styles from '../../styles/mainscreen.style';
 
 interface Props extends WithStyles<typeof styles>{
 }
@@ -14,6 +23,7 @@ export enum ExtensionOptions {
   CloudlareCDN="Cloudlare CDN",
   InfuraAPI = "Infura API",
   IPFSNetwork = "Directly from IPFS network",
+  Pinata = "Pinata",
   Local="Enter your own gateway"
 }
 
@@ -29,17 +39,19 @@ const messages: ExtensionOptionMessage = {
   [ExtensionOptions.CloudlareCDN] : "Non-paranoid + fast response times",
   [ExtensionOptions.InfuraAPI] : "Non-paranoid + fast response times",
   [ExtensionOptions.IPFSNetwork]: "Paranoid + slow response times",
+  [ExtensionOptions.Pinata]: "Non-paranoid + fast response times",
   [ExtensionOptions.Local]: "Unknown + unknown response times "
 };
 
 const uriMap: ExtensionURIMap = {
   [ExtensionOptions.CloudlareCDN]: 'https://cloudflare-ipfs.com/',
   [ExtensionOptions.InfuraAPI]: 'https://ipfs.infura.io/',
-  [ExtensionOptions.IPFSNetwork]: 'https://gateway.ipfs.io/'
+  [ExtensionOptions.IPFSNetwork]: 'https://gateway.ipfs.io/',
+  [ExtensionOptions.Pinata]: 'https://abbfe6z95qov3d40hf6j30g7auo7afhp.mypinata.cloud/'
 };
 
 const MainScreen:React.FC<Props> = ({classes}) => {
-  const [gatewayBaseURL, setGatewayBaseURL] = useState('localhost:8080');
+  const [gatewayBaseURL, setGatewayBaseURL] = useState(uriMap[ExtensionOptions.Pinata]);
   const [okGatewayBaseURL, setOkGatewayBaseURL] = useState(false);
   const [showTexField, setShowTextField] = useState(false);
   const [gatewayOption, setGateWayOption] = useState<ExtensionOptions>(ExtensionOptions.CloudlareCDN);
@@ -114,6 +126,7 @@ const MainScreen:React.FC<Props> = ({classes}) => {
               <MenuItem value={ExtensionOptions.CloudlareCDN}>Cloudlare CDN</MenuItem>
               <MenuItem value={ExtensionOptions.InfuraAPI}>Infura API</MenuItem>
               <MenuItem value={ExtensionOptions.IPFSNetwork}>Directly from IPFS network</MenuItem>
+              <MenuItem value={ExtensionOptions.Pinata}>Pinata IPFS network</MenuItem>
               <MenuItem value={ExtensionOptions.Local}>Enter your own gateway</MenuItem>
             </Select>
         </FormControl>

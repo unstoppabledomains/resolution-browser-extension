@@ -15,9 +15,23 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
     padding: spacing(1),
     alignItems: 'center'
   },
+  center: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   grid: {
-    justifyContent:"center",
+    width: "50vw",
     alignItems: "center"
+  },
+  status: {
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  reflected: {
+    transform: "rotate(180deg);" 
   }
 });
 
