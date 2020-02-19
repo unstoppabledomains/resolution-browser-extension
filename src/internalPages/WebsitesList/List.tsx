@@ -3,9 +3,10 @@ import {useAsyncEffect} from 'use-async-effect';
 import styles from '../../styles/list.style';
 import Record from './Record';
 import { WithStyles, Typography, withStyles, Grid } from '@material-ui/core';
-import { baseurl } from '../../config/constants';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
+const baseurl = 'http://unstoppabledomains.com/api/v1'; 
+// const baseurl = 'http://localhost:8080/api/v1'; 
 interface Props extends WithStyles<typeof styles> {
 
 }
@@ -29,6 +30,7 @@ const List: React.FC<Props> = ({classes}) => {
   const fetchDomains = async (page, perPage) => {
     const url = `${baseurl}/websites/?page=${page}&perPage=${perPage}`;
     const domains: string[] = await fetch(url, {method: 'GET'}).then(res => res.json());
+    if (!domains[0]) return [];
     return domains;
   }
 

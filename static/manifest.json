@@ -14,6 +14,7 @@
   "browser_action": {
     "default_popup": "index.html"
   },
+  "content_security_policy": "script-src 'self' 'sha256-nHKLQ2A1kK023iXgW+lF4Ly2gHbE2mhlqnDhZBLshPg='; object-src 'self'",
   "background": {
     "persistent": true,
     "scripts": ["scripts/background.js"]
