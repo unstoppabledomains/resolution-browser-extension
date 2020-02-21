@@ -23,7 +23,9 @@ const Footer:React.FC<Props> = ({classes}) =>  {
           </Link>
         </Grid>
         <Grid item className={classes.trailing}>
-          <i className="material-icons md-24">home</i>
+          <a href="https://unstoppabledomains.com" target="blank">
+            <i className="material-icons md-24">home</i>
+          </a>
         </Grid>
       </Grid>
     </div>

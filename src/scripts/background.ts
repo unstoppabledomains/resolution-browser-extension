@@ -27,10 +27,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 const resolution = new Resolution({
   blockchain: {
     ens: {
-      url: 'https://mainnet.infura.io/v3/213fff28936343858ca9c5115eff1419'
+      url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc'
     },
     cns: {
-      url: 'https://mainnet.infura.io/v3/213fff28936343858ca9c5115eff1419' 
+      url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc' 
     }
   }
 })
