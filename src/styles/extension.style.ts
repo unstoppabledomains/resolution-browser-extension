@@ -3,8 +3,6 @@ import {createStyles, Theme} from '@material-ui/core';
 const ExtensionStyles = ({spacing}: Theme)  => createStyles({
  root: {
    width: '400px',
-  //  height: '316px',
-  //  minHeight: '316px',
    borderRadius: spacing(0)
  },
  topLayout: {
