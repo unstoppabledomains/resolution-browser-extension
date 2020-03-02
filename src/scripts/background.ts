@@ -1,7 +1,11 @@
 import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledomains/resolution'
 import '../subscripts/onInstalled'
-import {chromeStorageSyncGet, StorageSyncKey} from '../util/chromeStorageSync'
+import { chromeStorageSyncGet, StorageSyncKey } from '../util/chromeStorageSync'
 import isValidDNSHostname from '../util/isValidDNSHostname'
+
+function supportedDomain(q: string) {
+  return (q.endsWith('.zil') || q.endsWith('.crypto') || q.endsWith('.eth'))
+}
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
@@ -10,7 +14,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     if (
       !q ||
       !isValidDNSHostname(q) ||
-      !/\.(zil|crypto)$/.test(q) ||
+      !supportedDomain(q) ||
       url.pathname !== '/search'
     ) {
       return
@@ -20,7 +24,12 @@ chrome.webRequest.onBeforeRequest.addListener(
 
     return {cancel: true}
   },
-  {urls: ['*://*.google.com/*'], types: ['main_frame']},
+  {
+    urls: [
+      '*://*.google.com/*'
+    ],
+    types: ['main_frame']
+  },
   ['blocking'],
 )
 
@@ -62,7 +71,8 @@ chrome.webRequest.onBeforeRequest.addListener(
   {
     urls: [
       '*://*.crypto/*',
-      '*://*.zil/*'
+      '*://*.zil/*',
+      '*://*.eth/*',
     ],
     types: ['main_frame']
   }

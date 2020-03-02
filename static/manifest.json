@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Unstoppable Extension, View blockchain site",
   "short_name": "Unstoppable Extension",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
   "icons": {
     "16": "icon/16.png",
@@ -27,6 +27,7 @@
   "permissions": [
     "*://*.crypto/*",
     "*://*.zil/*",
+    "*://*.eth/*",
     "*://*.google.com/*",
     "storage",
     "tabs",
