@@ -15,46 +15,16 @@ import {
   TextField
 } from '@material-ui/core';
 import styles from '../../styles/mainscreen.style';
+import {ExtensionOptions, ExtensionLabel, ExtensionURIMap} from '../../types';
 
 interface Props extends WithStyles<typeof styles>{
 }
 
-export enum ExtensionOptions {
-  CloudlareCDN="Cloudlare CDN",
-  InfuraAPI = "Infura API",
-  IPFSNetwork = "Directly from IPFS network",
-  Pinata = "Pinata",
-  Local="Enter your own gateway"
-}
-
-export interface ExtensionOptionMessage {
-  [key: string]: string
-};
-
-export interface ExtensionURIMap {
-  [key: string]: string
-};
-
-const messages: ExtensionOptionMessage = {
-  [ExtensionOptions.CloudlareCDN] : "Non-paranoid + fast response times",
-  [ExtensionOptions.InfuraAPI] : "Non-paranoid + fast response times",
-  [ExtensionOptions.IPFSNetwork]: "Paranoid + slow response times",
-  [ExtensionOptions.Pinata]: "Non-paranoid + fast response times",
-  [ExtensionOptions.Local]: "Unknown + unknown response times "
-};
-
-const uriMap: ExtensionURIMap = {
-  [ExtensionOptions.CloudlareCDN]: 'https://cloudflare-ipfs.com/',
-  [ExtensionOptions.InfuraAPI]: 'https://ipfs.infura.io/',
-  [ExtensionOptions.IPFSNetwork]: 'https://gateway.ipfs.io/',
-  [ExtensionOptions.Pinata]: 'https://abbfe6z95qov3d40hf6j30g7auo7afhp.mypinata.cloud/'
-};
-
 const MainScreen:React.FC<Props> = ({classes}) => {
-  const [gatewayBaseURL, setGatewayBaseURL] = useState(uriMap[ExtensionOptions.Pinata]);
+  const [gatewayBaseURL, setGatewayBaseURL] = useState(ExtensionURIMap[ExtensionOptions.Pinata]);
   const [okGatewayBaseURL, setOkGatewayBaseURL] = useState(false);
   const [showTexField, setShowTextField] = useState(false);
-  const [gatewayOption, setGateWayOption] = useState<ExtensionOptions>(ExtensionOptions.CloudlareCDN);
+  const [gatewayOption, setGateWayOption] = useState<ExtensionOptions>(ExtensionOptions.Pinata);
 
   useEffect(() => {
     chromeStorageSyncGet(StorageSyncKey.GatewayOption).then(option => {
@@ -65,6 +35,7 @@ const MainScreen:React.FC<Props> = ({classes}) => {
 
   useEffect(() => {
     chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then(url => {
+      console.log({url});
       setGatewayBaseURL(url)
     })
   }, [])
@@ -93,7 +64,7 @@ const MainScreen:React.FC<Props> = ({classes}) => {
   }, [gatewayBaseURL])
 
   useEffect(() => {
-    const uri = uriMap[gatewayOption];
+    const uri = ExtensionURIMap[gatewayOption];
     if (uri) chromeStorageSyncSet(StorageSyncKey.GatewayBaseURL, uri);
     chromeStorageSyncSet(StorageSyncKey.GatewayOption, gatewayOption);
   }, [gatewayOption]);
@@ -131,7 +102,7 @@ const MainScreen:React.FC<Props> = ({classes}) => {
             </Select>
         </FormControl>
         <Typography variant="body2" className={classes.gatewayMessage}>
-            {messages[gatewayOption]}
+            {ExtensionLabel[gatewayOption]}
         </Typography>
       </>
     );

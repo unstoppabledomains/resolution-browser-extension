@@ -1,11 +1,18 @@
 import React from 'react';
 import styles from '../../styles/install.style';
 import { withStyles, WithStyles, Typography } from '@material-ui/core';
+import { StorageSyncKey, chromeStorageSyncGet, chromeStorageSyncSet } from '../../util/chromeStorageSync';
+import { ExtensionOptions } from '../../types';
 
 
 interface Props extends WithStyles<typeof styles> {}
 
 const Install:React.FC<Props> = ({classes}) => {
+
+  chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then(url => {
+    if (!url) chromeStorageSyncSet(StorageSyncKey.GatewayBaseURL, ExtensionOptions.Pinata);
+  })
+
   return (
     <div className={classes.background}>
       <div className={classes.heading}>
