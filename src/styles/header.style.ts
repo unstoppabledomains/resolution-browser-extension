@@ -5,7 +5,6 @@ const RootStyles = ({spacing, palette} : Theme)  => createStyles({
     padding: spacing(2)
   },
   logo: {
-    height: '48px',
     width: '48px',
     borderRadius: spacing(1),
     objectFit: 'contain'

@@ -3,7 +3,7 @@ import {createStyles, Theme} from '@material-ui/core';
 const RootStyles = ({spacing}: Theme)  => createStyles({
  root: {
    width: '400px',
-   height: '316px',
+  //  height: '316px',
    minHeight: '316px',
    borderRadius: spacing(0)
  },

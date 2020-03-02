@@ -1,5 +1,5 @@
 import React from 'react'
-import { Paper, WithStyles, withStyles, Grid, Typography, Avatar, Box } from '@material-ui/core';
+import { WithStyles, withStyles, Grid, Typography, Box } from '@material-ui/core';
 import styles from '../styles/header.style';
 
 interface Props extends WithStyles<typeof styles>{
@@ -9,7 +9,7 @@ const Header:React.FC<Props> = ({classes}) => (
   <div className={classes.main}>
         <Grid container wrap="nowrap" spacing={1}>
           <Grid item>
-            <Avatar className={classes.logo}><img src="icon/48.png" alt="Unstoppable domains logo" /></Avatar>
+            <img className={classes.logo} src="icon/128.png" alt="Unstoppable domains logo" />
           </Grid>
           <Grid item xs zeroMinWidth>
             <Box fontWeight="fontWeightBold">
