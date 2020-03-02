@@ -17,7 +17,7 @@
   "dependencies": {
     "@material-ui/core": "^4.0.0",
     "@material-ui/icons": "^4.9.1",
-    "@unstoppabledomains/resolution": "^1.0.24",
+    "@unstoppabledomains/resolution": "^1.1.0",
     "dotenv": "^8.2.0",
     "ipfs": "^0.40.0",
     "query-string": "^6.11.0",
