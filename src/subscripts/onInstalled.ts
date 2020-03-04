@@ -3,6 +3,7 @@ import {
   chromeStorageSyncSet,
   StorageSyncKey,
 } from '../util/chromeStorageSync'
+import { ExtensionOptions, ExtensionURIMap } from '../types'
 
 console.log('Background Script Started!')
 
@@ -11,8 +12,11 @@ chrome.runtime.onInstalled.addListener(details => {
     if (!baseURL) {
       chromeStorageSyncSet(
         StorageSyncKey.GatewayBaseURL,
-        new URL('http://gateway.ipfs.io').href,
-      )
+        new URL(ExtensionURIMap[ExtensionOptions.Pinata]).href,
+      );
+      chromeStorageSyncSet(
+        StorageSyncKey.GatewayOption, ExtensionOptions.Pinata
+      );
     }
   })
 

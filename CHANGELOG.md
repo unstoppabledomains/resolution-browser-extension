@@ -1,5 +1,9 @@
 ## Unreleased
 
+## 1.1.1
+ * Fixed bug with not resolving domains on install
+ * Fixed bug with default gateway on install
+
 ## 1.1.0
  * Added eth support
  * Fixed UI
