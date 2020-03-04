@@ -21,10 +21,10 @@ interface Props extends WithStyles<typeof styles>{
 }
 
 const MainScreen:React.FC<Props> = ({classes}) => {
-  const [gatewayBaseURL, setGatewayBaseURL] = useState(ExtensionURIMap[ExtensionOptions.Pinata]);
+  const [gatewayBaseURL, setGatewayBaseURL] = useState(ExtensionURIMap[ExtensionOptions.CloudlareCDN]);
   const [okGatewayBaseURL, setOkGatewayBaseURL] = useState(false);
   const [showTexField, setShowTextField] = useState(false);
-  const [gatewayOption, setGateWayOption] = useState<ExtensionOptions>(ExtensionOptions.Pinata);
+  const [gatewayOption, setGateWayOption] = useState<ExtensionOptions>(ExtensionOptions.CloudlareCDN);
 
   useEffect(() => {
     chromeStorageSyncGet(StorageSyncKey.GatewayOption).then(option => {

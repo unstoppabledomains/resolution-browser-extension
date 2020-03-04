@@ -1,5 +1,8 @@
 ## Unreleased
 
+## 1.1.2
+ * Default ipfsgateway is cloudflare now. 
+
 ## 1.1.1
  * Fixed bug with not resolving domains on install
  * Fixed bug with default gateway on install

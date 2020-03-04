@@ -8,14 +8,14 @@ import { ExtensionOptions, ExtensionURIMap } from '../types'
 console.log('Background Script Started!')
 
 chrome.runtime.onInstalled.addListener(details => {
-  chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then(baseURL => {
+  chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then(async (baseURL) => {
     if (!baseURL) {
-      chromeStorageSyncSet(
+      await chromeStorageSyncSet(
         StorageSyncKey.GatewayBaseURL,
-        new URL(ExtensionURIMap[ExtensionOptions.Pinata]).href,
+        new URL(ExtensionURIMap[ExtensionOptions.CloudlareCDN]).href,
       );
-      chromeStorageSyncSet(
-        StorageSyncKey.GatewayOption, ExtensionOptions.Pinata
+      await chromeStorageSyncSet(
+        StorageSyncKey.GatewayOption, ExtensionOptions.CloudlareCDN
       );
     }
   })
