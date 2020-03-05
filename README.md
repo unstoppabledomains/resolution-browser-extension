@@ -1,69 +1,16 @@
-The Unstoppable Browser is used to access decentralized blockchain domains. These domains are stored on the blockchain and hosted on decentralized storage networks like IPFS. This extension resolves these names inside chrome by redirecting queries to IPFS gateways. This technology allows users to publish, maintain and find uncensorable content enabling global free speech.
+# The Unstoppable Extension
 
-// "version_name": "aString",
+The Unstoppable Extension is used to access decentralized blockchain domains. These domains are stored on the blockchain and hosted on decentralized storage networks like IPFS. This extension resolves these names inside chrome by redirecting queries to IPFS gateways. This technology allows users to surf the decentralized web and visit ipfs websites hosted on .crypto, .zil, .eth 
 
-// "minimum_chrome_version": "versionString",
+## Getting started
+ * First of all clone the repo and install all dependencies with yarn or npm install
+ 
+ * ```yarn build``` to build the project
+ 
+ * Once the project is build type ```chrome://extensions``` into a chrome browser to maintain the extensions. Load an unpacked version of this extension into the browser (choose folder build that was generated after the build command) 
 
-// "default_locale": "en",
 
-    // "19": "icon/19.png",
-
-    // "38": "icon/38.png",
-
-// "chrome_settings_overrides": {...},
-
-// "chrome_ui_overrides": {
-
-// "bookmarks_ui": {
-
-// "remove_bookmark_shortcut": true,
-
-// "remove_button": true
-
-// }
-
-// },
-
-// "commands": {...},
-
-// "content_scripts": [{...}],
-
-// "content_security_policy": "policyString",
-
-// "current_locale": ...,
-
-// "import": [{"id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}],
-
-// "incognito": "spanning, split, or not_allowed",
-
-// "key": "publicKey",
-
-// "optional_permissions": [],
-
-// "options_ui": {
-
-// "chrome_style": true,
-
-// "page": "options.html"
-
-// },
-
-    // "*://*.bing.com/*", // /search?q=
-
-    // "*://*.duckduckgo.com/*", // /?q=
-
-    // "*://*.yahoo.com/*", // /search?p=
-
-    // "*://*.ask.com/*", // /web?q=
-
-// "signature": ...,
-
-// "storage": {
-
-// "managed_schema": "schema.json"
-
-// },
-
-// "update_url": "http://path/to/updateInfo.xml",
-
-// "web_accessible_resources": [...]
+## Usage
+ * Choose a gateway from extension pop up window.
+ * Type in a blockchain domain in the browser url field.
+ * You will be redirected to the IPFS gateway with the domain’s IPFS hash record. 
