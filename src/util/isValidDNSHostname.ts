@@ -1,13 +1,26 @@
+const rules = {
+    segmentMinLength: 2,
+    labelLength: 63,
+    domainLength: 253,
+    domainSegment: /^[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?$/,
+    tldSegment: /^[a-zA-Z](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?$/,
+}
+
 export default function isValidDNSHostname(hostname: string) {
-  const labels = hostname.split('.')
-
-  if (labels[labels.length - 1] === '') {
-    labels.pop()
+  if(!hostname) {
+    return false
   }
-
-  return (
-    labels.every(label =>
-      /^(?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{1,63}$/.test(label),
-    ) && labels.reduce((a, v) => v.length + a, 0) < 253
-  )
+  if(hostname.length > rules.domainLength) {
+    return false
+  }
+  const labels = hostname.split('.')
+  if (labels.length < rules.segmentMinLength) {
+      return false
+  }
+  return labels.every((label,i) => {
+    if(i < labels.length - 1) {
+      return rules.domainSegment.test(label) && label.length <= rules.labelLength
+    }
+    return rules.tldSegment.test(label)
+  })
 }
