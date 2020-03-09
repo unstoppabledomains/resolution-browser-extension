@@ -8,6 +8,7 @@
  * Remove unused files and modules
  * Clean up build directory and archive.zip file
  * Fixed typo from Cloudlare to Cloudflare 
+ * Shorten the display name to Unstoppable Extension
 
 ## 1.1.2
  * Default ipfsgateway is cloudflare now.
