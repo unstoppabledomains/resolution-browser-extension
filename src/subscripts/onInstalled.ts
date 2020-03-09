@@ -12,10 +12,10 @@ chrome.runtime.onInstalled.addListener(details => {
     if (!baseURL) {
       await chromeStorageSyncSet(
         StorageSyncKey.GatewayBaseURL,
-        new URL(ExtensionURIMap[ExtensionOptions.CloudlareCDN]).href,
+        new URL(ExtensionURIMap[ExtensionOptions.CloudflareCDN]).href,
       );
       await chromeStorageSyncSet(
-        StorageSyncKey.GatewayOption, ExtensionOptions.CloudlareCDN
+        StorageSyncKey.GatewayOption, ExtensionOptions.CloudflareCDN
       );
     }
   })

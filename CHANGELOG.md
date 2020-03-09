@@ -7,6 +7,7 @@
  * Fix infura bug for urls that does not end with `/` (`https://community.infura.io/t/ipfs-gateway-directory-url-should-end-with-slash/887`)
  * Remove unused files and modules
  * Clean up build directory and archive.zip file
+ * Fixed typo from Cloudlare to Cloudflare 
 
 ## 1.1.2
  * Default ipfsgateway is cloudflare now.
