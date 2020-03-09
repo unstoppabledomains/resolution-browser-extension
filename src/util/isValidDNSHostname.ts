@@ -7,20 +7,15 @@ const rules = {
 }
 
 export default function isValidDNSHostname(hostname: string) {
-  if(!hostname) {
-    return false
-  }
-  if(hostname.length > rules.domainLength) {
-    return false
-  }
-  const labels = hostname.split('.')
+  if(!hostname || hostname.length > rules.domainLength) return false;
+  const labels = hostname.split('.');
   if (labels.length < rules.segmentMinLength) {
-      return false
+      return false;
   }
   return labels.every((label,i) => {
     if(i < labels.length - 1) {
-      return rules.domainSegment.test(label) && label.length <= rules.labelLength
+      return rules.domainSegment.test(label) && label.length <= rules.labelLength;
     }
-    return rules.tldSegment.test(label)
+    return rules.tldSegment.test(label);
   })
 }
