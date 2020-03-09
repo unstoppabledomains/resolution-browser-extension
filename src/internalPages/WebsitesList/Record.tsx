@@ -1,4 +1,4 @@
-import React from 'React';
+import React from 'react';
 import {withStyles, WithStyles, Typography} from '@material-ui/core';
 import styles from '../../styles/websiteRecords.style';
 

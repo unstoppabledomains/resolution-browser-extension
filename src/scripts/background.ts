@@ -10,17 +10,18 @@ function supportedDomain(q: string) {
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     const url = new URL(requestDetails.url)
-    const q = url.searchParams.get('q').trim().toLowerCase()
+    const params = url.searchParams.get('q').trim().toLowerCase()
+    const q = new URL(url.protocol + '//' + params)
     if (
-      !q ||
-      !isValidDNSHostname(q) ||
-      !supportedDomain(q) ||
+      !q.hostname ||
+      !isValidDNSHostname(q.hostname) ||
+      !supportedDomain(q.hostname) ||
       url.pathname !== '/search'
     ) {
       return
     }
 
-    chrome.tabs.update({url: 'http://' + q})
+    chrome.tabs.update({url: q.toString()})
 
     return {cancel: true}
   },
@@ -52,9 +53,9 @@ chrome.webRequest.onBeforeRequest.addListener(
           'http://gateway.ipfs.io',
       ).href
       try {
-        const url = new URL(requestDetails.url).hostname;
-        const ipfsHash = await resolution.ipfsHash(url);
-        const displayUrl  = `${gatewayBaseURL}ipfs/${ipfsHash}`;
+        const url = new URL(requestDetails.url);
+        const ipfsHash = await resolution.ipfsHash(url.hostname);
+        const displayUrl  = `${gatewayBaseURL}ipfs/${ipfsHash}${url.pathname}`;
         chrome.tabs.update({
           url: displayUrl,
         });
