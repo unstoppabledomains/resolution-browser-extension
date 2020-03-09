@@ -1,6 +1,6 @@
 ## Unreleased
 
-## 1.1.3
+## 1.1.2
  * Refactor `isValidDNSHostname` to properly check for valid dns hostnames
  * It now allows resolving of numeric crypto domains such as `123412341234123412341234.crypto`
  * Include pathnames on gateway redirects, e.g `ama.crypto/01_crypto-ama-with-cosmos-22619.html` will resolve properly
