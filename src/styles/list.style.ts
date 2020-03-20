@@ -1,28 +1,51 @@
 import {createStyles, Theme} from '@material-ui/core';
 
 const ListStyles = ({spacing, palette} : Theme)  => createStyles({
-  background: {
-    height: '100vh',
-    width: '100%',
-    color: 'white',
-    background: `radial-gradient(${palette.primary.main}, rgb(150,123,194)) !important`
+  main: {
+    display: "flex",
+    justifyContent: 'space-between'
   },
-  heading: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '150px',
+  listBackground: {
+    width: "60%",
+    
+  },
+  list: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  info: {
+    width: "40%",
+    marginLeft: spacing(2),
+    marginBottom: spacing(2),
+  },
+  infoBox: {
+    color: "#080f23",
+    backgroundColor: "#e6f6ff",
+    padding: spacing(2),
+  },
+  link: {
+    color: "#0e4dff",
+    textDecoration: "none",
+  },
+  rectangle: {
+    opacity: 0.8,
+    borderRadius: "6px",
+    backgroundImage: "linear-gradient(to left, rgba(255, 243, 249, 0), #eaf8fe)"
+  },
+  letter: {
     padding: spacing(1),
-    alignItems: 'center'
   },
-  center: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+  letters: {
+    display: 'flex'
   },
-  grid: {
-    width: "50vw",
-    alignItems: "center"
+  infoTitle: {
+    paddingBottom: spacing(3)
+  },
+  infoBody: {
+    height: "144px",
+    marginBottom: spacing(1.5),
   },
   status: {
     display: 'flex',
@@ -32,6 +55,19 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
   },
   reflected: {
     transform: "rotate(180deg);" 
+  },
+  browserBox: {
+    display: "flex",
+    borderRadius: "6px",
+    border: "solid 1px rgba(45, 122, 255, 0.33)",
+    padding: spacing(3),
+    marginTop: spacing(2)
+  },
+  browserLogo: {
+    width: "80px",
+    height: "80px",
+    objectFit: "contain",
+    marginRight: spacing(3),
   }
 });
 

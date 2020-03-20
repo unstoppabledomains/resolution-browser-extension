@@ -5,7 +5,7 @@ const WebsiteRecords = ({spacing, palette} : Theme)  => createStyles({
 
   },
   link: {
-    color: 'white',
+    color: '#0e4dff',
     boxShadow: "20px 20px"
   }
 });
