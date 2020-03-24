@@ -1,38 +1,61 @@
 import {createStyles, Theme} from '@material-ui/core';
 
 const ListStyles = ({spacing, palette} : Theme)  => createStyles({
-  background: {
-    height: '100vh',
-    width: '100%',
-    color: 'white',
-    background: `radial-gradient(${palette.primary.main}, rgb(150,123,194)) !important`
+  main: {
+    display: "flex",
+    justifyContent: 'space-between'
   },
-  heading: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '150px',
-    padding: spacing(1),
-    alignItems: 'center'
+  listBackground: {
+    width: "60%",
   },
-  center: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+  list: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  selectedLetter: {
+    alignSelf: "flex-start",
+    paddingLeft: spacing(2)
   },
   grid: {
-    width: "50vw",
-    alignItems: "center"
+    padding: spacing(1),
+  },
+  rectangle: {
+    opacity: 0.8,
+    borderRadius: "6px",
+    backgroundImage: "linear-gradient(to left, rgba(255, 243, 249, 0), #eaf8fe)"
+  },
+  letter: {
+    padding: spacing(1),
+    cursor: "pointer",
+  },
+  letters: {
+    display: 'flex',
+    width: '100%',
+    padding: spacing(1),
+  },
+  statusLeft: {
+    display: 'flex',
+    paddingLeft: spacing(3),
+  },
+  statusRight: {
+    paddingRight: spacing(3),
   },
   status: {
     display: 'flex',
     width: '100%',
-    justifyContent: 'center',
+    color: "#0e4dff",
+    padding: spacing(2,3,2,3),
+    justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  bold: {
+    fontWeight: "bold",
   },
   reflected: {
     transform: "rotate(180deg);" 
-  }
+  },
 });
 
 export default ListStyles;

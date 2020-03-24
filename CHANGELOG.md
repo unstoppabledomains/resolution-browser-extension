@@ -1,4 +1,7 @@
-## Unreleased
+## 1.2.0
+ * Redesign of weblist catalogue
+ * New colors
+ * Bookmark feature
 
 ## 1.1.2
  * Refactor `isValidDNSHostname` to properly check for valid dns hostnames

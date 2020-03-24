@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="68" height="68" viewBox="0 0 68 68">
+    <defs>
+        <linearGradient id="prefix__c" x1="50%" x2="50%" y1="0%" y2="88.052%">
+            <stop offset="0%" stop-color="#13D9F9"/>
+            <stop offset="100%" stop-color="#5323EB"/>
+        </linearGradient>
+        <linearGradient id="prefix__d" x1="50%" x2="50%" y1="0%" y2="95.711%">
+            <stop offset="0%" stop-color="#4355FF" stop-opacity=".105"/>
+            <stop offset="100%" stop-color="#01002E" stop-opacity=".278"/>
+        </linearGradient>
+        <filter id="prefix__a" width="110.9%" height="110.9%" x="-5.5%" y="-3.9%" filterUnits="objectBoundingBox">
+            <feOffset dy="1" in="SourceAlpha" result="shadowOffsetOuter1"/>
+            <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="1"/>
+            <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"/>
+            <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.301436844 0"/>
+        </filter>
+        <circle id="prefix__b" cx="32" cy="32" r="32"/>
+    </defs>
+    <g fill="none" fill-rule="evenodd" transform="translate(2 1)">
+        <use fill="#000" filter="url(#prefix__a)" xlink:href="#prefix__b"/>
+        <use fill="url(#prefix__c)" xlink:href="#prefix__b"/>
+        <circle cx="32" cy="32" r="30.4" fill="#4C47F7" fill-opacity=".32" stroke="url(#prefix__d)" stroke-linejoin="square" stroke-width="3.2"/>
+        <circle cx="32" cy="32" r="31.75" stroke="#000" stroke-linejoin="square" stroke-opacity=".202" stroke-width=".5"/>
+        <g>
+            <path fill="#2FE9FF" d="M40.851 0.638L40.851 14.681 0 31.277z" transform="translate(10.621 11.983)"/>
+            <path fill="#FFF" d="M33.191 0v24.255c0 7.05-5.715 12.766-12.765 12.766-7.05 0-12.766-5.715-12.766-12.766V14.043l7.66-4.213v14.425c0 2.468 2 4.468 4.467 4.468 2.468 0 4.468-2 4.468-4.468V4.915L33.191 0z" transform="translate(10.621 11.983)"/>
+        </g>
+    </g>
+</svg>

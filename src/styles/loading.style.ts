@@ -8,8 +8,7 @@ const Loading = ({spacing, palette} : Theme)  => createStyles({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    color: 'white',
-    background: `radial-gradient(${palette.primary.main}, rgb(150,123,194)) !important`
+    backgroundColor: '#f9faff'
   },
   heading: {
     width: '100%',
@@ -20,8 +19,7 @@ const Loading = ({spacing, palette} : Theme)  => createStyles({
     alignItems: 'center'
   },
   spinner: {
-    marginTop: spacing(3),
-    color: 'white'
+    marginTop: spacing(3)
   }
 });
 
