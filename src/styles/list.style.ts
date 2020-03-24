@@ -7,7 +7,6 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
   },
   listBackground: {
     width: "60%",
-    
   },
   list: {
     display: "flex",
@@ -15,19 +14,12 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
     alignItems: "center",
     flexDirection: "column",
   },
-  info: {
-    width: "40%",
-    marginLeft: spacing(2),
-    marginBottom: spacing(2),
+  selectedLetter: {
+    alignSelf: "flex-start",
+    paddingLeft: spacing(2)
   },
-  infoBox: {
-    color: "#080f23",
-    backgroundColor: "#e6f6ff",
-    padding: spacing(2),
-  },
-  link: {
-    color: "#0e4dff",
-    textDecoration: "none",
+  grid: {
+    padding: spacing(1),
   },
   rectangle: {
     opacity: 0.8,
@@ -36,39 +28,34 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
   },
   letter: {
     padding: spacing(1),
+    cursor: "pointer",
   },
   letters: {
-    display: 'flex'
+    display: 'flex',
+    width: '100%',
+    padding: spacing(1),
   },
-  infoTitle: {
-    paddingBottom: spacing(3)
+  statusLeft: {
+    display: 'flex',
+    paddingLeft: spacing(3),
   },
-  infoBody: {
-    height: "144px",
-    marginBottom: spacing(1.5),
+  statusRight: {
+    paddingRight: spacing(3),
   },
   status: {
     display: 'flex',
     width: '100%',
-    justifyContent: 'center',
+    color: "#0e4dff",
+    padding: spacing(2,3,2,3),
+    justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  bold: {
+    fontWeight: "bold",
   },
   reflected: {
     transform: "rotate(180deg);" 
   },
-  browserBox: {
-    display: "flex",
-    borderRadius: "6px",
-    border: "solid 1px rgba(45, 122, 255, 0.33)",
-    padding: spacing(3),
-    marginTop: spacing(2)
-  },
-  browserLogo: {
-    width: "80px",
-    height: "80px",
-    objectFit: "contain",
-    marginRight: spacing(3),
-  }
 });
 
 export default ListStyles;

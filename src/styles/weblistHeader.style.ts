@@ -5,6 +5,9 @@ const weblistHeaderStyles = ({spacing}: Theme)  => createStyles({
     display: "flex",
     flexDirection: "column"
   },
+  link: {
+    textDecoration: "none",
+  },
   header: {
     display: "flex",
     paddingBottom: spacing(3),
@@ -44,6 +47,7 @@ const weblistHeaderStyles = ({spacing}: Theme)  => createStyles({
   },
   controlText: {
     color: "#2d64ff",
+    cursor: "pointer"
   },
 });
 

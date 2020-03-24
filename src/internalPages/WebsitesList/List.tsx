@@ -1,58 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { useAsyncEffect } from 'use-async-effect';
+import React from 'react';
 import styles from '../../styles/list.style';
 import Record from './Record';
-import { WithStyles, Typography, withStyles, Grid, Paper } from '@material-ui/core';
+import { WithStyles, Typography, withStyles, Grid, Paper, Divider, Menu, MenuItem } from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import KeyboardArrowDownOutlinedIcon from '@material-ui/icons/KeyboardArrowDownOutlined';
+import InfoBox from './InfoBox';
 
-const baseurl = 'http://unstoppabledomains.com/api/v1';
-// const baseurl = 'http://localhost:8080/api/v1';
 interface Props extends WithStyles<typeof styles> {
 	setLetter: React.Dispatch<React.SetStateAction<string>>;
+	setPage: React.Dispatch<React.SetStateAction<number>>;
+	setPerPage: React.Dispatch<React.SetStateAction<number>>;
+	setClickBookmark: React.Dispatch<React.SetStateAction<boolean>>; 
+	page: number;
+	perPage: number;
+	domains: string[];
+	letter: string;
+	bookmarkClicked: boolean;
 }
 
-const List: React.FC<Props> = ({ classes, setLetter }) => {
-	const [ domains, setDomains ] = useState<string[]>([]);
-	const [ page, setPage ] = useState(1);
-	const [ perPage, setPerPage ] = useState(20);
-	const [ activeLetter, setActive ] = useState('A');
+const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, setPerPage, letter, domains, bookmarkClicked, setClickBookmark }) => {
+	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-	useEffect(() => {
-		//Todo get last usage prefs from store and change them here
-		setPage(1);
-		setPerPage(20);
-	}, []);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-	useAsyncEffect(
-		async () => {
-			const freshdomains = await fetchDomains(page, perPage);
-			setDomains(freshdomains);
-		},
-		[ page, perPage ]
-	);
-
-	const fetchDomains = async (page, perPage) => {
-		const url = `${baseurl}/websites/?page=${page}&perPage=${perPage}`;
-		try {
-			console.log(url);
-			const domains: string[] = await fetch(url, { method: 'GET' }).then((res) => res.json());
-			if (!domains || !domains[0]) return [];
-			return domains;
-		} catch (err) {
-			console.error(err);
-			return [];
-		}
-	};
+  const handleClose = (event, value) => {
+		setPerPage(value);
+    setAnchorEl(null);
+  };
 
 	const goBack = (e) => {
 		if (page > 1) setPage(page - 1);
 	};
 	const goForward = (e) => setPage(page + 1);
 
-  const handleLetterClick = (letter: string) => {
-    setActive(letter);
-    setLetter(letter);
-  }
+	const handleLetterClick = (letter: string) => {
+		setLetter(letter);
+		setClickBookmark(false);
+	};
 
 	const renderLetters = () => {
 		const letters = [
@@ -83,12 +69,18 @@ const List: React.FC<Props> = ({ classes, setLetter }) => {
 			'Y',
 			'Z'
 		];
-		return letters.map((letter) => {
-      let className = classes.letter;
-      if (activeLetter === letter) className = className + ' ' + classes.rectangle;
+		return letters.map((char) => {
+			let className = classes.letter;
+			if (letter === char) className = className + ' ' + classes.rectangle;
 			return (
-				<Typography key={letter} variant="body1" color="primary" className={className} onClick={() => handleLetterClick(letter)}>
-					{letter}
+				<Typography
+					key={char}
+					variant="body1"
+					color="primary"
+					className={className}
+					onClick={() => handleLetterClick(char)}
+				>
+						{char}
 				</Typography>
 			);
 		});
@@ -99,39 +91,50 @@ const List: React.FC<Props> = ({ classes, setLetter }) => {
 			<Paper className={classes.listBackground}>
 				<div className={classes.list}>
 					<div className={classes.letters}>{renderLetters()}</div>
+					<Typography variant="h5" className={classes.selectedLetter}>
+						{bookmarkClicked ? "Bookmarks" : letter.toUpperCase()}
+					</Typography>
+					<Grid container spacing={2} className={classes.grid}>
+						<Grid item xs={5}>
+							{domains
+								.slice(0, domains.length / 2)
+								.map((domain) => <Record key={domain} domain={domain} />)}
+						</Grid>
+						<Grid item xs={5}>
+							{domains
+								.slice(domains.length / 2)
+								.map((domain) => <Record key={domain} domain={domain} />)}
+						</Grid>
+					</Grid>
 					<div className={classes.status}>
-						<ArrowBackIosIcon onClick={goBack} />
-						<Typography variant="body1">{`Page count: ${page}`}</Typography>
-						<ArrowBackIosIcon onClick={goForward} className={classes.reflected} />
+						<div className={classes.statusLeft}>
+							<Typography
+								className={classes.bold}
+								variant="body1"
+							>{`Page #${page} | Per page: ${perPage}`}
+							</Typography>
+							<KeyboardArrowDownOutlinedIcon aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}/>
+							<Menu
+								id="simple-menu"
+								anchorEl={anchorEl}
+								keepMounted
+								open={Boolean(anchorEl)}
+								onClose={handleClose}
+							>
+								<MenuItem onClick={(e) => handleClose(e, 10)}>10</MenuItem>
+								<MenuItem onClick={(e) => handleClose(e, 20)}>20</MenuItem>
+								<MenuItem onClick={(e) => handleClose(e, 30)}>30</MenuItem>
+								<MenuItem onClick={(e) => handleClose(e, 40)}>40</MenuItem>
+							</Menu>
+						</div>
+						<div className={classes.statusRight}>
+							{ page > 1 ? <ArrowBackIosIcon onClick={goBack} /> : <> </> }
+							{ domains.length < perPage ? <></> : <ArrowBackIosIcon onClick={goForward} className={classes.reflected} /> }
+						</div>
 					</div>
 				</div>
 			</Paper>
-
-			<div className={classes.info}>
-				<div className={classes.infoBox}>
-					<Typography variant="h5" className={classes.infoTitle}>
-						{' '}
-						What is Decentralized Internet{' '}
-					</Typography>
-					<Typography variant="body1" className={classes.infoBody}>
-						Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur provident harum dolorum
-						voluptatem incidunt omnis delectus necessitatibus! Aliquid inventore voluptatum unde quam. Ipsa,
-						molestiae laborum minus suscipit possimus accusantium ratione.
-					</Typography>
-					<Typography variant="body1" className={classes.link}>
-						{' '}
-						Learn more
-					</Typography>
-				</div>
-				<a href="https://unstoppabledomains.com/browser" className={classes.link}>
-					<div className={classes.browserBox}>
-						<img src="icon/browser.svg" className={classes.browserLogo} />
-						<Typography variant="h4" color="primary">
-							Install Unstoppable Browser
-						</Typography>
-					</div>
-				</a>
-			</div>
+			<InfoBox />
 		</div>
 	);
 };

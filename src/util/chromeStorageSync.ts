@@ -1,6 +1,7 @@
 export enum StorageSyncKey {
   GatewayBaseURL = 'GatewayBaseURL',
-  GatewayOption = "GatewayOption"
+  GatewayOption = "GatewayOption",
+  BookmarkedDomains = "BookmarkedDomains"
 }
 
 export function chromeStorageSyncGet(keys: StorageSyncKey): Promise<any> {
