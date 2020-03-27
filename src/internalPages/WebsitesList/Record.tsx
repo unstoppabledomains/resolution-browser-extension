@@ -49,7 +49,7 @@ const Record: React.FC<Props> = ({ classes, domain }) => {
 				{!status ? (
 					<BookmarkBorderOutlinedIcon color="primary" onClick={() => handleBookMarking(domain)} />
 				) : (
-					<BookmarkIcon color="primary" onClick={() => handleUnbooomarking(domain)} />
+					<BookmarkIcon style={{color: "#4c47f7"}} onClick={() => handleUnbooomarking(domain)} />
 				)}
 				<a className={classes.link} href={`http://${domain}`}>
 					<Typography variant="body1">{domain}</Typography>

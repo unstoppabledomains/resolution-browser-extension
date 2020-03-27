@@ -52,6 +52,7 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
   },
   bold: {
     fontWeight: "bold",
+    color: "#0e4dff"
   },
   reflected: {
     transform: "rotate(180deg);" 

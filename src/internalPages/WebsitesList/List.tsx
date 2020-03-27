@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '../../styles/list.style';
 import Record from './Record';
-import { WithStyles, Typography, withStyles, Grid, Paper, Divider, Menu, MenuItem } from '@material-ui/core';
+import { WithStyles, Typography, withStyles, Grid, Paper, Menu, MenuItem } from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import KeyboardArrowDownOutlinedIcon from '@material-ui/icons/KeyboardArrowDownOutlined';
 import InfoBox from './InfoBox';

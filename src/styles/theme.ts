@@ -106,9 +106,9 @@ const theme = createMuiTheme({
     // 'light' & 'dark' were calculated with material color picker
     // https://material.io/tools/color/#!/?primary.color=4C47F7&secondary.color=2fe9ff
     primary: {
-      light: '#8b74ff',
-      main: '#4C47F7',
-      dark: '#001cc3',
+      light: '#4c47f7',
+      main: '#4c47f7',
+      dark: '#4c47f7',
     },
     secondary: {
       light: '#c3c8ca',

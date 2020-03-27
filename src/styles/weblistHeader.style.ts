@@ -44,6 +44,8 @@ const weblistHeaderStyles = ({spacing}: Theme)  => createStyles({
   },
   addButton: {
     height: "40px",
+    color: "white",
+    backgroundColor: "#4c47f7"
   },
   controlText: {
     color: "#2d64ff",
