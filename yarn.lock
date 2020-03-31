@@ -996,18 +996,21 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@unstoppabledomains/resolution@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-1.1.0.tgz#6e8a0bab616dce18787caa96a8a680f98b50c374"
-  integrity sha512-SaClpTsJRlfNj9mvKpfm1i3H6XMguvxASZDavfRm47bFjkEWwmICSPQlFVGp4NHDdj2jqrwD2GUu3n7IAB1N5A==
+"@unstoppabledomains/resolution@^1.3.0":
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-1.3.4.tgz#a6951dd71c1c433bcae1a681af4ae82b7eef7c1a"
+  integrity sha512-TxDSpTbuAgq1jKhjaGLj88Q5xgg/7JamIOr3Miwfsv/iYu33nWKGjNxlsneWa/2HTaevEf98oeU0JrJFjdd8EA==
   dependencies:
     "@ensdomains/address-encoder" "0.1.2"
     bip44-constants "^8.0.5"
     bn.js "^5.1.1"
+    commander "^4.1.1"
     content-hash "^2.5.2"
     hash.js "^1.1.7"
     js-sha3 "^0.8.0"
     node-fetch "^2.6.0"
+  optionalDependencies:
+    dotenv "^8.2.0"
 
 abab@^2.0.0:
   version "2.0.3"
@@ -1713,6 +1716,11 @@ commander@^2.11.0, commander@^2.19.0, commander@^2.20.0:
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
 
+commander@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-4.1.1.tgz#9fd602bd936294e9e9ef46a3f4d6964044b18068"
+  integrity sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==
+
 component-emitter@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.0.tgz#16e4070fba8ae29b679f2215853ee181ab2eabc0"
@@ -2213,6 +2221,11 @@ dotenv@^5.0.0:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-5.0.1.tgz#a5317459bd3d79ab88cff6e44057a6a3fbb1fcef"
   integrity sha512-4As8uPrjfwb7VXC+WnLCbXK7y+Ueb2B3zgNCePYfhxS1PYeaO1YTeplffTEcbfLhvFNGLAz90VvJs9yomG7bow==
+
+dotenv@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
+  integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
 
 duplexer2@~0.1.4:
   version "0.1.4"
