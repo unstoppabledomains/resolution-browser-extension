@@ -8,8 +8,7 @@ const SomethingWentWrongStyles = ({spacing, palette} : Theme)  => createStyles({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    color: 'white',
-    background: `radial-gradient(${palette.primary.main}, rgb(150,123,194)) !important`
+    background: `#f9faff`
   },
   heading: {
     width: '100%',

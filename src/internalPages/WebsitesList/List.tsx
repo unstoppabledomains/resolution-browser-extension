@@ -5,6 +5,7 @@ import { WithStyles, Typography, withStyles, Grid, Paper, Menu, MenuItem } from 
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import KeyboardArrowDownOutlinedIcon from '@material-ui/icons/KeyboardArrowDownOutlined';
 import InfoBox from './InfoBox';
+import Loading from '../Loading/Loading';
 
 interface Props extends WithStyles<typeof styles> {
 	setLetter: React.Dispatch<React.SetStateAction<string>>;
@@ -20,6 +21,7 @@ interface Props extends WithStyles<typeof styles> {
 
 const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, setPerPage, letter, domains, bookmarkClicked, setClickBookmark }) => {
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+	const [isLoading, setLoading] = React.useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -85,7 +87,8 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 			);
 		});
 	};
-
+	
+	if (isLoading) return <Loading />
 	return (
 		<div className={classes.main}>
 			<Paper className={classes.listBackground}>
@@ -98,12 +101,12 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 						<Grid item md={6} sm={12} xs={12}>
 							{domains
 								.slice(0, domains.length / 2)
-								.map((domain) => <Record key={domain} domain={domain} />)}
+								.map((domain) => <Record key={domain} domain={domain} setLoading={setLoading}/>)}
 						</Grid>
 						<Grid item md={6} sm={12} xs={12}>
 							{domains
 								.slice(domains.length / 2)
-								.map((domain) => <Record key={domain} domain={domain} />)}
+								.map((domain) => <Record key={domain} domain={domain} setLoading={setLoading}/>)}
 						</Grid>
 					</Grid>
 					<div className={classes.status}>

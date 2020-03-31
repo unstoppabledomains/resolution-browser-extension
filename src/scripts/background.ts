@@ -20,9 +20,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     ) {
       return
     }
-
     chrome.tabs.update({url: q.toString()})
-
     return {cancel: true}
   },
   {
@@ -63,12 +61,11 @@ chrome.webRequest.onBeforeRequest.addListener(
         let message = err.message;
         if (err instanceof ResolutionError) {
           if (err.code === ResolutionErrorCode.RecordNotFound) message = "Ipfs page not found";
-        }       
-        chrome.tabs.update({url: `index.html#error?reason=${message}`});
-      }
-    });
-    return { cancel: true }
-  },
+      }       
+      chrome.tabs.update({url: `index.html#error?reason=${message}`});
+    }
+    return {cancel: true}
+  })},
   {
     urls: [
       '*://*.crypto/*',
@@ -76,5 +73,6 @@ chrome.webRequest.onBeforeRequest.addListener(
       '*://*.eth/*',
     ],
     types: ['main_frame']
-  }
+  },
+  ["blocking"]
 )
