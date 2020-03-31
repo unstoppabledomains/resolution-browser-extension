@@ -95,12 +95,12 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 						{bookmarkClicked ? "Bookmarks" : letter.toUpperCase()}
 					</Typography>
 					<Grid container spacing={2} className={classes.grid}>
-						<Grid item xs={5}>
+						<Grid item md={6} sm={12} xs={12}>
 							{domains
 								.slice(0, domains.length / 2)
 								.map((domain) => <Record key={domain} domain={domain} />)}
 						</Grid>
-						<Grid item xs={5}>
+						<Grid item md={6} sm={12} xs={12}>
 							{domains
 								.slice(domains.length / 2)
 								.map((domain) => <Record key={domain} domain={domain} />)}

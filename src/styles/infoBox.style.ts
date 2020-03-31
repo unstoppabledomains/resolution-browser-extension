@@ -27,13 +27,15 @@ const InfoBoxStyles = ({spacing}: Theme)  => createStyles({
     textDecoration: "none",
   },
   info: {
-    width: "40%",
+    display: "flex",
+    flexDirection: "column",
     marginLeft: spacing(2),
     marginBottom: spacing(2),
   },
   infoBox: {
     color: "#080f23",
     backgroundColor: "#e6f6ff",
+    alignSelf: "center",
     padding: spacing(1),
   },
 });

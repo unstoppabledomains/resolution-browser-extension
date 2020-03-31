@@ -35,11 +35,7 @@ const WeblistHeader: React.FC<Props> = ({ classes, setExtension,bookMarkClick })
 					Decentralized Websites
 				</Typography>
 				<a href="https://unstoppabledomains.com" className={classes.link}>
-<<<<<<< HEAD
 					<Button className={classes.addButton}>
-=======
-					<Button variant="contained" color="primary" className={classes.addButton}>
->>>>>>> 335e675fe3a42e2fa5dac86e75dab91950f0d5ae
 						<AddCircle />&nbsp;Launch your website
 					</Button>
 				</a>
@@ -75,11 +71,7 @@ const WeblistHeader: React.FC<Props> = ({ classes, setExtension,bookMarkClick })
 					</div>
 				</div>
 				<div>
-<<<<<<< HEAD
 					<Button style={{color: "#4c47f7"}} onClick={() => bookMarkClick(true)}>
-=======
-					<Button color="primary" onClick={() => bookMarkClick(true)}>
->>>>>>> 335e675fe3a42e2fa5dac86e75dab91950f0d5ae
 						<BookmarksIcon />&nbsp;Bookmarks
 					</Button>
 				</div>

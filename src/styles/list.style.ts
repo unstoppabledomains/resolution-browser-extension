@@ -32,6 +32,7 @@ const ListStyles = ({spacing, palette} : Theme)  => createStyles({
   },
   letters: {
     display: 'flex',
+    flexWrap: 'wrap',
     width: '100%',
     padding: spacing(1),
   },
