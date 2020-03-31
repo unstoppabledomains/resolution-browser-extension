@@ -1,5 +1,6 @@
 ## 1.2.2
 * Responsive design
+* Fixed bug causing people to stay on loading page whenever they went back in history
 
 ## 1.2.0 - 1.2.1
  * Redesign of weblist catalogue
