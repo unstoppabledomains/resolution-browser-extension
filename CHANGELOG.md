@@ -1,4 +1,7 @@
-## 1.2.0
+## 1.2.2
+* Responsive design
+
+## 1.2.0 - 1.2.1
  * Redesign of weblist catalogue
  * New colors
  * Bookmark feature
