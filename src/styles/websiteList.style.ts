@@ -14,8 +14,7 @@ const WebsiteListStyles = ({spacing}: Theme)  => createStyles({
     flexDirection: "column",
     color: "#0e4dff",
     justifyContent: "space-between",
-    
-  },
+  }
 });
 
 export default WebsiteListStyles;

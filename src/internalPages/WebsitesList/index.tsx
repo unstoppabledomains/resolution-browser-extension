@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { WithStyles, withStyles } from '@material-ui/core';
+import { WithStyles, withStyles, Typography, Paper } from '@material-ui/core';
 import { useAsyncEffect } from 'use-async-effect';
 import styles from '../../styles/websiteList.style';
 import WeblistHeader, { Extension } from './WeblistHeader';
 import List from './List';
 import { chromeStorageSyncGet, StorageSyncKey } from '../../util/chromeStorageSync';
+import { redirectToIpfs } from '../../util/helpers';
 
 interface Props extends WithStyles<typeof styles> {}
 
@@ -67,7 +68,7 @@ const WebsiteList: React.FC<Props> = ({ classes }) => {
     const bookmarks = await chromeStorageSyncGet(StorageSyncKey.BookmarkedDomains);
     if (bookmarks) return JSON.parse(bookmarks);
     return [];
-  }
+	}
 	
 	return (
 		<div className={classes.background}>

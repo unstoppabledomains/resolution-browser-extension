@@ -7,7 +7,8 @@ const WebsiteRecords = ({spacing, palette} : Theme)  => createStyles({
   },
   link: {
     color: '#0e4dff',
-    textDecoration: "none"
+    textDecoration: "none",
+    cursor: "pointer"
   }
 });
 

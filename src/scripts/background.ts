@@ -2,6 +2,7 @@ import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledo
 import '../subscripts/onInstalled'
 import { chromeStorageSyncGet, StorageSyncKey } from '../util/chromeStorageSync'
 import isValidDNSHostname from '../util/isValidDNSHostname'
+import { redirectToIpfs } from '../util/helpers'
 
 function supportedDomain(q: string) {
   return (q.endsWith('.zil') || q.endsWith('.crypto') || q.endsWith('.eth'))
@@ -46,24 +47,7 @@ const resolution = new Resolution({
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     chrome.tabs.update({url: 'index.html#loading'}, async (tab: chrome.tabs.Tab) => {
-      const gatewayBaseURL = new URL(
-        (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
-          'http://gateway.ipfs.io',
-      ).href
-      try {
-        const url = new URL(requestDetails.url);
-        const ipfsHash = await resolution.ipfsHash(url.hostname);
-        const displayUrl  = `${gatewayBaseURL}ipfs/${ipfsHash}${url.pathname}`;
-        chrome.tabs.update({
-          url: displayUrl,
-        });
-      } catch(err) {
-        let message = err.message;
-        if (err instanceof ResolutionError) {
-          if (err.code === ResolutionErrorCode.RecordNotFound) message = "Ipfs page not found";
-      }       
-      chrome.tabs.update({url: `index.html#error?reason=${message}`});
-    }
+      await redirectToIpfs(requestDetails.url);
     return {cancel: true}
   })},
   {

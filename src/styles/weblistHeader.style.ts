@@ -23,10 +23,14 @@ const weblistHeaderStyles = ({spacing}: Theme)  => createStyles({
     letterSpacing: "normal",
   },
   control: {
+    display: 'flex',
+    flexDirection: "column"
+  },
+  controlRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    height: "56px",
+    height: "36px",
   },
   rectangle: {
     borderRadius: "4px",
@@ -44,16 +48,27 @@ const weblistHeaderStyles = ({spacing}: Theme)  => createStyles({
   },
   addButton: {
     height: "40px",
-<<<<<<< HEAD
     color: "white",
     backgroundColor: "#4c47f7"
-=======
->>>>>>> 335e675fe3a42e2fa5dac86e75dab91950f0d5ae
   },
   controlText: {
     color: "#2d64ff",
     cursor: "pointer"
   },
+
+  featuredBox: {
+    padding: spacing(1)
+  },
+  featuredBoxInner: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  RecordLink: {
+    color: '#0e4dff',
+    textDecoration: "none",
+    cursor: "pointer"
+  }
 });
 
 export default weblistHeaderStyles;
