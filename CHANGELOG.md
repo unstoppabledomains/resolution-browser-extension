@@ -1,3 +1,7 @@
+## 1.2.3
+* Featured websites list
+* Simple caching of ipfs hashes
+
 ## 1.2.2
 * Responsive design
 * Fixed bug causing people to stay on loading page whenever they went back in history
