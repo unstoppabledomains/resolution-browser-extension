@@ -1,5 +1,5 @@
 import Resolution, { ResolutionError, ResolutionErrorCode } from "@unstoppabledomains/resolution";
-import { chromeStorageSyncGet, StorageSyncKey, checkResolutionFromLocalCache, putResolutionIntoLocalCache } from "./chromeStorageSync";
+import { chromeStorageSyncGet, StorageSyncKey } from "./chromeStorageSync";
 
 export function invert(object) {
   const returnee = {};
@@ -12,7 +12,6 @@ export function invert(object) {
 }
 
 export async function redirectToIpfs(domain: string) {
-  const cachePromise = checkResolutionFromLocalCache(domain);
   const resolution = new Resolution({
     blockchain: {
       ens: {
@@ -28,10 +27,8 @@ export async function redirectToIpfs(domain: string) {
   ).href;
   try {
     const url = new URL(domain);
-    const cacheResult = await cachePromise;
-    const ipfsHash = cacheResult ? cacheResult : await resolution.ipfsHash(url.hostname);
+    const ipfsHash = await resolution.ipfsHash(url.hostname);
     const displayUrl = `${gatewayBaseURL}ipfs/${ipfsHash}${url.pathname}`;
-    if (!cacheResult) await putResolutionIntoLocalCache(domain, ipfsHash);
     chrome.tabs.update({
       url: displayUrl
     });
