@@ -1,3 +1,6 @@
+## 1.3.0
+* Removed caching of ipfs hashes
+
 ## 1.2.3
 * Featured websites list
 * Simple caching of ipfs hashes
