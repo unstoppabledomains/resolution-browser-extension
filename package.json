@@ -2,10 +2,10 @@
   "private": true,
   "license": "",
   "author": {
-    "email": "braden@unstoppabledomains.com",
-    "name": "Braden Pezeshki"
+    "email": "johnny@unstoppabledomains.com",
+    "name": "Johnny Good"
   },
-  "homepage": "https://unstoppabledomains.com",
+  "homepage": "https://unstoppabledomains.com/extension",
   "scripts": {
     "prebuild": "rm -rf build archive.zip && cp -R ./static build",
     "predev": "yarn prebuild",
@@ -17,7 +17,7 @@
   "dependencies": {
     "@material-ui/core": "^4.0.0",
     "@material-ui/icons": "^4.9.1",
-    "@unstoppabledomains/resolution": "^1.3.0",
+    "@unstoppabledomains/resolution": "^1.3.6",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-router-dom": "^5.1.2",

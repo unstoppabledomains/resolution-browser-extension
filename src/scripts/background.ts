@@ -5,7 +5,13 @@ import isValidDNSHostname from '../util/isValidDNSHostname'
 import { redirectToIpfs } from '../util/helpers'
 
 function supportedDomain(q: string) {
-  return (q.endsWith('.zil') || q.endsWith('.crypto') || q.endsWith('.eth'))
+  return (
+    q.endsWith('.zil') ||
+    q.endsWith('.crypto') ||
+    q.endsWith('.eth') ||
+    q.endsWith('.kred') ||
+    q.endsWith('.luxe') ||
+    q.endsWith('.xyz'))
 }
 
 chrome.webRequest.onBeforeRequest.addListener(
@@ -33,17 +39,6 @@ chrome.webRequest.onBeforeRequest.addListener(
   ['blocking'],
 )
 
-const resolution = new Resolution({
-  blockchain: {
-    ens: {
-      url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc'
-    },
-    cns: {
-      url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc' 
-    }
-  }
-})
-
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     chrome.tabs.update({url: 'index.html#loading'}, async (tab: chrome.tabs.Tab) => {
@@ -55,6 +50,9 @@ chrome.webRequest.onBeforeRequest.addListener(
       '*://*.crypto/*',
       '*://*.zil/*',
       '*://*.eth/*',
+      '*://*.xyz/*',
+      '*://*.luxe/*',
+      '*://*.kred/*'
     ],
     types: ['main_frame']
   },
