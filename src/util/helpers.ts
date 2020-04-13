@@ -26,13 +26,9 @@ export async function redirectToIpfs(domain: string) {
     (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) || 'http://gateway.ipfs.io'
   ).href;
   try {
-    console.log({domain});
     const url = new URL(domain);
-    console.log({url});
     const ipfsHash = await resolution.ipfsHash(url.hostname);
-    console.log({ipfsHash});
     const displayUrl = `${gatewayBaseURL}ipfs/${ipfsHash}${url.pathname}`;
-    console.log({displayUrl});
     chrome.tabs.update({
       url: displayUrl
     });

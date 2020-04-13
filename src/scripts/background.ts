@@ -50,9 +50,6 @@ chrome.webRequest.onBeforeRequest.addListener(
       '*://*.crypto/*',
       '*://*.zil/*',
       '*://*.eth/*',
-      '*://*.xyz/*',
-      '*://*.luxe/*',
-      '*://*.kred/*'
     ],
     types: ['main_frame']
   },
