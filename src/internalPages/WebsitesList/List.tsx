@@ -38,7 +38,7 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 	const goForward = (e) => setPage(page + 1);
 
 	const handleLetterClick = (letter: string) => {
-		setLetter(letter);
+		setLetter(letter === '0-9' ? '0' : letter);
 		setClickBookmark(false);
 	};
 
@@ -69,7 +69,8 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 			'W',
 			'X',
 			'Y',
-			'Z'
+			'Z',
+			'0-9'
 		];
 		return letters.map((char) => {
 			let className = classes.letter;
@@ -87,7 +88,12 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 			);
 		});
 	};
-	
+
+	const renderLetter = () => {
+		if (letter === '0') return '0-9';
+		return letter.toUpperCase();
+	}
+
 	if (isLoading) return <Loading />
 	return (
 		<div className={classes.main}>
@@ -95,7 +101,7 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 				<div className={classes.list}>
 					<div className={classes.letters}>{renderLetters()}</div>
 					<Typography variant="h5" className={classes.selectedLetter}>
-						{bookmarkClicked ? "Bookmarks" : letter.toUpperCase()}
+						{bookmarkClicked ? "Bookmarks" : renderLetter()}
 					</Typography>
 					<Grid container spacing={2} className={classes.grid}>
 						<Grid item md={6} sm={12} xs={12}>

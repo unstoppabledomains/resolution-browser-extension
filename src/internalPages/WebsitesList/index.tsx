@@ -53,7 +53,8 @@ const WebsiteList: React.FC<Props> = ({ classes }) => {
 	);
 
 	const fetchDomains = async (page, perPage) => {
-		const url = `${baseurl}/websites/?page=${page}&perPage=${perPage}&letter=${letter}&extension=${extension}`;
+		const isDigit =  (/\d/.test(letter));
+		const url = `${baseurl}/websites/?page=${page}&perPage=${perPage}&letter=${letter}&isDigit=${isDigit}&extension=${extension}`;
 		try {
 			const domains: string[] = await fetch(url, { method: 'GET' }).then((res) => res.json());
 			if (!domains || !domains[0]) return [];

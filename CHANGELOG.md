@@ -1,3 +1,6 @@
+## 1.3.3
+* Add the ability to see domains which starts from 0-9 or a hyphen 
+
 ## 1.3.2
 * Remove .kred .luxe .xyz since they have a DNS support
 
