@@ -44,6 +44,7 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 
 	const renderLetters = () => {
 		const letters = [
+			'0-9',
 			'A',
 			'B',
 			'C',
@@ -69,8 +70,7 @@ const List: React.FC<Props> = ({ classes, setLetter, page, setPage, perPage, set
 			'W',
 			'X',
 			'Y',
-			'Z',
-			'0-9'
+			'Z'
 		];
 		return letters.map((char) => {
 			let className = classes.letter;

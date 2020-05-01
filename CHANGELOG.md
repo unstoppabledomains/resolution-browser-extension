@@ -1,3 +1,6 @@
+## 1.3.4
+* Moved the position of 0-9 selector on website lists to be first according to ASCII standart
+
 ## 1.3.3
 * Add the ability to see domains which starts from 0-9 or a hyphen 
 

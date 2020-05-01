@@ -8,10 +8,7 @@ function supportedDomain(q: string) {
   return (
     q.endsWith('.zil') ||
     q.endsWith('.crypto') ||
-    q.endsWith('.eth') ||
-    q.endsWith('.kred') ||
-    q.endsWith('.luxe') ||
-    q.endsWith('.xyz'))
+    q.endsWith('.eth'))
 }
 
 chrome.webRequest.onBeforeRequest.addListener(
