@@ -35,8 +35,12 @@ export async function redirectToIpfs(domain: string) {
   } catch (err) {
     let message = err.message;
     if (err instanceof ResolutionError) {
-      if (err.code === ResolutionErrorCode.RecordNotFound) message = 'Ipfs page not found';
-    }
-    chrome.tabs.update({ url: `index.html#error?reason=${message}` });
+      if (err.code === ResolutionErrorCode.RecordNotFound) {
+        const url = new URL(domain);
+        chrome.tabs.update({ url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension` });
+      }
+    } else
+    // 
+      chrome.tabs.update({ url: `index.html#error?reason=${message}` });
   }
 }

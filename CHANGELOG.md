@@ -1,3 +1,6 @@
+## 1.3.5
+* Redirected to unstoppabledomains.com when domain doesn't have an ipfs record
+
 ## 1.3.4
 * Moved the position of 0-9 selector on website lists to be first according to ASCII standart
 
