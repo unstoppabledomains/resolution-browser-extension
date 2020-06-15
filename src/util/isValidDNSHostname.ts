@@ -2,7 +2,7 @@ const rules = {
     segmentMinLength: 2,
     labelLength: 63,
     domainLength: 253,
-    domainSegment: /^[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?$/,
+    domainSegment: /^[a-zA-Z0-9\-](?:[a-zA-Z0-9\-]*[a-zA-Z0-9\-])?$/,
     tldSegment: /^[a-zA-Z](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?$/,
 }
 

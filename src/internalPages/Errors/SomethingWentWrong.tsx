@@ -12,7 +12,6 @@ interface Props extends WithStyles<typeof styles> {
 
 const SomethingWentWrong:React.FC<Props> = ({classes, ...props}) => {
   const query = queryString.parse(props.location.search.replace(/^\?/, ''));
-  console.log(query);
   return (
     <div className={classes.background}>
       {query.reason != null ? <Typography variant="body1">{query.reason}</Typography> : <> </>}

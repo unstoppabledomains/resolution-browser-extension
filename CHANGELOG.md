@@ -1,3 +1,5 @@
+## 1.3.6
+* Added support for domains that starts or ends with -
 ## 1.3.5
 * Redirected to unstoppabledomains.com when domain doesn't have an ipfs record
 

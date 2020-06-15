@@ -125,7 +125,6 @@ const MainScreen:React.FC<Props> = ({classes}) => {
       </div>
     );
   }
-  console.log(gatewayBaseURL);
   return (
   <div className={classes.main}>
     <div className={classes.column}>
