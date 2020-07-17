@@ -10,7 +10,7 @@
     "prebuild": "rm -rf build archive.zip && cp -R ./static build",
     "predev": "yarn prebuild",
     "dev": "DEV=true",
-    "postdev": "parcel watch -d build src/index.html src/scripts/background.ts",
+    "postdev": "parcel watch -d build src/index.html src/scripts/background.ts src/*",
     "build": "parcel build --no-source-maps -d build src/index.html src/scripts/background.ts",
     "postbuild": "zip -r archive.zip build"
   },

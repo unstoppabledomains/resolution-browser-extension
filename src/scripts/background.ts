@@ -2,7 +2,6 @@ import Resolution, { ResolutionError, ResolutionErrorCode } from '@unstoppabledo
 import '../subscripts/onInstalled'
 import { chromeStorageSyncGet, StorageSyncKey } from '../util/chromeStorageSync'
 import isValidDNSHostname from '../util/isValidDNSHostname'
-import { redirectToIpfs } from '../util/helpers'
 
 function supportedDomain(q: string) {
   return (
@@ -10,6 +9,44 @@ function supportedDomain(q: string) {
     q.endsWith('.crypto') ||
     q.endsWith('.eth'))
 }
+
+async function redirectToIpfs(domain: string) {
+  const resolution = new Resolution({
+    blockchain: {
+      ens: {
+        url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc'
+      },
+      cns: {
+        url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc'
+      }
+    }
+  });
+  const gatewayBaseURL = new URL(
+    (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) || 'http://gateway.ipfs.io'
+  ).href;
+  try {
+    const url = new URL(domain);
+    const ipfsHash = await resolution.ipfsHash(url.hostname);
+    const displayUrl = `${gatewayBaseURL}ipfs/${ipfsHash}${url.pathname}`;
+    chrome.tabs.update({
+      url: displayUrl
+    });
+  } catch (err) {
+    let message = err.message;
+    if (err instanceof ResolutionError) {
+      if (err.code === ResolutionErrorCode.RecordNotFound) {
+        const url = new URL(domain);
+        const redirectUrl = await resolution.httpUrl(url.hostname).catch(err => undefined);
+        if (!redirectUrl) chrome.tabs.update({ url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension` });
+        chrome.tabs.update({url: redirectUrl});
+      }
+    } else
+    // 
+      chrome.tabs.update({ url: `index.html#error?reason=${message}` });
+  }
+}
+
+
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
