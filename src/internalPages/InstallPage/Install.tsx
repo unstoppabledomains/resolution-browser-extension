@@ -1,22 +1,31 @@
-import React from 'react';
-import styles from '../../styles/install.style';
-import { withStyles, WithStyles, Typography } from '@material-ui/core';
-import { StorageSyncKey, chromeStorageSyncGet, chromeStorageSyncSet } from '../../util/chromeStorageSync';
-import { ExtensionOptions } from '../../types';
-
+import React from 'react'
+import styles from '../../styles/install.style'
+import {withStyles, WithStyles} from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
+import {
+  StorageSyncKey,
+  chromeStorageSyncGet,
+  chromeStorageSyncSet,
+} from '../../util/chromeStorageSync'
+import {ExtensionOptions} from '../../types'
 
 interface Props extends WithStyles<typeof styles> {}
 
-const Install:React.FC<Props> = ({classes}) => {
-
+const Install: React.FC<Props> = ({classes}) => {
   chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then(url => {
-    if (!url) chromeStorageSyncSet(StorageSyncKey.GatewayBaseURL, ExtensionOptions.Pinata);
+    if (!url)
+      chromeStorageSyncSet(
+        StorageSyncKey.GatewayBaseURL,
+        ExtensionOptions.Pinata,
+      )
   })
 
   return (
     <div className={classes.background}>
       <div className={classes.heading}>
-        <Typography variant="h4">Decentralized browser extension was installed</Typography>
+        <Typography variant="h4">
+          Decentralized browser extension was installed
+        </Typography>
       </div>
       <div className={classes.howto}>
         <Typography variant="h3">How to use</Typography>
@@ -29,10 +38,17 @@ const Install:React.FC<Props> = ({classes}) => {
           </li>
           <li style={{marginTop: '.5em'}}>
             For a list of current gateways check out this{' '}
-            <a className={classes.link} href="https://ipfs.github.io/public-gateway-checker/">website</a>.
+            <a
+              className={classes.link}
+              href="https://ipfs.github.io/public-gateway-checker/"
+            >
+              website
+            </a>
+            .
           </li>
-          <li style={{marginTop:'.5em'}}>
-            You can change the gateway in the main pop up windows of this extension
+          <li style={{marginTop: '.5em'}}>
+            You can change the gateway in the main pop up windows of this
+            extension
           </li>
         </ol>
       </div>
@@ -40,5 +56,4 @@ const Install:React.FC<Props> = ({classes}) => {
   )
 }
 
-
-export default withStyles(styles)(Install);
+export default withStyles(styles)(Install)
