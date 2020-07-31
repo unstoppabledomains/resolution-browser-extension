@@ -35,7 +35,6 @@
     "*://*.eth/*",
     "*://*.google.com/*",
     "storage",
-    "tabs",
     "webRequest",
     "webRequestBlocking"
   ]
