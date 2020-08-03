@@ -35,6 +35,8 @@
     "*://*.zil/*",
     "*://*.eth/*",
     "*://*.google.com/*",
+    "*://*.duckduckgo.com/*",
+    "*://*.bing.com/*",
     "storage",
     "webRequest",
     "webRequestBlocking"
