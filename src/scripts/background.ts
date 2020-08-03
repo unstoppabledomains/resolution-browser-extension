@@ -2,9 +2,19 @@ import '../subscripts/onInstalled'
 import isValidDNSHostname from '../util/isValidDNSHostname'
 import {redirectToIpfs} from '../util/helpers'
 
-function supportedDomain(q: string) {
-  return q.endsWith('.zil') || q.endsWith('.crypto') || q.endsWith('.eth')
-}
+const supportedDomains: string[] = [
+  '.eth',
+  '.crypto',
+  '.zil'
+]
+
+const searchEngines: string[] = [
+  '*://*.google.com/*',
+  '*://*.duckduckgo.com/*',
+  '*://*.bing.com/*'
+]
+
+const supportedDomain = (q: string): boolean => supportedDomains.some((d: string): boolean => q.endsWith(d))
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
@@ -26,7 +36,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     return {cancel: true}
   },
   {
-    urls: ['*://*.google.com/*'],
+    urls: searchEngines,
     types: ['main_frame'],
   },
   ['blocking'],
@@ -43,7 +53,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     )
   },
   {
-    urls: ['*://*.crypto/*', '*://*.zil/*', '*://*.eth/*'],
+    urls: supportedDomains.map((d: string): string => `*://*${d}/*`),
     types: ['main_frame'],
   },
   ['blocking'],
