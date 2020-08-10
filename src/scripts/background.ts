@@ -8,10 +8,11 @@ const supportedDomains: string[] = [
   '.zil'
 ]
 
+// se ∈ SearchEngines | se ≅ http|s://*.se/*?q=searchTerm
 const searchEngines: string[] = [
-  '*://*.google.com/*',
-  '*://*.duckduckgo.com/*',
-  '*://*.bing.com/*'
+  'google.com',
+  'duckduckgo.com',
+  'bing.com'
 ]
 
 const supportedDomain = (q: string): boolean => supportedDomains.some((d: string): boolean => q.endsWith(d))
@@ -36,7 +37,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     return {cancel: true}
   },
   {
-    urls: searchEngines,
+    urls: searchEngines.map((se: string): string => `*://*.${se}/*`),
     types: ['main_frame'],
   },
   ['blocking'],
