@@ -2,11 +2,15 @@ import '../subscripts/onInstalled'
 import isValidDNSHostname from '../util/isValidDNSHostname'
 import {redirectToIpfs} from '../util/helpers'
 
+//domain names supported
 const supportedDomains: string[] = [
   '.eth',
   '.crypto',
   '.zil'
 ]
+
+//return true if url ends in one of the supported domains
+const supportedDomain = (q: string): boolean => supportedDomains.some((d: string): boolean => q.endsWith(d))
 
 // se ∈ SearchEngines | se ≅ http|s://*.se/*?q=searchTerm
 const searchEngines: string[] = [
@@ -14,8 +18,6 @@ const searchEngines: string[] = [
   'duckduckgo.com',
   'bing.com'
 ]
-
-const supportedDomain = (q: string): boolean => supportedDomains.some((d: string): boolean => q.endsWith(d))
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
@@ -29,7 +31,7 @@ chrome.webRequest.onBeforeRequest.addListener(
       !q.hostname ||
       !isValidDNSHostname(q.hostname) ||
       !supportedDomain(q.hostname) ||
-      url.pathname !== '/search'
+      (url.pathname !== '/search' && url.pathname !== '/')  //ddg search pat is /?q=
     ) {
       return
     }
