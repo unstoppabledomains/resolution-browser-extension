@@ -6,13 +6,22 @@
     "name": "Johnny Good"
   },
   "homepage": "https://unstoppabledomains.com/extension",
+  "engines": {
+    "node": ">=8.17.0 <= 10.22.0"
+  },
   "scripts": {
-    "prebuild": "rm -rf build archive.zip && cp -R ./static build",
     "predev": "yarn prebuild",
     "dev": "DEV=true",
     "postdev": "parcel watch -d build src/index.html src/scripts/background.ts src/*",
+    "removeArtifacts": "rm -rf build chromeArchive.zip firefoxArchive.zip ./static/firefox_manifest.json",
+    "prebuild": "yarn removeArtifacts && cp -R ./static build",
     "build": "parcel build --no-source-maps -d build src/index.html src/scripts/background.ts",
-    "postbuild": "zip -r archive.zip build"
+    "postbuild": "yarn zip:chrome && yarn build:firefox",
+    "build:firefox:updateManifest": "./scripts/firefox_manifest_creation.sh",
+    "build:firefox": "yarn build:firefox:updateManifest && yarn build:firefox:copyManifest && yarn zip:firefox",
+    "build:firefox:copyManifest": "cp static/firefox_manifest.json build/manifest.json",
+    "zip:chrome": "zip -r chromeArchive.zip build",
+    "zip:firefox": "zip -r firefoxArchive.zip build"
   },
   "dependencies": {
     "@material-ui/core": "^4.0.0",

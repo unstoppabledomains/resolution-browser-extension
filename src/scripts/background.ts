@@ -1,32 +1,33 @@
 import '../subscripts/onInstalled'
 import isValidDNSHostname from '../util/isValidDNSHostname'
-import {redirectToIpfs} from '../util/helpers'
-
-function supportedDomain(q: string) {
-  return q.endsWith('.zil') || q.endsWith('.crypto') || q.endsWith('.eth')
-}
+import { redirectToIpfs, supportedDomain, supportedDomains } from '../util/helpers'
+import { searchEngines, SearchEngine } from '../util/searchEngines'
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     const url = new URL(requestDetails.url)
+    const searchEngine = searchEngines.find(se => url.hostname.includes(se.hostname));
+    if (!searchEngine) return
+
     const params = url.searchParams
-      .get('q')
+      .get(searchEngine.param)
       .trim()
       .toLowerCase()
     const q = new URL(url.protocol + '//' + params)
+    console.log({url, searchEngine, q});
     if (
       !q.hostname ||
       !isValidDNSHostname(q.hostname) ||
-      !supportedDomain(q.hostname) ||
-      url.pathname !== '/search'
+      !supportedDomain(q.hostname)
     ) {
       return
     }
-    chrome.tabs.update({url: q.toString()})
-    return {cancel: true}
+    console.log("PASSED");
+    chrome.tabs.update({ url: q.toString() })
+    return { cancel: true }
   },
   {
-    urls: ['*://*.google.com/*'],
+    urls: searchEngines.map((se: SearchEngine): string => `*://*.${se.hostname}/*`),
     types: ['main_frame'],
   },
   ['blocking'],
@@ -35,15 +36,15 @@ chrome.webRequest.onBeforeRequest.addListener(
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     chrome.tabs.update(
-      {url: 'index.html#loading'},
+      { url: 'index.html#loading' },
       async (tab: chrome.tabs.Tab) => {
         await redirectToIpfs(requestDetails.url)
-        return {cancel: true}
+        return { cancel: true }
       },
     )
   },
   {
-    urls: ['*://*.crypto/*', '*://*.zil/*', '*://*.eth/*'],
+    urls: supportedDomains.map((d: string): string => `*://*${d}/*`),
     types: ['main_frame'],
   },
   ['blocking'],
