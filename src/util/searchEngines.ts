@@ -31,5 +31,13 @@ export const searchEngines: SearchEngine[] = [
   {
     hostname: "baidu.com",
     param: "wd"
+  },
+  {
+    hostname: "yahoo.com",
+    param: "p"
+  },
+  {
+    hostname: "wiki.com",
+    param: "q"
   }
 ]

@@ -14,3 +14,13 @@ The Unstoppable Extension is used to access decentralized blockchain domains. Th
  * Choose a gateway from extension pop up window.
  * Type in a blockchain domain in the browser url field.
  * You will be redirected to the IPFS gateway with the domain’s IPFS hash record. 
+
+## FAQ
+
+### Why does this extension require access to *.google.com domains?
+
+Without doing so, we couldn't easily redirect people who use [Google](https://digg.com/video/tech-ceos-testified-before-congress-and-things-got-awkward).
+
+For example, if the user searches for "brad.crypto", this extension will redirect your browser to the decentralised address.
+
+Please note that this extension *does not* upload any form of browsing history to our servers. This calculation is done completely in the client.
