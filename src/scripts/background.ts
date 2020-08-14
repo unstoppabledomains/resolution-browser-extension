@@ -1,45 +1,33 @@
 import '../subscripts/onInstalled'
 import isValidDNSHostname from '../util/isValidDNSHostname'
-import {redirectToIpfs} from '../util/helpers'
-
-//domain names supported
-const supportedDomains: string[] = [
-  '.eth',
-  '.crypto',
-  '.zil'
-]
-
-//return true if url ends in one of the supported domains
-const supportedDomain = (q: string): boolean => supportedDomains.some((d: string): boolean => q.endsWith(d))
-
-// se ∈ SearchEngines | se ≅ http|s://*.se/*?q=searchTerm
-const searchEngines: string[] = [
-  'google.com',
-  'duckduckgo.com',
-  'bing.com'
-]
+import { redirectToIpfs, supportedDomain, supportedDomains } from '../util/helpers'
+import { searchEngines, SearchEngine } from '../util/searchEngines'
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     const url = new URL(requestDetails.url)
+    const searchEngine = searchEngines.find(se => url.hostname.includes(se.hostname));
+    if (!searchEngine) return
+
     const params = url.searchParams
-      .get('q')
+      .get(searchEngine.param)
       .trim()
       .toLowerCase()
     const q = new URL(url.protocol + '//' + params)
+    console.log({url, searchEngine, q});
     if (
       !q.hostname ||
       !isValidDNSHostname(q.hostname) ||
-      !supportedDomain(q.hostname) ||
-      (url.pathname !== '/search' && url.pathname !== '/')  //ddg search pat is /?q=
+      !supportedDomain(q.hostname)
     ) {
       return
     }
-    chrome.tabs.update({url: q.toString()})
-    return {cancel: true}
+    console.log("PASSED");
+    chrome.tabs.update({ url: q.toString() })
+    return { cancel: true }
   },
   {
-    urls: searchEngines.map((se: string): string => `*://*.${se}/*`),
+    urls: searchEngines.map((se: SearchEngine): string => `*://*.${se.hostname}/*`),
     types: ['main_frame'],
   },
   ['blocking'],
@@ -48,10 +36,10 @@ chrome.webRequest.onBeforeRequest.addListener(
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     chrome.tabs.update(
-      {url: 'index.html#loading'},
+      { url: 'index.html#loading' },
       async (tab: chrome.tabs.Tab) => {
         await redirectToIpfs(requestDetails.url)
-        return {cancel: true}
+        return { cancel: true }
       },
     )
   },

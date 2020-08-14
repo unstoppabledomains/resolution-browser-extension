@@ -17,10 +17,19 @@ The Unstoppable Extension is used to access decentralized blockchain domains. Th
 
 ## FAQ
 
-### Why does this extension require access to *.google.com domains?
+### Why does this extension require access to *.google.com and others search engines' domains?
 
 Without doing so, we couldn't easily redirect people who use [Google](https://digg.com/video/tech-ceos-testified-before-congress-and-things-got-awkward).
 
 For example, if the user searches for "brad.crypto", this extension will redirect your browser to the decentralised address.
 
 Please note that this extension *does not* upload any form of browsing history to our servers. This calculation is done completely in the client.
+
+### How can I add support for a different search engine
+
+It is easy. Three steps is required
+ * Update static/maniges.json file with permissions to catch request from the search engine
+ * Update util/searchEngines.ts with information about search engine
+ * Test it
+
+After all of those steps just make a PR and we will add the support as soon as possible

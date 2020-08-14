@@ -1,3 +1,7 @@
+## 1.4.0
+* Updated the search engine redirection system
+* Added support of duckduckgo.com, yandex.ru, qwant.com, mojeek.com, aol.co.uk, baidu.com, bing.com, yahoo.com, wiki.com
+
 ## 1.3.7
 * use redirect_url if ipfs hash is not set.
 
