@@ -24,17 +24,14 @@
     "page": "index.html#/options",
     "open_in_tab": false
   },
-  "applications": {
-    "gecko": {
-      "id": "ryan@unstoppabledomains.com"
-    }
-  },
   "offline_enabled": false,
   "permissions": [
     "*://*.crypto/*",
     "*://*.zil/*",
     "*://*.eth/*",
     "*://*.google.com/*",
+    "*://*.duckduckgo.com/*",
+    "*://*.bing.com/*",
     "storage",
     "webRequest",
     "webRequestBlocking"

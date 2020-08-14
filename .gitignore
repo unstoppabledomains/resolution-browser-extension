@@ -4,3 +4,5 @@ build/
 .cache/
 .old/
 .parcel-cache
+.vscode
+*.log
