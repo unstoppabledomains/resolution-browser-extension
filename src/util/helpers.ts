@@ -55,3 +55,14 @@ export async function redirectToIpfs(domain: string) {
     else chrome.tabs.update({url: `index.html#error?reason=${message}`})
   }
 }
+
+
+//domain names supported
+export const supportedDomains: string[] = [
+  '.eth',
+  '.crypto',
+  '.zil'
+]
+
+//return true if url ends in one of the supported domains
+export const supportedDomain = (q: string): boolean => supportedDomains.some((d: string): boolean => q.endsWith(d))
