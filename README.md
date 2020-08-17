@@ -28,8 +28,14 @@ Please note that this extension *does not* upload any form of browsing history t
 ### How can I add support for a different search engine
 
 It is easy. Three steps is required
- * Update static/maniges.json file with permissions to catch request from the search engine
+ * Update static/manifest.json file with permissions to catch request from the search engine
  * Update util/searchEngines.ts with information about search engine
  * Test it
 
 After all of those steps just make a PR and we will add the support as soon as possible
+
+### Building the extension
+
+The extension uses [Parcel](https://parceljs.org/) to pack the extension. After cloning the repo, running `yarn build` will build the extension, and you can load the `build` folder into Chrome.
+
+Currently, the package requires Node **verion 10** to build. If you're using a newer version, please use [NVM](https://github.com/nvm-sh/nvm) to install NodeJS version 10.22.0, switch to it, and try building again.
