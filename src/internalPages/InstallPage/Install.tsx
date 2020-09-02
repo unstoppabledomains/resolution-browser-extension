@@ -16,7 +16,7 @@ const Install: React.FC<Props> = ({classes}) => {
     if (!url)
       chromeStorageSyncSet(
         StorageSyncKey.GatewayBaseURL,
-        ExtensionOptions.Pinata,
+        ExtensionOptions.IPFSNetwork,
       )
   })
 

@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Unstoppable Extension",
     "short_name": "Unstoppable Extension",
-    "version": "1.4.0",
+    "version": "2.0.0",
     "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
     "icons": {
       "16": "icon/16.png",
@@ -10,7 +10,7 @@
       "128": "icon/128.png"
     },
     "homepage_url": "http://unstoppabledomains.com",
-    "author": "Unstoppable Domains <support@unstoppabledomains.com>",
+    "author": "Unstoppable Domains <support@unstoppabledomains.com>, JohnnyJumper <http://github.com/JohnnyJumper/>",
     "browser_action": {
       "default_icon": "icon/48.png",
       "default_popup": "index.html"

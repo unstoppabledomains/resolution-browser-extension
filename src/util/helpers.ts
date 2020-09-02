@@ -2,7 +2,8 @@ import Resolution, {
   ResolutionError,
   ResolutionErrorCode,
 } from '@unstoppabledomains/resolution'
-import {chromeStorageSyncGet, StorageSyncKey} from './chromeStorageSync'
+import { chromeStorageSyncGet, StorageSyncKey } from './chromeStorageSync'
+import ipfsClient from "ipfs-http-client";
 
 export function invert(object) {
   const returnee = {}
@@ -24,15 +25,20 @@ export async function redirectToIpfs(domain: string) {
         url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc',
       },
     },
-  })
-  const gatewayBaseURL = new URL(
-    (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
-      'http://gateway.ipfs.io',
-  ).href
+  });
+
   try {
     const url = new URL(domain)
-    const ipfsHash = await resolution.ipfsHash(url.hostname)
-    const displayUrl = `${gatewayBaseURL}ipfs/${ipfsHash}${url.pathname}`
+    const ipfsHashPromise = resolution.ipfsHash(url.hostname)
+    const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
+      'ipfs.infura-ipfs.io';
+
+    let subdomain = await ipfsHashPromise;
+    if (subdomain.length == 46 && subdomain.startsWith("Qm")) {
+      subdomain = new ipfsClient.CID(subdomain).toV1(); // convert to V1 base32 ipfs hash
+    }
+    
+    const displayUrl = `https://${subdomain}.${gatewayBaseURL}/${url.pathname}`
     chrome.tabs.update({
       url: displayUrl,
     })
@@ -48,11 +54,10 @@ export async function redirectToIpfs(domain: string) {
           chrome.tabs.update({
             url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
           })
-        chrome.tabs.update({url: redirectUrl})
+        chrome.tabs.update({ url: redirectUrl })
       }
     }
-    //
-    else chrome.tabs.update({url: `index.html#error?reason=${message}`})
+    else chrome.tabs.update({ url: `index.html#error?reason=${message}` })
   }
 }
 

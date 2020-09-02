@@ -18,12 +18,12 @@ interface Props extends WithStyles<typeof styles> {}
 
 const MainScreen: React.FC<Props> = ({classes}) => {
   const [gatewayBaseURL, setGatewayBaseURL] = useState(
-    ExtensionURIMap[ExtensionOptions.CloudflareCDN],
+    ExtensionURIMap[ExtensionOptions.IPFSNetwork],
   )
   const [okGatewayBaseURL, setOkGatewayBaseURL] = useState(false)
   const [showTexField, setShowTextField] = useState(false)
   const [gatewayOption, setGateWayOption] = useState<ExtensionOptions>(
-    ExtensionOptions.CloudflareCDN,
+    ExtensionOptions.IPFSNetwork,
   )
 
   useEffect(() => {
@@ -96,15 +96,9 @@ const MainScreen: React.FC<Props> = ({classes}) => {
             value={gatewayOption}
             onChange={handleChange}
           >
-            <MenuItem value={ExtensionOptions.CloudflareCDN}>
-              Cloudflare CDN
-            </MenuItem>
             <MenuItem value={ExtensionOptions.InfuraAPI}>Infura API</MenuItem>
             <MenuItem value={ExtensionOptions.IPFSNetwork}>
               Directly from IPFS network
-            </MenuItem>
-            <MenuItem value={ExtensionOptions.Pinata}>
-              Pinata IPFS network
             </MenuItem>
             <MenuItem value={ExtensionOptions.Local}>
               Enter your own gateway
