@@ -1,3 +1,6 @@
+## 2.0.0
+* Depricated unsecured gateway options
+
 ## 1.4.0
 * Updated the search engine redirection system
 * Added support of duckduckgo.com, yandex.ru, qwant.com, mojeek.com, aol.co.uk, baidu.com, bing.com, yahoo.com, wiki.com
