@@ -38,4 +38,4 @@ After all of those steps just make a PR and we will add the support as soon as p
 
 The extension uses [Parcel](https://parceljs.org/) to pack the extension. After cloning the repo, running `yarn build` will build the extension, and you can load the `build` folder into Chrome.
 
-Currently, the package requires Node **verion 10** to build. If you're using a newer version, please use [NVM](https://github.com/nvm-sh/nvm) to install NodeJS version 10.22.0, switch to it, and try building again.
+Currently, the package requires Node **version 10** to build. If you're using a newer version, please use [NVM](https://github.com/nvm-sh/nvm) to install NodeJS version 10.22.0, switch to it, and try building again.
