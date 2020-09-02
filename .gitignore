@@ -6,4 +6,4 @@ build/
 .parcel-cache
 .vscode
 *.log
-static/firefox_manifest.json
+static/manifest.json
