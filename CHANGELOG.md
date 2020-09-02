@@ -1,3 +1,6 @@
+## 2.0.1
+* Fixed issue with fresh install
+
 ## 2.0.0
 * Depricated unsecured gateway options
 
