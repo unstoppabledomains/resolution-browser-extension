@@ -28,7 +28,7 @@ Please note that this extension *does not* upload any form of browsing history t
 ### How can I add support for a different search engine
 
 It is easy. Three steps is required
- * Update static/manifest.json file with permissions to catch request from the search engine
+ * Update manifest-template.json file with permissions to catch request from the search engine
  * Update util/searchEngines.ts with information about search engine
  * Test it
 
