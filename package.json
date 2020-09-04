@@ -13,7 +13,7 @@
     "predev": "yarn prebuild && yarn build:copyArtifacts",
     "dev": "DEV=true",
     "postdev": "parcel watch --no-source-maps -d build src/index.html src/scripts/background.ts src/*",
-    "removeArtifacts": "rm -rf build chromeArchive.zip firefoxArchive.zip static/manifest.json",
+    "removeArtifacts": "rm -rf build static/manifest.json",
     "build:copyArtifacts": "cp -R ./static/* build",
     "prebuild": "yarn removeArtifacts",
     "build": "yarn build:chrome",
@@ -26,8 +26,8 @@
     "build:archives": "yarn build:archives:chrome && yarn build:archives:firefox",
     "build:archives:chrome": "yarn build:chrome && yarn postbuild && yarn zip:chrome",
     "build:archives:firefox": "yarn build:firefox && yarn postbuild && yarn zip:firefox",
-    "zip:chrome": "zip -r chromeArchive.zip build",
-    "zip:firefox": "zip -r firefoxArchive.zip build"
+    "zip:chrome": "zip -FSr chromeArchive.zip build",
+    "zip:firefox": "zip -FSr firefoxArchive.zip build"
   },
   "browserslist": [
     "last 2 Chrome versions"
