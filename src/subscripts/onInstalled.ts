@@ -1,6 +1,6 @@
 import {
-  chromeStorageSyncGet,
   chromeStorageSyncSet,
+  chromeStorageSyncClear,
   StorageSyncKey,
 } from '../util/chromeStorageSync'
 import { ExtensionOptions, ExtensionURIMap } from '../types'
@@ -8,17 +8,15 @@ import { ExtensionOptions, ExtensionURIMap } from '../types'
 console.log('Background Script Started!')
 
 chrome.runtime.onInstalled.addListener(details => {
-  chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then(async (baseURL) => {
-    if (!baseURL) {
-      await chromeStorageSyncSet(
-        StorageSyncKey.GatewayBaseURL,
-        ExtensionURIMap[ExtensionOptions.IPFSNetwork],
-      );
-      await chromeStorageSyncSet(
-        StorageSyncKey.GatewayOption, ExtensionOptions.IPFSNetwork
-      );
-    }
-  })
+  chromeStorageSyncClear().then(async () => {
+    await chromeStorageSyncSet(
+      StorageSyncKey.GatewayBaseURL,
+      ExtensionURIMap[ExtensionOptions.IPFSNetwork],
+    );
+    await chromeStorageSyncSet(
+      StorageSyncKey.GatewayOption, ExtensionOptions.IPFSNetwork
+    );
+  });
   chrome.tabs.create({url: 'index.html#install'})
   console.log('Installed!')
 })

@@ -4,6 +4,10 @@ export enum StorageSyncKey {
   BookmarkedDomains = "BookmarkedDomains"
 }
 
+export function chromeStorageSyncClear(): Promise<void> {
+  return new Promise(resolve => {chrome.storage.sync.clear(resolve)});
+}
+
 export function chromeStorageSyncGet(keys: StorageSyncKey): Promise<any> {
   return new Promise(resolve => {
     chrome.storage.sync.get(keys, items => resolve(items[keys]))
