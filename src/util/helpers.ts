@@ -15,6 +15,11 @@ export function invert(object) {
   return returnee
 }
 
+function placeIpfs(subdomainHash: string, url: string): string {
+  const regexPatern = /{ipfs}/gi;
+  return url.replace(regexPatern, subdomainHash);
+}
+
 export async function redirectToIpfs(domain: string) {
   const resolution = new Resolution({
     blockchain: {
@@ -31,14 +36,15 @@ export async function redirectToIpfs(domain: string) {
     const url = new URL(domain)
     const ipfsHashPromise = resolution.ipfsHash(url.hostname)
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
-      'ipfs.infura-ipfs.io';
+      'https://{ipfs}.infura-ipfs.io';
 
     let subdomain = await ipfsHashPromise;
     if (subdomain.length == 46 && subdomain.startsWith("Qm")) {
       subdomain = new ipfsClient.CID(subdomain).toV1(); // convert to V1 base32 ipfs hash
     }
-    
-    const displayUrl = `https://${subdomain}.${gatewayBaseURL}/${url.pathname}`
+    const baseurl = placeIpfs(subdomain, gatewayBaseURL);
+    const displayUrl = `${baseurl}/${url.pathname}`;
+    console.log(displayUrl);
     chrome.tabs.update({
       url: displayUrl,
     })
