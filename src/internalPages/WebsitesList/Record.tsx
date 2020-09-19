@@ -61,7 +61,7 @@ const Record: React.FC<Props> = ({classes, domain, setLoading}) => {
 
   const redirect = async (domain: string) => {
     setLoading(true)
-    await redirectToIpfs(domain)
+    chrome.tabs.getCurrent(async tab => await redirectToIpfs(domain, tab.id));
   }
 
   return (

@@ -15,7 +15,7 @@ export function invert(object) {
   return returnee
 }
 
-export async function redirectToIpfs(domain: string) {
+export async function redirectToIpfs(domain: string, tabId?: number) {
   const resolution = new Resolution({
     blockchain: {
       ens: {
@@ -39,7 +39,7 @@ export async function redirectToIpfs(domain: string) {
     }
     
     const displayUrl = `https://${subdomain}.${gatewayBaseURL}/${url.pathname}`
-    chrome.tabs.update({
+    chrome.tabs.update(tabId, {
       url: displayUrl,
     })
   } catch (err) {
@@ -54,7 +54,7 @@ export async function redirectToIpfs(domain: string) {
           chrome.tabs.update({
             url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
           })
-        chrome.tabs.update({ url: redirectUrl })
+        chrome.tabs.update({ url: redirectUrl,  })
       }
     }
     else chrome.tabs.update({ url: `index.html#error?reason=${message}` })

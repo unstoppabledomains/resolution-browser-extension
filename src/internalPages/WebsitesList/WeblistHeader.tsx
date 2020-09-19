@@ -40,7 +40,11 @@ const WeblistHeader: React.FC<Props> = ({
       <Typography
         variant="body1"
         className={classes.RecordLink}
-        onClick={() => redirectToIpfs(`https://${domain}`)}
+        onClick={() => 
+          chrome.tabs.getCurrent(tab => {
+            redirectToIpfs(`https://${domain}`, tab.id);
+          })
+        }
       >
         {domain}
       </Typography>
