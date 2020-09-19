@@ -113,7 +113,7 @@ const MainScreen: React.FC<Props> = ({classes}) => {
   }
 
   const renderHint = () => {
-  return <Typography>{"Place {ipfs} where the hash subdomain should be"}</Typography>
+  return <Typography>{"Place {ipfs} where the ipfs hash should go"}</Typography>
   }
 
   const renderTextField = () => {
