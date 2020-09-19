@@ -15,9 +15,15 @@ export function invert(object) {
   return returnee
 }
 
-function placeIpfs(subdomainHash: string, url: string): string {
+function placeIpfs(hash: string, url: string): string {
   const regexPatern = /{ipfs}/gi;
-  return url.replace(regexPatern, subdomainHash);
+  return url.replace(regexPatern, hash);
+}
+
+function isConvertableToV1base32Hash(hash: string, url: string): boolean {
+  const parts = url.split('.');
+  if (!parts[0].includes("{ipfs}")) return false;
+  return hash.length == 46 && hash.startsWith("Qm")
 }
 
 export async function redirectToIpfs(domain: string) {
@@ -36,13 +42,13 @@ export async function redirectToIpfs(domain: string) {
     const url = new URL(domain)
     const ipfsHashPromise = resolution.ipfsHash(url.hostname)
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
-      'https://{ipfs}.infura-ipfs.io';
+      'https://{ipfs}.ipfs.infura-ipfs.io';
 
-    let subdomain = await ipfsHashPromise;
-    if (subdomain.length == 46 && subdomain.startsWith("Qm")) {
-      subdomain = new ipfsClient.CID(subdomain).toV1(); // convert to V1 base32 ipfs hash
+    let hash = await ipfsHashPromise;
+    if (isConvertableToV1base32Hash(hash, gatewayBaseURL)) {
+      hash = new ipfsClient.CID(hash).toV1(); // convert to V1 base32 ipfs hash
     }
-    const baseurl = placeIpfs(subdomain, gatewayBaseURL);
+    const baseurl = placeIpfs(hash, gatewayBaseURL);
     const displayUrl = `${baseurl}/${url.pathname}`;
     console.log(displayUrl);
     chrome.tabs.update({
