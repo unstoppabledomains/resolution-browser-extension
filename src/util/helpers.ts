@@ -60,7 +60,7 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
         const redirectUrl = await resolution
           .httpUrl(url.hostname)
           .catch(error => undefined)
-        if (redirectUrl) chrome.tabs.update({ url: redirectUrl });
+        if (redirectUrl) chrome.tabs.update(tabId, { url: redirectUrl });
         chrome.tabs.update(tabId, {
           url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
         });
