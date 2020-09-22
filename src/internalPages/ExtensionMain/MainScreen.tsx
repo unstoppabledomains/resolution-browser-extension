@@ -82,6 +82,15 @@ const MainScreen: React.FC<Props> = ({classes}) => {
     setGateWayOption(chosen)
   }
 
+  const renderOptions = () => {
+    const items: JSX.Element[] = [];
+    for (const key in ExtensionOptions) {
+      const value = ExtensionOptions[key];
+      items.push(<MenuItem value = {value}> {value} </MenuItem>)
+    }
+    return items;
+  }
+
   const renderDropDownMenu = () => {
     return (
       <>
@@ -96,13 +105,7 @@ const MainScreen: React.FC<Props> = ({classes}) => {
             value={gatewayOption}
             onChange={handleChange}
           >
-            <MenuItem value={ExtensionOptions.InfuraAPI}>Infura API</MenuItem>
-            <MenuItem value={ExtensionOptions.IPFSNetwork}>
-              Directly from IPFS network
-            </MenuItem>
-            <MenuItem value={ExtensionOptions.Local}>
-              Enter your own gateway
-            </MenuItem>
+            {renderOptions()}
           </Select>
         </FormControl>
         <Typography variant="body2" className={classes.gatewayMessage}>

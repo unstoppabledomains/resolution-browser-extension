@@ -1,3 +1,6 @@
+## Unreleased
+* Added 4 more options for safe origin gateway
+
 ## 2.0.2
 * Fixed bug when old localstorage was present on updates. Now we clear the storage on install and update the localstorage to default values.
 
