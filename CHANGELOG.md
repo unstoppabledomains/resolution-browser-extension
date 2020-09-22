@@ -1,5 +1,6 @@
-## Unreleased
+## 2.0.3
 * Added 4 more options for safe origin gateway
+* Website List now shows temporary disabled if couldn't fetch the websites from api.
 
 ## 2.0.2
 * Fixed bug when old localstorage was present on updates. Now we clear the storage on install and update the localstorage to default values.
