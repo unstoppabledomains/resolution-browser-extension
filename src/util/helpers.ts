@@ -26,7 +26,7 @@ function isConvertableToV1base32Hash(hash: string, url: string): boolean {
   return hash.length == 46 && hash.startsWith("Qm")
 }
 
-export async function redirectToIpfs(domain: string) {
+export async function redirectToIpfs(domain: string, tabId?: number) {
   const resolution = new Resolution({
     blockchain: {
       ens: {
@@ -48,7 +48,7 @@ export async function redirectToIpfs(domain: string) {
     }
     const baseurl = placeIpfs(hash, gatewayBaseURL);
     const displayUrl = `${baseurl}/${url.pathname}`;
-    chrome.tabs.update({
+    chrome.tabs.update(tabId, {
       url: displayUrl,
     })
   } catch (err) {
@@ -61,17 +61,17 @@ export async function redirectToIpfs(domain: string) {
           .httpUrl(url.hostname)
           .catch(error => undefined)
         if (redirectUrl) chrome.tabs.update({ url: redirectUrl });
-        chrome.tabs.update({
+        chrome.tabs.update(tabId, {
           url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
         });
       }
       if (err.code === ResolutionErrorCode.UnregisteredDomain) {
-        chrome.tabs.update({
+        chrome.tabs.update(tabId, {
           url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
         });
       }
     }
-    else chrome.tabs.update({ url: `index.html#error?reason=${message}` })
+    else chrome.tabs.update(tabId, { url: `index.html#error?reason=${message}` })
   }
 }
 
