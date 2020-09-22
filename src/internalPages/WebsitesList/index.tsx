@@ -21,6 +21,7 @@ const WebsiteList: React.FC<Props> = ({classes}) => {
   const [perPage, setPerPage] = useState(20)
   const [domains, setDomains] = useState([''])
   const [bookmarkClicked, clickBookmark] = useState(false)
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     //Todo get last usage prefs from store and change them here
@@ -30,7 +31,12 @@ const WebsiteList: React.FC<Props> = ({classes}) => {
 
   useAsyncEffect(async () => {
     const freshdomains = await fetchDomains(page, perPage)
+    if (freshdomains.length === 0) {
+      setIsError(true);
+      console.log("should set error to true!");
+    } else {
     setDomains(freshdomains)
+    }
   }, [page, perPage, extension, letter])
 
   useAsyncEffect(async () => {
@@ -54,7 +60,6 @@ const WebsiteList: React.FC<Props> = ({classes}) => {
       if (!domains || !domains[0]) return []
       return domains
     } catch (err) {
-      console.error(err)
       return []
     }
   }
@@ -75,6 +80,7 @@ const WebsiteList: React.FC<Props> = ({classes}) => {
           bookMarkClick={clickBookmark}
         />
         <div className={classes.body}>
+          {isError ? <p>Temporary Disabled</p> :
           <List
             setLetter={setLetter}
             letter={letter}
@@ -86,6 +92,7 @@ const WebsiteList: React.FC<Props> = ({classes}) => {
             perPage={perPage}
             setPerPage={setPerPage}
           />
+  }
         </div>
       </div>
     </div>
