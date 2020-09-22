@@ -40,33 +40,35 @@ export async function redirectToIpfs(domain: string) {
 
   try {
     const url = new URL(domain)
-    const ipfsHashPromise = resolution.ipfsHash(url.hostname)
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
       'https://{ipfs}.ipfs.infura-ipfs.io';
-
-    let hash = await ipfsHashPromise;
+    let hash = await resolution.ipfsHash(url.hostname);
     if (isConvertableToV1base32Hash(hash, gatewayBaseURL)) {
       hash = new ipfsClient.CID(hash).toV1(); // convert to V1 base32 ipfs hash
     }
     const baseurl = placeIpfs(hash, gatewayBaseURL);
     const displayUrl = `${baseurl}/${url.pathname}`;
-    console.log(displayUrl);
     chrome.tabs.update({
       url: displayUrl,
     })
   } catch (err) {
     let message = err.message
     if (err instanceof ResolutionError) {
-      if (err.code === ResolutionErrorCode.RecordNotFound) {
-        const url = new URL(domain)
+      const url = new URL(domain)
+      console.log(err)
+      if (err.code === ResolutionErrorCode.RecordNotFound) {  
         const redirectUrl = await resolution
           .httpUrl(url.hostname)
-          .catch(err => undefined)
-        if (!redirectUrl)
-          chrome.tabs.update({
-            url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
-          })
-        chrome.tabs.update({ url: redirectUrl })
+          .catch(error => undefined)
+        if (redirectUrl) chrome.tabs.update({ url: redirectUrl });
+        chrome.tabs.update({
+          url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
+        });
+      }
+      if (err.code === ResolutionErrorCode.UnregisteredDomain) {
+        chrome.tabs.update({
+          url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
+        });
       }
     }
     else chrome.tabs.update({ url: `index.html#error?reason=${message}` })
