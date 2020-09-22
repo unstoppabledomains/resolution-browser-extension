@@ -20,6 +20,6 @@ export const ExtensionLabel: ExtensionOptionMessage = {
 };
 
 export const ExtensionURIMap: ExtensionURIMap = {
-  [ExtensionOptions.InfuraAPI]: 'ipfs.infura-ipfs.io',
-  [ExtensionOptions.IPFSNetwork]: 'ipfs.dweb.link',
+  [ExtensionOptions.InfuraAPI]: 'https://{ipfs}.ipfs.infura-ipfs.io',
+  [ExtensionOptions.IPFSNetwork]: 'https://{ipfs}.ipfs.dweb.link',
 };
