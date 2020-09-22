@@ -28,10 +28,10 @@ export const ExtensionLabel: ExtensionOptionMessage = {
 };
 
 export const ExtensionURIMap: ExtensionURIMap = {
-  [ExtensionOptions.InfuraAPI]: 'ipfs.infura-ipfs.io',
-  [ExtensionOptions.IPFSNetwork]: 'ipfs.dweb.link',
-  [ExtensionOptions.CFIPFS]: 'ipfs.cf-ipfs.com',
-  [ExtensionOptions.COSMOSING]: 'ipfs.cosmos-ink.net',
-  [ExtensionOptions.TWO_READ]: 'ipfs.2read.net',
-  [ExtensionOptions.JACL]: 'ipfs.jacl.tech'
+  [ExtensionOptions.CFIPFS]: 'https://{ipfs}.ipfs.cf-ipfs.com',
+  [ExtensionOptions.COSMOSING]: 'https://{ipfs}.ipfs.cosmos-ink.net',
+  [ExtensionOptions.TWO_READ]: 'https://{ipfs}.ipfs.2read.net',
+  [ExtensionOptions.JACL]: 'https://{ipfs}.ipfs.jacl.tech',
+  [ExtensionOptions.InfuraAPI]: 'https://{ipfs}.ipfs.infura-ipfs.io',
+  [ExtensionOptions.IPFSNetwork]: 'https://{ipfs}.ipfs.dweb.link',
 };

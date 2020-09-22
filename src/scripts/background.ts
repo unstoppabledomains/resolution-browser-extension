@@ -38,7 +38,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     chrome.tabs.update(
       { url: 'index.html#loading' },
       async (tab: chrome.tabs.Tab) => {
-          await redirectToIpfs(requestDetails.url)
+          await redirectToIpfs(requestDetails.url, tab.id)
         return { cancel: true }
       },
     )

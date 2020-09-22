@@ -115,6 +115,10 @@ const MainScreen: React.FC<Props> = ({classes}) => {
     )
   }
 
+  const renderHint = () => {
+  return <Typography>{"Place {ipfs} where the ipfs hash should go"}</Typography>
+  }
+
   const renderTextField = () => {
     if (!showTexField) return <> </>
     return (
@@ -122,12 +126,13 @@ const MainScreen: React.FC<Props> = ({classes}) => {
         <Typography variant="body2" className={classes.subtitle}>
           Gateway Base URL:
         </Typography>
+        {gatewayOption === ExtensionOptions.Local ? renderHint() : null}
         <TextField
           type="text"
           id="gatewayBaseURL"
           onChange={handleChangeGatewayBaseURL}
           value={gatewayBaseURL}
-          placeholder="Enter IPFS Gateway, localhost:5001"
+          placeholder="{ipfs}.gateway.com"
           className={classes.inputField}
           variant="filled"
         />
