@@ -23,7 +23,6 @@
       "page": "index.html#/options",
       "open_in_tab": false
     },
-    "offline_enabled": false,
     "permissions": [
       "*://*.crypto/*",
       "*://*.zil/*",
