@@ -8,6 +8,8 @@ const isChrome = args[0] == 'chrome';
 const path = './static/manifest.json';
 
 if (isChrome) {
+    template["content_security_policy"] = "script-src 'self' 'sha256-nHKLQ2A1kK023iXgW+lF4Ly2gHbE2mhlqnDhZBLshPg='; object-src 'self'";
+    template["offline_enabled"] = false;
     fs.writeFileSync(path, JSON.stringify(template));
     console.log("Chrome manifest is created");
     return ;
