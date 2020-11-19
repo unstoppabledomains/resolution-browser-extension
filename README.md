@@ -1,4 +1,5 @@
 [![Chat on Telegram](https://img.shields.io/badge/Chat%20on-Telegram-brightgreen.svg)](https://t.me/unstoppabledev)
+[![Get help on Discord](https://img.shields.io/badge/Get%20help%20on-Discord-blueviolet)](https://discord.gg/b6ZVxSZ9Hn)
 # The Unstoppable Extension
 
 The Unstoppable Extension is used to access decentralized blockchain domains. These domains are stored on the blockchain and hosted on decentralized storage networks like IPFS. This extension resolves these names inside chrome by redirecting queries to IPFS gateways. This technology allows users to surf the decentralized web and visit ipfs websites hosted on .crypto, .zil, .eth 
