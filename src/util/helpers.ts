@@ -37,7 +37,6 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
       },
     },
   });
-  console.log("TEEEST");
   try {
     const url = new URL(domain)
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
