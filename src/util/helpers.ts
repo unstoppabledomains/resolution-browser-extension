@@ -37,7 +37,7 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
       },
     },
   });
-
+  console.log("TEEEST");
   try {
     const url = new URL(domain)
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
@@ -48,30 +48,33 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
     }
     const baseurl = placeIpfs(hash, gatewayBaseURL);
     const displayUrl = `${baseurl}/${url.pathname}`;
-    chrome.tabs.update(tabId, {
+    return chrome.tabs.update(tabId, {
       url: displayUrl,
     })
   } catch (err) {
     let message = err.message
     if (err instanceof ResolutionError) {
       const url = new URL(domain)
-      console.log(err)
-      if (err.code === ResolutionErrorCode.RecordNotFound) {  
+      if (err.code === ResolutionErrorCode.RecordNotFound) {
         const redirectUrl = await resolution
           .httpUrl(url.hostname)
           .catch(error => undefined)
-        if (redirectUrl) chrome.tabs.update(tabId, { url: redirectUrl });
-        chrome.tabs.update(tabId, {
+        if (redirectUrl) {
+          return chrome.tabs.update(tabId, { url: redirectUrl });
+        }
+        return chrome.tabs.update(tabId, {
           url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
         });
       }
       if (err.code === ResolutionErrorCode.UnregisteredDomain) {
-        chrome.tabs.update(tabId, {
+        return chrome.tabs.update(tabId, {
           url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
         });
       }
     }
-    else chrome.tabs.update(tabId, { url: `index.html#error?reason=${message}` })
+    else {
+      return chrome.tabs.update(tabId, { url: `index.html#error?reason=${message}` })
+    }
   }
 }
 

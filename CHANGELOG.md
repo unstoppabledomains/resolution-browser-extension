@@ -1,3 +1,6 @@
+## 2.0.4
+* Fixed redirect to traditional domain when ipfs record is not found
+
 ## 2.0.3
 * Added 4 more options for safe origin gateway
 * Website List now shows temporary disabled if couldn't fetch the websites from api.
