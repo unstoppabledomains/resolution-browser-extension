@@ -1,3 +1,6 @@
+## 2.0.5
+* Fixed a bug causing to load all websites instead of paginated version when misclicked the per page settings
+
 ## 2.0.4
 * Fixed redirect to traditional domain when ipfs record is not found
 
