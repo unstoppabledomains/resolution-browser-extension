@@ -44,7 +44,9 @@ const List: React.FC<Props> = ({
   }
 
   const handleClose = (event, value) => {
-    setPerPage(value)
+    if (!isNaN(+value)) {  
+      setPerPage(value)
+    }
     setAnchorEl(null)
   }
 
