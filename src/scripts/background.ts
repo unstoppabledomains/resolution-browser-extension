@@ -22,7 +22,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     ) {
       return
     }
-    console.log("PASSED");
+    console.log(`PASSED with ${q.toString()}`);
     chrome.tabs.update({ url: q.toString() })
     return { cancel: true }
   },
@@ -35,6 +35,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
+    console.log("i am in???");
+    console.log(requestDetails);
     chrome.tabs.update(
       { url: 'index.html#loading' },
       async (tab: chrome.tabs.Tab) => {
@@ -44,7 +46,10 @@ chrome.webRequest.onBeforeRequest.addListener(
     )
   },
   {
-    urls: supportedDomains.map((d: string): string => `*://*${d}/*`),
+    urls: supportedDomains.map((d: string): string => {
+     console.log(`*://*${d}/*`);
+     return `*://*${d}/*` 
+    }),
     types: ['main_frame'],
   },
   ['blocking'],

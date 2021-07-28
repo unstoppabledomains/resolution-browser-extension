@@ -28,17 +28,14 @@ function isConvertableToV1base32Hash(hash: string, url: string): boolean {
 
 export async function redirectToIpfs(domain: string, tabId?: number) {
   const resolution = new Resolution({
-    blockchain: {
-      ens: {
-        url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc',
-      },
-      cns: {
-        url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc',
-      },
-    },
+    sourceConfig: {
+      ens: {url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc', network: 'mainnet'},
+      uns: {url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc', network: 'mainnet'}
+    }
   });
+  console.log({domain, tabId});
+  const url = new URL(domain)
   try {
-    const url = new URL(domain)
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
       'https://{ipfs}.ipfs.infura-ipfs.io';
     let hash = await resolution.ipfsHash(url.hostname);
@@ -53,7 +50,6 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
   } catch (err) {
     let message = err.message
     if (err instanceof ResolutionError) {
-      const url = new URL(domain)
       if (err.code === ResolutionErrorCode.RecordNotFound) {
         const redirectUrl = await resolution
           .httpUrl(url.hostname)
@@ -82,6 +78,14 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
 export const supportedDomains: string[] = [
   '.eth',
   '.crypto',
+  '.nft',
+  '.coin',
+  '.wallet',
+  '.bitcoin',
+  '.x',
+  '.888',
+  '.dao',
+  '.blockchain',
   '.zil'
 ]
 
