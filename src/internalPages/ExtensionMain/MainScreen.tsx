@@ -35,7 +35,6 @@ const MainScreen: React.FC<Props> = ({classes}) => {
 
   useEffect(() => {
     chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then(url => {
-      console.log({url})
       setGatewayBaseURL(url)
     })
   }, [])

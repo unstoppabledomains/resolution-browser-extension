@@ -45,10 +45,6 @@ const WebsiteList: React.FC<Props> = ({ classes }) => {
     }
   }, [bookmarkClicked])
 
-  useEffect(() => {
-    console.log({ extension })
-  }, [extension])
-
   const fetchDomains = async (page:number, perPage: number) => {
     const isDigit = /\d/.test(letter)
     const url = `${baseurl}/websites/?page=${page}&perPage=${perPage}&letter=${letter}&isDigit=${isDigit}&extension=${extension}`

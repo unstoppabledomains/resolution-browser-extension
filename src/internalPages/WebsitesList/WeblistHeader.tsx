@@ -28,7 +28,6 @@ const WeblistHeader: React.FC<Props> = ({
   const [activeButton, setActiveButton] = useState(Extension.all)
 
   const activate = (extension: Extension) => {
-    console.log(`choosing ${extension}`)
     setActiveButton(extension)
     setExtension(extension)
   }

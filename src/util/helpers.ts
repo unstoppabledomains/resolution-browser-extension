@@ -33,7 +33,6 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
       uns: {url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc', network: 'mainnet'}
     }
   });
-  console.log({domain, tabId});
   const url = new URL(domain)
   try {
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
