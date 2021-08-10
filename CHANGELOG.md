@@ -1,3 +1,9 @@
+## 2.1.1
+* Fix issue with not capturing .888 domains
+
+## 2.1.0
+* Allowed new UNS tld to be parsed (.x, .888, .wallet, .coin, .nft, .dao, .bitcoin, .blockchain)
+
 ## 2.0.5
 * Fixed a bug causing to load all websites instead of paginated version when misclicked the per page settings
 
