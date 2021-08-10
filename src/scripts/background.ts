@@ -1,5 +1,5 @@
 import '../subscripts/onInstalled'
-import isValidDNSHostname from '../util/isValidDNSHostname'
+import isValidDNSHostname from '../util/isValidDNSHostname';
 import { redirectToIpfs, supportedDomain, supportedDomains } from '../util/helpers'
 import { searchEngines, SearchEngine } from '../util/searchEngines'
 
@@ -14,7 +14,6 @@ chrome.webRequest.onBeforeRequest.addListener(
       .trim()
       .toLowerCase()
     const q = new URL(url.protocol + '//' + params)
-    console.log({url, searchEngine, q});
     if (
       !q.hostname ||
       !isValidDNSHostname(q.hostname) ||
@@ -22,7 +21,18 @@ chrome.webRequest.onBeforeRequest.addListener(
     ) {
       return
     }
-    console.log(`PASSED with ${q.toString()}`);
+
+    if (q.hostname.endsWith('.888')) {
+      chrome.tabs.update(
+        { url: 'index.html#loading' },
+        async (tab: chrome.tabs.Tab) => {
+            await redirectToIpfs(`https://${q.hostname}`, tab.id)
+          return { cancel: true }
+        },
+      )
+      return {cancel: true}
+    }
+
     chrome.tabs.update({ url: q.toString() })
     return { cancel: true }
   },
@@ -35,8 +45,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
-    console.log("i am in???");
-    console.log(requestDetails);
     chrome.tabs.update(
       { url: 'index.html#loading' },
       async (tab: chrome.tabs.Tab) => {
@@ -46,10 +54,7 @@ chrome.webRequest.onBeforeRequest.addListener(
     )
   },
   {
-    urls: supportedDomains.map((d: string): string => {
-     console.log(`*://*${d}/*`);
-     return `*://*${d}/*` 
-    }),
+    urls: supportedDomains.map((d: string): string => `*://*${d}/*`),
     types: ['main_frame'],
   },
   ['blocking'],
