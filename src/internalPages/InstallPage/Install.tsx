@@ -7,7 +7,7 @@ import {
   chromeStorageSyncGet,
   chromeStorageSyncSet,
 } from '../../util/chromeStorageSync'
-import {ExtensionOptions} from '../../types'
+import {ExtensionOptions, ExtensionURIMap} from '../../types'
 
 interface Props extends WithStyles<typeof styles> {}
 
@@ -16,7 +16,7 @@ const Install: React.FC<Props> = ({classes}) => {
     if (!url)
       chromeStorageSyncSet(
         StorageSyncKey.GatewayBaseURL,
-        ExtensionOptions.IPFSNetwork,
+        ExtensionURIMap[ExtensionOptions.InfuraAPI]
       )
   })
 

@@ -18,12 +18,12 @@ interface Props extends WithStyles<typeof styles> {}
 
 const MainScreen: React.FC<Props> = ({classes}) => {
   const [gatewayBaseURL, setGatewayBaseURL] = useState(
-    ExtensionURIMap[ExtensionOptions.IPFSNetwork],
+    ExtensionURIMap[ExtensionOptions.InfuraAPI],
   )
   const [okGatewayBaseURL, setOkGatewayBaseURL] = useState(false)
   const [showTexField, setShowTextField] = useState(false)
   const [gatewayOption, setGateWayOption] = useState<ExtensionOptions>(
-    ExtensionOptions.IPFSNetwork,
+    ExtensionOptions.InfuraAPI,
   )
 
   useEffect(() => {
