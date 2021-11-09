@@ -1,3 +1,6 @@
+## 2.2.0
+* Added support for L2 domains on polygon
+
 ## 2.1.1
 * Fix issue with not capturing .888 domains
 

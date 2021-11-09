@@ -27,12 +27,7 @@ function isConvertableToV1base32Hash(hash: string, url: string): boolean {
 }
 
 export async function redirectToIpfs(domain: string, tabId?: number) {
-  const resolution = new Resolution({
-    sourceConfig: {
-      ens: {url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc', network: 'mainnet'},
-      uns: {url: 'https://mainnet.infura.io/v3/350101a50e4c4319bcafc44313daf5dc', network: 'mainnet'}
-    }
-  });
+  const resolution = new Resolution();
   const url = new URL(domain)
   try {
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
