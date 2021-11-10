@@ -14,7 +14,7 @@ export default function isValidDNSHostname(hostname: string) {
   }
   return labels.every((label,i) => {
     if(i < labels.length - 1) {
-      return rules.domainSegment.test(label) && label.length <= rules.labelLength;
+      return rules.domainSegment.test(label);
     }
     return rules.tldSegment.test(label);
   })
