@@ -1,3 +1,6 @@
+## 2.2.1
+* Fixed issue with long domain names. Now extension can resolve any length domain without a problem.
+
 ## 2.2.0
 * Added support for L2 domains on polygon
 
