@@ -41,11 +41,11 @@ const MainScreen: React.FC<Props> = ({classes}) => {
 
   useEffect(() => {
     try {
-      new URL(gatewayBaseURL.trim())
+      new OAURL(gatewayBaseURL.trim())
       setOkGatewayBaseURL(true)
     } catch (error) {
       try {
-        new URL('http://' + gatewayBaseURL.trim())
+        new OAURL('http://' + gatewayBaseURL.trim())
         setOkGatewayBaseURL(true)
       } catch (error) {
         setOkGatewayBaseURL(false)
