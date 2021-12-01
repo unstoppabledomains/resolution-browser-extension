@@ -4,6 +4,7 @@ import Resolution, {
 } from '@unstoppabledomains/resolution'
 import { chromeStorageSyncGet, StorageSyncKey } from './chromeStorageSync'
 import ipfsClient from "ipfs-http-client";
+import OAURL from './OsAgnosticURL';
 
 export function invert(object) {
   const returnee = {}
@@ -28,16 +29,16 @@ function isConvertableToV1base32Hash(hash: string, url: string): boolean {
 
 export async function redirectToIpfs(domain: string, tabId?: number) {
   const resolution = new Resolution();
-  const url = new URL(domain)
+  const url = new OAURL(domain)
   try {
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
       'https://{ipfs}.ipfs.infura-ipfs.io';
-    let hash = await resolution.ipfsHash(url.hostname);
+    let hash = await resolution.ipfsHash(url.hostname());
     if (isConvertableToV1base32Hash(hash, gatewayBaseURL)) {
       hash = new ipfsClient.CID(hash).toV1(); // convert to V1 base32 ipfs hash
     }
     const baseurl = placeIpfs(hash, gatewayBaseURL);
-    const displayUrl = `${baseurl}/${url.pathname}`;
+    const displayUrl = `${baseurl}/${url.pathname()}`;
     return chrome.tabs.update(tabId, {
       url: displayUrl,
     })
@@ -46,18 +47,18 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
     if (err instanceof ResolutionError) {
       if (err.code === ResolutionErrorCode.RecordNotFound) {
         const redirectUrl = await resolution
-          .httpUrl(url.hostname)
+          .httpUrl(url.hostname())
           .catch(error => undefined)
         if (redirectUrl) {
           return chrome.tabs.update(tabId, { url: redirectUrl });
         }
         return chrome.tabs.update(tabId, {
-          url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
+          url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname()}&searchRef=chrome-extension`,
         });
       }
       if (err.code === ResolutionErrorCode.UnregisteredDomain) {
         return chrome.tabs.update(tabId, {
-          url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname}&searchRef=chrome-extension`,
+          url: `https://unstoppabledomains.com/search?searchTerm=${url.hostname()}&searchRef=chrome-extension`,
         });
       }
     }

@@ -2,7 +2,7 @@ import '../subscripts/onInstalled'
 import isValidDNSHostname from '../util/isValidDNSHostname';
 import { redirectToIpfs, supportedDomain, supportedDomains } from '../util/helpers'
 import { searchEngines, SearchEngine } from '../util/searchEngines'
-
+import OAURL from '../util/OsAgnosticURL';
 chrome.webRequest.onBeforeRequest.addListener(
   requestDetails => {
     const url = new URL(requestDetails.url)
@@ -13,26 +13,25 @@ chrome.webRequest.onBeforeRequest.addListener(
       .get(searchEngine.param)
       .trim()
       .toLowerCase()
-    const q = new URL(url.protocol + '//' + params)
+    const q = new OAURL(url.protocol + '//' + params)
     if (
-      !q.hostname ||
-      !isValidDNSHostname(q.hostname) ||
-      !supportedDomain(q.hostname)
+      !q.hostname() ||
+      !isValidDNSHostname(q.hostname()) ||
+      !supportedDomain(q.hostname())
     ) {
       return
     }
 
-    if (q.hostname.endsWith('.888')) {
+    if (q.hostname().endsWith('.888')) {
       chrome.tabs.update(
         { url: 'index.html#loading' },
         async (tab: chrome.tabs.Tab) => {
-            await redirectToIpfs(`https://${q.hostname}`, tab.id)
+            await redirectToIpfs(q.toString(), tab.id)
           return { cancel: true }
         },
       )
       return {cancel: true}
     }
-
     chrome.tabs.update({ url: q.toString() })
     return { cancel: true }
   },

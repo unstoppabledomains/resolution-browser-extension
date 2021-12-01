@@ -1,3 +1,5 @@
+## 2.2.2
+* Fixed issue with resolving .888 domains on Windows OS
 ## 2.2.1
 * Fixed issue with long domain names. Now extension can resolve any length domain without a problem.
 
