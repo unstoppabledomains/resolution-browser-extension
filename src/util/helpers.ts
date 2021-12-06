@@ -5,6 +5,7 @@ import Resolution, {
 import { chromeStorageSyncGet, StorageSyncKey } from './chromeStorageSync'
 import ipfsClient from "ipfs-http-client";
 import OAURL from './OsAgnosticURL';
+import logger from './logger';
 
 export function invert(object) {
   const returnee = {}
@@ -33,16 +34,20 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
   try {
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
       'https://{ipfs}.ipfs.infura-ipfs.io';
+    logger.log(`resolving domain ${url.hostname()}`);
     let hash = await resolution.ipfsHash(url.hostname());
+    logger.log(`resolved ipfs hash = ${hash}`);
     if (isConvertableToV1base32Hash(hash, gatewayBaseURL)) {
       hash = new ipfsClient.CID(hash).toV1(); // convert to V1 base32 ipfs hash
     }
     const baseurl = placeIpfs(hash, gatewayBaseURL);
     const displayUrl = `${baseurl}/${url.pathname()}`;
+    logger.log(`redirecting to ${displayUrl}`);
     return chrome.tabs.update(tabId, {
       url: displayUrl,
     })
   } catch (err) {
+    logger.log(err);
     let message = err.message
     if (err instanceof ResolutionError) {
       if (err.code === ResolutionErrorCode.RecordNotFound) {
