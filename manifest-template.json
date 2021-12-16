@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Unstoppable Extension",
     "short_name": "Unstoppable Extension",
-    "version": "2.2.2",
+    "version": "2.2.3",
     "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
     "icons": {
       "16": "icon/16.png",
@@ -34,7 +34,6 @@
       "*://*.dao/*",
       "*://*.coin/*",
       "*://*.x/*",
-      "*://*.eth/*",
       "*://*.google.com/*",
       "*://*.duckduckgo.com/*",
       "*://*.yahoo.com/*",

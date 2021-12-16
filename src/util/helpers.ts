@@ -76,7 +76,6 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
 
 //domain names supported
 export const supportedDomains: string[] = [
-  '.eth',
   '.crypto',
   '.nft',
   '.coin',

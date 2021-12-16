@@ -1160,10 +1160,10 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
-"@unstoppabledomains/resolution@6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-6.0.1.tgz#843420c0b28821b1be24f44e44e3dfbae5fc52f3"
-  integrity sha512-/wc4kM/3brRVmtD+V2prCosTsnTobivqFTrXdH8yhrC1KxJqBaJ8mw0ClvE8FRMHFNbcBNzSCuZK2uIDL/jS8g==
+"@unstoppabledomains/resolution@7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-7.0.0.tgz#56317f8018134baef27610d851cf5a26e0d0e274"
+  integrity sha512-gImd7xzytjTVSPQu/SLjeZJqUVkzevw3X81FXZccqIVEMkuOr7QMZ4SXwSbge/yz13vlaVOOaZXE3CNS7BZzFA==
   dependencies:
     "@ethersproject/abi" "^5.0.1"
     bn.js "^4.4.0"
