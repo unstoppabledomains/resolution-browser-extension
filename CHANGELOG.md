@@ -1,3 +1,6 @@
+## 2.2.3
+* Removed ens support
+* Updated resolution library to 7.0.0
 ## 2.2.2
 * Fixed issue with resolving .888 domains on Windows OS
 ## 2.2.1

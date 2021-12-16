@@ -12,7 +12,6 @@ export enum Extension {
   all = '',
   crypto = '.crypto',
   zil = '.zil',
-  eth = '.eth',
 }
 
 interface Props extends WithStyles<typeof styles> {
