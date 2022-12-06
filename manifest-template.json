@@ -46,5 +46,9 @@
     "*://*.bing.com/*",
     "*://*.wiki.com/*"
   ],
-  "permissions": ["storage", "webRequest", "webRequestBlocking"]
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+  ]
 }
