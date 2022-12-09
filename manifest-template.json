@@ -44,7 +44,9 @@
     "*://*.aol.co.uk/*",
     "*://*.baidu.com/*",
     "*://*.bing.com/*",
-    "*://*.wiki.com/*"
+    "*://*.wiki.com/*",
+    "*://google.com/*",
+    "*://unstoppabledomains.com/*"
   ],
   "permissions": [
     "storage",
