@@ -7,7 +7,7 @@
   },
   "homepage": "https://unstoppabledomains.com/extension",
   "engines": {
-    "node": ">=8.17.0 <= 10.22.0"
+    "node": ">=8.17.0 <= 10.24.1"
   },
   "scripts": {
     "predev": "yarn prebuild && yarn build:copyArtifacts",
