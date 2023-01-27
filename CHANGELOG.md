@@ -1,3 +1,5 @@
+## 2.3.0
+* Add .hi TLD
 ## 2.2.3
 * Removed ens support
 * Updated resolution library to 7.0.0
