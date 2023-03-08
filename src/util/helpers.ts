@@ -86,7 +86,8 @@ export const supportedDomains: string[] = [
   '.dao',
   '.blockchain',
   '.zil',
-  '.hi'
+  '.hi',
+  '.kresus'
 ]
 
 //return true if url ends in one of the supported domains
