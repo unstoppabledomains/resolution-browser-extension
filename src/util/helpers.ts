@@ -87,6 +87,7 @@ export const supportedDomains: string[] = [
   '.blockchain',
   '.zil',
   '.hi',
+  '.klever',
   '.kresus'
 ]
 
