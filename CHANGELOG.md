@@ -1,3 +1,7 @@
+## 2.3.3
+* Add .polygon TLD support
+* Remove .coin TLD support
+
 ## 2.3.2
 * Add .kresus and .klever TLDs support
 * Updated resolution library to 8.5.0

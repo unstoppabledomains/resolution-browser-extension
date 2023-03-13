@@ -78,7 +78,6 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
 export const supportedDomains: string[] = [
   '.crypto',
   '.nft',
-  '.coin',
   '.wallet',
   '.bitcoin',
   '.x',
@@ -88,7 +87,8 @@ export const supportedDomains: string[] = [
   '.zil',
   '.hi',
   '.klever',
-  '.kresus'
+  '.kresus',
+  '.polygon'
 ]
 
 //return true if url ends in one of the supported domains
