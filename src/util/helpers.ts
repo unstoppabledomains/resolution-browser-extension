@@ -78,7 +78,6 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
 export const supportedDomains: string[] = [
   '.crypto',
   '.nft',
-  '.coin',
   '.wallet',
   '.bitcoin',
   '.x',
