@@ -1,3 +1,7 @@
+## 2.3.2
+* Add .kresus and .klever TLDs support
+* Updated resolution library to 8.5.0
+
 ## 2.3.0
 * Add .hi TLD
 ## 2.2.3
@@ -39,7 +43,7 @@
 ## 1.4.0
 * Updated the search engine redirection system
 * Added support of duckduckgo.com, yandex.ru, qwant.com, mojeek.com, aol.co.uk, baidu.com, bing.com, yahoo.com, wiki.com
-* Upgraded internal scripts to build both Firefox and Chrome versions simultaniously 
+* Upgraded internal scripts to build both Firefox and Chrome versions simultaniously
 
 ## 1.3.7
 * use redirect_url if ipfs hash is not set.
@@ -54,7 +58,7 @@
 * Moved the position of 0-9 selector on website lists to be first according to ASCII standart
 
 ## 1.3.3
-* Add the ability to see domains which starts from 0-9 or a hyphen 
+* Add the ability to see domains which starts from 0-9 or a hyphen
 
 ## 1.3.2
 * Remove .kred .luxe .xyz since they have a DNS support
@@ -86,7 +90,7 @@
  * Fix infura bug for urls that does not end with `/` (`https://community.infura.io/t/ipfs-gateway-directory-url-should-end-with-slash/887`)
  * Remove unused files and modules
  * Clean up build directory and archive.zip file
- * Fixed typo from Cloudlare to Cloudflare 
+ * Fixed typo from Cloudlare to Cloudflare
  * Shorten the display name to Unstoppable Extension
 
 ## 1.1.2
