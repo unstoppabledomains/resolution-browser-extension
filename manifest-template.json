@@ -35,6 +35,8 @@
       "*://*.coin/*",
       "*://*.x/*",
       "*://*.hi/*",
+      "*://*.klever/*",
+      "*://*.kresus/*",
       "*://*.google.com/*",
       "*://*.duckduckgo.com/*",
       "*://*.yahoo.com/*",
@@ -50,4 +52,3 @@
       "webRequestBlocking"
     ]
   }
-  

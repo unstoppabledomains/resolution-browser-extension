@@ -1160,18 +1160,16 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
-"@unstoppabledomains/resolution@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-7.0.0.tgz#56317f8018134baef27610d851cf5a26e0d0e274"
-  integrity sha512-gImd7xzytjTVSPQu/SLjeZJqUVkzevw3X81FXZccqIVEMkuOr7QMZ4SXwSbge/yz13vlaVOOaZXE3CNS7BZzFA==
+"@unstoppabledomains/resolution@8.5.0":
+  version "8.5.0"
+  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-8.5.0.tgz#7f65146fb3bc69bfae8699c4ed1c61f3d6f0096c"
+  integrity sha512-csqExbiK8F5mRKoHlDZjGuIEuvi63O8PSyhUcGhnTi76Il5fCREAGNVdTiRxagPPYoxCO+Xmf6kThwtmiws1Ow==
   dependencies:
     "@ethersproject/abi" "^5.0.1"
     bn.js "^4.4.0"
     cross-fetch "^3.1.4"
+    crypto-js "^4.1.1"
     elliptic "^6.5.4"
-    ethereum-ens-network-map "^1.0.2"
-    js-sha256 "^0.9.0"
-    js-sha3 "^0.8.0"
 
 abab@^2.0.0:
   version "2.0.4"
@@ -2035,6 +2033,11 @@ crypto-browserify@^3.11.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
+
 css-color-names@0.0.4, css-color-names@^0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
@@ -2577,11 +2580,6 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
-
-ethereum-ens-network-map@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/ethereum-ens-network-map/-/ethereum-ens-network-map-1.0.2.tgz#4e27bad18dae7bd95d84edbcac2c9e739fc959b9"
-  integrity sha512-5qwJ5n3YhjSpE6O/WEBXCAb2nagUgyagJ6C0lGUBWC4LjKp/rRzD+pwtDJ6KCiITFEAoX4eIrWOjRy0Sylq5Hg==
 
 event-target-shim@^5.0.0:
   version "5.0.1"
@@ -3612,11 +3610,6 @@ it-to-stream@^0.1.1:
     p-defer "^3.0.0"
     p-fifo "^1.0.0"
     readable-stream "^3.6.0"
-
-js-sha256@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/js-sha256/-/js-sha256-0.9.0.tgz#0b89ac166583e91ef9123644bd3c5334ce9d0966"
-  integrity sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==
 
 js-sha3@0.5.7:
   version "0.5.7"
