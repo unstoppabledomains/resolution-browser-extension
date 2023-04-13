@@ -29,7 +29,7 @@ function isConvertableToV1base32Hash(hash: string, url: string): boolean {
 }
 
 export async function redirectToIpfs(domain: string, tabId?: number) {
-  const resolution = new Resolution();
+  const resolution = new Resolution({apiKey: process.env.RESOLUTION_API_KEY});
   const url = new OAURL(domain)
   try {
     const gatewayBaseURL = (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||

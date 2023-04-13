@@ -1128,6 +1128,11 @@
   resolved "https://registry.yarnpkg.com/@types/filewriter/-/filewriter-0.0.28.tgz#c054e8af4d9dd75db4e63abc76f885168714d4b3"
   integrity sha1-wFTor02d11205jq8dviFFocU1LM=
 
+"@types/node@^18.15.11":
+  version "18.15.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.15.11.tgz#b3b790f09cb1696cffcec605de025b088fa4225f"
+  integrity sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==
+
 "@types/prop-types@*":
   version "15.7.3"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.3.tgz#2ab0d5da2e5815f94b0b9d4b95d1e5f243ab2ca7"
@@ -1160,10 +1165,10 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
-"@unstoppabledomains/resolution@8.5.0":
-  version "8.5.0"
-  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-8.5.0.tgz#7f65146fb3bc69bfae8699c4ed1c61f3d6f0096c"
-  integrity sha512-csqExbiK8F5mRKoHlDZjGuIEuvi63O8PSyhUcGhnTi76Il5fCREAGNVdTiRxagPPYoxCO+Xmf6kThwtmiws1Ow==
+"@unstoppabledomains/resolution@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-9.0.0.tgz#0e2c1263017dbc8ef4133a4940f65e381e915345"
+  integrity sha512-Sdnp3//YxK+CqwgMrxoC95HexwWxwsJlU+o7nLcIKo7NZRGe50qvYGK+czrUm5KApj45ctO14tJgFKNiU+QTyg==
   dependencies:
     "@ethersproject/abi" "^5.0.1"
     bn.js "^4.4.0"
