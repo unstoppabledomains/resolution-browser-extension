@@ -1,3 +1,6 @@
+## 2.3.4
+* Add .anime and .manga TLDs support
+
 ## 2.3.3
 * Add .polygon TLD support
 * Remove .coin TLD support
