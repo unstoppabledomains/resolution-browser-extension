@@ -1,3 +1,6 @@
+## 2.3.5
+* Add .binanceus TLDs support
+
 ## 2.3.4
 * Add .anime and .manga TLDs support
 

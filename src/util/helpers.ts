@@ -90,7 +90,8 @@ export const supportedDomains: string[] = [
   '.kresus',
   '.polygon',
   '.anime',
-  '.manga'
+  '.manga',
+  '.binanceus'
 ]
 
 //return true if url ends in one of the supported domains
