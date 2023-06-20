@@ -13,6 +13,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
 import styles from '../../styles/mainscreen.style'
 import {ExtensionOptions, ExtensionLabel, ExtensionURIMap} from '../../types'
+import OAURL from '../../util/OsAgnosticURL'
 
 interface Props extends WithStyles<typeof styles> {}
 
