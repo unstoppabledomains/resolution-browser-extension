@@ -1,3 +1,6 @@
+## 2.3.6
+* Fixed issue with custom IPFS url is not saved
+
 ## 2.3.5
 * Add .binanceus TLDs support
 
