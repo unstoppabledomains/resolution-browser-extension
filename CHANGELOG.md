@@ -1,3 +1,6 @@
+## 2.3.7
+* Add .go TLDs support
+
 ## 2.3.6
 * Fixed issue with custom IPFS url is not saved
 
