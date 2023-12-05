@@ -92,7 +92,8 @@ export const supportedDomains: string[] = [
   '.anime',
   '.manga',
   '.binanceus',
-  '.go'
+  '.go',
+  '.altimist'
 ]
 
 //return true if url ends in one of the supported domains

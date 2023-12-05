@@ -1,3 +1,6 @@
+## 2.3.8
+* Add .altimist TLDs support
+
 ## 2.3.7
 * Add .go TLDs support
 
