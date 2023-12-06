@@ -1,3 +1,6 @@
+## 2.3.9
+* Add .unstoppable TLDs support
+
 ## 2.3.8
 * Add .altimist TLDs support
 
