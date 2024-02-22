@@ -1,3 +1,6 @@
+## 2.3.10
+* Add .pudgy TLDs support
+
 ## 2.3.9
 * Add .unstoppable TLDs support
 
