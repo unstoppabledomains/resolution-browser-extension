@@ -1,3 +1,6 @@
+## 2.3.11
+* Trim the extra / for redirect IPFS URL
+
 ## 2.3.10
 * Add .pudgy TLDs support
 
