@@ -41,7 +41,7 @@ export async function redirectToIpfs(domain: string, tabId?: number) {
       hash = new ipfsClient.CID(hash).toV1(); // convert to V1 base32 ipfs hash
     }
     const baseurl = placeIpfs(hash, gatewayBaseURL);
-    const displayUrl = `${baseurl}/${url.pathname()}`;
+    const displayUrl = `${baseurl}/${url.pathname() === '/' ? '': url.pathname() /* Trim the extra '/' to avoid Gateway like Infura will resolve to a wrong IPFS URL */ }`;
     logger.log(`redirecting to ${displayUrl}`);
     return chrome.tabs.update(tabId, {
       url: displayUrl,
