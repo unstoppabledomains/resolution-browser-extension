@@ -95,6 +95,7 @@ export const supportedDomains: string[] = [
   '.go',
   '.altimist',
   '.pudgy',
+  '.austin',
   '.unstoppable'
 ]
 
