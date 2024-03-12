@@ -1,3 +1,6 @@
+## 2.3.12
+* Add .austin TLDs support
+
 ## 2.3.11
 * Trim the extra / for redirect IPFS URL
 
