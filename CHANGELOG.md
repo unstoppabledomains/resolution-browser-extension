@@ -1,3 +1,6 @@
+## 2.3.13
+* Add .bitget TLDs support
+
 ## 2.3.12
 * Add .austin TLDs support
 
