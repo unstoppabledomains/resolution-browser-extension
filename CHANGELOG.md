@@ -1,3 +1,6 @@
+## 2.3.14
+* Add .pog TLDs support
+
 ## 2.3.13
 * Add .bitget TLDs support
 
