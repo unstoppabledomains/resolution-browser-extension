@@ -1,3 +1,6 @@
+## 2.3.15
+* Add .clay TLDs support
+
 ## 2.3.14
 * Add .pog TLDs support
 

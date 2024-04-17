@@ -98,7 +98,8 @@ export const supportedDomains: string[] = [
   '.austin',
   '.unstoppable',
   '.bitget',
-  '.pog'
+  '.pog',
+  '.clay',
 ]
 
 //return true if url ends in one of the supported domains
