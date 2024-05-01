@@ -1,71 +1,95 @@
-import '../subscripts/onInstalled'
-import isValidDNSHostname from '../util/isValidDNSHostname';
-import { redirectToIpfs, supportedDomain, supportedDomains } from '../util/helpers'
-import { searchEngines, SearchEngine } from '../util/searchEngines'
-import OAURL from '../util/OsAgnosticURL';
-import logger from '../util/logger';
+import "../subscripts/onInstalled";
+import {supportedDomains} from "../util/helpers";
 
-chrome.webRequest.onBeforeRequest.addListener(
-  requestDetails => {
-    logger.log("catched request");
-    logger.log({requestDetails});
-    const url = new URL(requestDetails.url)
-    const searchEngine = searchEngines.find(se => url.hostname.includes(se.hostname));
-    logger.log({searchEngine});
-    if (!searchEngine) return
+// TODO: Update it to use the new API
+const RESOLUTION_URL = "http://localhost:8081/";
+const REDIRECT_URL = `${RESOLUTION_URL}redirect?url=`;
 
-    const params = url.searchParams
-      .get(searchEngine.param)
-      .trim()
-      .toLowerCase()
-    const q = new OAURL(url.protocol + '//' + params)
-    logger.log({
-      params
-    });
-    if (
-      !q.hostname() ||
-      !isValidDNSHostname(q.hostname()) ||
-      !supportedDomain(q.hostname())
-    ) {
-      return
-    }
-    if (q.hostname().endsWith('.888')) {
-      logger.log("domain does ends with .888");
-      chrome.tabs.update(
-        { url: 'index.html#loading' },
-        async (tab: chrome.tabs.Tab) => {
-            await redirectToIpfs(q.toString(), tab.id)
-          return { cancel: true }
+const domainsList = supportedDomains.map(domain => domain.replace(".", ""));
+
+function deleteAllRules() {
+  chrome.declarativeNetRequest.getDynamicRules(rules => {
+    const ruleIds = rules.map(rule => rule.id);
+
+    if (ruleIds.length > 0) {
+      chrome.declarativeNetRequest.updateDynamicRules(
+        {removeRuleIds: ruleIds},
+        () => {
+          console.log("All dynamic rules have been removed successfully.");
         },
-      )
-      return {cancel: true}
+      );
+    } else {
+      console.log("No dynamic rules to remove.");
     }
-    logger.log("domain doesn't end with .888");
-    chrome.tabs.update({ url: q.toString() })
-    return { cancel: true }
-  },
-  {
-    urls: searchEngines.map((se: SearchEngine): string => `*://*.${se.hostname}/*`),
-    types: ['main_frame'],
-  },
-  ['blocking'],
-)
+  });
+}
 
-chrome.webRequest.onBeforeRequest.addListener(
-  requestDetails => {
-    chrome.tabs.update(
-      { url: 'index.html#loading' },
-      async (tab: chrome.tabs.Tab) => {
-          logger.log("catched request");
-          logger.log({requestDetails});
-          await redirectToIpfs(requestDetails.url, tab.id)
-        return { cancel: true }
-      },
-    )
-  },
-  {
-    urls: supportedDomains.map((d: string): string => `*://*${d}/*`),
-    types: ['main_frame'],
-  },
-  ['blocking'],
-)
+function addRules() {
+  console.log("Adding HTTP rules...");
+  domainsList.forEach((domain, index) => {
+    const urlRegex = `https?://([^/]*?\.${domain})(/|$)`;
+    const id = index + 1001;
+    chrome.declarativeNetRequest.updateDynamicRules({
+      addRules: [
+        {
+          id,
+          action: {
+            type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+            redirect: {
+              regexSubstitution: `${REDIRECT_URL}\\1`,
+            },
+          },
+          condition: {
+            regexFilter: urlRegex,
+            resourceTypes: [
+              "main_frame" as chrome.declarativeNetRequest.ResourceType,
+            ],
+          },
+        },
+      ],
+      removeRuleIds: [id],
+    });
+  });
+
+  console.log("Adding search engines rules...");
+  domainsList.forEach((domain, index) => {
+    const urlRegex = `https?://.*[?&]q=([^&]*?\\b\\.${domain})(&|$)`;
+    const id = index + 2001;
+    chrome.declarativeNetRequest.updateDynamicRules({
+      addRules: [
+        {
+          id,
+          action: {
+            type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+            redirect: {
+              regexSubstitution: `${REDIRECT_URL}\\1`,
+            },
+          },
+          condition: {
+            regexFilter: urlRegex,
+            resourceTypes: [
+              "main_frame" as chrome.declarativeNetRequest.ResourceType,
+            ],
+            requestDomains: [
+              "google.com",
+              "duckduckgo.com",
+              "bing.com",
+              "mojeek.com",
+              "qwant.com",
+              "search.aol.co.uk",
+              "yahoo.com",
+              "wiki.com",
+            ],
+          },
+        },
+      ],
+      removeRuleIds: [id],
+    });
+  });
+}
+
+deleteAllRules();
+
+setTimeout(() => {
+  addRules();
+}, 2000);

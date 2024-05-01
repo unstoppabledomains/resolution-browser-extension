@@ -1,22 +1,20 @@
-import React, {useState} from 'react'
-import {WithStyles, withStyles} from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import Paper from '@material-ui/core/Paper'
-import AddCircle from '@material-ui/icons/AddCircle'
-import BookmarksIcon from '@material-ui/icons/Bookmarks'
-import styles from '../../styles/weblistHeader.style'
-import {redirectToIpfs} from '../../util/helpers'
+import React, {useState} from "react";
+import {WithStyles, withStyles} from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import Paper from "@material-ui/core/Paper";
+import AddCircle from "@material-ui/icons/AddCircle";
+import BookmarksIcon from "@material-ui/icons/Bookmarks";
+import styles from "../../styles/weblistHeader.style";
 
 export enum Extension {
-  all = '',
-  crypto = '.crypto',
-  zil = '.zil',
+  all = "",
+  crypto = ".crypto",
 }
 
 interface Props extends WithStyles<typeof styles> {
-  setExtension: React.Dispatch<React.SetStateAction<Extension>>
-  bookMarkClick: React.Dispatch<React.SetStateAction<boolean>>
+  setExtension: React.Dispatch<React.SetStateAction<Extension>>;
+  bookMarkClick: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const WeblistHeader: React.FC<Props> = ({
@@ -24,44 +22,36 @@ const WeblistHeader: React.FC<Props> = ({
   setExtension,
   bookMarkClick,
 }) => {
-  const [activeButton, setActiveButton] = useState(Extension.all)
+  const [activeButton, setActiveButton] = useState(Extension.all);
 
   const activate = (extension: Extension) => {
-    setActiveButton(extension)
-    setExtension(extension)
-  }
+    setActiveButton(extension);
+    setExtension(extension);
+  };
 
   const ifActive = (current: Extension): string =>
-    activeButton === current ? classes.rectangle : ''
+    activeButton === current ? classes.rectangle : "";
   const renderDomain = (domain: string) => {
     return (
-      <Typography
-        variant="body1"
-        className={classes.RecordLink}
-        onClick={() => 
-          chrome.tabs.getCurrent(tab => {
-            redirectToIpfs(`https://${domain}`, tab.id);
-          })
-        }
-      >
+      <a href={`https://${domain}`} className={classes.RecordLink}>
         {domain}
-      </Typography>
-    )
-  }
+      </a>
+    );
+  };
 
   const renderFeatured = () => {
     return (
       <div className={classes.featuredBox}>
         <Typography variant="h5">Featured:</Typography>
         <div className={classes.featuredBoxInner}>
-          {renderDomain('myetherwallet.crypto')}
-          {renderDomain('kyber.crypto')}
-          {renderDomain('pomp.crypto')}
-          {renderDomain('hashoshi.crypto')}
+          {renderDomain("myetherwallet.crypto")}
+          {renderDomain("kyber.crypto")}
+          {renderDomain("pomp.crypto")}
+          {renderDomain("hashoshi.crypto")}
         </div>
       </div>
-    )
-  }
+    );
+  };
   return (
     <div className={classes.main}>
       <div className={classes.header}>
@@ -96,19 +86,10 @@ const WeblistHeader: React.FC<Props> = ({
                 .crypto
               </Typography>
             </div>
-            <div className={ifActive(Extension.zil)}>
-              <Typography
-                variant="subtitle1"
-                className={classes.controlText}
-                onClick={() => activate(Extension.zil)}
-              >
-                .zil
-              </Typography>
-            </div>
           </div>
           <div>
             <Button
-              style={{color: '#4c47f7'}}
+              style={{color: "#4c47f7"}}
               onClick={() => bookMarkClick(true)}
             >
               <BookmarksIcon />
@@ -119,6 +100,6 @@ const WeblistHeader: React.FC<Props> = ({
         {renderFeatured()}
       </Paper>
     </div>
-  )
-}
-export default withStyles(styles)(WeblistHeader)
+  );
+};
+export default withStyles(styles)(WeblistHeader);

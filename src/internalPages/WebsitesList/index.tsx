@@ -12,7 +12,6 @@ import {
 interface Props extends WithStyles<typeof styles> { }
 
 const baseurl = 'https://unstoppabledomains.com/api/v1'
-// const baseurl = 'http://localhost:8080/api/v1';
 
 const WebsiteList: React.FC<Props> = ({ classes }) => {
   const [extension, setExtension] = useState<Extension>(Extension.all)
