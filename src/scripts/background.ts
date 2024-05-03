@@ -1,8 +1,7 @@
 import "../subscripts/onInstalled";
 import {supportedDomains} from "../util/helpers";
 
-// TODO: Update it to use the new API
-const RESOLUTION_URL = "http://localhost:8081/";
+const RESOLUTION_URL = "https://api.unstoppabledomains.com/resolve/";
 const REDIRECT_URL = `${RESOLUTION_URL}redirect?url=`;
 
 const domainsList = supportedDomains.map(domain => domain.replace(".", ""));
