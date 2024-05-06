@@ -1,3 +1,6 @@
+## 2.3.16
+* Add .witg TLDs support
+
 ## 2.3.15
 * Add .clay TLDs support
 

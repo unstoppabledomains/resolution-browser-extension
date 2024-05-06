@@ -100,6 +100,7 @@ export const supportedDomains: string[] = [
   '.bitget',
   '.pog',
   '.clay',
+  '.witg',
 ]
 
 //return true if url ends in one of the supported domains
