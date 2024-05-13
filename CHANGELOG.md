@@ -1,3 +1,6 @@
+## 3.0.0
+* Migrated to manifest v3
+
 ## 2.3.16
 * Add .witg TLDs support
 

@@ -2,7 +2,7 @@
   "private": true,
   "license": "MIT",
   "author": {
-    "email": "tools-team@unstoppabledomains.com",
+    "email": "eng@unstoppabledomains.com",
     "name": "Unstoppable Tools"
   },
   "homepage": "https://unstoppabledomains.com/extension",
@@ -40,15 +40,13 @@
   "dependencies": {
     "@material-ui/core": "^4.0.0",
     "@material-ui/icons": "^4.9.1",
-    "@unstoppabledomains/resolution": "^9.0.0",
-    "ipfs-http-client": "^46.0.1",
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "react-router-dom": "^5.1.2",
-    "use-async-effect": "^2.2.2"
+    "use-async-effect": "^2.2.7"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.91",
+    "@types/chrome": "^0.0.266",
     "@types/node": "^18.15.11",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.9.5",

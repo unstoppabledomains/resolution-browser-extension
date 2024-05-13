@@ -9,3 +9,4 @@ build/
 *.log
 static/manifest.json
 .DS_Store
+tmp

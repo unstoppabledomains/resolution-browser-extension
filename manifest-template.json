@@ -1,67 +1,70 @@
 {
-    "manifest_version": 2,
-    "name": "Unstoppable Extension",
-    "short_name": "Unstoppable Extension",
-    "version": "2.3.16",
-    "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
-    "icons": {
-      "16": "icon/16.png",
-      "48": "icon/48.png",
-      "128": "icon/128.png"
-    },
-    "homepage_url": "http://unstoppabledomains.com",
-    "author": "Unstoppable Domains <support@unstoppabledomains.com>, JohnnyJumper <http://github.com/JohnnyJumper/>",
-    "browser_action": {
-      "default_icon": "icon/48.png",
-      "default_popup": "index.html"
-    },
-    "background": {
-      "persistent": true,
-      "scripts": ["scripts/background.js"]
-    },
-    "options_ui": {
-      "page": "index.html#/options",
-      "open_in_tab": false
-    },
-    "permissions": [
-      "*://*.crypto/*",
-      "*://*.zil/*",
-      "*://*.wallet/*",
-      "*://*.nft/*",
-      "*://*.888/*",
-      "*://*.blockchain/*",
-      "*://*.bitcoin/*",
-      "*://*.dao/*",
-      "*://*.x/*",
-      "*://*.hi/*",
-      "*://*.klever/*",
-      "*://*.kresus/*",
-      "*://*.polygon/*",
-      "*://*.anime/*",
-      "*://*.manga/*",
-      "*://*.binanceus/*",
-      "*://*.go/*",
-      "*://*.altimist/*",
-      "*://*.pudgy/*",
-      "*://*.austin/*",
-      "*://*.bitget/*",
-      "*://*.pog/*",
-      "*://*.clay/*",
-      "*://*.witg/*",
-      "*://*.unstoppable/*",
-      "*://*.google.com/*",
-      "*://*.duckduckgo.com/*",
-      "*://*.yahoo.com/*",
-      "*://*.yandex.ru/*",
-      "*://*.qwant.com/*",
-      "*://*.mojeek.com/*",
-      "*://*.aol.co.uk/*",
-      "*://*.baidu.com/*",
-      "*://*.bing.com/*",
-      "*://*.wiki.com/*",
-      "*://*.unstoppabledomains.com/*",
-      "storage",
-      "webRequest",
-      "webRequestBlocking"
-    ]
-  }
+  "manifest_version": 3,
+  "name": "Unstoppable Extension",
+  "short_name": "Unstoppable Extension",
+  "version": "3.0.0",
+  "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
+  "icons": {
+    "16": "icon/16.png",
+    "48": "icon/48.png",
+    "128": "icon/128.png"
+  },
+  "homepage_url": "http://unstoppabledomains.com",
+  "author": "Unstoppable Domains <support@unstoppabledomains.com>",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "48": "icon/48.png"
+    }
+  },
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "options_ui": {
+    "page": "index.html#/options",
+    "open_in_tab": false
+  },
+  "host_permissions": [
+    "*://*.crypto/*",
+    "*://*.zil/*",
+    "*://*.wallet/*",
+    "*://*.nft/*",
+    "*://*.888/*",
+    "*://*.blockchain/*",
+    "*://*.bitcoin/*",
+    "*://*.dao/*",
+    "*://*.x/*",
+    "*://*.hi/*",
+    "*://*.klever/*",
+    "*://*.kresus/*",
+    "*://*.polygon/*",
+    "*://*.anime/*",
+    "*://*.manga/*",
+    "*://*.binanceus/*",
+    "*://*.go/*",
+    "*://*.altimist/*",
+    "*://*.pudgy/*",
+    "*://*.austin/*",
+    "*://*.bitget/*",
+    "*://*.pog/*",
+    "*://*.clay/*",
+    "*://*.witg/*",
+    "*://*.unstoppable/*",
+    "*://*.google.com/*",
+    "*://*.duckduckgo.com/*",
+    "*://*.yahoo.com/*",
+    "*://*.yandex.ru/*",
+    "*://*.qwant.com/*",
+    "*://*.mojeek.com/*",
+    "*://*.aol.co.uk/*",
+    "*://*.baidu.com/*",
+    "*://*.bing.com/*",
+    "*://*.wiki.com/*",
+    "*://*.unstoppabledomains.com/*"
+  ],
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+  ]
+}

@@ -11,7 +11,6 @@ import {
   chromeStorageSyncSet,
   chromeStorageSyncGet,
 } from '../../util/chromeStorageSync'
-import { redirectToIpfs } from '../../util/helpers';
 
 interface Props extends WithStyles<typeof styles> {
   domain: string
@@ -59,11 +58,6 @@ const Record: React.FC<Props> = ({classes, domain, setLoading}) => {
     update(false)
   }
 
-  const redirect = async (domain: string) => {
-    setLoading(true)
-    chrome.tabs.getCurrent(async tab => await redirectToIpfs(domain, tab.id));
-  }
-
   return (
     <div>
       <div className={classes.tile}>
@@ -80,7 +74,6 @@ const Record: React.FC<Props> = ({classes, domain, setLoading}) => {
         )}
         <a
           className={classes.link}
-          onClick={() => redirect(`https://${domain}`)}
         >
           <Typography variant="body1">{domain}</Typography>
         </a>
