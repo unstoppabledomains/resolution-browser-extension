@@ -60,8 +60,7 @@
     "*://*.aol.co.uk/*",
     "*://*.baidu.com/*",
     "*://*.bing.com/*",
-    "*://*.wiki.com/*",
-    "*://*.unstoppabledomains.com/*"
+    "*://*.wiki.com/*"
   ],
   "permissions": [
     "storage",
