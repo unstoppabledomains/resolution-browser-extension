@@ -1,3 +1,6 @@
+## 3.0.1
+* Add .metropolis TLDs support
+
 ## 2.3.16
 * Add .witg TLDs support
 
