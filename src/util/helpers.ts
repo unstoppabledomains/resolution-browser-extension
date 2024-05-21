@@ -23,5 +23,6 @@ export const supportedDomains: string[] = [
   ".unstoppable",
   ".bitget",
   ".pog",
-  '.witg',
+  ".witg",
+  ".metropolis",
 ];
