@@ -1,3 +1,6 @@
+## 3.0.1
+* * Add .metropolis TLDs support
+
 ## 3.0.0
 * Migrated to manifest v3
 
