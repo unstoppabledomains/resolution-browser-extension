@@ -25,4 +25,5 @@ export const supportedDomains: string[] = [
   ".pog",
   ".witg",
   ".metropolis",
+  ".wrkx",
 ];

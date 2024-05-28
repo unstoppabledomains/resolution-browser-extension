@@ -1,6 +1,9 @@
+## 3.0.2
+* Add .wrkx TLDs support
+* Disable https://api.unstoppabledomains.com redirection
+
 ## 3.0.1
 * Add .metropolis TLDs support
-* Disable https://api.unstoppabledomains.com redirection
 
 ## 3.0.0
 * Migrated to manifest v3
