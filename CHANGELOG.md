@@ -1,3 +1,6 @@
+## 3.0.3
+* Add .wrkx TLDs support
+
 ## 3.0.2
 * Add .metropolis TLDs support
 

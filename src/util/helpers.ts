@@ -107,6 +107,7 @@ export const supportedDomains: string[] = [
   '.clay',
   '.witg',
   '.metropolis',
+  '.wrkx'
 ]
 
 //return true if url ends in one of the supported domains
