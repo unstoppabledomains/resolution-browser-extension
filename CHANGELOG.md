@@ -1,3 +1,6 @@
+## 3.0.3
+* Add .secret TLDs support
+
 ## 3.0.2
 * Add .wrkx TLDs support
 * Disable https://api.unstoppabledomains.com redirection
