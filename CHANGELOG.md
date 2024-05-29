@@ -1,3 +1,6 @@
+## 3.0.4
+* Add .secret TLDs support
+
 ## 3.0.3
 * Add .wrkx TLDs support
 
