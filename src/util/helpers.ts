@@ -26,4 +26,5 @@ export const supportedDomains: string[] = [
   ".witg",
   ".metropolis",
   ".wrkx",
+  ".secret",
 ];
