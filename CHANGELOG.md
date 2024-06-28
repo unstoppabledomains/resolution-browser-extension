@@ -1,3 +1,6 @@
+## 3.1.0
+* Add Unstoppable Lite Wallet
+
 ## 3.0.3
 * Add .secret TLDs support
 

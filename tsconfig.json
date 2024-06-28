@@ -3,8 +3,10 @@
     "lib": ["DOM", "ES2015"],
     "jsx": "react",
     "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["chrome"]
+    "typeRoots": ["./node_modules/@types", "./typings"],
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src",
+    "custom.d.ts"
+  ],
 }

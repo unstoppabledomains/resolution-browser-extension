@@ -1,32 +1,53 @@
 # The Unstoppable Extension
 
-The Unstoppable Extension is used to access decentralized blockchain domains. These domains are stored on the blockchain and hosted on decentralized storage networks like IPFS. This extension resolves these names inside chrome by redirecting queries to IPFS gateways. This technology allows users to surf the decentralized web and visit ipfs websites hosted on .crypto, .eth and others
+**The Unstoppable Extension** enables access to decentralized blockchain domains, facilitating a secure and user-driven browsing experience. It integrates with decentralized storage networks such as IPFS to resolve domain names stored on the blockchain, such as `.crypto` and `.eth`, directly within the Chrome browser.
 
-## Getting started
- * First of all clone the repo and install all dependencies with yarn or npm install
+## Getting Started
 
- * ```yarn build``` to build the project
+### Prerequisites
 
- * Once the project is build type ```chrome://extensions``` into a chrome browser to maintain the extensions. Load an unpacked version of this extension into the browser (choose folder build that was generated after the build command)
+Ensure that you have `yarn` installed on your machine. If not, you can install it via [Yarn's official documentation](https://classic.yarnpkg.com/en/docs/install).
 
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+
+3. Copy .env.sample to .env and fill in the required values:
+   ```bash
+   cp .env.sample .env
+   ```
+
+4. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+5. Build the project:
+   ```bash
+   yarn dev
+   ```
+
+6. Once the build is complete, open `chrome://extensions` in your Chrome browser, enable Developer mode, and load the unpacked extension by selecting the `dist` folder.
 
 ## Usage
- * Choose a gateway from extension pop up window.
- * Type in a blockchain domain in the browser url field.
- * You will be redirected to the IPFS gateway with the domain’s IPFS hash record.
 
-## FAQ
+1. Open the extension popup window and select a gateway.
+2. Enter a blockchain domain in the browser's URL field.
+3. You will be automatically redirected to the corresponding gateway using the domain's IPFS hash record.
 
-### Why does this extension require access to *.google.com and others search engines' domains?
+## Frequently Asked Questions (FAQ)
 
-Without doing so, we couldn't easily redirect people who use [Google](https://digg.com/video/tech-ceos-testified-before-congress-and-things-got-awkward).
+### Why does this extension require access to `*.google.com` and other search engine domains?
 
-For example, if the user searches for "brad.crypto", this extension will redirect your browser to the decentralised address.
+This access is essential for redirecting queries from major search engines like Google to decentralized addresses. For instance, searching for "brad.crypto" will redirect to its decentralized counterpart. Note that this extension _does not_ store or transmit your browsing history; all processing is done locally on your device.
 
-Please note that this extension *does not* upload any form of browsing history to our servers. This calculation is done completely in the client.
+### How can I add support for additional search engines?
 
-### Building the extension
+Adding a new search engine is straightforward:
 
-The extension uses [Parcel](https://parceljs.org/) to pack the extension. After cloning the repo, running `yarn build` will build the extension, and you can load the `build` folder into Chrome.
+1. Update the `manifest-template.json` file to include permissions for intercepting requests from the new search engine.
+2. Modify `src/util/searchEngines.ts` to incorporate the new search engine's specific configurations.
 
-Currently, the package requires Node **version 10** to build. If you're using a newer version, please use [NVM](https://github.com/nvm-sh/nvm) to install NodeJS version 10.22.0, switch to it, and try building again.
+Submit a pull request with these changes, and we will integrate the support promptly.

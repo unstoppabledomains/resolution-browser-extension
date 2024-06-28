@@ -1,57 +1,65 @@
 {
-  "private": true,
+  "name": "ud-extension",
+  "version": "3.1.0",
+  "private": false,
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
-    "name": "Unstoppable Tools"
+    "name": "Unstoppable Domains"
   },
   "homepage": "https://unstoppabledomains.com/extension",
-  "engines": {
-    "node": ">=8.17.0 <= 10.24.1"
-  },
   "scripts": {
-    "predev": "yarn prebuild && yarn build:copyArtifacts",
-    "dev": "yarn build:dev && yarn postbuild",
-    "postdev": "parcel watch --no-source-maps -d build src/index.html src/scripts/background.ts src/*",
-    "removeArtifacts": "rm -rf build static/manifest.json",
-    "build:copyArtifacts": "cp -R ./static/* build",
-    "prebuild": "yarn removeArtifacts",
-    "build": "yarn build:chrome",
-    "build:dev": "yarn build:chrome:dev",
-    "postbuild": "yarn build:copyArtifacts",
-    "build:chrome": "yarn removeArtifacts && yarn build:chrome:manifest && yarn build:extension",
-    "build:chrome:dev": "yarn removeArtifacts && yarn build:chrome:manifest:dev && yarn build:extension",
-    "build:chrome:manifest": "./create_manifest.js chrome",
-    "build:chrome:manifest:dev": "./create_manifest.js chrome dev",
-    "build:firefox": "yarn removeArtifacts && yarn build:firefox:manifest && yarn build:extension",
-    "build:firefox:dev": "yarn removeArtifacts && yarn build:firefox:manifest:dev && yarn build:extension",
-    "build:firefox:manifest": "./create_manifest.js firefox",
-    "build:firefox:manifest:dev": "./create_manifest.js firefox dev",
-    "build:extension": "parcel build --no-source-maps -d build src/index.html src/scripts/background.ts",
-    "build:archives": "yarn build:archives:chrome && yarn build:archives:firefox",
-    "build:archives:chrome": "yarn build:chrome && yarn postbuild && yarn zip:chrome",
-    "build:archives:firefox": "yarn build:firefox && yarn postbuild && yarn zip:firefox",
-    "zip:chrome": "zip -FSr chromeArchive.zip build",
-    "zip:firefox": "zip -FSr firefoxArchive.zip build"
+    "prettier": "prettier --write --log-level warn \"src/**/*.{js,jsx,json,ts,tsx,css,scss,md}\"",
+    "predev": "rimraf .parcel-cache dist && yarn prettier",
+    "dev": "parcel watch src/manifest.json --host localhost",
+    "build": "parcel build src/manifest.json --no-cache",
+    "postbuild": "node scripts/remove-source-maps.mjs && node scripts/create-zip.mjs",
+    "create-env": "node scripts/create-env.mjs",
+    "create-manifest": "node create_manifest.js",
+    "postinstall": "npm run create-env && npm run create-manifest"
   },
-  "browserslist": [
-    "last 2 Chrome versions"
-  ],
   "dependencies": {
-    "@material-ui/core": "^4.0.0",
-    "@material-ui/icons": "^4.9.1",
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0",
-    "react-router-dom": "^5.1.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@fireblocks/ncw-js-infra": "1.0.20-experimental.1",
+    "@fireblocks/ncw-js-sdk": "12.1.3-experimental.1",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/material": "^5.15.20",
+    "@tanstack/react-query": "^5.45.1",
+    "@tanstack/react-query-devtools": "^5.45.1",
+    "launchdarkly-react-client-sdk": "^3.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.1",
     "use-async-effect": "^2.2.7"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.266",
-    "@types/node": "^18.15.11",
-    "@types/react": "^16.8.6",
-    "@types/react-dom": "^16.9.5",
-    "parcel-bundler": "^1.12.4",
-    "prettier": "^1.19.1",
-    "typescript": "^3.7.4"
+    "@babel/core": "^7.24.7",
+    "@parcel/config-webextension": "^2.12.0",
+    "@parcel/transformer-svg-react": "^2.12.0",
+    "@types/chrome": "^0.0.268",
+    "@types/node": "^20.14.6",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "assert": "^2.1.0",
+    "buffer": "^5.5.0||^6.0.0",
+    "dotenv": "^16.4.5",
+    "filenamify": "^6.0.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.4.2",
+    "nodemon": "^3.1.4",
+    "parcel": "^2.12.0",
+    "parcel-plugin-static-files-copy": "^2.6.0",
+    "parcel-reporter-static-files-copy": "^1.5.3",
+    "prettier": "^3.3.2",
+    "process": "^0.11.10",
+    "querystring-es3": "^0.2.1",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.4.5",
+    "zip-lib": "^1.0.4"
+  },
+  "staticFiles": {
+    "staticPath": "static",
+    "watcherGlob": "**"
   }
 }
