@@ -1,13 +1,20 @@
 import React, {useEffect, useState} from "react";
-import {Box, TextField, Button, Typography, styled} from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  styled,
+  IconButton,
+} from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {green} from "@mui/material/colors";
 
 import sendBootstrapCodeEmail from "../../api/sendEmail";
 import getFireblocksNCW from "../../services/fireblockServices";
 import sendJoinRequest from "../../api/sendJoinrequest";
 import useAuthorizationTokenConfirm from "../../api/useAuthorizationTokenConfirm";
-import {sleep} from "../../util/sleep";
 import {
   StorageSyncKey,
   chromeStorageSyncGet,
@@ -17,6 +24,7 @@ import useBootstrapToken from "../../api/useBootstrapToken";
 import {useNavigate} from "react-router-dom";
 import {pollUntilSuccess} from "../../util/poll";
 import useAsyncEffect from "use-async-effect";
+import {isValidEmail} from "../../util/validations";
 
 const StyledTextField = styled(TextField)({
   "& .MuiInputBase-root": {
@@ -79,7 +87,7 @@ const EmailAndPassword: React.FC<EmailAndPasswordProps> = ({
   const [enabledContinueButton, setEnabledContinueButton] = useState(false);
 
   useEffect(() => {
-    if (password.length > 0 && email.length > 0) {
+    if (password.length > 0 && email.length > 0 && isValidEmail(email)) {
       setEnabledContinueButton(true);
     } else {
       setEnabledContinueButton(false);
@@ -287,13 +295,18 @@ const SetupYourNewWallet: React.FC<Props> = ({
     if (!isAuthorizationTokenSetupSuccess || !tx) {
       return;
     }
+
     console.log("GET TX", tx);
+
     const txSignature = await fbNCW.signTransaction(tx.transactionId);
     console.log("txSignature:", txSignature);
-    authorizationTokenConfirmMutation(accessToken);
-    setClaimingWallet(false);
-    setStep(Step.WalletClaimed);
-  }, [isAuthorizationTokenSetupSuccess]);
+
+    setTimeout(() => {
+      authorizationTokenConfirmMutation(accessToken);
+      setClaimingWallet(false);
+      setStep(Step.WalletClaimed);
+    }, 2000);
+  }, [isAuthorizationTokenSetupSuccess, tx]);
 
   useAsyncEffect(async () => {
     if (!isBootstrapTokenSuccess) {
@@ -350,18 +363,39 @@ const SetupYourNewWallet: React.FC<Props> = ({
     bootstrapTokenMutation(code);
   };
 
+  const showBackButton = step === Step.VerifyEmail;
+
   return (
     <Box>
-      <Typography
-        sx={{
-          fontWeight: "600",
-        }}
-        variant="h6"
-        gutterBottom
-        textAlign="center"
-      >
-        Set up your new wallet
-      </Typography>
+      <Box sx={{display: "flex", alignItems: "center"}}>
+        {showBackButton && (
+          <IconButton
+            onClick={() => {
+              if (step === Step.VerifyEmail) {
+                setStep(Step.EmailAndPassword);
+              }
+            }}
+            disabled={claimingWallet}
+            aria-label="back"
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        )}
+        <Typography
+          sx={{
+            alignSelf: "center",
+            fontWeight: "600",
+            flexGrow: 1,
+            textAlign: "center",
+          }}
+          variant="h6"
+          gutterBottom
+        >
+          Set up your new wallet
+        </Typography>
+        {showBackButton && <Box sx={{width: 40}} />}
+      </Box>
+
       {step === Step.EmailAndPassword && (
         <EmailAndPassword
           email={email}
