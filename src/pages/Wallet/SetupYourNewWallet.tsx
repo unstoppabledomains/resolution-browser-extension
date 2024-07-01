@@ -15,6 +15,8 @@ import {
 import useAuthorizationTokenSetup from "../../api/useAuthorizationTokenSetup";
 import useBootstrapToken from "../../api/useBootstrapToken";
 import {useNavigate} from "react-router-dom";
+import {pollUntilSuccess} from "../../util/poll";
+import useAsyncEffect from "use-async-effect";
 
 const StyledTextField = styled(TextField)({
   "& .MuiInputBase-root": {
@@ -265,79 +267,77 @@ const SetupYourNewWallet: React.FC<Props> = ({
   } = useBootstrapToken();
 
   useEffect(() => {
-    if (isAuthorizationTokenConfirmSuccess) {
-      chromeStorageSyncGet(StorageSyncKey.AccessToken).then((accessToken) => {
-        console.log("accessToken:", accessToken);
-      });
-      chromeStorageSyncGet(StorageSyncKey.RefreshToken).then((refreshToken) => {
-        console.log("refreshToken:", refreshToken);
-      });
-      chromeStorageSyncGet(StorageSyncKey.BootstrapToken).then(
-        (bootstrapToken) => {
-          console.log("bootstrapToken:", bootstrapToken);
-        },
-      );
+    if (!isAuthorizationTokenConfirmSuccess) {
+      return;
     }
+    chromeStorageSyncGet(StorageSyncKey.AccessToken).then((accessToken) => {
+      console.log("accessToken:", accessToken);
+    });
+    chromeStorageSyncGet(StorageSyncKey.RefreshToken).then((refreshToken) => {
+      console.log("refreshToken:", refreshToken);
+    });
+    chromeStorageSyncGet(StorageSyncKey.BootstrapToken).then(
+      (bootstrapToken) => {
+        console.log("bootstrapToken:", bootstrapToken);
+      },
+    );
   }, [isAuthorizationTokenConfirmSuccess]);
 
-  useEffect(() => {
-    if (isAuthorizationTokenSetupSuccess) {
-      console.log("GET TX", tx);
-      fbNCW.signTransaction(tx.transactionId).then((txSignature) => {
-        console.log("txSignature:", txSignature);
-        authorizationTokenConfirmMutation(accessToken);
-
-        setClaimingWallet(false);
-        setStep(Step.WalletClaimed);
-      });
+  useAsyncEffect(async () => {
+    if (!isAuthorizationTokenSetupSuccess || !tx) {
+      return;
     }
+    console.log("GET TX", tx);
+    const txSignature = await fbNCW.signTransaction(tx.transactionId);
+    console.log("txSignature:", txSignature);
+    authorizationTokenConfirmMutation(accessToken);
+    setClaimingWallet(false);
+    setStep(Step.WalletClaimed);
   }, [isAuthorizationTokenSetupSuccess]);
 
-  useEffect(() => {
-    if (isBootstrapTokenSuccess) {
-      console.log("bootstrapTokenData:", bootstrapTokenData);
-      getFireblocksNCW(
-        bootstrapTokenData.deviceId,
-        bootstrapTokenData.accessToken,
-      )
-        .then((fbNCW) => {
-          const checkKeyStatus = async () => {
-            for (let i = 1; i <= 50; i++) {
+  useAsyncEffect(async () => {
+    if (!isBootstrapTokenSuccess) {
+      return;
+    }
+    console.log("bootstrapTokenData:", bootstrapTokenData);
+    const fbNCW = await getFireblocksNCW(
+      bootstrapTokenData.deviceId,
+      bootstrapTokenData.accessToken,
+    );
+    setFbNCW(fbNCW);
+    setAccessToken(bootstrapTokenData.accessToken);
+    fbNCW.requestJoinExistingWallet({
+      onRequestId: async (requestId) => {
+        console.log("requestId:", requestId);
+        try {
+          await sendJoinRequest(
+            requestId,
+            bootstrapTokenData.accessToken,
+            password,
+          );
+          const {success: isKeyReady} = await pollUntilSuccess({
+            fn: async () => {
               const status = await fbNCW.getKeysStatus();
               console.log("STATUS", status.MPC_CMP_ECDSA_SECP256K1.keyStatus);
-              if (status.MPC_CMP_ECDSA_SECP256K1.keyStatus === "READY") {
-                console.log("retrieved key");
-                authorizationTokenSetupMutation(bootstrapTokenData.accessToken);
-                break;
-              }
-              await sleep(1000);
-            }
-          };
-
-          setFbNCW(fbNCW);
-          setAccessToken(bootstrapTokenData.accessToken);
-          fbNCW.requestJoinExistingWallet({
-            onRequestId: async (requestId) => {
-              console.log("requestId:", requestId);
-              await sendJoinRequest(
-                requestId,
-                bootstrapTokenData.accessToken,
-                password,
-              );
-
-              await checkKeyStatus().catch((error) => {
-                console.error("Error:", error);
-              });
+              return {
+                success: status.MPC_CMP_ECDSA_SECP256K1.keyStatus === "READY",
+                value: null,
+              };
             },
-            onProvisionerFound: () => {
-              console.log("Provisioner found");
-            },
+            attempts: 50,
+            interval: 1000,
           });
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
+          if (isKeyReady) {
+            authorizationTokenSetupMutation(bootstrapTokenData.accessToken);
+          }
+        } catch (e) {
+          console.error("Error", e);
+        }
+      },
+      onProvisionerFound: () => {
+        console.log("Provisioner found");
+      },
+    });
   }, [isBootstrapTokenSuccess]);
 
   const sendEmail = async () => {
