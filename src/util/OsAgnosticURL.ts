@@ -2,19 +2,20 @@
 // this OAURL class is a hacky attempt to bring both OS under the same page.
 
 export default class OAURL {
-
   private isDigitTld: boolean;
   private url: URL;
 
   constructor(url: string) {
-    this.isDigitTld = url.includes('.888');
-    this.url = this.isDigitTld ? 
-      new URL(this.fromDot888ToDotCom(url)) :
-      new URL(url);
+    this.isDigitTld = url.includes(".888");
+    this.url = this.isDigitTld
+      ? new URL(this.fromDot888ToDotCom(url))
+      : new URL(url);
   }
 
   hostname(): string {
-    return this.isDigitTld ? this.fromDotComToDot888(this.url.hostname) : this.url.hostname;
+    return this.isDigitTld
+      ? this.fromDotComToDot888(this.url.hostname)
+      : this.url.hostname;
   }
 
   protocol(): string {
@@ -22,7 +23,9 @@ export default class OAURL {
   }
 
   pathname(): string {
-    return this.isDigitTld ? this.fromDotComToDot888(this.url.pathname) : this.url.pathname;
+    return this.isDigitTld
+      ? this.fromDotComToDot888(this.url.pathname)
+      : this.url.pathname;
   }
 
   searchParams(): URLSearchParams {
@@ -30,15 +33,16 @@ export default class OAURL {
   }
 
   toString(): string {
-    return this.isDigitTld ? this.fromDotComToDot888(this.url.toString()) : this.url.toString();
+    return this.isDigitTld
+      ? this.fromDotComToDot888(this.url.toString())
+      : this.url.toString();
   }
 
   private fromDotComToDot888(mes: string): string {
-    return mes.replace('.com', '.888');
+    return mes.replace(".com", ".888");
   }
 
   private fromDot888ToDotCom(mes: string): string {
-    return mes.replace('.888', '.com');
+    return mes.replace(".888", ".com");
   }
-
 }

@@ -1,38 +1,73 @@
-import React from 'react'
-import {WithStyles, withStyles} from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Link from '@material-ui/core/Link'
-import styles from '../styles/footer.style'
+import React from "react";
+import {Box, Grid, Link, Typography} from "@mui/material";
+import {useNavigate} from "react-router-dom";
+import {useFlags} from "launchdarkly-react-client-sdk";
 
-interface Props extends WithStyles<typeof styles> {}
+const styles = {
+  main: {
+    maxHeight: "48px",
+    padding: 1,
+    backgroundColor: "#eef9ff",
+    color: "#2d64ff",
+    fontWeight: "bold",
+  },
+  trailing: {
+    alignSelf: "flex-end",
+  },
+  title: {
+    fontWeight: "bold",
+    fontSize: "14px",
+  },
+};
 
-const Footer: React.FC<Props> = ({classes}) => {
+interface Props {}
+
+const Footer: React.FC<Props> = ({}) => {
+  const navigate = useNavigate();
+  const flags = useFlags();
+
   const navigateToList = () => {
-    return chrome.tabs.update({url: 'index.html#list'})
-  }
+    const manifest = chrome.runtime.getManifest();
+    return chrome.tabs.update({
+      url: `${manifest.browser_action.default_popup}#list`,
+    });
+  };
 
   return (
-    <div className={classes.main}>
+    <Box sx={styles.main}>
       <Grid container wrap="nowrap" spacing={1}>
         <Grid item>
           <i className="material-icons md-24">folder</i>
         </Grid>
         <Grid item xs zeroMinWidth>
           <Link onClick={navigateToList}>
-            <Typography variant="subtitle1" className={classes.title}>
+            <Typography variant="subtitle1" sx={styles.title}>
               View list of websites
             </Typography>
           </Link>
         </Grid>
-        <Grid item className={classes.trailing}>
-          <a href="https://unstoppabledomains.com" target="blank">
+        {flags.extensionWalletEnable && (
+          <Grid item sx={styles.trailing}>
+            <Link
+              onClick={() => {
+                navigate("/wallet");
+              }}
+              style={{
+                cursor: "pointer",
+              }}
+            >
+              <i className="material-icons md-24">wallet</i>
+            </Link>
+          </Grid>
+        )}
+        <Grid item sx={styles.trailing}>
+          <Link href="https://unstoppabledomains.com" target="blank">
             <i className="material-icons md-24">home</i>
-          </a>
+          </Link>
         </Grid>
       </Grid>
-    </div>
-  )
-}
+    </Box>
+  );
+};
 
-export default withStyles(styles)(Footer)
+export default Footer;

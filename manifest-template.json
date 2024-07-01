@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Unstoppable Extension",
   "short_name": "Unstoppable Extension",
-  "version": "3.0.3",
+  "version": "3.1.0",
   "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
   "icons": {
     "16": "icon/16.png",
@@ -18,12 +18,10 @@
     }
   },
   "background": {
-    "service_worker": "scripts/background.js"
+    "service_worker": "./scripts/background.ts",
+    "type": "module"
   },
-  "options_ui": {
-    "page": "index.html#/options",
-    "open_in_tab": false
-  },
+  "options_ui": {"page": "index.html#/options", "open_in_tab": false},
   "host_permissions": [
     "*://*.crypto/*",
     "*://*.zil/*",
@@ -62,7 +60,18 @@
     "*://*.aol.co.uk/*",
     "*://*.baidu.com/*",
     "*://*.bing.com/*",
-    "*://*.wiki.com/*"
+    "*://*.wiki.com/*",
+    "https://api.ud-staging.com/",
+    "*://*.fireblocks.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "web_accessible_resources": [
+    {
+      "matches": ["<all_urls>"],
+      "resources": ["js/wasm/cosigner.esm.wasm"]
+    }
   ],
   "permissions": [
     "storage",

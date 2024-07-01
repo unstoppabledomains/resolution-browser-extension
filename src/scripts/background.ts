@@ -4,11 +4,11 @@ import {supportedDomains} from "../util/helpers";
 const RESOLUTION_URL = "https://api.unstoppabledomains.com/resolve/";
 const REDIRECT_URL = `${RESOLUTION_URL}redirect?url=`;
 
-const domainsList = supportedDomains.map(domain => domain.replace(".", ""));
+const domainsList = supportedDomains.map((domain) => domain.replace(".", ""));
 
 function deleteAllRules() {
-  chrome.declarativeNetRequest.getDynamicRules(rules => {
-    const ruleIds = rules.map(rule => rule.id);
+  chrome.declarativeNetRequest.getDynamicRules((rules) => {
+    const ruleIds = rules.map((rule) => rule.id);
 
     if (ruleIds.length > 0) {
       chrome.declarativeNetRequest.updateDynamicRules(
