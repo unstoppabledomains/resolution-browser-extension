@@ -1,3 +1,6 @@
+## 3.0.5
+* Add .raiin TLDs support
+
 ## 3.0.4
 * Add .secret TLDs support
 
