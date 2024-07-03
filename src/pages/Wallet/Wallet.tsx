@@ -9,8 +9,10 @@ import {
 } from "../../util/chromeStorageSync";
 import {WalletState} from "../../types";
 import {useNavigate} from "react-router-dom";
+import {Wallet} from "@unstoppabledomains/ui-components";
 
-const Wallet: React.FC = () => {
+
+const WalletComp: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [walletState, setWalletState] = useState<WalletState>(WalletState.Load);
@@ -72,7 +74,13 @@ const Wallet: React.FC = () => {
         borderRadius: 2,
       }}
     >
-      {walletState === WalletState.Load && <CircularProgress />}
+      <Wallet 
+        address="0x1234567890"
+        domain="example.crypto"
+        setButtonComponent={() => {}}
+        onUpdate={() => {}}
+      />
+      {/* {walletState === WalletState.Load && <CircularProgress />}
       {walletState === WalletState.Onboard && (
         <SetupYourNewWallet
           email={email}
@@ -83,9 +91,9 @@ const Wallet: React.FC = () => {
       )}
       {walletState === WalletState.Account && (
         <WalletAccount accountsList={accountsList} />
-      )}
+      )} */}
     </Box>
   );
 };
 
-export default Wallet;
+export default WalletComp;
