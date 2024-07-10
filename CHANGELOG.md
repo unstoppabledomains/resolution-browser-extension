@@ -1,3 +1,6 @@
+## 3.0.6
+* Add .stepn TLDs support
+
 ## 3.0.4
 * Add .raiin TLDs support
 

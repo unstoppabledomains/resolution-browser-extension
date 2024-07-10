@@ -27,5 +27,6 @@ export const supportedDomains: string[] = [
   ".metropolis",
   ".wrkx",
   ".secret",
-  ".raiin"
+  ".raiin",
+  ".stepn",
 ];
