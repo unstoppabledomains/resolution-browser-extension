@@ -13,6 +13,9 @@ import {
 import {RpcMessageProvider} from "./rpcHandler";
 import {UnsecureKeyStorageProvider} from "./unsecureStorage";
 
+export const FB_MAX_RETRY = 100;
+export const FB_WAIT_TIME_MS = 1000;
+
 const getFireblocksNCW = async (
   deviceId: string,
   jwt: string,

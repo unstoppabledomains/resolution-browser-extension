@@ -1,0 +1,4 @@
+{
+  "locales": [{"name": "English", "code": "en-us", "file": "en.json"}],
+  "defaultLocale": "en-us"
+}

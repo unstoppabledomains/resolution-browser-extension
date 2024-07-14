@@ -2,14 +2,14 @@ import {Box, Typography} from "@mui/material";
 import React from "react";
 
 type TotalBallanceProps = {
-  totalBalance: number;
+  totalBalance: number | string;
 };
 
 const TotalBallance: React.FC<TotalBallanceProps> = ({totalBalance}) => {
   return (
     <Box
       sx={{
-        paddingBottom: "2rem",
+        paddingBottom: "1rem",
       }}
     >
       <Typography

@@ -53,7 +53,10 @@ const TokenItem: React.FC<TokenItemProps> = ({wallet}) => {
             <TokenDetailsBox>
               <TokenNameText>{wallet.name}</TokenNameText>
               <TokenAmountText>
-                {wallet.balance || 0} {wallet.symbol}
+                {wallet.symbol == "BTC"
+                  ? Number(wallet.totalValueUsdAmt).toPrecision(4)
+                  : Number(wallet.balance).toPrecision(4) || 0}{" "}
+                {wallet.symbol}
               </TokenAmountText>
             </TokenDetailsBox>
           </TokenInfoBox>

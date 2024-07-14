@@ -9,17 +9,23 @@ import {
 } from "../../util/chromeStorageSync";
 import {WalletState} from "../../types";
 import {useNavigate} from "react-router-dom";
+import useGetWalletDetails from "../../api/useGetWalletDetails";
+import useGetAccountsAssetsList from "../../api/useGetAccountsAssetsList";
+import {uniqueArray} from "../../util/helpers";
 
 const Wallet: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [walletState, setWalletState] = useState<WalletState>(WalletState.Load);
+  const [walletAddresses, setWalletAddresses] = React.useState<string[]>([]);
+
   const navigate = useNavigate();
 
   const [getAccountsListEnable, setGetAccountsListEnable] = useState(false);
   const {
     data: accountsList,
     isSuccess: isAccountsListSuccess,
+    isFetched: isAccountsListFetched,
     isPending: isAccountsListLoading,
   } = useGetAccountsList({
     enabled: getAccountsListEnable,
@@ -80,9 +86,6 @@ const Wallet: React.FC = () => {
           password={password}
           setPassword={setPassword}
         />
-      )}
-      {walletState === WalletState.Account && (
-        <WalletAccount accountsList={accountsList} />
       )}
     </Box>
   );

@@ -18,6 +18,12 @@ import {LDProvider} from "launchdarkly-react-client-sdk";
 import config from "../config";
 import UserIdService from "../services/userIdService";
 import WalletAccount from "../pages/Wallet/WalletAccount";
+import {ThemeProvider} from "@mui/styles";
+import theme from "../styles/theme";
+import {CssBaseline} from "@mui/material";
+import WalletSend from "../pages/Wallet/WalletSend";
+import WalletBuy from "../pages/Wallet/WalletBuy";
+import WalletReceive from "../pages/Wallet/WalletReceive";
 
 const queryClient = new QueryClient();
 const userIdService = new UserIdService();
@@ -86,6 +92,18 @@ const router = createMemoryRouter([
     path: "/wallet/account",
     Component: WalletAccount,
   },
+  {
+    path: "/wallet/send",
+    Component: WalletSend,
+  },
+  {
+    path: "/wallet/buy",
+    Component: WalletBuy,
+  },
+  {
+    path: "/wallet/receive",
+    Component: WalletReceive,
+  },
 ]);
 
 const Root: React.FC = () => (
@@ -110,7 +128,10 @@ const RootApp = () => {
           key: userId,
         }}
       >
-        <Root />
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Root />
+        </ThemeProvider>
       </LDProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

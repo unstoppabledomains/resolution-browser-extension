@@ -18,6 +18,7 @@ import useAuthorizationTokenConfirm from "../../api/useAuthorizationTokenConfirm
 import {
   StorageSyncKey,
   chromeStorageSyncGet,
+  chromeStorageSyncSet,
 } from "../../util/chromeStorageSync";
 import useAuthorizationTokenSetup from "../../api/useAuthorizationTokenSetup";
 import useBootstrapToken from "../../api/useBootstrapToken";
@@ -317,6 +318,8 @@ const SetupYourNewWallet: React.FC<Props> = ({
       bootstrapTokenData.deviceId,
       bootstrapTokenData.accessToken,
     );
+
+    chromeStorageSyncSet(StorageSyncKey.DeviceID, bootstrapTokenData.deviceId);
     setFbNCW(fbNCW);
     setAccessToken(bootstrapTokenData.accessToken);
     fbNCW.requestJoinExistingWallet({

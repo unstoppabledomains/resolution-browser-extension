@@ -6,6 +6,7 @@ export enum StorageSyncKey {
   AccessToken = "AccessToken",
   RefreshToken = "RefreshToken",
   BootstrapToken = "BootstrapToken",
+  DeviceID = "DeviceID",
 }
 
 export function chromeStorageSyncClear(): Promise<void> {
