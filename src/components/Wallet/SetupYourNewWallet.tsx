@@ -6,6 +6,7 @@ import {
   Typography,
   styled,
   IconButton,
+  Theme,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -26,6 +27,8 @@ import {useNavigate} from "react-router-dom";
 import {pollUntilSuccess} from "../../util/poll";
 import useAsyncEffect from "use-async-effect";
 import {isValidEmail} from "../../util/validations";
+import {makeStyles} from "@mui/styles";
+import UnstoppableWalletIcon from "jsx:../../assets/icons/UnstoppableWallet.svg";
 
 const StyledTextField = styled(TextField)({
   "& .MuiInputBase-root": {
@@ -47,6 +50,22 @@ const ContinueCustomButton = styled(Button)({
   },
 });
 
+const useStyles = makeStyles((theme: Theme) => ({
+  iconContainer: {},
+  pictureContainer: {
+    display: "flex",
+    justifyContent: "center",
+  },
+  imageWrapper: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 40,
+    height: 40,
+  },
+  icon: {},
+}));
+
 interface ContinueButtonProps {
   enabled: boolean;
   onClick: () => void;
@@ -67,6 +86,24 @@ const ContinueButton: React.FC<ContinueButtonProps> = ({
     >
       {caption}
     </ContinueCustomButton>
+  );
+};
+
+const BackButton: React.FC<{onClick: () => void}> = ({onClick}) => {
+  return (
+    <Button
+      onClick={onClick}
+      variant="text"
+      fullWidth
+      sx={{
+        color: "rgba(0, 0, 0, 0.5)",
+        textTransform: "none",
+        fontSize: 16,
+        borderRadius: 16,
+      }}
+    >
+      Back
+    </Button>
   );
 };
 
@@ -137,6 +174,8 @@ interface VerifyEmailProps {
   setEmailBootstrapCode: (emailBootstrapCode: string) => void;
   getFireblockNCW: (code: string, password: string) => void;
   claimingWallet: boolean;
+  step: any;
+  setStep: any;
 }
 
 const VerifyEmail: React.FC<VerifyEmailProps> = ({
@@ -145,6 +184,8 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
   setEmailBootstrapCode,
   getFireblockNCW,
   claimingWallet,
+  step,
+  setStep,
 }) => {
   return (
     <Box>
@@ -163,7 +204,7 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
       <Box width="100%">
         <StyledTextField
           fullWidth
-          label="Your email setup code"
+          label="Enter one-time code"
           value={emailBootstrapCode}
           onChange={(e) => setEmailBootstrapCode(e.target.value)}
           variant="outlined"
@@ -171,11 +212,25 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
         />
         <ContinueButton
           enabled={!claimingWallet}
-          caption={claimingWallet ? "Claiming Wallet" : "Claim Wallet"}
+          caption={"Continue"}
           onClick={() => {
             getFireblockNCW(emailBootstrapCode, password);
           }}
         />
+        <Box
+          sx={{
+            paddingTop: "10px",
+          }}
+        >
+          <BackButton
+            onClick={() => {
+              setEmailBootstrapCode("");
+              if (step === Step.VerifyEmail) {
+                setStep(Step.EmailAndPassword);
+              }
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   );
@@ -239,17 +294,19 @@ interface Props {
   setPassword: (password: string) => void;
 }
 
+enum Step {
+  EmailAndPassword,
+  VerifyEmail,
+  WalletClaimed,
+}
+
 const SetupYourNewWallet: React.FC<Props> = ({
   email,
   setEmail,
   password,
   setPassword,
 }) => {
-  enum Step {
-    EmailAndPassword,
-    VerifyEmail,
-    WalletClaimed,
-  }
+  const classes = useStyles();
 
   const [step, setStep] = useState<Step>(Step.EmailAndPassword);
   const [bootstrapEmailCode, setBootstrapEmailCode] = useState("");
@@ -366,10 +423,19 @@ const SetupYourNewWallet: React.FC<Props> = ({
     bootstrapTokenMutation(code);
   };
 
-  const showBackButton = step === Step.VerifyEmail;
+  const showBackButton = false;
 
   return (
     <Box>
+      <Box className={classes.iconContainer}>
+        <Box className={classes.pictureContainer}>
+          <Box className={classes.imageWrapper}>
+            <Box className={classes.icon}>
+              <UnstoppableWalletIcon />
+            </Box>
+          </Box>
+        </Box>
+      </Box>
       <Box sx={{display: "flex", alignItems: "center"}}>
         {showBackButton && (
           <IconButton
@@ -415,6 +481,8 @@ const SetupYourNewWallet: React.FC<Props> = ({
           setEmailBootstrapCode={setBootstrapEmailCode}
           getFireblockNCW={() => getFireblockNCW(bootstrapEmailCode, password)}
           claimingWallet={claimingWallet}
+          step={step}
+          setStep={setStep}
         />
       )}
       {step === Step.WalletClaimed && <WalletClaimed />}

@@ -3,7 +3,6 @@ import type {Theme} from "@mui/material/styles";
 import {stringify} from "querystring";
 import React from "react";
 
-// import type {SerializedWalletBalance} from '../../lib';
 import {SelectAsset} from "../SelectAsset";
 import config from "../../../config";
 import {makeStyles} from "@mui/styles";

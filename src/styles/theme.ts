@@ -14,9 +14,11 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#1976d2",
+      light: "#ffffff",
     },
     primaryShades: {
       100: "#eeeeff",
+      900: "#00000033",
     },
   },
   spacing: 8,

@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Box, CircularProgress} from "@mui/material";
-import SetupYourNewWallet from "./SetupYourNewWallet";
-import WalletAccount from "./WalletAccount";
+import SetupYourNewWallet from "../../components/Wallet/SetupYourNewWallet";
 import useGetAccountsList from "../../api/useGetAccountsList";
 import {
   StorageSyncKey,
@@ -65,19 +64,7 @@ const Wallet: React.FC = () => {
   }, [isAccountsListSuccess, isAccountsListLoading, getAccountsListEnable]);
 
   return (
-    <Box
-      sx={{
-        width: "400px",
-        height: "500px",
-        margin: "auto",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        boxShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
-        borderRadius: 2,
-      }}
-    >
+    <Box>
       {walletState === WalletState.Load && <CircularProgress />}
       {walletState === WalletState.Onboard && (
         <SetupYourNewWallet

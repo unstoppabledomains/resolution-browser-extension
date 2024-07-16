@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import {useEffect, useRef} from "react";
 
 const usePrevious = <T>(value: T, isUndefinedFirst = true) => {
   const ref = useRef(isUndefinedFirst ? undefined : value);

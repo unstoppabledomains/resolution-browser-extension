@@ -1,6 +1,6 @@
-export type AvailableLocales = 'en-us';
+export type AvailableLocales = "en-us";
 
-export const DEFAULT_LOCALE: AvailableLocales = 'en-us';
+export const DEFAULT_LOCALE: AvailableLocales = "en-us";
 
 export type I18nInterpolations = Record<string, string | number>;
 
@@ -13,7 +13,7 @@ export type Locale = {
 // which is not using static typing
 export type Locales = {
   locales: Locale[];
-  defaultLocale: 'en-us';
+  defaultLocale: "en-us";
 };
 
 export type T = (

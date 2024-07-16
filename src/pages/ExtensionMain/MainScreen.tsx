@@ -16,7 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import ShowUserId from "../../components/ShowUserId";
+import ShowUserId from "../../components/Common/ShowUserId";
 import {useFlags} from "launchdarkly-react-client-sdk";
 
 const styles = {

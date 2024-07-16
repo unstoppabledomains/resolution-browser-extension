@@ -1,4 +1,5 @@
 import config from "../config";
+import {chromeStorageSyncGet, StorageSyncKey} from "../util/chromeStorageSync";
 
 export default async function fetchWalletApi<T>(
   url: string,
@@ -7,8 +8,17 @@ export default async function fetchWalletApi<T>(
   let headers = {
     ...options?.headers,
     "Access-Control-Allow-Credentials": "true",
-    "x-api-key": config.PROFILE_API_KEY,
   };
+
+  if (!options?.headers?.["Authorization"]) {
+    let accessToken: string;
+
+    try {
+      accessToken = await chromeStorageSyncGet(StorageSyncKey.AccessToken);
+    } catch (e) {}
+
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
 
   const response = await fetch(url, {
     ...options,

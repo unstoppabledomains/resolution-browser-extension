@@ -1,8 +1,14 @@
-import {useEffect, useState} from 'react';
-import { ADDRESS_REGEX, MULTI_CHAIN_ADDRESS_REGEX, ResolverKeyName, ResolverKeys, ResolverKeySymbol } from '../types';
-import type EnsResolverKeysJson from 'uns/ens-resolver-keys.json';
-import type UnsResolverKeysJson from 'uns/resolver-keys.json';
-import cloneDeep from 'lodash/cloneDeep';
+import {useEffect, useState} from "react";
+import {
+  ADDRESS_REGEX,
+  MULTI_CHAIN_ADDRESS_REGEX,
+  ResolverKeyName,
+  ResolverKeys,
+  ResolverKeySymbol,
+} from "../types";
+import type EnsResolverKeysJson from "uns/ens-resolver-keys.json";
+import type UnsResolverKeysJson from "uns/resolver-keys.json";
+import cloneDeep from "lodash/cloneDeep";
 
 export type UseResolverKeys = {
   unsResolverKeys: ResolverKeys;
@@ -12,7 +18,7 @@ export type UseResolverKeys = {
 
 export const EMPTY_RESOLVER_KEYS: ResolverKeys = {
   ResolverKeys: [],
-  ResolverKey: {} as ResolverKeys['ResolverKey'],
+  ResolverKey: {} as ResolverKeys["ResolverKey"],
 };
 
 let cachedEnsResolverKeys: typeof EnsResolverKeysJson;
@@ -22,7 +28,7 @@ const getUnsResolverKeySymbol = (key: ResolverKeyName): ResolverKeySymbol => {
   let symbol: ResolverKeySymbol = null;
 
   if (key.match(ADDRESS_REGEX) || key.match(MULTI_CHAIN_ADDRESS_REGEX)) {
-    const [, ticker] = key.split('.');
+    const [, ticker] = key.split(".");
     if (ticker) {
       symbol = ticker;
     }
@@ -33,7 +39,7 @@ const getUnsResolverKeySymbol = (key: ResolverKeyName): ResolverKeySymbol => {
 
 export const loadUnsResolverKeys = async (): Promise<ResolverKeys> => {
   if (!cachedEnsResolverKeys) {
-    cachedUnsResolverKeys = await import('uns/resolver-keys.json');
+    cachedUnsResolverKeys = await import("uns/resolver-keys.json");
   }
   const {keys} = cachedUnsResolverKeys;
   const {ResolverKeys, ResolverKey} = cloneDeep(EMPTY_RESOLVER_KEYS);
@@ -52,7 +58,7 @@ export const loadUnsResolverKeys = async (): Promise<ResolverKeys> => {
 
 export const loadEnsResolverKeys = async (): Promise<ResolverKeys> => {
   if (!cachedEnsResolverKeys) {
-    cachedEnsResolverKeys = await import('uns/ens-resolver-keys.json');
+    cachedEnsResolverKeys = await import("uns/ens-resolver-keys.json");
   }
   const {keys} = cachedEnsResolverKeys;
   const {ResolverKeys, ResolverKey} = cloneDeep(EMPTY_RESOLVER_KEYS);

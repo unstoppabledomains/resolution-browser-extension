@@ -1,3 +1,5 @@
+import type {Signer} from "ethers";
+
 import type EnsResolverKeysJson from "uns/ens-resolver-keys.json";
 import type UnsResolverKeysJson from "uns/resolver-keys.json";
 
@@ -765,3 +767,20 @@ export interface GetOperationResponse {
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
+
+export interface Web3Dependencies {
+  address: string;
+  signer: Signer;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  provider?: any;
+  unstoppableWallet?: {
+    addresses: string[];
+    promptForSignatures: boolean;
+  };
+}
+
+export const BootstrapStateCurrentKey = "current";
+export const BootstrapStatePrefix = "wallet-service-state";
+export const FireblocksStateKey = "fireblocks-state";
+
+export type WalletMode = "basic" | "portfolio";

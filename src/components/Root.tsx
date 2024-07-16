@@ -24,6 +24,7 @@ import {CssBaseline} from "@mui/material";
 import WalletSend from "../pages/Wallet/WalletSend";
 import WalletBuy from "../pages/Wallet/WalletBuy";
 import WalletReceive from "../pages/Wallet/WalletReceive";
+import Layout from "./Layout";
 
 const queryClient = new QueryClient();
 const userIdService = new UserIdService();
@@ -130,7 +131,9 @@ const RootApp = () => {
       >
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Root />
+          <Layout>
+            <Root />
+          </Layout>
         </ThemeProvider>
       </LDProvider>
       <ReactQueryDevtools initialIsOpen={false} />

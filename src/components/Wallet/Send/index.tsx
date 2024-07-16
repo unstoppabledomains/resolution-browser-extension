@@ -1,4 +1,3 @@
-import type {IFireblocksNCW} from "@fireblocks/ncw-js-sdk";
 import MonitorHeartOutlinedIcon from "@mui/icons-material/MonitorHeartOutlined";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -7,9 +6,7 @@ import React, {useEffect, useRef, useState} from "react";
 
 import {makeStyles} from "@mui/styles";
 import {SelectAsset} from "../SelectAsset";
-import useGetAccountsAssetsList, {
-  AccountsAssetsListResponse,
-} from "../../../api/useGetAccountsAssetsList";
+import useGetAccountsAssetsList from "../../../api/useGetAccountsAssetsList";
 import {
   AccountAsset,
   SerializedWalletBalance,
@@ -281,7 +278,7 @@ const Send: React.FC<Props> = ({
 
   if (!selectedToken || !accountAsset) {
     return (
-      <Box className={classes.flexColCenterAligned}>
+      <Box>
         <SelectAsset
           onSelectAsset={handleSelectToken}
           wallets={wallets}

@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => ({
       width: AVATAR_SIZE,
       height: AVATAR_SIZE,
       padding: theme.spacing(3),
-      fill: 'gray',
+      fill: "gray",
     },
   },
   successIcon: {

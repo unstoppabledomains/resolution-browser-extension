@@ -27,14 +27,16 @@
     "@mui/styles": "^5.15.21",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-devtools": "^5.45.1",
+    "ethers": "^6.13.1",
     "launchdarkly-react-client-sdk": "^3.3.2",
     "qs": "^6.12.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-qrcode-logo": "^3.0.0",
     "react-router-dom": "^6.23.1",
+    "uns": "https://github.com/unstoppabledomains/uns#v0.8.35",
     "use-async-effect": "^2.2.7",
-    "uns": "https://github.com/unstoppabledomains/uns#v0.8.35"
+    "usehooks-ts": "^3.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

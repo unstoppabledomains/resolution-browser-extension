@@ -1,5 +1,5 @@
 import React from "react";
-import useUserId from "../hooks/useUserId";
+import useUserId from "../../hooks/useUserId";
 import {Box} from "@mui/material";
 import CopyableLabel from "./CopyableLabel";
 

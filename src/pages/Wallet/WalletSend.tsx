@@ -2,7 +2,7 @@ import React from "react";
 import {Box, IconButton, Typography} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {useLocation, useNavigate} from "react-router-dom";
-import Send from "./Send";
+import Send from "../../components/Wallet/Send";
 import useGetAccountsList from "../../api/useGetAccountsList";
 import useGetAccountsAssetsList from "../../api/useGetAccountsAssetsList";
 import {Account, AccountAsset} from "../../types";
@@ -28,15 +28,7 @@ const WalletSend: React.FC = () => {
   return (
     <Box
       sx={{
-        width: "400px",
-        height: "500px",
-        margin: "auto",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        boxShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
-        borderRadius: 2,
+        width: "100%",
       }}
     >
       <Box

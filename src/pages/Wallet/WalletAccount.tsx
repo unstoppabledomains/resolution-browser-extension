@@ -8,15 +8,14 @@ import useGetAccountsList, {
   AccountsListResponse,
 } from "../../api/useGetAccountsList";
 import useGetAccountsAssetsList from "../../api/useGetAccountsAssetsList";
-import TokenItem from "./TokenItem";
+import TokenItem from "../../components/Wallet/TokenItem";
 import useGetWalletDetails, {
   WalletDetailsResponse,
 } from "../../api/useGetWalletDetails";
 import {uniqueArray} from "../../util/helpers";
-import TotalBallance from "./TotalBallance";
-import {UseQueryResult} from "@tanstack/react-query";
+import TotalBallance from "../../components/Wallet/TotalBallance";
 import {useNavigate} from "react-router-dom";
-import {SerializedWalletBalance} from "../../types";
+import {Header} from "./Header";
 
 type WalletAccountProps = {
   accountsList: AccountsListResponse;
@@ -110,33 +109,52 @@ const WalletAccount: React.FC<WalletAccountProps> = () => {
     navigate("/wallet/buy", {state: {wallets: walletDetailsResult.data}});
   };
 
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isFetching, setIsFetching] = useState<boolean>();
+  const [isHeaderClicked, setIsHeaderClicked] = useState(false);
+
   return (
     <Box
       sx={{
-        width: "400px",
-        height: "500px",
-        margin: "auto",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        boxShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
-        borderRadius: 2,
+        width: "100%",
       }}
     >
-      {walletDetailsResult.isFetched ? (
-        <TotalBallance
-          totalBalance={calculateTotalBalance(walletDetailsResult.data)}
-        />
-      ) : (
-        <Box
-          sx={{
-            paddingBottom: "1rem",
-          }}
-        >
-          <Skeleton variant="rounded" width={100} height={30} />
-        </Box>
-      )}
+      <Header
+        mode={"portfolio"}
+        isLoaded={isLoaded}
+        isFetching={isFetching}
+        avatarUrl={undefined}
+        showMessages={false}
+        address={""}
+        accessToken={""}
+        emailAddress={""}
+        onHeaderClick={() => setIsHeaderClicked(true)}
+        domain={undefined}
+      />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          paddingTop: "20px",
+        }}
+      >
+        {walletDetailsResult.isFetched ? (
+          <TotalBallance
+            totalBalance={calculateTotalBalance(walletDetailsResult.data)}
+          />
+        ) : (
+          <Box
+            sx={{
+              paddingBottom: "1rem",
+            }}
+          >
+            <Skeleton variant="rounded" width={100} height={30} />
+          </Box>
+        )}
+      </Box>
 
       <Box
         sx={{
@@ -170,23 +188,13 @@ const WalletAccount: React.FC<WalletAccountProps> = () => {
 
       <Box
         sx={{
-          height: "400px",
-          overflow: "auto",
           width: "100%",
         }}
       >
         {walletDetailsResult &&
           walletDetailsResult.data.map((wallet, idx) => {
             return (
-              <Box
-                key={idx}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
-              >
+              <Box key={idx}>
                 <TokenItem wallet={wallet} />
               </Box>
             );

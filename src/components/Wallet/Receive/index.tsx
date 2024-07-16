@@ -2,7 +2,6 @@ import CheckIcon from "@mui/icons-material/CheckCircle";
 import CopyIcon from "@mui/icons-material/ContentCopy";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import type {Theme} from "@mui/material/styles";
 import React, {useEffect, useRef, useState} from "react";
 import {QRCode} from "react-qrcode-logo";

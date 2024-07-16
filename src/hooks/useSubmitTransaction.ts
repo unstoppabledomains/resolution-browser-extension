@@ -7,9 +7,13 @@ import {
   getOperationStatus,
   getTransferOperationResponse,
 } from "../api/fireblocksActions";
-import { AccountAsset, GetOperationResponse, OperationStatusType } from "../types";
-import { FB_MAX_RETRY, FB_WAIT_TIME_MS } from "../services/fireblockServices";
-import { pollForSuccess } from "../util/poll";
+import {
+  AccountAsset,
+  GetOperationResponse,
+  OperationStatusType,
+} from "../types";
+import {FB_MAX_RETRY, FB_WAIT_TIME_MS} from "../services/fireblockServices";
+import {pollForSuccess} from "../util/poll";
 
 export type Params = {
   asset: AccountAsset;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from "react";
 
 const useChromeStorage = (key: string) => {
   const [value, setValue] = useState(null);
