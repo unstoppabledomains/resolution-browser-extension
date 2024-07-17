@@ -4,7 +4,6 @@ import {
   createMemoryRouter,
   useNavigate,
 } from "react-router-dom";
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 
 import Extension from "../pages/ExtensionMain/Extension";
@@ -13,25 +12,16 @@ import List from "../pages/WebsitesList";
 import Loading from "../pages/Loading/Loading";
 import SomethingWentWrong from "../pages/Errors/SomethingWentWrong";
 import Install from "../pages/InstallPage/Install";
-import useUserId from "../hooks/useUserId";
-import {LDProvider} from "launchdarkly-react-client-sdk";
-import config from "../config";
-import UserIdService from "../services/userIdService";
 import WalletAccount from "../pages/Wallet/WalletAccount";
-import {ThemeProvider} from "@mui/styles";
-import theme from "../styles/theme";
 import {CssBaseline} from "@mui/material";
 import WalletSend from "../pages/Wallet/WalletSend";
 import WalletBuy from "../pages/Wallet/WalletBuy";
 import WalletReceive from "../pages/Wallet/WalletReceive";
 import Layout from "./Layout";
-
-const queryClient = new QueryClient();
-const userIdService = new UserIdService();
+import BaseProvider from "../providers/BaseProvider";
 
 const EntryPoint: React.FC = () => {
   const navigate = useNavigate();
-  const {userId, isLoading, error} = useUserId();
 
   useEffect(() => {
     if (window.location.hash === "#install") {
@@ -114,30 +104,14 @@ const Root: React.FC = () => (
 );
 
 const RootApp = () => {
-  const {userId} = useUserId();
-
-  if (!userId) {
-    return <div></div>;
-  }
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <LDProvider
-        clientSideID={config.LD_CLIENT_ID}
-        context={{
-          kind: "user",
-          key: userId,
-        }}
-      >
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Layout>
-            <Root />
-          </Layout>
-        </ThemeProvider>
-      </LDProvider>
+    <BaseProvider>
+      <CssBaseline />
+      <Layout>
+        <Root />
+      </Layout>
       <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    </BaseProvider>
   );
 };
 

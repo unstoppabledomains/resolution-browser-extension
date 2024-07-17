@@ -304,9 +304,6 @@ export const Header: React.FC<Props> = ({
         ) : (
           <Box className={classes.headerContainer}>
             <UnstoppableWalletIcon />
-            <Typography className={classes.headerText}>
-              Unstoppable Lite Wallet
-            </Typography>
           </Box>
         )}
       </Box>

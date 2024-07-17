@@ -28,6 +28,7 @@ import {makeStyles} from "@mui/styles";
 import UnstoppableWalletIcon from "jsx:../../assets/icons/UnstoppableWallet.svg";
 import {WalletConnectionState} from "../../hooks/useWalletState";
 import {WalletState} from "../../types";
+import useTranslationContext from "../../i18n";
 
 const StyledTextField = styled(TextField)({
   "& .MuiInputBase-root": {
@@ -253,6 +254,7 @@ const SetupYourNewWallet: React.FC<Props> = ({
   updateWalletState,
 }) => {
   const classes = useStyles();
+  const [t] = useTranslationContext();
 
   const [bootstrapEmailCode, setBootstrapEmailCode] = useState("");
   const [claimingWallet, setClaimingWallet] = useState(false);
@@ -404,7 +406,7 @@ const SetupYourNewWallet: React.FC<Props> = ({
           variant="h6"
           gutterBottom
         >
-          Set up your new wallet
+          {t("wallet.title")}
         </Typography>
         {showBackButton && <Box sx={{width: 40}} />}
       </Box>

@@ -8,13 +8,11 @@ export type WalletConnectionState = {
 };
 
 const useWalletState = () => {
-  const [walletState, setWalletState] =
-    useState<WalletConnectionState>({
-      state: WalletState.EmailAndPassword,
-    });
+  const [walletState, setWalletState] = useState<WalletConnectionState>({
+    state: WalletState.EmailAndPassword,
+  });
 
-    const [isLoadingWalletState, setIsLoadingWalletState] = useState(true);
-
+  const [isLoadingWalletState, setIsLoadingWalletState] = useState(true);
 
   const loadWalletState = useCallback(() => {
     chrome.storage.sync.get(WALLET_STATE_KEY, (result) => {
@@ -32,19 +30,13 @@ const useWalletState = () => {
     });
   }, []);
 
-  const saveWalletState = useCallback(
-    (newState: WalletConnectionState) => {
-      chrome.storage.sync.set({[WALLET_STATE_KEY]: newState}, () => {
-        if (chrome.runtime.lastError) {
-          console.error(
-            "Failed to save wallet state:",
-            chrome.runtime.lastError,
-          );
-        }
-      });
-    },
-    [],
-  );
+  const saveWalletState = useCallback((newState: WalletConnectionState) => {
+    chrome.storage.sync.set({[WALLET_STATE_KEY]: newState}, () => {
+      if (chrome.runtime.lastError) {
+        console.error("Failed to save wallet state:", chrome.runtime.lastError);
+      }
+    });
+  }, []);
 
   const updateWalletState = useCallback(
     (newState: WalletState) => {
