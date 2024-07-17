@@ -1,3 +1,6 @@
+## 3.0.7
+* Add .kryptic TLDs support
+
 ## 3.0.6
 * Add .stepn TLDs support
 
