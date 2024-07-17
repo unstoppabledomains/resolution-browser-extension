@@ -8,9 +8,7 @@ import {
   IconButton,
   Theme,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {green} from "@mui/material/colors";
 
 import sendBootstrapCodeEmail from "../../api/sendEmail";
 import getFireblocksNCW from "../../services/fireblockServices";
@@ -23,12 +21,13 @@ import {
 } from "../../util/chromeStorageSync";
 import useAuthorizationTokenSetup from "../../api/useAuthorizationTokenSetup";
 import useBootstrapToken from "../../api/useBootstrapToken";
-import {useNavigate} from "react-router-dom";
 import {pollUntilSuccess} from "../../util/poll";
 import useAsyncEffect from "use-async-effect";
 import {isValidEmail} from "../../util/validations";
 import {makeStyles} from "@mui/styles";
 import UnstoppableWalletIcon from "jsx:../../assets/icons/UnstoppableWallet.svg";
+import {WalletConnectionState} from "../../hooks/useWalletState";
+import {WalletState} from "../../types";
 
 const StyledTextField = styled(TextField)({
   "& .MuiInputBase-root": {
@@ -118,19 +117,17 @@ interface EmailAndPasswordProps {
 const EmailAndPassword: React.FC<EmailAndPasswordProps> = ({
   email,
   setEmail,
-  password,
-  setPassword,
   sendEmail,
 }) => {
   const [enabledContinueButton, setEnabledContinueButton] = useState(false);
 
   useEffect(() => {
-    if (password.length > 0 && email.length > 0 && isValidEmail(email)) {
+    if (email.length > 0 && isValidEmail(email)) {
       setEnabledContinueButton(true);
     } else {
       setEnabledContinueButton(false);
     }
-  }, [email, password]);
+  }, [email]);
 
   return (
     <Box>
@@ -144,7 +141,7 @@ const EmailAndPassword: React.FC<EmailAndPasswordProps> = ({
         gutterBottom
         textAlign="center"
       >
-        Enter your email and password for wallet
+        Enter your wallet's email address
       </Typography>
       <Box width="100%">
         <StyledTextField
@@ -152,14 +149,6 @@ const EmailAndPassword: React.FC<EmailAndPasswordProps> = ({
           label="Your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          variant="outlined"
-        />
-        <StyledTextField
-          fullWidth
-          label="Password for wallet"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           variant="outlined"
         />
         <ContinueButton enabled={enabledContinueButton} onClick={sendEmail} />
@@ -171,21 +160,23 @@ const EmailAndPassword: React.FC<EmailAndPasswordProps> = ({
 interface VerifyEmailProps {
   emailBootstrapCode: string;
   password: string;
+  setPassword: (password: string) => void;
   setEmailBootstrapCode: (emailBootstrapCode: string) => void;
   getFireblockNCW: (code: string, password: string) => void;
   claimingWallet: boolean;
-  step: any;
-  setStep: any;
+  walletState: WalletConnectionState;
+  updateWalletState: (state: WalletState) => void;
 }
 
 const VerifyEmail: React.FC<VerifyEmailProps> = ({
   emailBootstrapCode,
+  setPassword,
   password,
   setEmailBootstrapCode,
   getFireblockNCW,
   claimingWallet,
-  step,
-  setStep,
+  walletState,
+  updateWalletState,
 }) => {
   return (
     <Box>
@@ -210,6 +201,14 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
           variant="outlined"
           disabled={claimingWallet}
         />
+        <StyledTextField
+          fullWidth
+          label="Password for wallet"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          variant="outlined"
+        />
         <ContinueButton
           enabled={!claimingWallet}
           caption={"Continue"}
@@ -225,63 +224,12 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
           <BackButton
             onClick={() => {
               setEmailBootstrapCode("");
-              if (step === Step.VerifyEmail) {
-                setStep(Step.EmailAndPassword);
+              if (walletState.state === WalletState.VerifyEmail) {
+                updateWalletState(WalletState.EmailAndPassword);
               }
             }}
           />
         </Box>
-      </Box>
-    </Box>
-  );
-};
-
-const WalletClaimed: React.FC = () => {
-  const navigate = useNavigate();
-
-  return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        justifyContent: "center",
-        alignItems: "center",
-        paddingTop: 10,
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          gap: 2,
-          flexDirection: "column",
-        }}
-      >
-        <CheckCircleIcon style={{color: green[500], fontSize: 100}} />
-        <Typography
-          sx={{
-            fontWeight: 400,
-            color: "rgba(0, 0, 0, 0.5)",
-          }}
-          variant="subtitle1"
-          gutterBottom
-          textAlign="center"
-        >
-          Wallet successfully claimed
-        </Typography>
-
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={() => {
-            navigate("/wallet/account");
-          }}
-        >
-          Go to wallet
-        </Button>
       </Box>
     </Box>
   );
@@ -292,12 +240,8 @@ interface Props {
   setEmail: (email: string) => void;
   password: string;
   setPassword: (password: string) => void;
-}
-
-enum Step {
-  EmailAndPassword,
-  VerifyEmail,
-  WalletClaimed,
+  walletState: WalletConnectionState;
+  updateWalletState: (state: WalletState) => void;
 }
 
 const SetupYourNewWallet: React.FC<Props> = ({
@@ -305,13 +249,13 @@ const SetupYourNewWallet: React.FC<Props> = ({
   setEmail,
   password,
   setPassword,
+  walletState,
+  updateWalletState,
 }) => {
   const classes = useStyles();
 
-  const [step, setStep] = useState<Step>(Step.EmailAndPassword);
   const [bootstrapEmailCode, setBootstrapEmailCode] = useState("");
   const [claimingWallet, setClaimingWallet] = useState(false);
-  const [authTx, setAuthTx] = useState<any>({});
   const [fbNCW, setFbNCW] = useState<any>({});
   const [accessToken, setAccessToken] = useState<string>("");
 
@@ -362,7 +306,7 @@ const SetupYourNewWallet: React.FC<Props> = ({
     setTimeout(() => {
       authorizationTokenConfirmMutation(accessToken);
       setClaimingWallet(false);
-      setStep(Step.WalletClaimed);
+      updateWalletState(WalletState.Account);
     }, 2000);
   }, [isAuthorizationTokenSetupSuccess, tx]);
 
@@ -415,7 +359,7 @@ const SetupYourNewWallet: React.FC<Props> = ({
 
   const sendEmail = async () => {
     await sendBootstrapCodeEmail(email);
-    setStep(Step.VerifyEmail);
+    updateWalletState(WalletState.VerifyEmail);
   };
 
   const getFireblockNCW = async (code: string, password: string) => {
@@ -440,8 +384,8 @@ const SetupYourNewWallet: React.FC<Props> = ({
         {showBackButton && (
           <IconButton
             onClick={() => {
-              if (step === Step.VerifyEmail) {
-                setStep(Step.EmailAndPassword);
+              if (walletState.state === WalletState.VerifyEmail) {
+                updateWalletState(WalletState.EmailAndPassword);
               }
             }}
             disabled={claimingWallet}
@@ -465,7 +409,7 @@ const SetupYourNewWallet: React.FC<Props> = ({
         {showBackButton && <Box sx={{width: 40}} />}
       </Box>
 
-      {step === Step.EmailAndPassword && (
+      {walletState.state === WalletState.EmailAndPassword && (
         <EmailAndPassword
           email={email}
           setEmail={setEmail}
@@ -474,18 +418,18 @@ const SetupYourNewWallet: React.FC<Props> = ({
           sendEmail={sendEmail}
         />
       )}
-      {step === Step.VerifyEmail && (
+      {walletState.state === WalletState.VerifyEmail && (
         <VerifyEmail
           emailBootstrapCode={bootstrapEmailCode}
           password={password}
+          setPassword={setPassword}
           setEmailBootstrapCode={setBootstrapEmailCode}
           getFireblockNCW={() => getFireblockNCW(bootstrapEmailCode, password)}
           claimingWallet={claimingWallet}
-          step={step}
-          setStep={setStep}
+          walletState={walletState}
+          updateWalletState={updateWalletState}
         />
       )}
-      {step === Step.WalletClaimed && <WalletClaimed />}
     </Box>
   );
 };

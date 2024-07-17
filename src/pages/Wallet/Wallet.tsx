@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, CircularProgress} from "@mui/material";
+import {Box} from "@mui/material";
 import SetupYourNewWallet from "../../components/Wallet/SetupYourNewWallet";
 import useGetAccountsList from "../../api/useGetAccountsList";
 import {
@@ -8,27 +8,30 @@ import {
 } from "../../util/chromeStorageSync";
 import {WalletState} from "../../types";
 import {useNavigate} from "react-router-dom";
-import useGetWalletDetails from "../../api/useGetWalletDetails";
-import useGetAccountsAssetsList from "../../api/useGetAccountsAssetsList";
-import {uniqueArray} from "../../util/helpers";
+import useWalletState from "../../hooks/useWalletState";
 
 const Wallet: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [walletState, setWalletState] = useState<WalletState>(WalletState.Load);
-  const [walletAddresses, setWalletAddresses] = React.useState<string[]>([]);
+  const {walletState, isLoadingWalletState, updateWalletState} =
+    useWalletState();
+  const [getAccountsListEnable, setGetAccountsListEnable] = useState(false);
 
   const navigate = useNavigate();
 
-  const [getAccountsListEnable, setGetAccountsListEnable] = useState(false);
   const {
     data: accountsList,
     isSuccess: isAccountsListSuccess,
-    isFetched: isAccountsListFetched,
     isPending: isAccountsListLoading,
   } = useGetAccountsList({
     enabled: getAccountsListEnable,
   });
+
+  useEffect(() => {
+    if (walletState.state === WalletState.Account) {
+      navigate("/wallet/account");
+    }
+  }, [walletState.state]);
 
   useEffect(() => {
     const getAccessToken = async () => {
@@ -54,24 +57,33 @@ const Wallet: React.FC = () => {
   useEffect(() => {
     if (getAccountsListEnable) {
       if (isAccountsListLoading) {
-        setWalletState(WalletState.Load);
+        console.log("Loading...");
       } else if (isAccountsListSuccess && accountsList.items.length > 0) {
         navigate("/wallet/account");
       }
     } else {
-      setWalletState(WalletState.Onboard);
+      if (!isLoadingWalletState) {
+        updateWalletState(walletState.state);
+      }
     }
-  }, [isAccountsListSuccess, isAccountsListLoading, getAccountsListEnable]);
+  }, [
+    isAccountsListSuccess,
+    isAccountsListLoading,
+    getAccountsListEnable,
+    isLoadingWalletState,
+  ]);
 
   return (
     <Box>
-      {walletState === WalletState.Load && <CircularProgress />}
-      {walletState === WalletState.Onboard && (
+      {(walletState.state === WalletState.EmailAndPassword ||
+        walletState.state === WalletState.VerifyEmail) && (
         <SetupYourNewWallet
           email={email}
           setEmail={setEmail}
           password={password}
           setPassword={setPassword}
+          walletState={walletState}
+          updateWalletState={updateWalletState}
         />
       )}
     </Box>

@@ -15,7 +15,7 @@ import useGetWalletDetails, {
 import {uniqueArray} from "../../util/helpers";
 import TotalBallance from "../../components/Wallet/TotalBallance";
 import {useNavigate} from "react-router-dom";
-import {Header} from "./Header";
+import {Header} from "../../components/Wallet/Header";
 
 type WalletAccountProps = {
   accountsList: AccountsListResponse;

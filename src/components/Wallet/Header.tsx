@@ -16,7 +16,7 @@ import config from "../../config";
 import {getOwnerDomains} from "../../api/domainProfileActions";
 import useTranslationContext from "../../i18n";
 import {makeStyles} from "@mui/styles";
-import DropDownMenu from "./DropDownMenu";
+import DropDownMenu from "../Common/DropDownMenu";
 import {Link} from "react-router-dom";
 import {WalletMode} from "../../types";
 

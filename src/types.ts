@@ -30,8 +30,8 @@ export const ExtensionURIMap: ExtensionURIMap = {
 };
 
 export enum WalletState {
-  Load,
-  Onboard,
+  EmailAndPassword,
+  VerifyEmail,
   Account,
 }
 
