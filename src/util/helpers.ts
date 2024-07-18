@@ -29,4 +29,5 @@ export const supportedDomains: string[] = [
   ".secret",
   ".raiin",
   ".stepn",
+  ".kryptic",
 ];
