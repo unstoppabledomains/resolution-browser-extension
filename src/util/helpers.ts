@@ -111,6 +111,7 @@ export const supportedDomains: string[] = [
   '.secret',
   '.raiin',
   '.stepn',
+  '.kryptic',
 ]
 
 //return true if url ends in one of the supported domains
