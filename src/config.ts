@@ -5,6 +5,7 @@ export default {
   PROFILE_API_URL: `https://api.ud-staging.com/profile/`,
   UNSTOPPABLE_WEBSITE_URL: "https://www.ud-staging.com",
   UD_ME_BASE_URL: "https://staging.ud.me",
+  ASSETS_BUCKET_URL: "https://storage.googleapis.com/unstoppable-client-assets",
 
   WALLETS: {
     CHAINS: {

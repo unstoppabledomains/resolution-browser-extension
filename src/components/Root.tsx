@@ -13,7 +13,6 @@ import Loading from "../pages/Loading/Loading";
 import SomethingWentWrong from "../pages/Errors/SomethingWentWrong";
 import Install from "../pages/InstallPage/Install";
 import WalletAccount from "../pages/Wallet/WalletAccount";
-import {CssBaseline} from "@mui/material";
 import WalletSend from "../pages/Wallet/WalletSend";
 import WalletBuy from "../pages/Wallet/WalletBuy";
 import WalletReceive from "../pages/Wallet/WalletReceive";
@@ -106,7 +105,6 @@ const Root: React.FC = () => (
 const RootApp = () => {
   return (
     <BaseProvider>
-      <CssBaseline />
       <Layout>
         <Root />
       </Layout>

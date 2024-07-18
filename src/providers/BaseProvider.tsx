@@ -7,6 +7,7 @@ import {LDProvider} from "launchdarkly-react-client-sdk";
 import config from "../config";
 import useUserId from "../hooks/useUserId";
 import theme from "../styles/theme";
+import {CssBaseline, GlobalStyles} from "@mui/material";
 
 type Props = {
   children: React.ReactNode;
@@ -29,7 +30,21 @@ const BaseProvider: React.FC<Props> = ({children}) => {
       >
         <TranslationProvider>
           <Web3ContextProvider>
-            <ThemeProvider theme={theme}>{children}</ThemeProvider>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <GlobalStyles
+                styles={{
+                  "@font-face": {
+                    fontFamily: "Helvetica Neue",
+                    src: `url('${config.ASSETS_BUCKET_URL}/fonts/HelveticaNeueLT97BlackCondensed.ttf') format('truetype')`,
+                    fontWeight: 900,
+                    fontStyle: "normal",
+                    fontDisplay: "swap",
+                  },
+                }}
+              />
+              {children}
+            </ThemeProvider>
           </Web3ContextProvider>
         </TranslationProvider>
       </LDProvider>

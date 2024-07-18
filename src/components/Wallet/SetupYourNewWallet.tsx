@@ -25,45 +25,33 @@ import {pollUntilSuccess} from "../../util/poll";
 import useAsyncEffect from "use-async-effect";
 import {isValidEmail} from "../../util/validations";
 import {makeStyles} from "@mui/styles";
-import UnstoppableWalletIcon from "jsx:../../assets/icons/UnstoppableWallet.svg";
 import {WalletConnectionState} from "../../hooks/useWalletState";
 import {WalletState} from "../../types";
 import useTranslationContext from "../../i18n";
-
-const StyledTextField = styled(TextField)({
-  "& .MuiInputBase-root": {
-    marginBottom: 16,
-    borderRadius: 20,
-  },
-});
-
-const ContinueCustomButton = styled(Button)({
-  backgroundColor: "#007AFF",
-  color: "white",
-  padding: "10px 15px",
-  fontSize: "16px",
-  textTransform: "none",
-  borderRadius: "16px",
-  boxShadow: "0px 4px 10px rgba(0, 122, 255, 0.25)",
-  "&:hover": {
-    backgroundColor: "#005ECB",
-  },
-});
+import UnstoppableWalletIcon from "../Icons/UnstoppableWalletIcon";
 
 const useStyles = makeStyles((theme: Theme) => ({
-  iconContainer: {},
-  pictureContainer: {
+  walletLogoContainer: {
     display: "flex",
     justifyContent: "center",
+    paddingTop: "20px",
+    paddingBottom: "40px",
   },
-  imageWrapper: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 40,
-    height: 40,
+  walletLogo: {
+    width: "140px !important",
+    height: "140px !important",
+    color: theme.palette.primary.main,
   },
-  icon: {},
+  textfield: {
+    "& .MuiInputBase-root": {
+      marginBottom: 16,
+      borderRadius: 10,
+    },
+  },
+  continueButton: {
+    borderRadius: '10px !important',
+    height: "48px",
+  },
 }));
 
 interface ContinueButtonProps {
@@ -77,15 +65,18 @@ const ContinueButton: React.FC<ContinueButtonProps> = ({
   onClick,
   caption = "Continue",
 }) => {
+  const classes = useStyles();
+
   return (
-    <ContinueCustomButton
+    <Button
       disabled={!enabled}
       onClick={onClick}
       variant="contained"
       fullWidth
+      className={classes.continueButton}
     >
       {caption}
-    </ContinueCustomButton>
+    </Button>
   );
 };
 
@@ -107,19 +98,19 @@ const BackButton: React.FC<{onClick: () => void}> = ({onClick}) => {
   );
 };
 
-interface EmailAndPasswordProps {
+interface EmailInputProps {
   email: string;
   setEmail: (email: string) => void;
-  password: string;
-  setPassword: (password: string) => void;
   sendEmail: () => void;
 }
 
-const EmailAndPassword: React.FC<EmailAndPasswordProps> = ({
+const EmailInput: React.FC<EmailInputProps> = ({
   email,
   setEmail,
   sendEmail,
 }) => {
+  const [t] = useTranslationContext();
+  const classes = useStyles();
   const [enabledContinueButton, setEnabledContinueButton] = useState(false);
 
   useEffect(() => {
@@ -131,29 +122,22 @@ const EmailAndPassword: React.FC<EmailAndPasswordProps> = ({
   }, [email]);
 
   return (
-    <Box>
-      <Typography
-        sx={{
-          paddingBottom: 4,
-          fontWeight: 400,
-          color: "rgba(0, 0, 0, 0.5)",
+    <Box width="100%">
+      <TextField
+        fullWidth
+        label={t("common.enterYourEmail")}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && enabledContinueButton) {
+            e.preventDefault();
+            sendEmail();
+          }
         }}
-        variant="subtitle1"
-        gutterBottom
-        textAlign="center"
-      >
-        Enter your wallet's email address
-      </Typography>
-      <Box width="100%">
-        <StyledTextField
-          fullWidth
-          label="Your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          variant="outlined"
-        />
-        <ContinueButton enabled={enabledContinueButton} onClick={sendEmail} />
-      </Box>
+        variant="outlined"
+        className={classes.textfield}
+      />
+      <ContinueButton enabled={enabledContinueButton} onClick={sendEmail} />
     </Box>
   );
 };
@@ -179,58 +163,49 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
   walletState,
   updateWalletState,
 }) => {
+  const classes = useStyles();
+
   return (
     <Box>
-      <Typography
-        sx={{
-          paddingBottom: 4,
-          fontWeight: 400,
-          color: "rgba(0, 0, 0, 0.5)",
+      <TextField
+        fullWidth
+        label="Enter one-time code"
+        value={emailBootstrapCode}
+        onChange={(e) => setEmailBootstrapCode(e.target.value)}
+        variant="outlined"
+        disabled={claimingWallet}
+        className={classes.textfield}
+      />
+      <TextField
+        fullWidth
+        label="Password for wallet"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        variant="outlined"
+        disabled={claimingWallet}
+        className={classes.textfield}
+      />
+      <ContinueButton
+        enabled={!claimingWallet}
+        caption={"Continue"}
+        onClick={() => {
+          getFireblockNCW(emailBootstrapCode, password);
         }}
-        variant="subtitle1"
-        gutterBottom
-        textAlign="center"
+      />
+      <Box
+        sx={{
+          paddingTop: "10px",
+        }}
       >
-        Check your inbox for the verification code and enter it below
-      </Typography>
-      <Box width="100%">
-        <StyledTextField
-          fullWidth
-          label="Enter one-time code"
-          value={emailBootstrapCode}
-          onChange={(e) => setEmailBootstrapCode(e.target.value)}
-          variant="outlined"
-          disabled={claimingWallet}
-        />
-        <StyledTextField
-          fullWidth
-          label="Password for wallet"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          variant="outlined"
-        />
-        <ContinueButton
-          enabled={!claimingWallet}
-          caption={"Continue"}
+        <BackButton
           onClick={() => {
-            getFireblockNCW(emailBootstrapCode, password);
+            setEmailBootstrapCode("");
+            if (walletState.state === WalletState.VerifyEmail) {
+              updateWalletState(WalletState.EmailAndPassword);
+            }
           }}
         />
-        <Box
-          sx={{
-            paddingTop: "10px",
-          }}
-        >
-          <BackButton
-            onClick={() => {
-              setEmailBootstrapCode("");
-              if (walletState.state === WalletState.VerifyEmail) {
-                updateWalletState(WalletState.EmailAndPassword);
-              }
-            }}
-          />
-        </Box>
       </Box>
     </Box>
   );
@@ -373,15 +348,6 @@ const SetupYourNewWallet: React.FC<Props> = ({
 
   return (
     <Box>
-      <Box className={classes.iconContainer}>
-        <Box className={classes.pictureContainer}>
-          <Box className={classes.imageWrapper}>
-            <Box className={classes.icon}>
-              <UnstoppableWalletIcon />
-            </Box>
-          </Box>
-        </Box>
-      </Box>
       <Box sx={{display: "flex", alignItems: "center"}}>
         {showBackButton && (
           <IconButton
@@ -396,29 +362,16 @@ const SetupYourNewWallet: React.FC<Props> = ({
             <ArrowBackIcon />
           </IconButton>
         )}
-        <Typography
-          sx={{
-            alignSelf: "center",
-            fontWeight: "600",
-            flexGrow: 1,
-            textAlign: "center",
-          }}
-          variant="h6"
-          gutterBottom
-        >
-          {t("wallet.title")}
-        </Typography>
+        <Typography variant="h1">{t("wallet.title")}</Typography>
         {showBackButton && <Box sx={{width: 40}} />}
       </Box>
 
+      <Box className={classes.walletLogoContainer}>
+        <UnstoppableWalletIcon className={classes.walletLogo} />
+      </Box>
+
       {walletState.state === WalletState.EmailAndPassword && (
-        <EmailAndPassword
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          sendEmail={sendEmail}
-        />
+        <EmailInput email={email} setEmail={setEmail} sendEmail={sendEmail} />
       )}
       {walletState.state === WalletState.VerifyEmail && (
         <VerifyEmail
