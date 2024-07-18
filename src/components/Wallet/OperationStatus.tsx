@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     "& > svg": {
       width: AVATAR_SIZE,
       height: AVATAR_SIZE,
-      padding: theme.spacing(3),
+      padding: theme.spacing(4),
       fill: "gray",
     },
   },
@@ -54,12 +54,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     "& > svg": {
       width: AVATAR_RESULT_SIZE,
       height: AVATAR_RESULT_SIZE,
-      fill: theme.palette.common.white,
+      fill: theme.palette.background.default,
       padding: theme.spacing(3),
     },
   },
   errorIcon: {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: theme.palette.background.default,
     "& > svg": {
       width: AVATAR_RESULT_SIZE,
       height: AVATAR_RESULT_SIZE,
@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: AVATAR_SIZE,
     height: AVATAR_SIZE,
     borderRadius: "50%",
-    backgroundColor: "white",
+    backgroundColor: theme.palette.background.default,
     zIndex: 1,
     [theme.breakpoints.up("sm")]: {
       flex: "1 0 auto",

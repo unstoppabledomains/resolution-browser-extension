@@ -1,14 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  styled,
-  IconButton,
-  Theme,
-} from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import {Box, TextField, Button, Theme, Typography} from "@mui/material";
 
 import sendBootstrapCodeEmail from "../../api/sendEmail";
 import getFireblocksNCW from "../../services/fireblockServices";
@@ -16,7 +7,6 @@ import sendJoinRequest from "../../api/sendJoinrequest";
 import useAuthorizationTokenConfirm from "../../api/useAuthorizationTokenConfirm";
 import {
   StorageSyncKey,
-  chromeStorageSyncGet,
   chromeStorageSyncSet,
 } from "../../util/chromeStorageSync";
 import useAuthorizationTokenSetup from "../../api/useAuthorizationTokenSetup";
@@ -29,8 +19,16 @@ import {WalletConnectionState} from "../../hooks/useWalletState";
 import {WalletState} from "../../types";
 import useTranslationContext from "../../i18n";
 import UnstoppableWalletIcon from "../Icons/UnstoppableWalletIcon";
+import {Wallet} from "ethers";
+import WalletLoading from "./WalletLoading";
+import {OperationStatus} from "./OperationStatus";
 
 const useStyles = makeStyles((theme: Theme) => ({
+  walletTitleContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   walletLogoContainer: {
     display: "flex",
     justifyContent: "center",
@@ -48,8 +46,19 @@ const useStyles = makeStyles((theme: Theme) => ({
       borderRadius: 10,
     },
   },
+  emailVerifyContainer: {
+    paddingLeft: "16px",
+    paddingRight: "16px",
+  },
+  walletConfiguringContainer: {
+    paddingTop: "80px",
+  },
   continueButton: {
-    borderRadius: '10px !important',
+    borderRadius: "10px !important",
+    height: "48px",
+  },
+  backButton: {
+    borderRadius: "10px !important",
     height: "48px",
   },
 }));
@@ -81,17 +90,14 @@ const ContinueButton: React.FC<ContinueButtonProps> = ({
 };
 
 const BackButton: React.FC<{onClick: () => void}> = ({onClick}) => {
+  const classes = useStyles();
+
   return (
     <Button
       onClick={onClick}
       variant="text"
       fullWidth
-      sx={{
-        color: "rgba(0, 0, 0, 0.5)",
-        textTransform: "none",
-        fontSize: 16,
-        borderRadius: 16,
-      }}
+      className={classes.backButton}
     >
       Back
     </Button>
@@ -164,12 +170,23 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
   updateWalletState,
 }) => {
   const classes = useStyles();
+  const [t] = useTranslationContext();
+
+  const [enabledContinueButton, setEnabledContinueButton] = useState(false);
+
+  useEffect(() => {
+    if (password.length > 0 && emailBootstrapCode.length > 0) {
+      setEnabledContinueButton(true);
+    } else {
+      setEnabledContinueButton(false);
+    }
+  }, [password, emailBootstrapCode]);
 
   return (
-    <Box>
+    <Box className={classes.emailVerifyContainer}>
       <TextField
         fullWidth
-        label="Enter one-time code"
+        label={t("wallet.enterBootstrapCode")}
         value={emailBootstrapCode}
         onChange={(e) => setEmailBootstrapCode(e.target.value)}
         variant="outlined"
@@ -178,7 +195,7 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
       />
       <TextField
         fullWidth
-        label="Password for wallet"
+        label={t("wallet.enterRecoveryPhrase")}
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
@@ -187,7 +204,7 @@ const VerifyEmail: React.FC<VerifyEmailProps> = ({
         className={classes.textfield}
       />
       <ContinueButton
-        enabled={!claimingWallet}
+        enabled={enabledContinueButton}
         caption={"Continue"}
         onClick={() => {
           getFireblockNCW(emailBootstrapCode, password);
@@ -232,7 +249,7 @@ const SetupYourNewWallet: React.FC<Props> = ({
   const [t] = useTranslationContext();
 
   const [bootstrapEmailCode, setBootstrapEmailCode] = useState("");
-  const [claimingWallet, setClaimingWallet] = useState(false);
+  const [configuringWallet, setConfiguringWallet] = useState(false);
   const [fbNCW, setFbNCW] = useState<any>({});
   const [accessToken, setAccessToken] = useState<string>("");
 
@@ -253,23 +270,6 @@ const SetupYourNewWallet: React.FC<Props> = ({
     isSuccess: isBootstrapTokenSuccess,
   } = useBootstrapToken();
 
-  useEffect(() => {
-    if (!isAuthorizationTokenConfirmSuccess) {
-      return;
-    }
-    chromeStorageSyncGet(StorageSyncKey.AccessToken).then((accessToken) => {
-      console.log("accessToken:", accessToken);
-    });
-    chromeStorageSyncGet(StorageSyncKey.RefreshToken).then((refreshToken) => {
-      console.log("refreshToken:", refreshToken);
-    });
-    chromeStorageSyncGet(StorageSyncKey.BootstrapToken).then(
-      (bootstrapToken) => {
-        console.log("bootstrapToken:", bootstrapToken);
-      },
-    );
-  }, [isAuthorizationTokenConfirmSuccess]);
-
   useAsyncEffect(async () => {
     if (!isAuthorizationTokenSetupSuccess || !tx) {
       return;
@@ -282,7 +282,7 @@ const SetupYourNewWallet: React.FC<Props> = ({
 
     setTimeout(() => {
       authorizationTokenConfirmMutation(accessToken);
-      setClaimingWallet(false);
+      setConfiguringWallet(false);
       updateWalletState(WalletState.Account);
     }, 2000);
   }, [isAuthorizationTokenSetupSuccess, tx]);
@@ -339,31 +339,34 @@ const SetupYourNewWallet: React.FC<Props> = ({
     updateWalletState(WalletState.VerifyEmail);
   };
 
-  const getFireblockNCW = async (code: string, password: string) => {
-    setClaimingWallet(true);
+  const getFireblockNCW = async (code: string) => {
+    setConfiguringWallet(true);
     bootstrapTokenMutation(code);
   };
 
-  const showBackButton = false;
+  if (configuringWallet) {
+    return (
+      <Box>
+        <Box className={classes.walletTitleContainer}>
+          <Typography variant="h1">{t("wallet.title")}</Typography>
+        </Box>
+
+        <Box className={classes.walletConfiguringContainer}>
+          <OperationStatus
+            label={t("wallet.configuringWallet")}
+            success={false}
+            error={false}
+            icon={<UnstoppableWalletIcon className={classes.walletLogo} />}
+          />
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box>
-      <Box sx={{display: "flex", alignItems: "center"}}>
-        {showBackButton && (
-          <IconButton
-            onClick={() => {
-              if (walletState.state === WalletState.VerifyEmail) {
-                updateWalletState(WalletState.EmailAndPassword);
-              }
-            }}
-            disabled={claimingWallet}
-            aria-label="back"
-          >
-            <ArrowBackIcon />
-          </IconButton>
-        )}
+      <Box className={classes.walletTitleContainer}>
         <Typography variant="h1">{t("wallet.title")}</Typography>
-        {showBackButton && <Box sx={{width: 40}} />}
       </Box>
 
       <Box className={classes.walletLogoContainer}>
@@ -379,8 +382,8 @@ const SetupYourNewWallet: React.FC<Props> = ({
           password={password}
           setPassword={setPassword}
           setEmailBootstrapCode={setBootstrapEmailCode}
-          getFireblockNCW={() => getFireblockNCW(bootstrapEmailCode, password)}
-          claimingWallet={claimingWallet}
+          getFireblockNCW={() => getFireblockNCW(bootstrapEmailCode)}
+          claimingWallet={configuringWallet}
           walletState={walletState}
           updateWalletState={updateWalletState}
         />

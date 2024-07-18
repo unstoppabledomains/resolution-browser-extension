@@ -26,8 +26,8 @@ export default async function fetchWalletApi<T>(
   });
 
   if (!response.ok) {
-    const errorBody = await response.json();
-    throw new Error(errorBody.message || "An error occurred");
+    // const errorBody = await response.json();
+    // throw new Error(errorBody.message || "An error occurred");
   }
 
   return response.json();
