@@ -112,7 +112,11 @@ export const SubmitTransaction: React.FC<Props> = ({
         error={status === Status.Failed}
       >
         <Box className={classes.transactionStatusContainer} mt={2}>
-          <Typography variant="caption">
+          <Typography variant="caption"
+            sx={{
+              textAlign: "center",
+            }}
+          >
             {[Status.Success, Status.Failed].includes(status) &&
               t(
                 `wallet.sendTransaction${

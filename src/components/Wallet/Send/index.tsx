@@ -351,7 +351,7 @@ const Send: React.FC<Props> = ({
           </Box>
           <Box className={classes.recipientWrapper}>
             <AddressInput
-              label={"Recipient"}
+              label={""}
               placeholder={"Recipient domain or address"}
               initialAddressValue={recipientAddress}
               initialResolvedDomainValue={resolvedDomain}

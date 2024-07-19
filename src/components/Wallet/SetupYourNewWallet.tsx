@@ -19,8 +19,6 @@ import {WalletConnectionState} from "../../hooks/useWalletState";
 import {WalletState} from "../../types";
 import useTranslationContext from "../../i18n";
 import UnstoppableWalletIcon from "../Icons/UnstoppableWalletIcon";
-import {Wallet} from "ethers";
-import WalletLoading from "./WalletLoading";
 import {OperationStatus} from "./OperationStatus";
 
 const useStyles = makeStyles((theme: Theme) => ({

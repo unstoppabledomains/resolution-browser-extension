@@ -50,9 +50,17 @@ const WalletSend: React.FC = () => {
           </IconButton>
         </Box>
         <Box>
-          <Typography variant="h5">{title}</Typography>
+          <Typography variant="h5"
+            sx={{
+              textAlign: "center",
+            }}
+          >{title}</Typography>
         </Box>
-        <Box></Box>
+        <Box
+          sx={{
+            width: "20px",
+          }}
+        ></Box>
       </Box>
       <Send
         // getClient={getClient}
