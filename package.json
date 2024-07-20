@@ -11,7 +11,7 @@
     "prettier": "prettier --write --log-level warn \"src/**/*.{js,jsx,json,ts,tsx,css,scss,md}\"",
     "predev": "rimraf .parcel-cache dist && yarn prettier",
     "dev": "parcel watch src/manifest.json --host localhost",
-    "build": "parcel build src/manifest.json --no-cache",
+    "build": "parcel build src/manifest.json --no-cache --no-source-maps",
     "postbuild": "node scripts/remove-source-maps.mjs && node scripts/create-zip.mjs",
     "create-env": "node scripts/create-env.mjs",
     "create-manifest": "node create_manifest.js",
@@ -24,7 +24,8 @@
     "@mui/material": "^5.15.20",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-devtools": "^5.45.1",
-    "@unstoppabledomains/ui-components": "0.0.42-experimental.2",
+    "@unstoppabledomains/config": "0.0.8-experimental.1",
+    "@unstoppabledomains/ui-components": "0.0.42-experimental.5",
     "@unstoppabledomains/ui-kit": "^0.3.24",
     "is-ipfs": "^8.0.4",
     "launchdarkly-react-client-sdk": "^3.3.2",
@@ -73,5 +74,8 @@
     "staticPath": "static",
     "watcherGlob": "**"
   },
-  "packageManager": "yarn@3.6.4"
+  "packageManager": "yarn@3.6.4",
+  "@parcel/resolver-default": {
+    "packageExports": true
+  }
 }

@@ -11,7 +11,6 @@ import {WalletState} from "../../types";
 import {useNavigate} from "react-router-dom";
 import {Wallet} from "@unstoppabledomains/ui-components";
 
-
 const WalletComp: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,7 +73,7 @@ const WalletComp: React.FC = () => {
         borderRadius: 2,
       }}
     >
-      <Wallet 
+      <Wallet
         address="0x1234567890"
         domain="example.crypto"
         setButtonComponent={() => {}}
