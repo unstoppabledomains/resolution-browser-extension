@@ -102,6 +102,7 @@ const WalletComp: React.FC = () => {
           domain={authDomain}
           avatarUrl={authAvatar}
           showMessages={false}
+          disableInlineEducation={true}
           onLogout={handleLogout}
           onUpdate={(_t: DomainProfileTabType) => {
             handleAuthComplete();

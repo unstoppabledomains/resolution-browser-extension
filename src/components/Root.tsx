@@ -5,7 +5,11 @@ import {
   useNavigate,
 } from "react-router-dom";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {BaseProvider} from "@unstoppabledomains/ui-components";
+import {
+  BaseProvider,
+  UnstoppableMessagingProvider,
+  DomainConfigProvider,
+} from "@unstoppabledomains/ui-components";
 import {lightTheme} from "@unstoppabledomains/ui-kit/styles";
 import Extension from "../pages/ExtensionMain/Extension";
 import Wallet from "../pages/Wallet/Wallet";
@@ -96,15 +100,19 @@ const RootApp = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BaseProvider theme={lightTheme}>
-        <LDProvider
-          clientSideID={config.LD_CLIENT_ID}
-          context={{
-            kind: "user",
-            key: userId,
-          }}
-        >
-          <Root />
-        </LDProvider>
+        <UnstoppableMessagingProvider>
+          <DomainConfigProvider>
+            <LDProvider
+              clientSideID={config.LD_CLIENT_ID}
+              context={{
+                kind: "user",
+                key: userId,
+              }}
+            >
+              <Root />
+            </LDProvider>
+          </DomainConfigProvider>
+        </UnstoppableMessagingProvider>
       </BaseProvider>
     </QueryClientProvider>
   );
