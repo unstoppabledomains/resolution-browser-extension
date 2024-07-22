@@ -1,97 +1,121 @@
 import React, {useEffect, useState} from "react";
-import {Box, CircularProgress} from "@mui/material";
-import SetupYourNewWallet from "./SetupYourNewWallet";
-import WalletAccount from "./WalletAccount";
-import useGetAccountsList from "../../api/useGetAccountsList";
+import {Box, Paper} from "@mui/material";
 import {
-  StorageSyncKey,
-  chromeStorageSyncGet,
-} from "../../util/chromeStorageSync";
-import {WalletState} from "../../types";
-import {useNavigate} from "react-router-dom";
-import {Wallet} from "@unstoppabledomains/ui-components";
+  DomainProfileTabType,
+  DomainProfileKeys,
+  Wallet,
+  useFireblocksState,
+  getAddressMetadata,
+  getBootstrapState,
+  isEthAddress,
+} from "@unstoppabledomains/ui-components";
+import useIsMounted from "react-is-mounted-hook";
+import {useExtensionStyles} from "../../styles/extension.styles";
 
 const WalletComp: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [walletState, setWalletState] = useState<WalletState>(WalletState.Load);
-  const navigate = useNavigate();
+  const isMounted = useIsMounted();
+  const [walletState] = useFireblocksState();
+  const {classes} = useExtensionStyles();
+  const [authAddress, setAuthAddress] = useState<string>("");
+  const [authDomain, setAuthDomain] = useState<string>("");
+  const [authAvatar, setAuthAvatar] = useState<string>();
+  const [authComplete, setAuthComplete] = useState(false);
+  const [authButton, setAuthButton] = useState<React.ReactNode>();
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const [getAccountsListEnable, setGetAccountsListEnable] = useState(false);
-  const {
-    data: accountsList,
-    isSuccess: isAccountsListSuccess,
-    isPending: isAccountsListLoading,
-  } = useGetAccountsList({
-    enabled: getAccountsListEnable,
-  });
+  const handleAuthComplete = () => {
+    setAuthComplete(true);
+  };
 
+  // load the existing wallet if singed in
   useEffect(() => {
-    const getAccessToken = async () => {
-      let accessToken: string;
-      try {
-        accessToken = await chromeStorageSyncGet(StorageSyncKey.AccessToken);
-      } catch (e) {}
-      return accessToken;
-    };
-
-    const checkAccessState = async () => {
-      const accessToken = await getAccessToken();
-      if (accessToken) {
-        setGetAccountsListEnable(true);
-      } else {
-        setGetAccountsListEnable(false);
-      }
-    };
-
-    checkAccessState();
-  }, []);
-
-  useEffect(() => {
-    if (getAccountsListEnable) {
-      if (isAccountsListLoading) {
-        setWalletState(WalletState.Load);
-      } else if (isAccountsListSuccess && accountsList.items.length > 0) {
-        navigate("/wallet/account");
-      }
-    } else {
-      setWalletState(WalletState.Onboard);
+    if (!isMounted()) {
+      return;
     }
-  }, [isAccountsListSuccess, isAccountsListLoading, getAccountsListEnable]);
+
+    const loadWallet = async () => {
+      try {
+        // retrieve state of logged in wallet (if any)
+        const signInState = getBootstrapState(walletState);
+        if (!signInState) {
+          return;
+        }
+
+        // query addresses belonging to accounts
+        const accountEvmAddresses = [
+          ...new Set(
+            signInState.assets
+              ?.map((a) => a.address)
+              .filter((a) => isEthAddress(a)),
+          ),
+        ];
+
+        // ensure an EVM address is available
+        if (accountEvmAddresses.length === 0) {
+          return;
+        }
+        setAuthAddress(accountEvmAddresses[0]);
+        localStorage.setItem(
+          DomainProfileKeys.AuthAddress,
+          accountEvmAddresses[0],
+        );
+
+        // resolve the domain of this address (if available)
+        const resolution = await getAddressMetadata(accountEvmAddresses[0]);
+        if (resolution?.name) {
+          setAuthDomain(resolution.name);
+          localStorage.setItem(
+            DomainProfileKeys.AuthDomain,
+            resolution.name.toLowerCase(),
+          );
+          if (resolution?.imageType !== "default") {
+            setAuthAvatar(resolution.avatarUrl);
+          }
+        }
+      } catch (e) {
+        console.error(e, "error", "Wallet", "Configuration");
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    void loadWallet();
+  }, [isMounted, authComplete]);
+
+  const handleLogout = () => {
+    setAuthAddress(undefined);
+    setAuthDomain(undefined);
+    setAuthAvatar(undefined);
+    window.close();
+  };
 
   return (
-    <Box
-      sx={{
-        width: "400px",
-        height: "500px",
-        margin: "auto",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        boxShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
-        borderRadius: 2,
-      }}
-    >
-      <Wallet
-        address="0x1234567890"
-        domain="example.crypto"
-        setButtonComponent={() => {}}
-        onUpdate={() => {}}
-      />
-      {/* {walletState === WalletState.Load && <CircularProgress />}
-      {walletState === WalletState.Onboard && (
-        <SetupYourNewWallet
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
+    <Paper className={classes.container}>
+      <Box
+        className={classes.walletContainer}
+        sx={{
+          display: isLoaded ? "flex" : "none",
+        }}
+      >
+        <Wallet
+          mode={"portfolio"}
+          address={authAddress}
+          domain={authDomain}
+          avatarUrl={authAvatar}
+          showMessages={false}
+          onLogout={handleLogout}
+          onUpdate={(_t: DomainProfileTabType) => {
+            handleAuthComplete();
+          }}
+          setButtonComponent={setAuthButton}
+          setAuthAddress={setAuthAddress}
         />
-      )}
-      {walletState === WalletState.Account && (
-        <WalletAccount accountsList={accountsList} />
-      )} */}
-    </Box>
+        {!authAddress && (
+          <Box display="flex" flexDirection="column" width="100%" mt={2}>
+            {authButton}
+          </Box>
+        )}
+      </Box>
+    </Paper>
   );
 };
 

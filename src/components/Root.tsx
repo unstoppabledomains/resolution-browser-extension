@@ -5,8 +5,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
-
+import {BaseProvider} from "@unstoppabledomains/ui-components";
+import {lightTheme} from "@unstoppabledomains/ui-kit/styles";
 import Extension from "../pages/ExtensionMain/Extension";
 import Wallet from "../pages/Wallet/Wallet";
 import List from "../pages/WebsitesList";
@@ -16,15 +16,11 @@ import Install from "../pages/InstallPage/Install";
 import useUserId from "../hooks/useUserId";
 import {LDProvider} from "launchdarkly-react-client-sdk";
 import config from "../config";
-import UserIdService from "../services/userIdService";
-import WalletAccount from "../pages/Wallet/WalletAccount";
 
 const queryClient = new QueryClient();
-const userIdService = new UserIdService();
 
 const EntryPoint: React.FC = () => {
   const navigate = useNavigate();
-  const {userId, isLoading, error} = useUserId();
 
   useEffect(() => {
     if (window.location.hash === "#install") {
@@ -82,10 +78,6 @@ const router = createMemoryRouter([
     path: "/wallet",
     Component: Wallet,
   },
-  {
-    path: "/wallet/account",
-    Component: WalletAccount,
-  },
 ]);
 
 const Root: React.FC = () => (
@@ -103,16 +95,17 @@ const RootApp = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LDProvider
-        clientSideID={config.LD_CLIENT_ID}
-        context={{
-          kind: "user",
-          key: userId,
-        }}
-      >
-        <Root />
-      </LDProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <BaseProvider theme={lightTheme}>
+        <LDProvider
+          clientSideID={config.LD_CLIENT_ID}
+          context={{
+            kind: "user",
+            key: userId,
+          }}
+        >
+          <Root />
+        </LDProvider>
+      </BaseProvider>
     </QueryClientProvider>
   );
 };

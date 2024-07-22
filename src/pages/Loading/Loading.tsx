@@ -1,16 +1,8 @@
 import React from "react";
-import {Box, CircularProgress, Typography} from "@mui/material";
+import {Paper, CircularProgress, Typography} from "@mui/material";
+import {useExtensionStyles} from "../../styles/extension.styles";
 
 const styles = {
-  background: {
-    height: "100vh",
-    width: "100%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f9faff",
-  },
   heading: {
     width: "100%",
     display: "flex",
@@ -27,11 +19,12 @@ const styles = {
 interface Props {}
 
 const Loading: React.FC<Props> = () => {
+  const {classes} = useExtensionStyles();
   return (
-    <Box sx={styles.background}>
+    <Paper className={classes.container}>
       <Typography variant="h4">Loading</Typography>
       <CircularProgress sx={styles.spinner} size={80} />
-    </Box>
+    </Paper>
   );
 };
 

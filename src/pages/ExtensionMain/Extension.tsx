@@ -3,12 +3,9 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import MainScreen from "./MainScreen";
 import {Box, Divider, Paper} from "@mui/material";
+import {useExtensionStyles} from "../../styles/extension.styles";
 
 const styles = {
-  root: {
-    width: "400px",
-    borderRadius: 0,
-  },
   topLayout: {
     display: "flex",
     flexDirection: "column",
@@ -24,17 +21,21 @@ const styles = {
 
 interface Props {}
 
-const Extension: React.FC<Props> = () => (
-  <Paper sx={styles.root}>
-    <Box sx={styles.topLayout}>
-      <Box sx={styles.middleLayout}>
-        <Header />
-        <Divider />
-        <MainScreen />
+const Extension: React.FC<Props> = () => {
+  const {classes} = useExtensionStyles();
+
+  return (
+    <Paper className={classes.container}>
+      <Box sx={styles.topLayout}>
+        <Box sx={styles.middleLayout}>
+          <Header />
+          <Divider />
+          <MainScreen />
+        </Box>
+        <Footer />
       </Box>
-      <Footer />
-    </Box>
-  </Paper>
-);
+    </Paper>
+  );
+};
 
 export default Extension;
