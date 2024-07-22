@@ -15,3 +15,4 @@ tmp
 src/env.ts
 src/manifest.json
 .env
+.yarn
