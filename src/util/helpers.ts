@@ -112,6 +112,7 @@ export const supportedDomains: string[] = [
   '.raiin',
   '.stepn',
   '.kryptic',
+  '.ubu',
 ]
 
 //return true if url ends in one of the supported domains

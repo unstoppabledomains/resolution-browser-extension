@@ -1,3 +1,6 @@
+## 3.0.8
+* Add .ubu TLDs support
+
 ## 3.0.7
 * Add .kryptic TLDs support
 
