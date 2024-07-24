@@ -20,6 +20,7 @@ import Install from "../pages/InstallPage/Install";
 import useUserId from "../hooks/useUserId";
 import {LDProvider} from "launchdarkly-react-client-sdk";
 import config from "../config";
+import { Box } from "@mui/material";
 
 const queryClient = new QueryClient();
 
@@ -109,7 +110,15 @@ const RootApp = () => {
                 key: userId,
               }}
             >
-              <Root />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignContent: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Root />
+              </Box>
             </LDProvider>
           </DomainConfigProvider>
         </UnstoppableMessagingProvider>
