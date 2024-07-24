@@ -30,4 +30,5 @@ export const supportedDomains: string[] = [
   ".raiin",
   ".stepn",
   ".kryptic",
+  ".ubu",
 ];
