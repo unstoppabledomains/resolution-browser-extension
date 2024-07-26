@@ -45,8 +45,13 @@ const WalletComp: React.FC = () => {
         const accountEvmAddresses = [
           ...new Set(
             signInState.assets
-              ?.map((a) => a.address)
-              .filter((a) => isEthAddress(a)),
+              ?.map((a) => {
+                return {
+                  address: a.address,
+                  networkId: a.blockchainAsset.blockchain.networkId,
+                };
+              })
+              .filter((a) => isEthAddress(a.address)),
           ),
         ];
 
@@ -54,14 +59,20 @@ const WalletComp: React.FC = () => {
         if (accountEvmAddresses.length === 0) {
           return;
         }
-        setAuthAddress(accountEvmAddresses[0]);
+        setAuthAddress(accountEvmAddresses[0].address);
         localStorage.setItem(
           DomainProfileKeys.AuthAddress,
-          accountEvmAddresses[0],
+          accountEvmAddresses[0].address,
         );
 
+        chrome.runtime.sendMessage({
+          type: 'selectAccountResponse',
+          address: accountEvmAddresses[0].address,
+          chainId: accountEvmAddresses[0].networkId,
+        });
+
         // resolve the domain of this address (if available)
-        const resolution = await getAddressMetadata(accountEvmAddresses[0]);
+        const resolution = await getAddressMetadata(accountEvmAddresses[0].address);
         if (resolution?.name) {
           setAuthDomain(resolution.name);
           localStorage.setItem(

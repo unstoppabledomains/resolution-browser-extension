@@ -1,20 +1,11 @@
-// @ts-nocheck
-
-document.addEventListener("handlePersonalSign", function (event) {
-  const {message, address} = event.detail;
-
+document.addEventListener("selectAccountRequest", function () {
   chrome.runtime.sendMessage(
     {
-      type: "openExtensionPage",
-      message,
-      address,
+      type: "selectAccountRequest",
     },
     function (response) {
-      // Send the response back to the injected script
-      // const responseData = { signature: response.signature, error: response.error };
-      const responseData = {};
       document.dispatchEvent(
-        new CustomEvent("handlePersonalSignResponse", {detail: responseData}),
+        new CustomEvent("selectAccountResponse", {detail: response}),
       );
     },
   );

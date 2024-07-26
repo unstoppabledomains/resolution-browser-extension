@@ -93,35 +93,28 @@ setTimeout(() => {
   addRules();
 }, 2000);
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === "openExtensionPage") {
-    const url = chrome.runtime.getURL("index.html");
-    chrome.windows.create(
-      {
-        url: url,
-        type: "popup",
-        width: 400,
-        height: 600,
-      },
-      (window) => {
-        const windowId = window.id;
-        const tabId = window.tabs[0].id;
+const popupUrl = chrome.runtime.getURL("index.html");
+const popupWindow = (url: string): chrome.windows.CreateData => {
+  return {
+    url,
+    type: "popup",
+    width: 400,
+    height: 600,
+  };
+};
 
-        chrome.runtime.onMessage.addListener(function listener(response) {
-          if (
-            response.type === "signedMessage" &&
-            response.windowId === windowId
-          ) {
-            chrome.runtime.onMessage.removeListener(listener);
-            sendResponse({
-              signature: response.signature,
-              error: response.error,
-            });
-            chrome.windows.remove(windowId);
-          }
-        });
-      },
-    );
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === "selectAccountRequest") {
+    chrome.windows.create(popupWindow(popupUrl), (window) => {
+      const windowId = window.id;
+      chrome.runtime.onMessage.addListener(function listener(response) {
+        if (response.type === "selectAccountResponse") {
+          chrome.runtime.onMessage.removeListener(listener);
+          sendResponse({response});
+          chrome.windows.remove(windowId);
+        }
+      });
+    });
     return true;
   }
 });
