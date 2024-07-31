@@ -99,7 +99,8 @@ let selectAccountWindowId = null;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (
     request.type === "selectAccountRequest" ||
-    request.type === "selectChainIdRequest"
+    request.type === "selectChainIdRequest" ||
+    request.type === "signMessageRequest"
   ) {
     if (selectAccountWindowId) {
       chrome.tabs.query({windowId: selectAccountWindowId}, (tabs) => {
@@ -135,21 +136,11 @@ function openConnectWindow(request, sendResponse, popupUrl) {
 }
 
 function handleRequestInExistingWindow(request, sendResponse, tabId) {
-  chrome.tabs.sendMessage(tabId, request, (response) => {
-    if (chrome.runtime.lastError) {
-      console.error(
-        "Failed to send message to popup:",
-        chrome.runtime.lastError,
-      );
-    } else {
-      sendResponse(response);
-    }
-  });
-
   chrome.runtime.onMessage.addListener(function listener(response) {
     if (
       response.type === "selectAccountResponse" ||
-      response.type === "selectChainIdResponse"
+      response.type === "selectChainIdResponse" ||
+      response.type === "signMessageResponse"
     ) {
       chrome.runtime.onMessage.removeListener(listener);
       sendResponse(response);

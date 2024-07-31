@@ -7,9 +7,11 @@ import {
   getBootstrapState,
   useFireblocksState,
   isEthAddress,
+  useWeb3Context,
 } from "@unstoppabledomains/ui-components";
 import {useNavigate} from "react-router-dom";
 import {Button, Typography} from "@unstoppabledomains/ui-kit";
+import web3 from "web3";
 
 enum ConnectionState {
   ACCOUNT,
@@ -29,6 +31,8 @@ const Connect: React.FC = () => {
   const [connectionState, setConnectionState] = useState(
     ConnectionState.ACCOUNT,
   );
+
+  const {web3Deps} = useWeb3Context();
 
   useEffect(() => {
     if (!isMounted()) {
@@ -74,6 +78,11 @@ const Connect: React.FC = () => {
       if (message.type === "selectChainIdRequest") {
         setConnectionState(ConnectionState.CHAINID);
       }
+
+      if (message.type === "signMessageRequest" && message.params?.length > 0) {
+        setConnectionState(ConnectionState.SIGN);
+        setMessage(message.params[0]);
+      }
     };
 
     chrome.runtime.onMessage.addListener(handleMessage);
@@ -96,6 +105,13 @@ const Connect: React.FC = () => {
       type: "selectChainIdResponse",
       chainId: accountEvmAddresses[0].networkId,
     });
+  };
+
+  const handleSignMessage = async () => {
+    if (message && accountEvmAddresses) {
+      // const signature = await web3Deps.signer.signMessage(message);
+      console.log("signature", web3Deps);
+    }
   };
 
   const showButton = () => {
@@ -126,31 +142,68 @@ const Connect: React.FC = () => {
     }
   };
 
-  return (
-    <Paper className={classes.container}>
+  const showConnect = () => {
+    return (
       <Box>
-        <Typography
-          sx={{
-            fontWeight: "bold",
-          }}
-        >
-          Address:
-        </Typography>
-        <Typography>{accountEvmAddresses[0]?.address}</Typography>
+        <Box>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            Address:
+          </Typography>
+          <Typography>{accountEvmAddresses[0]?.address}</Typography>
 
-        <Typography
-          sx={{
-            fontWeight: "bold",
-          }}
-        >
-          Chain ID:
-        </Typography>
-        <Typography>{accountEvmAddresses[0]?.networkId}</Typography>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            Chain ID:
+          </Typography>
+          <Typography>{accountEvmAddresses[0]?.networkId}</Typography>
+        </Box>
+
+        <Box>{showButton()}</Box>
       </Box>
+    );
+  };
 
-      {showButton()}
-    </Paper>
-  );
+  const renderContent = () => {
+    if (
+      connectionState === ConnectionState.ACCOUNT ||
+      connectionState === ConnectionState.CHAINID
+    ) {
+      return showConnect();
+    } else if (connectionState === ConnectionState.SIGN) {
+      return (
+        <Box>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            Message to sign:
+          </Typography>
+          <Typography>{web3.utils.hexToUtf8(message)}</Typography>
+
+          <Button
+            onClick={() => {
+              handleSignMessage();
+            }}
+            disabled={!isLoaded}
+          >
+            Sign
+          </Button>
+        </Box>
+      );
+    } else {
+      navigate("/wallet");
+    }
+  };
+
+  return <Paper className={classes.container}>{renderContent()}</Paper>;
 };
 
 export default Connect;

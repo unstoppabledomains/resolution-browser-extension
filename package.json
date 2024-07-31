@@ -36,7 +36,8 @@
     "react-dom": "^17.0.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.23.1",
-    "use-async-effect": "^2.2.7"
+    "use-async-effect": "^2.2.7",
+    "web3": "^4.11.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",

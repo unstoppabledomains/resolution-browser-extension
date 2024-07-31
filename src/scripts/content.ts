@@ -1,5 +1,8 @@
 // @ts-nocheck
 
+let cachedAccountAddress = null;
+let cachedAccountChainId = null;
+
 class CustomWalletProvider {
   isMetaMask: boolean;
 
@@ -38,6 +41,10 @@ class CustomWalletProvider {
   }
 
   async handleAccountRequest() {
+    if (cachedAccountAddress) {
+      return [cachedAccountAddress];
+    }
+
     const resp = new Promise((resolve, reject) => {
       document.dispatchEvent(new CustomEvent("selectAccountRequest"));
       document.addEventListener(
@@ -47,6 +54,8 @@ class CustomWalletProvider {
           if (event.detail.error) {
             reject(event.detail.error);
           } else {
+            cachedAccountAddress = event.detail.address;
+            cachedAccountChainId = event.detail.chainId;
             resolve(event.detail.address);
           }
         },
@@ -58,6 +67,10 @@ class CustomWalletProvider {
   }
 
   async handleChainIdRequest() {
+    if (cachedAccountChainId) {
+      return cachedAccountChainId;
+    }
+
     const resp = new Promise((resolve, reject) => {
       document.dispatchEvent(new CustomEvent("selectChainIdRequest"));
 
