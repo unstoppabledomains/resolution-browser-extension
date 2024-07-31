@@ -40,7 +40,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
+    "@parcel/bundler-default": "^2.12.0",
     "@parcel/config-webextension": "^2.12.0",
+    "@parcel/resolver-default": "^2.12.0",
     "@parcel/transformer-svg-react": "^2.12.0",
     "@types/chrome": "^0.0.268",
     "@types/node": "^20.14.6",

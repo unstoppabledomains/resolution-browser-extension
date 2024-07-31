@@ -2358,7 +2358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/bundler-default@npm:2.12.0":
+"@parcel/bundler-default@npm:2.12.0, @parcel/bundler-default@npm:^2.12.0":
   version: 2.12.0
   resolution: "@parcel/bundler-default@npm:2.12.0"
   dependencies:
@@ -2806,7 +2806,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/resolver-default@npm:2.12.0":
+"@parcel/resolver-default@npm:2.12.0, @parcel/resolver-default@npm:^2.12.0":
   version: 2.12.0
   resolution: "@parcel/resolver-default@npm:2.12.0"
   dependencies:
@@ -16830,7 +16830,9 @@ __metadata:
   resolution: "ud-extension@workspace:."
   dependencies:
     "@babel/core": ^7.24.7
+    "@parcel/bundler-default": ^2.12.0
     "@parcel/config-webextension": ^2.12.0
+    "@parcel/resolver-default": ^2.12.0
     "@parcel/transformer-svg-react": ^2.12.0
     "@types/chrome": ^0.0.268
     "@types/node": ^20.14.6

@@ -65,12 +65,6 @@ const WalletComp: React.FC = () => {
           accountEvmAddresses[0].address,
         );
 
-        chrome.runtime.sendMessage({
-          type: 'selectAccountResponse',
-          address: accountEvmAddresses[0].address,
-          chainId: accountEvmAddresses[0].networkId,
-        });
-
         // resolve the domain of this address (if available)
         const resolution = await getAddressMetadata(accountEvmAddresses[0].address);
         if (resolution?.name) {

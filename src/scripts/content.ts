@@ -47,7 +47,7 @@ class CustomWalletProvider {
           if (event.detail.error) {
             reject(event.detail.error);
           } else {
-            resolve(event.detail.response.address);
+            resolve(event.detail.address);
           }
         },
       );
@@ -59,16 +59,16 @@ class CustomWalletProvider {
 
   async handleChainIdRequest() {
     const resp = new Promise((resolve, reject) => {
-      document.dispatchEvent(new CustomEvent("selectAccountRequest"));
+      document.dispatchEvent(new CustomEvent("selectChainIdRequest"));
 
       document.addEventListener(
-        "selectAccountResponse",
+        "selectChainIdResponse",
         function listener(event) {
-          document.removeEventListener("selectAccountResponse", listener);
+          document.removeEventListener("selectChainIdResponse", listener);
           if (event.detail.error) {
             reject(event.detail.error);
           } else {
-            resolve(event.detail.response.chainId);
+            resolve(event.detail.chainId);
           }
         },
       );
@@ -79,8 +79,27 @@ class CustomWalletProvider {
   }
 
   async handlePersonalSign(params) {
-    console.log("handlePersonalSign", {params});
-    // TODO: Implement personal_sign
+    const resp = new Promise((resolve, reject) => {
+      document.dispatchEvent(
+        new CustomEvent("signMessageRequest", {
+          detail: params,
+        }),
+      );
+
+      document.addEventListener(
+        "signMessageResponse",
+        function listener(event) {
+          document.removeEventListener("signMessageResponse", listener);
+          if (event.detail.error) {
+            reject(event.detail.error);
+          } else {
+            resolve(event.detail.response);
+          }
+        },
+      );
+    });
+
+    const signResponse = await resp;
     return "";
   }
 }

@@ -20,7 +20,8 @@ import Install from "../pages/InstallPage/Install";
 import useUserId from "../hooks/useUserId";
 import {LDProvider} from "launchdarkly-react-client-sdk";
 import config from "../config";
-import { Box } from "@mui/material";
+import {Box} from "@mui/material";
+import Connect from "../pages/Wallet/Connect";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,11 @@ const EntryPoint: React.FC = () => {
 
     if (window.location.hash === "#list") {
       navigate("/list");
+      return;
+    }
+
+    if (window.location.hash === "#connect") {
+      navigate("/connect");
       return;
     }
 
@@ -82,6 +88,10 @@ const router = createMemoryRouter([
   {
     path: "/wallet",
     Component: Wallet,
+  },
+  {
+    path: "/connect",
+    Component: Connect,
   },
 ]);
 
