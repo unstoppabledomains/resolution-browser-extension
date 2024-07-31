@@ -18,6 +18,6 @@ chrome.runtime.onInstalled.addListener(() => {
       ExtensionOptions.InfuraAPI,
     );
   });
-  chrome.tabs.create({url: "index.html#install"});
+  // chrome.tabs.create({url: "index.html#install"});
   console.log("Installed!");
 });
