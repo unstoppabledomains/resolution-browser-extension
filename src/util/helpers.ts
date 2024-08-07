@@ -31,4 +31,5 @@ export const supportedDomains: string[] = [
   ".stepn",
   ".kryptic",
   ".ubu",
+  ".tball",
 ];
