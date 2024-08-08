@@ -1,3 +1,6 @@
+## 3.0.9
+* Add .tball TLDs support
+
 ## 3.0.8
 * Add .ubu TLDs support
 
