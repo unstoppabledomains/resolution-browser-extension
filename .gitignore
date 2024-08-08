@@ -1,6 +1,6 @@
 .idea
 node_modules/
-build/
+build*/
 *.zip
 .cache/
 .old/
