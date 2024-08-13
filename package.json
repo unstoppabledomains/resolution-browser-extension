@@ -27,7 +27,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@unstoppabledomains/config": "0.0.8-experimental.3",
-    "@unstoppabledomains/ui-components": "0.0.42-experimental.14",
+    "@unstoppabledomains/ui-components": "0.0.42-experimental.18",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "is-ipfs": "^8.0.4",
     "launchdarkly-react-client-sdk": "^3.3.2",
