@@ -27,6 +27,11 @@ export const supportedDomains: string[] = [
   ".metropolis",
   ".wrkx",
   ".secret",
+  ".raiin",
+  ".stepn",
+  ".kryptic",
+  ".ubu",
+  ".tball",
 ];
 
 //return true if url ends in one of the supported domains

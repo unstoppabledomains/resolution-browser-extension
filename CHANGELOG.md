@@ -1,6 +1,21 @@
 ## 3.1.0
 * Add Unstoppable Lite Wallet
 
+## 3.0.9
+* Add .tball TLDs support
+
+## 3.0.8
+* Add .ubu TLDs support
+
+## 3.0.7
+* Add .kryptic TLDs support
+
+## 3.0.6
+* Add .stepn TLDs support
+
+## 3.0.4
+* Add .raiin TLDs support
+
 ## 3.0.3
 * Add .secret TLDs support
 
