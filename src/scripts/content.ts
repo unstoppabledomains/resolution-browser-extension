@@ -1,7 +1,25 @@
-// @ts-nocheck
+import {
+  ProviderResponse,
+  UnexpectedResponseError,
+  ProviderMethod,
+  ProviderEvent,
+  ResponseType,
+} from "../types/wallet";
+import {ExternalProvider} from "@ethersproject/providers";
 
 let cachedAccountAddress = null;
 let cachedAccountChainId = null;
+
+declare global {
+  interface Window {
+    ethereum?: ExternalProvider;
+  }
+}
+
+interface RequestArgs {
+  method: ProviderMethod;
+  params: any;
+}
 
 class CustomWalletProvider {
   isMetaMask: boolean;
@@ -10,10 +28,10 @@ class CustomWalletProvider {
     this.isMetaMask = true;
   }
 
-  async request({method, params}) {
+  async request({method, params}: RequestArgs) {
     console.log("Request received", {method, params});
 
-    let result;
+    let result: any;
     try {
       switch (method) {
         case "eth_requestAccounts":
@@ -48,25 +66,27 @@ class CustomWalletProvider {
       return [cachedAccountAddress];
     }
 
-    const resp = new Promise((resolve, reject) => {
-      document.dispatchEvent(new CustomEvent("selectAccountRequest"));
-      document.addEventListener(
+    // connect to account
+    const accountResponse = new Promise((resolve, reject) => {
+      document.dispatchEvent(new ProviderEvent("selectAccountRequest"));
+      this.addEventListener(
         "selectAccountResponse",
-        function listener(event) {
-          document.removeEventListener("selectAccountResponse", listener);
+        (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(event.detail.error);
-          } else {
+          } else if ("address" in event.detail) {
             cachedAccountAddress = event.detail.address;
             cachedAccountChainId = event.detail.chainId;
             resolve(event.detail.address);
+          } else {
+            reject(UnexpectedResponseError);
           }
         },
       );
     });
 
-    const account = await resp;
-    return [account];
+    // return list of accounts
+    return [await accountResponse];
   }
 
   async handleChainIdRequest() {
@@ -74,77 +94,77 @@ class CustomWalletProvider {
       return cachedAccountChainId;
     }
 
-    const resp = new Promise((resolve, reject) => {
-      document.dispatchEvent(new CustomEvent("selectChainIdRequest"));
-
-      document.addEventListener(
+    // connect to chain ID
+    return await new Promise((resolve, reject) => {
+      document.dispatchEvent(new ProviderEvent("selectChainIdRequest"));
+      this.addEventListener(
         "selectChainIdResponse",
-        function listener(event) {
-          document.removeEventListener("selectChainIdResponse", listener);
+        (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(event.detail.error);
-          } else {
+          } else if ("chainId" in event.detail) {
             resolve(event.detail.chainId);
+          } else {
+            reject(UnexpectedResponseError);
           }
         },
       );
     });
-
-    const chainId = await resp;
-    return chainId;
   }
 
   async handlePersonalSign(params: any) {
-    const resp = new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       document.dispatchEvent(
-        new CustomEvent("signMessageRequest", {
+        new ProviderEvent("signMessageRequest", {
           detail: params,
         }),
       );
-
-      document.addEventListener(
+      this.addEventListener(
         "signMessageResponse",
-        function listener(event) {
-          document.removeEventListener("signMessageResponse", listener);
+        (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(event.detail.error);
-          } else {
+          } else if ("response" in event.detail) {
             resolve(event.detail.response);
+          } else {
+            reject(UnexpectedResponseError);
           }
         },
       );
     });
-
-    const signResponse = await resp;
-    return signResponse;
   }
 
   async handleRequestPermissions(params: any) {
-    const resp = new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       document.dispatchEvent(
-        new CustomEvent("requestPermissionsRequest", {
+        new ProviderEvent("requestPermissionsRequest", {
           detail: params,
         }),
       );
-      document.addEventListener(
+      this.addEventListener(
         "requestPermissionsResponse",
-        function listener(event) {
-          document.removeEventListener("requestPermissionsResponse", listener);
+        (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(event.detail.error);
-          } else {
+          } else if ("address" in event.detail) {
             cachedAccountAddress = event.detail.address;
             cachedAccountChainId = event.detail.chainId;
             resolve(event.detail.permissions);
+          } else {
+            reject(UnexpectedResponseError);
           }
         },
       );
     });
+  }
 
-    const permissions = await resp;
-    return permissions;
+  addEventListener(
+    eventType: ResponseType,
+    listener: (event: ProviderResponse) => void,
+  ) {
+    document.addEventListener(eventType, listener);
   }
 }
 
-window.customWalletProvider = new CustomWalletProvider();
-window.ethereum = window.customWalletProvider;
+// attach the custom wallet provider to window.ethereum
+window.ethereum = new CustomWalletProvider();

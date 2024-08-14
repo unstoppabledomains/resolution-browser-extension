@@ -1,55 +1,27 @@
-document.addEventListener("selectAccountRequest", function () {
-  chrome.runtime.sendMessage(
-    {
-      type: "selectAccountRequest",
-    },
-    function (response) {
-      document.dispatchEvent(
-        new CustomEvent("selectAccountResponse", {detail: response}),
-      );
-    },
-  );
-});
+import {
+  MessageTypes,
+  ProviderEvent,
+  ProviderResponseParams,
+  ResponseType,
+} from "../types/wallet";
 
-document.addEventListener("selectChainIdRequest", function () {
-  chrome.runtime.sendMessage(
-    {
-      type: "selectChainIdRequest",
-    },
-    function (response) {
-      document.dispatchEvent(
-        new CustomEvent("selectChainIdResponse", {detail: response}),
-      );
-    },
-  );
-});
-
-document.addEventListener("signMessageRequest", function (event) {
-  chrome.runtime.sendMessage(
-    {
-      type: "signMessageRequest",
-      // @ts-ignore
-      params: event.detail,
-    },
-    function (response) {
-      document.dispatchEvent(
-        new CustomEvent("signMessageResponse", {detail: response}),
-      );
-    },
-  );
-});
-
-document.addEventListener("requestPermissionsRequest", function (event) {
-  chrome.runtime.sendMessage(
-    {
-      type: "requestPermissionsRequest",
-      // @ts-ignore
-      params: event.detail,
-    },
-    function (response) {
-      document.dispatchEvent(
-        new CustomEvent("requestPermissionsResponse", {detail: response}),
-      );
-    },
-  );
+MessageTypes.map((messageType) => {
+  document.addEventListener(messageType, (event: ProviderEvent) => {
+    chrome.runtime.sendMessage(
+      {
+        type: messageType,
+        params: event?.detail,
+      },
+      (response: ProviderResponseParams) => {
+        document.dispatchEvent(
+          new ProviderEvent(
+            messageType.replace("Request", "Response") as ResponseType,
+            {
+              detail: response,
+            },
+          ),
+        );
+      },
+    );
+  });
 });

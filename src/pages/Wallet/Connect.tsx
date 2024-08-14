@@ -15,6 +15,7 @@ import {
 import {useNavigate} from "react-router-dom";
 import {Button, Typography} from "@unstoppabledomains/ui-kit";
 import web3 from "web3";
+import {ProviderRequest} from "../../types/wallet";
 
 enum ConnectionState {
   ACCOUNT,
@@ -99,44 +100,46 @@ const Connect: React.FC = () => {
     }
 
     // create and register message listeners
-    const handleMessage = (message: any) => {
+    const handleMessage = (message: ProviderRequest) => {
       setConnectionStateMessage(message);
-
-      if (message.type === "selectAccountRequest") {
-        setConnectionState(ConnectionState.ACCOUNT);
-      }
-
-      if (message.type === "selectChainIdRequest") {
-        setConnectionState(ConnectionState.CHAINID);
-      }
-
-      if (message.type === "requestPermissionsRequest" && message.params) {
-        setConnectionState(ConnectionState.PERMISSIONS);
-      }
-
-      if (message.type === "signMessageRequest" && message.params?.length > 0) {
-        setConnectionState(ConnectionState.SIGN);
-        handleSignMessage(web3.utils.hexToUtf8(message.params[0]));
+      switch (message.type) {
+        case "selectAccountRequest":
+          setConnectionState(ConnectionState.ACCOUNT);
+          break;
+        case "selectChainIdRequest":
+          setConnectionState(ConnectionState.CHAINID);
+          break;
+        case "requestPermissionsRequest":
+          setConnectionState(ConnectionState.PERMISSIONS);
+          break;
+        case "signMessageRequest":
+          setConnectionState(ConnectionState.SIGN);
+          handleSignMessage(web3.utils.hexToUtf8(message.params[0]));
+          break;
       }
     };
     chrome.runtime.onMessage.addListener(handleMessage);
 
-    // manually handle a message that was sent along with the initial window
-    // popup, since the event listener did not yet exist
-    const params = queryString.parse(window.location.search);
-    if (params && Object.keys(params).length > 0 && params.request) {
-      const request = JSON.parse(params.request as string);
-      if (request.type) {
-        handleMessage(request);
+    // parse available query string params for context data
+    const queryStringArgs = queryString.parse(window.location.search);
+    if (queryStringArgs && Object.keys(queryStringArgs).length > 0) {
+      // manually handle a message that was sent along with the initial window
+      // popup, since the event listener did not yet exist
+      if (queryStringArgs.request) {
+        const request = JSON.parse(queryStringArgs.request as string);
+        if (request.type) {
+          handleMessage(request);
+        }
       }
-    }
 
-    // set the source browser tab
-    if (params && Object.keys(params).length > 0 && params.source) {
-      try {
-        setConnectionSource(JSON.parse(params.source as string));
-      } catch (e) {
-        console.error("unable to retrieve source", e);
+      // retrieve the source tab information if available, used to show the name
+      // and logo of the calling application
+      if (queryStringArgs.source) {
+        try {
+          setConnectionSource(JSON.parse(queryStringArgs.source as string));
+        } catch (e) {
+          console.error("unable to retrieve source", e);
+        }
       }
     }
 

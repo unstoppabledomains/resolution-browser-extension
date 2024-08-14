@@ -1,4 +1,5 @@
 import "../subscripts/onInstalled";
+import {ProviderRequest, isRequestType} from "../types/wallet";
 import {supportedDomains} from "../util/helpers";
 
 const RESOLUTION_URL = "https://api.unstoppabledomains.com/resolve/";
@@ -95,40 +96,41 @@ setTimeout(() => {
 
 let selectAccountWindowId = null;
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (
-    request.type === "selectAccountRequest" ||
-    request.type === "selectChainIdRequest" ||
-    request.type === "signMessageRequest" ||
-    request.type === "requestPermissionsRequest"
-  ) {
-    chrome.tabs
-      .query({
-        active: true,
-        lastFocusedWindow: true,
-      })
-      .then((tabs) => {
-        const requestSource = tabs[0];
-        const requestUrl = chrome.runtime.getURL(
-          `index.html?request=${encodeURIComponent(JSON.stringify(request))}&source=${encodeURIComponent(JSON.stringify(requestSource))}#connect`,
-        );
-        if (selectAccountWindowId) {
-          chrome.tabs.query({windowId: selectAccountWindowId}, (tabs) => {
-            if (tabs.length === 0) {
-              selectAccountWindowId = null;
-              openConnectWindow(request, sendResponse, requestUrl);
-            } else {
-              handleRequestInExistingWindow(request, sendResponse, tabs[0].id);
-            }
-          });
-        } else {
-          openConnectWindow(request, sendResponse, requestUrl);
-        }
-      });
+chrome.runtime.onMessage.addListener(
+  (request: ProviderRequest, sender, sendResponse) => {
+    if (isRequestType(request.type)) {
+      chrome.tabs
+        .query({
+          active: true,
+          lastFocusedWindow: true,
+        })
+        .then((tabs) => {
+          const requestSource = tabs[0];
+          const requestUrl = chrome.runtime.getURL(
+            `index.html?request=${encodeURIComponent(JSON.stringify(request))}&source=${encodeURIComponent(JSON.stringify(requestSource))}#connect`,
+          );
+          if (selectAccountWindowId) {
+            chrome.tabs.query({windowId: selectAccountWindowId}, (tabs) => {
+              if (tabs.length === 0) {
+                selectAccountWindowId = null;
+                openConnectWindow(request, sendResponse, requestUrl);
+              } else {
+                handleRequestInExistingWindow(
+                  request,
+                  sendResponse,
+                  tabs[0].id,
+                );
+              }
+            });
+          } else {
+            openConnectWindow(request, sendResponse, requestUrl);
+          }
+        });
 
-    return true;
-  }
-});
+      return true;
+    }
+  },
+);
 
 function openConnectWindow(request, sendResponse, popupUrl) {
   chrome.windows.create(
