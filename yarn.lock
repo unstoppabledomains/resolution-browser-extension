@@ -4854,9 +4854,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.42-experimental.18":
-  version: 0.0.42-experimental.18
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.42-experimental.18"
+"@unstoppabledomains/ui-components@npm:0.0.42-experimental.23":
+  version: 0.0.42-experimental.23
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.42-experimental.23"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -4952,7 +4952,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 15fee93f1a91024e0e5261229ac350613cca0112ff09e5ab0564f1f800d38d1dfda5c3eeccf38550a89a717450eea6a379d3aead1524b0bd0147eb0de49fa548
+  checksum: 4e761797eb60077576c72f1c8f8f14356a693180d9a0d7af8cf538d2a903ca29c10c1948408b1e07ac86c3742bfb0f328332ed52fb8ed73b9234d54d1fa80b0d
   languageName: node
   linkType: hard
 
@@ -16886,7 +16886,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.8-experimental.3
-    "@unstoppabledomains/ui-components": 0.0.42-experimental.18
+    "@unstoppabledomains/ui-components": 0.0.42-experimental.23
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     browserify-zlib: ^0.2.0

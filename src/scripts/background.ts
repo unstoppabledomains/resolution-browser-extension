@@ -93,27 +93,39 @@ setTimeout(() => {
   addRules();
 }, 2000);
 
-const popupUrl = chrome.runtime.getURL("index.html#connect");
 let selectAccountWindowId = null;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (
     request.type === "selectAccountRequest" ||
     request.type === "selectChainIdRequest" ||
-    request.type === "signMessageRequest"
+    request.type === "signMessageRequest" ||
+    request.type === "requestPermissionsRequest"
   ) {
-    if (selectAccountWindowId) {
-      chrome.tabs.query({windowId: selectAccountWindowId}, (tabs) => {
-        if (tabs.length === 0) {
-          selectAccountWindowId = null;
-          openConnectWindow(request, sendResponse, popupUrl);
+    chrome.tabs
+      .query({
+        active: true,
+        lastFocusedWindow: true,
+      })
+      .then((tabs) => {
+        const requestSource = tabs[0];
+        const requestUrl = chrome.runtime.getURL(
+          `index.html?request=${encodeURIComponent(JSON.stringify(request))}&source=${encodeURIComponent(JSON.stringify(requestSource))}#connect`,
+        );
+        if (selectAccountWindowId) {
+          chrome.tabs.query({windowId: selectAccountWindowId}, (tabs) => {
+            if (tabs.length === 0) {
+              selectAccountWindowId = null;
+              openConnectWindow(request, sendResponse, requestUrl);
+            } else {
+              handleRequestInExistingWindow(request, sendResponse, tabs[0].id);
+            }
+          });
         } else {
-          handleRequestInExistingWindow(request, sendResponse, tabs[0].id);
+          openConnectWindow(request, sendResponse, requestUrl);
         }
       });
-    } else {
-      openConnectWindow(request, sendResponse, popupUrl);
-    }
+
     return true;
   }
 });
@@ -124,7 +136,7 @@ function openConnectWindow(request, sendResponse, popupUrl) {
       url: popupUrl,
       type: "popup",
       width: 400,
-      height: 600,
+      height: 630,
     },
     (window) => {
       selectAccountWindowId = window.id;
@@ -140,6 +152,7 @@ function handleRequestInExistingWindow(request, sendResponse, tabId) {
     if (
       response.type === "selectAccountResponse" ||
       response.type === "selectChainIdResponse" ||
+      response.type === "requestPermissionsResponse" ||
       response.type === "signMessageResponse"
     ) {
       chrome.runtime.onMessage.removeListener(listener);

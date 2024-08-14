@@ -38,3 +38,18 @@ document.addEventListener("signMessageRequest", function (event) {
     },
   );
 });
+
+document.addEventListener("requestPermissionsRequest", function (event) {
+  chrome.runtime.sendMessage(
+    {
+      type: "requestPermissionsRequest",
+      // @ts-ignore
+      params: event.detail,
+    },
+    function (response) {
+      document.dispatchEvent(
+        new CustomEvent("requestPermissionsResponse", {detail: response}),
+      );
+    },
+  );
+});

@@ -28,6 +28,9 @@ class CustomWalletProvider {
         case "personal_sign":
           result = await this.handlePersonalSign(params);
           break;
+        case "wallet_requestPermissions":
+          result = await this.handleRequestPermissions(params);
+          break;
         default:
           throw new Error(`Unsupported method: ${method}`);
       }
@@ -91,7 +94,7 @@ class CustomWalletProvider {
     return chainId;
   }
 
-  async handlePersonalSign(params) {
+  async handlePersonalSign(params: any) {
     const resp = new Promise((resolve, reject) => {
       document.dispatchEvent(
         new CustomEvent("signMessageRequest", {
@@ -113,7 +116,33 @@ class CustomWalletProvider {
     });
 
     const signResponse = await resp;
-    return "";
+    return signResponse;
+  }
+
+  async handleRequestPermissions(params: any) {
+    const resp = new Promise((resolve, reject) => {
+      document.dispatchEvent(
+        new CustomEvent("requestPermissionsRequest", {
+          detail: params,
+        }),
+      );
+      document.addEventListener(
+        "requestPermissionsResponse",
+        function listener(event) {
+          document.removeEventListener("requestPermissionsResponse", listener);
+          if (event.detail.error) {
+            reject(event.detail.error);
+          } else {
+            cachedAccountAddress = event.detail.address;
+            cachedAccountChainId = event.detail.chainId;
+            resolve(event.detail.permissions);
+          }
+        },
+      );
+    });
+
+    const permissions = await resp;
+    return permissions;
   }
 }
 
