@@ -9,7 +9,6 @@
     "typeRoots": ["./node_modules/@types", "./typings"],
   },
   "include": [
-    "src",
-    "custom.d.ts"
+    "src", 
   ],
 }
