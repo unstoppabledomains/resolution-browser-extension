@@ -21,6 +21,18 @@
     "service_worker": "./scripts/background.ts",
     "type": "module"
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./scripts/content.ts"],
+      "world": "MAIN"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./scripts/contentIsolated.ts"],
+      "world": "ISOLATED"
+    }
+  ],
   "options_ui": {"page": "index.html#/options", "open_in_tab": false},
   "host_permissions": [
     "*://*.crypto/*",
@@ -75,10 +87,12 @@
   "web_accessible_resources": [
     {
       "matches": ["<all_urls>"],
-      "resources": ["js/wasm/cosigner.esm.wasm"]
+      "resources": ["js/wasm/cosigner.esm.wasm", "./scripts/contentIsolated.ts", "index.html"]
     }
   ],
   "permissions": [
+    "activeTab",
+    "tabs",
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback"

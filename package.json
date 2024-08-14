@@ -27,7 +27,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@unstoppabledomains/config": "0.0.8-experimental.3",
-    "@unstoppabledomains/ui-components": "0.0.42-experimental.18",
+    "@unstoppabledomains/ui-components": "0.0.42-experimental.23",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "is-ipfs": "^8.0.4",
     "launchdarkly-react-client-sdk": "^3.3.2",
@@ -36,11 +36,14 @@
     "react-dom": "^17.0.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.23.1",
-    "use-async-effect": "^2.2.7"
+    "use-async-effect": "^2.2.7",
+    "web3": "^4.11.1"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
+    "@parcel/bundler-default": "^2.12.0",
     "@parcel/config-webextension": "^2.12.0",
+    "@parcel/resolver-default": "^2.12.0",
     "@parcel/transformer-svg-react": "^2.12.0",
     "@types/chrome": "^0.0.268",
     "@types/node": "^20.14.6",
