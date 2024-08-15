@@ -1,3 +1,6 @@
+## 3.0.11
+* Add .dfz TLDs support
+
 ## 3.0.10
 * Add .farms TLDs support
 

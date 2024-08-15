@@ -32,5 +32,6 @@ export const supportedDomains: string[] = [
   ".kryptic",
   ".ubu",
   ".tball",
-  ".farms"
+  ".farms",
+  ".dfz",
 ];
