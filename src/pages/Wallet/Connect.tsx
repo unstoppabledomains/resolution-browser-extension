@@ -11,11 +11,23 @@ import {
   isEthAddress,
   useWeb3Context,
   ReactSigner,
+  CreateTransaction,
+  SignForDappHeader,
 } from "@unstoppabledomains/ui-components";
 import {useNavigate} from "react-router-dom";
 import {Button, Typography} from "@unstoppabledomains/ui-kit";
 import web3 from "web3";
-import {ProviderRequest} from "../../types/wallet";
+import {
+  ChainNotSupportedError,
+  DEFAULT_CHAINS,
+  NotConnectedError,
+  ProviderRequest,
+  ResponseType,
+  UnsupportedPermissionError,
+  UnsupportedRequestError,
+  getResponseType,
+  isPermissionType,
+} from "../../types/wallet";
 
 enum ConnectionState {
   ACCOUNT,
@@ -37,7 +49,6 @@ const Connect: React.FC = () => {
   // connection state management
   const [connectionStateMessage, setConnectionStateMessage] = useState<any>();
   const [connectionState, setConnectionState] = useState<ConnectionState>();
-  const [connectionSource, setConnectionSource] = useState<chrome.tabs.Tab>();
 
   useEffect(() => {
     if (!isMounted()) {
@@ -69,19 +80,41 @@ const Connect: React.FC = () => {
         }
         setAccountEvmAddresses(accountEvmAddresses);
 
+        // retrieve the source tab information if available, used to show the name
+        // and logo of the calling application
+        let connectionSource: chrome.tabs.Tab;
+        const queryStringArgs = queryString.parse(window.location.search);
+        if (queryStringArgs && Object.keys(queryStringArgs).length > 0) {
+          if (queryStringArgs.source) {
+            try {
+              connectionSource = JSON.parse(queryStringArgs.source as string);
+            } catch (e) {
+              console.error("unable to retrieve source", e);
+            }
+          }
+        }
+
         // set web3 dependencies for connected wallet to enable prompts to
         // sign messages
-        const signer = new ReactSigner(accountEvmAddresses[0].address, {
+        const defaultAccount = accountEvmAddresses[0];
+        const signer = new ReactSigner(defaultAccount.address, {
           setMessage: setMessageToSign,
           setTx: setTxToSign,
         }) as unknown as Signer;
         setWeb3Deps({
           signer,
-          address: accountEvmAddresses[0].address,
+          address: defaultAccount.address,
           unstoppableWallet: {
             addresses: accountEvmAddresses.map((a) => a.address),
             promptForSignatures: true,
             fullScreenModal: true,
+            connectedApp: connectionSource
+              ? {
+                  name: connectionSource.title,
+                  hostUrl: new URL(connectionSource.url).hostname,
+                  iconUrl: connectionSource.favIconUrl,
+                }
+              : undefined,
           },
         });
       } catch (e) {
@@ -101,44 +134,50 @@ const Connect: React.FC = () => {
 
     // create and register message listeners
     const handleMessage = (message: ProviderRequest) => {
-      setConnectionStateMessage(message);
-      switch (message.type) {
-        case "selectAccountRequest":
-          setConnectionState(ConnectionState.ACCOUNT);
-          break;
-        case "selectChainIdRequest":
-          setConnectionState(ConnectionState.CHAINID);
-          break;
-        case "requestPermissionsRequest":
-          setConnectionState(ConnectionState.PERMISSIONS);
-          break;
-        case "signMessageRequest":
-          setConnectionState(ConnectionState.SIGN);
-          handleSignMessage(web3.utils.hexToUtf8(message.params[0]));
-          break;
+      try {
+        setConnectionStateMessage(message);
+        switch (message.type) {
+          case "selectAccountRequest":
+            setConnectionState(ConnectionState.ACCOUNT);
+            break;
+          case "selectChainIdRequest":
+            setConnectionState(ConnectionState.CHAINID);
+            handleGetChainId();
+            break;
+          case "requestPermissionsRequest":
+            setConnectionState(ConnectionState.PERMISSIONS);
+            break;
+          case "signMessageRequest":
+            setConnectionState(ConnectionState.SIGN);
+            handleSignMessage(message.params[0]);
+            break;
+          case "sendTransactionRequest":
+            setConnectionState(ConnectionState.SIGN);
+            handleSendTransaction(message.params[0]);
+            break;
+          case "switchChainRequest":
+            setConnectionState(ConnectionState.ACCOUNT);
+            break;
+          default:
+            // unsupported method type
+            console.log("Unsupported message type", message);
+            throw new Error(UnsupportedRequestError);
+        }
+      } catch (e) {
+        // handle the error
+        handleError(getResponseType(message.type), e);
       }
     };
     chrome.runtime.onMessage.addListener(handleMessage);
 
-    // parse available query string params for context data
+    // manually handle a message that was sent along with the initial window
+    // popup, since the event listener did not yet exist
     const queryStringArgs = queryString.parse(window.location.search);
     if (queryStringArgs && Object.keys(queryStringArgs).length > 0) {
-      // manually handle a message that was sent along with the initial window
-      // popup, since the event listener did not yet exist
       if (queryStringArgs.request) {
         const request = JSON.parse(queryStringArgs.request as string);
         if (request.type) {
           handleMessage(request);
-        }
-      }
-
-      // retrieve the source tab information if available, used to show the name
-      // and logo of the calling application
-      if (queryStringArgs.source) {
-        try {
-          setConnectionSource(JSON.parse(queryStringArgs.source as string));
-        } catch (e) {
-          console.error("unable to retrieve source", e);
         }
       }
     }
@@ -149,21 +188,62 @@ const Connect: React.FC = () => {
     };
   }, [web3Deps]);
 
-  const handleConnectAccount = () => {
+  const getAccount = (chainIds: number[] = DEFAULT_CHAINS) => {
+    const matchingAccount = accountEvmAddresses.find((a) =>
+      chainIds.includes(a.networkId),
+    );
+    return matchingAccount?.address ? matchingAccount : accountEvmAddresses[0];
+  };
+
+  const handleGetChainId = () => {
+    // retrieve the default account
+    const defaultAccount = getAccount();
+    if (!defaultAccount) {
+      handleError("selectChainIdResponse", new Error(NotConnectedError));
+      return;
+    }
+
+    // return the connected account
+    let networkId = defaultAccount.networkId;
     chrome.runtime.sendMessage({
-      type: "selectAccountResponse",
-      address: accountEvmAddresses[0].address,
-      chainId: accountEvmAddresses[0].networkId,
+      type: "selectChainIdResponse",
+      chainId: defaultAccount.networkId,
     });
 
     // close the popup
     handleClose();
   };
 
-  const handleConnectChainId = () => {
+  const handleConnectAccount = () => {
+    // determine if a specific account is requested, defaulting to the
+    // first available entry if none specified
+    const defaultAccount = getAccount();
+    let networkId = defaultAccount.networkId;
+    if (
+      connectionStateMessage?.params &&
+      connectionStateMessage.params.length > 0 &&
+      connectionStateMessage.params[0].chainId
+    ) {
+      networkId = parseInt(
+        connectionStateMessage.params[0].chainId.replaceAll("0x", ""),
+      );
+    }
+
+    // find the requested chain
+    const account = getAccount([networkId]);
+    if (account?.networkId !== networkId) {
+      handleError(
+        getResponseType(connectionStateMessage.type),
+        new Error(ChainNotSupportedError),
+      );
+      return;
+    }
+
+    // return the connected account
     chrome.runtime.sendMessage({
-      type: "selectChainIdResponse",
-      chainId: accountEvmAddresses[0].networkId,
+      type: getResponseType(connectionStateMessage.type),
+      address: account.address,
+      chainId: account.networkId,
     });
 
     // close the popup
@@ -171,33 +251,70 @@ const Connect: React.FC = () => {
   };
 
   const handleRequestPermissions = () => {
-    // return the accepted permissions
-    chrome.runtime.sendMessage({
-      type: "requestPermissionsResponse",
-      address: accountEvmAddresses[0].address,
-      chainId: accountEvmAddresses[0].networkId,
-      permissions: connectionStateMessage?.params
-        ?.filter((permission: any) => {
+    try {
+      // generate the accepted permissions list
+      const account = getAccount();
+      const acceptedPermissions: any[] = [];
+      connectionStateMessage?.params
+        // ensure a permission has been provided
+        ?.filter((permissions: any) => {
           try {
-            const permissionNames = Object.keys(permission);
+            const permissionNames = Object.keys(permissions);
             return permissionNames && permissionNames.length > 0;
           } catch (e) {
             return false;
           }
         })
-        .map((permission: Record<string, any>) => {
-          return {
-            parentCapability: Object.keys(permission)[0],
-          };
-        }),
-    });
+        // handle requested permissions
+        .map((permissions: Record<string, Record<string, string>>) => {
+          Object.keys(permissions).map((permission) => {
+            // validate the requested permission is supported
+            if (!isPermissionType(permission)) {
+              throw new Error(UnsupportedPermissionError);
+            }
 
-    // close the popup
-    handleClose();
+            // add permission to accepted permission list
+            acceptedPermissions.push({
+              parentCapability: permission,
+              invoker: "https://docs.metamask.io",
+              context: ["https://github.com/MetaMask/rpc-cap"],
+              date: new Date().getTime(),
+              caveats: [
+                {
+                  name: "primaryAccountOnly",
+                  type: "limitResponseLength",
+                  value: 1,
+                },
+                {
+                  name: "exposedAccounts",
+                  type: "filterResponse",
+                  value: [account.address],
+                },
+              ],
+            });
+          });
+        });
+
+      // return the accepted permissions
+      chrome.runtime.sendMessage({
+        type: "requestPermissionsResponse",
+        address: account.address,
+        chainId: account.networkId,
+        permissions: acceptedPermissions,
+      });
+
+      // close the popup
+      handleClose();
+    } catch (e) {
+      handleError(getResponseType("requestPermissionsRequest"), e);
+    }
   };
 
-  const handleSignMessage = async (message: string) => {
+  const handleSignMessage = async (encodedMessage: string) => {
     try {
+      // prepare the message to sign, which is currently hex encoded
+      const message = web3.utils.hexToUtf8(encodedMessage);
+
       // request the signature
       const signature = await web3Deps.signer.signMessage(message);
       chrome.runtime.sendMessage({
@@ -209,13 +326,44 @@ const Connect: React.FC = () => {
       handleClose();
     } catch (e) {
       // handle signing error and cancel the operation
-      console.error("error signing message", e);
-      chrome.runtime.sendMessage({
-        type: "signMessageResponse",
-        error: String(e),
-      });
-      handleClose();
+      handleError("signMessageResponse", e);
     }
+  };
+
+  const handleSendTransaction = async (txParams: Record<string, string>) => {
+    try {
+      // prepare a transaction to be signed
+      const txRequest: CreateTransaction = {
+        chainId: parseInt(txParams.chainId),
+        to: txParams.to,
+        data: txParams.data,
+        value: txParams.value || "0",
+      };
+
+      // sign the transaction and return the hash, so the user
+      // can be prompted to approve the transaction
+      const txHash = await web3Deps.signer.signTransaction(txRequest);
+      chrome.runtime.sendMessage({
+        type: "sendTransactionResponse",
+        response: txHash,
+      });
+
+      // close the popup on success
+      handleClose();
+    } catch (e) {
+      // handle signing error and cancel the operation
+      handleError("sendTransactionResponse", e);
+    }
+  };
+
+  const handleError = (type: ResponseType, e: Error) => {
+    // handle provider error and cancel the operation
+    console.error("handling provider error", type, e);
+    chrome.runtime.sendMessage({
+      type,
+      error: String(e),
+    });
+    handleClose();
   };
 
   const handleCancel = () => {
@@ -244,19 +392,6 @@ const Connect: React.FC = () => {
       );
     }
 
-    if (connectionState === ConnectionState.CHAINID) {
-      return (
-        <Button
-          onClick={handleConnectChainId}
-          disabled={!isLoaded}
-          fullWidth
-          variant="contained"
-        >
-          Connect
-        </Button>
-      );
-    }
-
     if (connectionState === ConnectionState.PERMISSIONS) {
       return (
         <Button
@@ -273,55 +408,35 @@ const Connect: React.FC = () => {
 
   return (
     <Paper className={classes.container}>
-      {[
-        ConnectionState.ACCOUNT,
-        ConnectionState.CHAINID,
-        ConnectionState.PERMISSIONS,
-      ].includes(connectionState) && (
+      {[ConnectionState.ACCOUNT, ConnectionState.PERMISSIONS].includes(
+        connectionState,
+      ) && (
         <Box className={classes.walletContainer}>
           <Box className={classes.contentContainer}>
-            <Typography variant="h4">Connection Request</Typography>
-            {connectionSource?.favIconUrl && (
-              <Box mt={3} mb={3}>
-                {
-                  <Avatar
-                    className={classes.walletIcon}
-                    src={connectionSource.favIconUrl}
-                  />
+            <Typography variant="h4">Confirmation</Typography>
+            {web3Deps?.unstoppableWallet?.connectedApp && (
+              <SignForDappHeader
+                name={web3Deps.unstoppableWallet.connectedApp.name}
+                iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
+                hostUrl={web3Deps.unstoppableWallet.connectedApp.hostUrl}
+                actionText={
+                  connectionState === ConnectionState.PERMISSIONS
+                    ? "request permission to view your wallet and prompt for transactions"
+                    : "connect"
                 }
-              </Box>
+              />
             )}
-            {connectionSource?.title && (
-              <Typography>
-                <b>{connectionSource.title}</b> wants to connect to Unstoppable
-                Lite Wallet. Verify the website and wallet address before
-                connecting.
-              </Typography>
-            )}
-            {connectionSource?.url && (
-              <Box className={classes.contentContainer}>
-                <Typography
-                  sx={{
-                    fontWeight: "bold",
-                  }}
-                  mt={3}
-                >
-                  Website:
-                </Typography>
-                <Typography>
-                  {new URL(connectionSource.url).hostname}
-                </Typography>
-              </Box>
-            )}
+            <Typography variant="body1" mt={3}>
+              Wallet address:
+            </Typography>
             <Typography
+              variant="body2"
               sx={{
                 fontWeight: "bold",
               }}
-              mt={3}
             >
-              Wallet address:
+              {getAccount()?.address}
             </Typography>
-            <Typography>{accountEvmAddresses[0]?.address}</Typography>
           </Box>
           <Box className={classes.contentContainer}>
             {renderButton()}

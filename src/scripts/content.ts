@@ -4,8 +4,17 @@ import {
   ProviderMethod,
   ProviderEvent,
   ResponseType,
+  InvalidSwitchChainError,
+  NotImplementedError,
+  ProviderAccountResponse,
+  Eip1193Event,
+  InvalidTxError,
+  NotConnectedError,
+  InvalidSignatureError,
 } from "../types/wallet";
 import {ExternalProvider} from "@ethersproject/providers";
+import {Mutex} from "async-mutex";
+import {EventEmitter} from "events";
 
 let cachedAccountAddress = null;
 let cachedAccountChainId = null;
@@ -18,22 +27,45 @@ declare global {
 
 interface RequestArgs {
   method: ProviderMethod;
-  params: any;
+  params: any[];
 }
 
-class CustomWalletProvider {
-  isMetaMask: boolean;
+class CustomWalletProvider extends EventEmitter {
+  // web3 provider properties
+  isMetaMask?: boolean;
+  isStatus?: boolean;
+  host?: string;
+  path?: string;
+
+  // internal properties
+  private mutex: Mutex;
+
+  /*************************
+   * Public provider methods
+   *************************/
 
   constructor() {
+    super();
     this.isMetaMask = true;
+    this.mutex = new Mutex();
+    this.shimLegacy();
+  }
+
+  isConnected(): boolean {
+    return this.isStatus === true;
   }
 
   async request({method, params}: RequestArgs) {
-    console.log("Request received", {method, params});
+    // serialize operation requests, waiting for completion before moving on
+    // to subsequent operations
+    const unlock = await this.mutex.acquire();
 
-    let result: any;
+    // process the provider request
+    console.log("Request received", JSON.stringify({method, params}));
     try {
+      let result: any;
       switch (method) {
+        // Wallet connection methods
         case "eth_requestAccounts":
           result = await this.handleAccountRequest();
           break;
@@ -43,25 +75,69 @@ class CustomWalletProvider {
         case "eth_accounts":
           result = await this.handleAccountRequest();
           break;
+        case "wallet_requestPermissions":
+          result = await this.handleRequestPermissions(params);
+          break;
+        case "wallet_switchEthereumChain":
+          result = await this.handleSwitchChain(params);
+          break;
+        // Message signing methods
         case "personal_sign":
           result = await this.handlePersonalSign(params);
           break;
-        case "wallet_requestPermissions":
-          result = await this.handleRequestPermissions(params);
+        // Transaction methods
+        case "eth_sendTransaction":
+          result = await this.handleSendTransaction(params);
+          break;
+        case "eth_getTransactionByHash":
+          // not implemented, but stubbed out with "not found" to prevent runtime
+          // errors on apps that call this method
+          result = null;
           break;
         default:
           throw new Error(`Unsupported method: ${method}`);
       }
 
-      console.log("Request successful", {method, result});
+      // result is successful
+      console.log("Request successful", JSON.stringify({method, result}));
       return result;
     } catch (error) {
+      // result is failure
       console.log("Request failed", {method, error});
       throw error;
+    } finally {
+      // release the lock
+      unlock();
     }
   }
 
-  async handleAccountRequest() {
+  /******************
+   * Internal methods
+   ******************/
+
+  private shimLegacy() {
+    const legacyMethods = [
+      ["enable", "eth_requestAccounts"],
+      ["net_version", "net_version"],
+    ];
+
+    for (const [_method, method] of legacyMethods) {
+      this[_method] = () =>
+        this.request({method: method as ProviderMethod, params: [{}]});
+    }
+  }
+
+  private emitEvent(type: Eip1193Event, data: unknown) {
+    this.emit(type, data);
+  }
+
+  private handleConnected(account: ProviderAccountResponse) {
+    cachedAccountAddress = account.address;
+    cachedAccountChainId = account.chainId;
+    this.isStatus = true;
+  }
+
+  private async handleAccountRequest() {
     if (cachedAccountAddress) {
       return [cachedAccountAddress];
     }
@@ -75,8 +151,12 @@ class CustomWalletProvider {
           if (event.detail.error) {
             reject(event.detail.error);
           } else if ("address" in event.detail) {
-            cachedAccountAddress = event.detail.address;
-            cachedAccountChainId = event.detail.chainId;
+            // handle success events
+            this.handleConnected(event.detail);
+            this.emitEvent("accountsChanged", [event.detail.address]);
+            this.emitEvent("connect", {chainId: event.detail.chainId});
+
+            // resolve the promise
             resolve(event.detail.address);
           } else {
             reject(UnexpectedResponseError);
@@ -89,7 +169,7 @@ class CustomWalletProvider {
     return [await accountResponse];
   }
 
-  async handleChainIdRequest() {
+  private async handleChainIdRequest() {
     if (cachedAccountChainId) {
       return cachedAccountChainId;
     }
@@ -103,6 +183,12 @@ class CustomWalletProvider {
           if (event.detail.error) {
             reject(event.detail.error);
           } else if ("chainId" in event.detail) {
+            // handle success events
+            this.handleConnected(event.detail);
+            this.emitEvent("connect", {chainId: event.detail.chainId});
+            this.emitEvent("chainChanged", event.detail.chainId);
+
+            // resolve the promise
             resolve(event.detail.chainId);
           } else {
             reject(UnexpectedResponseError);
@@ -112,11 +198,65 @@ class CustomWalletProvider {
     });
   }
 
-  async handlePersonalSign(params: any) {
+  private async handleSwitchChain(params: any[]) {
+    // determine the requested chain ID
+    if (!params || !params.length) {
+      throw new Error(InvalidSwitchChainError);
+    }
+    const requestedChainId = params[0].chainId;
+    if (!requestedChainId) {
+      throw new Error(InvalidSwitchChainError);
+    }
+
+    // attempt to switch to the new chain ID, or throw an error
+    // if the chain is not available
+    await new Promise((resolve, reject) => {
+      document.dispatchEvent(
+        new ProviderEvent("switchChainRequest", {
+          detail: [{chainId: requestedChainId}],
+        }),
+      );
+      this.addEventListener(
+        "switchChainResponse",
+        (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(event.detail.error);
+          } else if ("address" in event.detail) {
+            // handle success events
+            this.handleConnected(event.detail);
+            this.emitEvent("chainChanged", event.detail.chainId);
+
+            // resolve the promise
+            resolve(event.detail.chainId);
+          } else {
+            reject(UnexpectedResponseError);
+          }
+        },
+      );
+    });
+  }
+
+  private async handlePersonalSign(params: any[]) {
     return await new Promise((resolve, reject) => {
+      // validate the provided parameters include a string in hex format
+      // that can be signed
+      if (!params || params.length === 0) {
+        throw new Error(InvalidSignatureError);
+      }
+      const messageToSign = params[0];
+      if (
+        typeof messageToSign !== "string" ||
+        !messageToSign.startsWith("0x")
+      ) {
+        throw new Error(InvalidSignatureError);
+      }
+
+      // send the message signing event
       document.dispatchEvent(
         new ProviderEvent("signMessageRequest", {
-          detail: params,
+          // parameters are expected to be sent as first element of
+          // the detail array
+          detail: [messageToSign],
         }),
       );
       this.addEventListener(
@@ -134,7 +274,51 @@ class CustomWalletProvider {
     });
   }
 
-  async handleRequestPermissions(params: any) {
+  private async handleSendTransaction(params: any[]) {
+    return await new Promise((resolve, reject) => {
+      //validate an account is connected
+      if (!cachedAccountAddress || !cachedAccountChainId) {
+        throw new Error(NotConnectedError);
+      }
+
+      // validate any Tx parameters have been passed
+      if (!params || params.length === 0) {
+        throw new Error(InvalidTxError);
+      }
+
+      // validate repackage the transaction parameters to include
+      // the currently connected chain ID. This will be needed by
+      // the extension popup to complete the signature.
+      const normalizedParams = params[0];
+      if (!normalizedParams.data || !normalizedParams.to) {
+        throw new Error(InvalidTxError);
+      }
+      normalizedParams.chainId = String(cachedAccountChainId);
+
+      // send the prepared transaction signing event
+      document.dispatchEvent(
+        new ProviderEvent("sendTransactionRequest", {
+          // parameters are expected to be sent as first element of
+          // the detail array
+          detail: [normalizedParams],
+        }),
+      );
+      this.addEventListener(
+        "sendTransactionResponse",
+        (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(event.detail.error);
+          } else if ("response" in event.detail) {
+            resolve(event.detail.response);
+          } else {
+            reject(UnexpectedResponseError);
+          }
+        },
+      );
+    });
+  }
+
+  private async handleRequestPermissions(params: any[]) {
     return await new Promise((resolve, reject) => {
       document.dispatchEvent(
         new ProviderEvent("requestPermissionsRequest", {
@@ -147,8 +331,12 @@ class CustomWalletProvider {
           if (event.detail.error) {
             reject(event.detail.error);
           } else if ("address" in event.detail) {
-            cachedAccountAddress = event.detail.address;
-            cachedAccountChainId = event.detail.chainId;
+            // handle success events
+            this.handleConnected(event.detail);
+            this.emitEvent("connect", {chainId: event.detail.chainId});
+            this.emitEvent("accountsChanged", [event.detail.address]);
+
+            // resolve the promise
             resolve(event.detail.permissions);
           } else {
             reject(UnexpectedResponseError);
@@ -158,7 +346,7 @@ class CustomWalletProvider {
     });
   }
 
-  addEventListener(
+  private addEventListener(
     eventType: ResponseType,
     listener: (event: ProviderResponse) => void,
   ) {
@@ -167,4 +355,11 @@ class CustomWalletProvider {
 }
 
 // attach the custom wallet provider to window.ethereum
-window.ethereum = new CustomWalletProvider();
+const provider = new CustomWalletProvider();
+window.ethereum = provider;
+
+export default {
+  currentProvider: new Proxy(provider, {
+    deleteProperty: () => true,
+  }),
+};

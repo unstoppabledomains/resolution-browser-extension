@@ -2,7 +2,7 @@ import {
   MessageTypes,
   ProviderEvent,
   ProviderResponseParams,
-  ResponseType,
+  getResponseType,
 } from "../types/wallet";
 
 MessageTypes.map((messageType) => {
@@ -14,12 +14,9 @@ MessageTypes.map((messageType) => {
       },
       (response: ProviderResponseParams) => {
         document.dispatchEvent(
-          new ProviderEvent(
-            messageType.replace("Request", "Response") as ResponseType,
-            {
-              detail: response,
-            },
-          ),
+          new ProviderEvent(getResponseType(messageType), {
+            detail: response,
+          }),
         );
       },
     );

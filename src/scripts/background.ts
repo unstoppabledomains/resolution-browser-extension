@@ -1,5 +1,5 @@
 import "../subscripts/onInstalled";
-import {ProviderRequest, isRequestType} from "../types/wallet";
+import {ProviderRequest, isRequestType, isResponseType} from "../types/wallet";
 import {supportedDomains} from "../util/helpers";
 
 const RESOLUTION_URL = "https://api.unstoppabledomains.com/resolve/";
@@ -151,12 +151,7 @@ function openConnectWindow(request, sendResponse, popupUrl) {
 
 function handleRequestInExistingWindow(request, sendResponse, tabId) {
   chrome.runtime.onMessage.addListener(function listener(response) {
-    if (
-      response.type === "selectAccountResponse" ||
-      response.type === "selectChainIdResponse" ||
-      response.type === "requestPermissionsResponse" ||
-      response.type === "signMessageResponse"
-    ) {
+    if (isResponseType(response.type)) {
       chrome.runtime.onMessage.removeListener(listener);
       sendResponse(response);
     }
