@@ -5,13 +5,15 @@ import {
   ProviderEvent,
   ResponseType,
   InvalidSwitchChainError,
-  NotImplementedError,
   ProviderAccountResponse,
   Eip1193Event,
   InvalidTxError,
   NotConnectedError,
   InvalidSignatureError,
+  PROVIDER_CODE_USER_ERROR,
+  PROVIDER_CODE_NOT_IMPLEMENTED,
 } from "../types/wallet";
+import {EthereumProviderError} from "eth-rpc-errors";
 import {ExternalProvider} from "@ethersproject/providers";
 import {Mutex} from "async-mutex";
 import {EventEmitter} from "events";
@@ -49,6 +51,9 @@ class CustomWalletProvider extends EventEmitter {
     this.isMetaMask = true;
     this.mutex = new Mutex();
     this.shimLegacy();
+
+    // print a message to indicate the extension is loaded
+    console.log("Unstoppable Domains Lite Wallet extension loaded");
   }
 
   isConnected(): boolean {
@@ -95,7 +100,10 @@ class CustomWalletProvider extends EventEmitter {
           result = null;
           break;
         default:
-          throw new Error(`Unsupported method: ${method}`);
+          throw new EthereumProviderError(
+            PROVIDER_CODE_NOT_IMPLEMENTED,
+            `Unsupported method: ${method}`,
+          );
       }
 
       // result is successful
@@ -149,7 +157,12 @@ class CustomWalletProvider extends EventEmitter {
         "selectAccountResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
-            reject(event.detail.error);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
           } else if ("address" in event.detail) {
             // handle success events
             this.handleConnected(event.detail);
@@ -159,7 +172,12 @@ class CustomWalletProvider extends EventEmitter {
             // resolve the promise
             resolve(event.detail.address);
           } else {
-            reject(UnexpectedResponseError);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
           }
         },
       );
@@ -181,7 +199,12 @@ class CustomWalletProvider extends EventEmitter {
         "selectChainIdResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
-            reject(event.detail.error);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
           } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail);
@@ -191,7 +214,12 @@ class CustomWalletProvider extends EventEmitter {
             // resolve the promise
             resolve(event.detail.chainId);
           } else {
-            reject(UnexpectedResponseError);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
           }
         },
       );
@@ -201,11 +229,17 @@ class CustomWalletProvider extends EventEmitter {
   private async handleSwitchChain(params: any[]) {
     // determine the requested chain ID
     if (!params || !params.length) {
-      throw new Error(InvalidSwitchChainError);
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidSwitchChainError,
+      );
     }
     const requestedChainId = params[0].chainId;
     if (!requestedChainId) {
-      throw new Error(InvalidSwitchChainError);
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidSwitchChainError,
+      );
     }
 
     // attempt to switch to the new chain ID, or throw an error
@@ -220,7 +254,12 @@ class CustomWalletProvider extends EventEmitter {
         "switchChainResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
-            reject(event.detail.error);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
           } else if ("address" in event.detail) {
             // handle success events
             this.handleConnected(event.detail);
@@ -229,7 +268,12 @@ class CustomWalletProvider extends EventEmitter {
             // resolve the promise
             resolve(event.detail.chainId);
           } else {
-            reject(UnexpectedResponseError);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
           }
         },
       );
@@ -241,14 +285,20 @@ class CustomWalletProvider extends EventEmitter {
       // validate the provided parameters include a string in hex format
       // that can be signed
       if (!params || params.length === 0) {
-        throw new Error(InvalidSignatureError);
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidSignatureError,
+        );
       }
       const messageToSign = params[0];
       if (
         typeof messageToSign !== "string" ||
         !messageToSign.startsWith("0x")
       ) {
-        throw new Error(InvalidSignatureError);
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidSignatureError,
+        );
       }
 
       // send the message signing event
@@ -263,11 +313,21 @@ class CustomWalletProvider extends EventEmitter {
         "signMessageResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
-            reject(event.detail.error);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
           } else if ("response" in event.detail) {
             resolve(event.detail.response);
           } else {
-            reject(UnexpectedResponseError);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
           }
         },
       );
@@ -278,12 +338,18 @@ class CustomWalletProvider extends EventEmitter {
     return await new Promise((resolve, reject) => {
       //validate an account is connected
       if (!cachedAccountAddress || !cachedAccountChainId) {
-        throw new Error(NotConnectedError);
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          NotConnectedError,
+        );
       }
 
       // validate any Tx parameters have been passed
       if (!params || params.length === 0) {
-        throw new Error(InvalidTxError);
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidTxError,
+        );
       }
 
       // validate repackage the transaction parameters to include
@@ -291,7 +357,10 @@ class CustomWalletProvider extends EventEmitter {
       // the extension popup to complete the signature.
       const normalizedParams = params[0];
       if (!normalizedParams.data || !normalizedParams.to) {
-        throw new Error(InvalidTxError);
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidTxError,
+        );
       }
       normalizedParams.chainId = String(cachedAccountChainId);
 
@@ -307,11 +376,21 @@ class CustomWalletProvider extends EventEmitter {
         "sendTransactionResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
-            reject(event.detail.error);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
           } else if ("response" in event.detail) {
             resolve(event.detail.response);
           } else {
-            reject(UnexpectedResponseError);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
           }
         },
       );
@@ -329,7 +408,12 @@ class CustomWalletProvider extends EventEmitter {
         "requestPermissionsResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
-            reject(event.detail.error);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
           } else if ("address" in event.detail) {
             // handle success events
             this.handleConnected(event.detail);
@@ -339,7 +423,12 @@ class CustomWalletProvider extends EventEmitter {
             // resolve the promise
             resolve(event.detail.permissions);
           } else {
-            reject(UnexpectedResponseError);
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
           }
         },
       );

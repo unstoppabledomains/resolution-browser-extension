@@ -30,6 +30,7 @@
     "@unstoppabledomains/ui-components": "0.0.42-experimental.27",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "async-mutex": "^0.5.0",
+    "eth-rpc-errors": "^4.0.3",
     "is-ipfs": "^8.0.4",
     "launchdarkly-react-client-sdk": "^3.3.2",
     "notistack": "^3.0.1",

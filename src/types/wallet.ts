@@ -95,6 +95,11 @@ export type ProviderEventParams =
   | ProviderRequestParams
   | ProviderResponseParams;
 
+// default error code
+export const PROVIDER_CODE_USER_ERROR = 4001;
+export const PROVIDER_CODE_NOT_IMPLEMENTED = 4200;
+export const PROVIDER_CODE_DISCONNECTED = 4900;
+
 // define error messages
 export const UnexpectedResponseError = "unexpected response format";
 export const UnsupportedPermissionError = "unsupported permission";
@@ -103,5 +108,4 @@ export const InvalidSwitchChainError = "invalid switch chain parameters";
 export const InvalidTxError = "invalid transaction parameters";
 export const InvalidSignatureError = "invalid signature parameters";
 export const ChainNotSupportedError = "chain ID not supported";
-export const NotImplementedError = "not yet implemented";
 export const NotConnectedError = "wallet is not connected";
