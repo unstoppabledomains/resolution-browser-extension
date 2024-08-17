@@ -27,7 +27,7 @@ function deleteAllRules() {
 function addRules() {
   console.log("Adding HTTP rules...");
   domainsList.forEach((domain, index) => {
-    const urlRegex = `https?://([^/]*?\.${domain})(/|$)`;
+    const urlRegex = `https?://([^/]*?\\.${domain})(/|$)`;
     const id = index + 1001;
     chrome.declarativeNetRequest.updateDynamicRules({
       addRules: [

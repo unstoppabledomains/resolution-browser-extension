@@ -4854,9 +4854,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.42-experimental.27":
-  version: 0.0.42-experimental.27
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.42-experimental.27"
+"@unstoppabledomains/ui-components@npm:0.0.42-experimental.31":
+  version: 0.0.42-experimental.31
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.42-experimental.31"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -4952,7 +4952,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: d69bf7c331eddb63f22db29f19d2e6efed72861f2fe9bd43627c0caea38738eb3f3b20fc76194392e966e4abc70d308db0e598e58e3e982b2cfee28596e7df65
+  checksum: e7aaae7e9589fda347af1e516ff4f9961b8a8aefe3ebb4ec832c50a416cefb254555bac252cc39b073a055fb7b0736e9c7a358a0c4adfcf4b6cf6cc3db788163
   languageName: node
   linkType: hard
 
@@ -16886,7 +16886,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.8-experimental.3
-    "@unstoppabledomains/ui-components": 0.0.42-experimental.27
+    "@unstoppabledomains/ui-components": 0.0.42-experimental.31
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
