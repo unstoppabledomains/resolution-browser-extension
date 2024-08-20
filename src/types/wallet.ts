@@ -26,8 +26,8 @@ export const isPermissionType = (v: string): v is PermissionType => {
   return ProviderPermissions.indexOf(v as PermissionType) !== -1;
 };
 
-// define request types
-export const MessageTypes = [
+// define external message types
+export const ExternalMessageTypes = [
   "selectAccountRequest",
   "selectChainIdRequest",
   "requestPermissionsRequest",
@@ -35,13 +35,19 @@ export const MessageTypes = [
   "sendTransactionRequest",
   "switchChainRequest",
 ] as const;
-export type RequestType = (typeof MessageTypes)[number];
-export const isRequestType = (v: string): v is RequestType => {
-  return MessageTypes.indexOf(v as RequestType) !== -1;
+export type ExternalRequestType = (typeof ExternalMessageTypes)[number];
+export const isExternalRequestType = (v: string): v is ExternalRequestType => {
+  return ExternalMessageTypes.indexOf(v as ExternalRequestType) !== -1;
 };
+
+// define internal message types
+export const InternalMessageTypes = ["closeWindowRequest"] as const;
+export type InternalRequestType = (typeof InternalMessageTypes)[number];
+
+// define a provider request interface
 export type ProviderRequestParams = any[];
 export interface ProviderRequest {
-  type: RequestType;
+  type: ExternalRequestType | InternalRequestType;
   params: ProviderRequestParams;
 }
 
@@ -54,9 +60,11 @@ export type ResponseType =
   | "sendTransactionResponse"
   | "switchChainResponse";
 export const isResponseType = (v: string): v is ResponseType => {
-  return isRequestType(v.replaceAll("Response", "Request"));
+  return isExternalRequestType(v.replaceAll("Response", "Request"));
 };
-export const getResponseType = (requestType: RequestType): ResponseType => {
+export const getResponseType = (
+  requestType: ExternalRequestType,
+): ResponseType => {
   return requestType.replaceAll("Request", "Response") as ResponseType;
 };
 
@@ -82,7 +90,10 @@ export interface ProviderOperationResponse {
 
 // define custom provider event
 export class ProviderEvent extends CustomEvent<ProviderEventParams> {
-  constructor(typeName: RequestType | ResponseType, init?: ProviderEventInit) {
+  constructor(
+    typeName: ExternalRequestType | InternalRequestType | ResponseType,
+    init?: ProviderEventInit,
+  ) {
     super(typeName, init);
   }
 }
@@ -104,6 +115,7 @@ export const PROVIDER_CODE_DISCONNECTED = 4900;
 export const UnexpectedResponseError = "unexpected response format";
 export const UnsupportedPermissionError = "unsupported permission";
 export const UnsupportedRequestError = "unsupported message type";
+export const UnsupportedMethodError = "unsupported provider method";
 export const InvalidSwitchChainError = "invalid switch chain parameters";
 export const InvalidTxError = "invalid transaction parameters";
 export const InvalidSignatureError = "invalid signature parameters";

@@ -12,17 +12,23 @@ import {
   InvalidSignatureError,
   PROVIDER_CODE_USER_ERROR,
   PROVIDER_CODE_NOT_IMPLEMENTED,
-} from "../types/wallet";
+  UnsupportedMethodError,
+} from "../../types/wallet";
+import config, {WINDOW_PROPERTY_NAME, LOGO_BASE_64} from "../../config";
 import {EthereumProviderError} from "eth-rpc-errors";
 import {ExternalProvider} from "@ethersproject/providers";
 import {Mutex} from "async-mutex";
 import {EventEmitter} from "events";
+import {announceProvider} from "../../util/wallet/eip6963";
+import {MetaMaskInpageProvider, shimWeb3} from "@metamask/providers";
+import {sleep} from "../../util/wallet/sleep";
 
 let cachedAccountAddress = null;
 let cachedAccountChainId = null;
 
 declare global {
   interface Window {
+    [WINDOW_PROPERTY_NAME]: ExternalProvider;
     ethereum?: ExternalProvider;
   }
 }
@@ -32,38 +38,60 @@ interface RequestArgs {
   params: any[];
 }
 
-class CustomWalletProvider extends EventEmitter {
+class LiteWalletProvider extends EventEmitter {
   // web3 provider properties
-  isMetaMask?: boolean;
+  isMetaMask: boolean;
   isStatus?: boolean;
   host?: string;
   path?: string;
 
+  // unused properties, but required to be present in order to properly
+  // emulate MetaMask in the case the user wants maximum compatibility
+  chainId: string | null;
+  networkVersion: string | null;
+  selectedAddress: string | null;
+  _metamask = {
+    isUnlocked: (): Promise<boolean> => {
+      return new Promise((resolve) => {
+        resolve(true);
+      });
+    },
+  };
+
   // internal properties
   private mutex: Mutex;
+  private pendingRequests: number;
 
   /*************************
    * Public provider methods
    *************************/
 
-  constructor() {
+  constructor(overrideMetaMask?: boolean) {
     super();
-    this.isMetaMask = true;
+    this.isMetaMask = overrideMetaMask || false;
     this.mutex = new Mutex();
-    this.shimLegacy();
+    this.pendingRequests = 0;
 
     // print a message to indicate the extension is loaded
     console.log("Unstoppable Domains Lite Wallet extension loaded");
   }
 
+  // represents the extension is available for requests, not necessarily an
+  // approved connection to a specific wallet
   isConnected(): boolean {
-    return this.isStatus === true;
+    return true;
   }
 
+  // primary method used to make requests to the wallet extension
   async request({method, params}: RequestArgs) {
-    // serialize operation requests, waiting for completion before moving on
-    // to subsequent operations
+    // Serialize operation requests, waiting for completion before moving on
+    // to subsequent operations. Keep track of the number of queued requests,
+    // which will determine window close behavior.
+    this.pendingRequests++;
     const unlock = await this.mutex.acquire();
+
+    // request is no longer pending
+    this.pendingRequests--;
 
     // process the provider request
     console.log("Request received", JSON.stringify({method, params}));
@@ -114,29 +142,38 @@ class CustomWalletProvider extends EventEmitter {
       console.log("Request failed", {method, error});
       throw error;
     } finally {
+      // close the window if no pending requests remain
+      if (!this.pendingRequests) {
+        this.handleClosePopup();
+      }
+
       // release the lock
       unlock();
     }
+  }
+
+  // deprecated legacy method, but must be present to be properly detected by some
+  // provider libraries that are still in use
+  sendAsync(
+    payload: any,
+    _callback: (error: Error | null, result?: any) => void,
+  ): void {
+    throw new EthereumProviderError(
+      PROVIDER_CODE_NOT_IMPLEMENTED,
+      UnsupportedMethodError,
+    );
   }
 
   /******************
    * Internal methods
    ******************/
 
-  private shimLegacy() {
-    const legacyMethods = [
-      ["enable", "eth_requestAccounts"],
-      ["net_version", "net_version"],
-    ];
-
-    for (const [_method, method] of legacyMethods) {
-      this[_method] = () =>
-        this.request({method: method as ProviderMethod, params: [{}]});
-    }
-  }
-
   private emitEvent(type: Eip1193Event, data: unknown) {
     this.emit(type, data);
+  }
+
+  private handleClosePopup() {
+    document.dispatchEvent(new ProviderEvent("closeWindowRequest"));
   }
 
   private handleConnected(account: ProviderAccountResponse) {
@@ -443,12 +480,32 @@ class CustomWalletProvider extends EventEmitter {
   }
 }
 
-// attach the custom wallet provider to window.ethereum
-const provider = new CustomWalletProvider();
-window.ethereum = provider;
+// create a wallet provider object
+const provider = new LiteWalletProvider();
+const proxyProvider = new Proxy(provider, {
+  deleteProperty: () => true,
+});
 
-export default {
-  currentProvider: new Proxy(provider, {
-    deleteProperty: () => true,
-  }),
-};
+// EIP-1193: attach the provider to global window object
+// as window.unstoppable by default
+window[WINDOW_PROPERTY_NAME] = proxyProvider;
+if (provider.isMetaMask) {
+  // Optionally override the window.ethereum global property if the
+  // provider is created with the metamask flag. Initializing the
+  // extension in this way can interfere with other extensions and
+  // make the inaccessible to the user.
+  window.ethereum = proxyProvider;
+}
+window.dispatchEvent(new Event("ethereum#initialized"));
+
+// EIP-6963: announce the provider
+announceProvider({
+  info: {
+    icon: `data:image/png;base64,${LOGO_BASE_64}`,
+    ...config.extension,
+  },
+  provider: proxyProvider,
+});
+
+// Backwards compatibility for legacy connections
+shimWeb3(proxyProvider as unknown as MetaMaskInpageProvider);

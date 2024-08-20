@@ -28,6 +28,7 @@ import {
   getResponseType,
   isPermissionType,
 } from "../../types/wallet";
+import {isAscii} from "../../util/wallet/isAscii";
 
 enum ConnectionState {
   ACCOUNT,
@@ -158,6 +159,9 @@ const Connect: React.FC = () => {
           case "switchChainRequest":
             setConnectionState(ConnectionState.ACCOUNT);
             break;
+          case "closeWindowRequest":
+            handleClose();
+            break;
           default:
             // unsupported method type
             console.log("Unsupported message type", message);
@@ -209,9 +213,6 @@ const Connect: React.FC = () => {
       type: "selectChainIdResponse",
       chainId: defaultAccount.networkId,
     });
-
-    // close the popup
-    handleClose();
   };
 
   const handleConnectAccount = () => {
@@ -245,9 +246,6 @@ const Connect: React.FC = () => {
       address: account.address,
       chainId: account.networkId,
     });
-
-    // close the popup
-    handleClose();
   };
 
   const handleRequestPermissions = () => {
@@ -302,18 +300,20 @@ const Connect: React.FC = () => {
         chainId: account.networkId,
         permissions: acceptedPermissions,
       });
-
-      // close the popup
-      handleClose();
     } catch (e) {
       handleError(getResponseType("requestPermissionsRequest"), e);
     }
   };
 
-  const handleSignMessage = async (encodedMessage: string) => {
+  const handleSignMessage = async (hexEncodedMessage: string) => {
     try {
-      // prepare the message to sign, which is currently hex encoded
-      const message = web3.utils.hexToUtf8(encodedMessage);
+      // prepare the message to sign, which is currently hex encoded. If decoding the hex
+      // message yields an ASCII-only string, then sign the decoded string. Otherwise, we
+      // assume the hex string is a raw message and should be signed as-is.
+      const maybeAsciiMessage = web3.utils.hexToUtf8(hexEncodedMessage);
+      const message = isAscii(maybeAsciiMessage)
+        ? maybeAsciiMessage
+        : hexEncodedMessage;
 
       // request the signature
       const signature = await web3Deps.signer.signMessage(message);
@@ -321,9 +321,6 @@ const Connect: React.FC = () => {
         type: "signMessageResponse",
         response: signature,
       });
-
-      // close the popup on success
-      handleClose();
     } catch (e) {
       // handle signing error and cancel the operation
       handleError("signMessageResponse", e);
@@ -347,9 +344,6 @@ const Connect: React.FC = () => {
         type: "sendTransactionResponse",
         response: txHash,
       });
-
-      // close the popup on success
-      handleClose();
     } catch (e) {
       // handle signing error and cancel the operation
       handleError("sendTransactionResponse", e);

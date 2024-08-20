@@ -4,7 +4,7 @@ import {
   chromeStorageSyncGet,
   chromeStorageSyncSet,
 } from "../../util/chromeStorageSync";
-import {ExtensionOptions, ExtensionURIMap} from "../../types";
+import {ExtensionOptions, ExtensionURIMap} from "../../types/redirect";
 import {Box, Link, Typography} from "@mui/material";
 
 const styles = {

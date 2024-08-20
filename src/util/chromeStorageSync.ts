@@ -2,10 +2,6 @@ export enum StorageSyncKey {
   GatewayBaseURL = "GatewayBaseURL",
   GatewayOption = "GatewayOption",
   BookmarkedDomains = "BookmarkedDomains",
-
-  AccessToken = "AccessToken",
-  RefreshToken = "RefreshToken",
-  BootstrapToken = "BootstrapToken",
 }
 
 export function chromeStorageSyncClear(): Promise<void> {

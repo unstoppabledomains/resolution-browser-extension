@@ -24,12 +24,12 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["./scripts/content.ts"],
+      "js": ["./scripts/liteWalletProvider/main.ts"],
       "world": "MAIN"
     },
     {
       "matches": ["<all_urls>"],
-      "js": ["./scripts/contentIsolated.ts"],
+      "js": ["./scripts/liteWalletProvider/isolated.ts"],
       "world": "ISOLATED"
     }
   ],

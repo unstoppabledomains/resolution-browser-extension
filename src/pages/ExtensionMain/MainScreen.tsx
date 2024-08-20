@@ -4,7 +4,11 @@ import {
   chromeStorageSyncSet,
   StorageSyncKey,
 } from "../../util/chromeStorageSync";
-import {ExtensionOptions, ExtensionLabel, ExtensionURIMap} from "../../types";
+import {
+  ExtensionOptions,
+  ExtensionLabel,
+  ExtensionURIMap,
+} from "../../types/redirect";
 import OAURL from "../../util/OsAgnosticURL";
 import {
   Box,

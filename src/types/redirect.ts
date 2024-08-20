@@ -23,30 +23,3 @@ export const ExtensionURIMap: ExtensionURIMap = {
   [ExtensionOptions.InfuraAPI]: "https://{ipfs}.ipfs.infura-ipfs.io",
   [ExtensionOptions.IPFSNetwork]: "https://{ipfs}.ipfs.dweb.link",
 };
-
-export enum WalletState {
-  Load,
-  Onboard,
-  Account,
-}
-
-export type Account = {
-  id: string;
-  address: string;
-};
-
-export type AccountAsset = {
-  id: string;
-  address: string;
-  balance: {
-    total: string;
-    decimal: number;
-  };
-  blockchainAsset: {
-    id: string;
-    name: string;
-    symbol: string;
-  };
-};
-
-export type TokenSymbol = "ETH" | "BTC" | "MATIC";
