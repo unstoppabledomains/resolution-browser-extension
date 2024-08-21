@@ -19,6 +19,7 @@ import {Button, Typography} from "@unstoppabledomains/ui-kit";
 import web3 from "web3";
 import {
   ChainNotSupportedError,
+  InvalidTypedMessageError,
   NotConnectedError,
   ProviderRequest,
   ResponseType,
@@ -155,6 +156,10 @@ const Connect: React.FC = () => {
           case "signMessageRequest":
             setConnectionState(ConnectionState.SIGN);
             handleSignMessage(message.params[0]);
+            break;
+          case "signTypedMessageRequest":
+            setConnectionState(ConnectionState.SIGN);
+            handleSignTypedMessage(message.params);
             break;
           case "sendTransactionRequest":
             setConnectionState(ConnectionState.SIGN);
@@ -346,6 +351,30 @@ const Connect: React.FC = () => {
     } catch (e) {
       // handle signing error and cancel the operation
       handleError("signMessageResponse", e);
+    }
+  };
+
+  const handleSignTypedMessage = async (params: any[]) => {
+    try {
+      // validate there are at least two available parameter args
+      if (params.length < 2) {
+        handleError(
+          "signTypedMessageResponse",
+          new Error(InvalidTypedMessageError),
+        );
+        return;
+      }
+
+      // the second request argument contains an encoded typed message, which
+      // must be submitted for a signature request
+      const signature = await web3Deps.signer.signMessage(params[1]);
+      chrome.runtime.sendMessage({
+        type: "signTypedMessageResponse",
+        response: signature,
+      });
+    } catch (e) {
+      // handle signing error and cancel the operation
+      handleError("signTypedMessageResponse", e);
     }
   };
 

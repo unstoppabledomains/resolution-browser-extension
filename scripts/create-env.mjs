@@ -21,6 +21,9 @@ const populateEnv = () => {
     acc[key] = result.parsed[key];
     return acc;
   }, {});
+  if (envObject["DEFAULT_CHAIN"]) {
+    envObject["DEFAULT_CHAIN"] = parseInt(envObject["DEFAULT_CHAIN"]); 
+  }
 
   // Generate TypeScript code to export the environment variables
   const tsContent = `export const env = ${JSON.stringify(envObject, null, 2)} as const;\n`;

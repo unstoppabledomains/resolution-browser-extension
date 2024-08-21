@@ -13,6 +13,7 @@ import {
   PROVIDER_CODE_USER_ERROR,
   PROVIDER_CODE_NOT_IMPLEMENTED,
   UnsupportedMethodError,
+  InvalidTypedMessageError,
 } from "../../types/wallet";
 import config, {WINDOW_PROPERTY_NAME, LOGO_BASE_64} from "../../config";
 import {EthereumProviderError} from "eth-rpc-errors";
@@ -21,6 +22,7 @@ import {Mutex} from "async-mutex";
 import {EventEmitter} from "events";
 import {announceProvider} from "../../util/wallet/eip6963";
 import {MetaMaskInpageProvider, shimWeb3} from "@metamask/providers";
+import {EIP_712_KEY, TypedMessage} from "../../types/eip712";
 
 let cachedAccountAddress = null;
 let cachedAccountChainId = null;
@@ -125,6 +127,9 @@ class LiteWalletProvider extends EventEmitter {
         // Message signing methods
         case "personal_sign":
           result = await this.handlePersonalSign(params);
+          break;
+        case "eth_signTypedData_v4":
+          result = await this.handleTypedSign(params);
           break;
         // Transaction methods
         case "eth_sendTransaction":
@@ -390,6 +395,86 @@ class LiteWalletProvider extends EventEmitter {
       );
       this.addEventListener(
         "signMessageResponse",
+        (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
+          } else if ("response" in event.detail) {
+            resolve(event.detail.response);
+          } else {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
+          }
+        },
+      );
+    });
+  }
+
+  private async handleTypedSign(params: any[]) {
+    return await new Promise((resolve, reject) => {
+      // validate the provided parameters contain at least two elements,
+      // the first being an address, and the second being a typed message
+      if (!params || params.length < 0) {
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidTypedMessageError,
+        );
+      }
+
+      // validate the first element is an ethereum address
+      if (!params[0].startsWith("0x")) {
+        console.error(
+          "first element of typed message parameters must be an Ethereum address",
+          params[0],
+        );
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidTypedMessageError,
+        );
+      }
+
+      // validate the second element contains an EIP-712 identifier
+      if (!params[1].includes(EIP_712_KEY)) {
+        console.error(
+          "second element of typed message parameters must an EIP-712 message",
+          params[1],
+        );
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidTypedMessageError,
+        );
+      }
+
+      // parse the second element to ensure it matches EIP-712 format
+      try {
+        const parsedMessage: TypedMessage = JSON.parse(params[1]);
+        if (!parsedMessage?.domain?.name || !parsedMessage.message) {
+          throw new Error("invalid EIP-712 message format");
+        }
+      } catch (e) {
+        console.error("invalid fields in EIP-712 message", params[1]);
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          InvalidTypedMessageError,
+        );
+      }
+
+      // send the typed message signing event
+      document.dispatchEvent(
+        new ProviderEvent("signTypedMessageRequest", {
+          detail: params,
+        }),
+      );
+      this.addEventListener(
+        "signTypedMessageResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(

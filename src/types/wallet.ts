@@ -4,6 +4,7 @@ export type ProviderMethod =
   | "eth_chainId"
   | "eth_accounts"
   | "eth_sendTransaction"
+  | "eth_signTypedData_v4"
   | "eth_getTransactionByHash"
   | "personal_sign"
   | "wallet_requestPermissions"
@@ -30,6 +31,7 @@ export const ExternalMessageTypes = [
   "requestPermissionsRequest",
   "selectAccountRequest",
   "signMessageRequest",
+  "signTypedMessageRequest",
   "sendTransactionRequest",
   "switchChainRequest",
 ] as const;
@@ -56,6 +58,7 @@ export type ResponseType =
   | "requestPermissionsResponse"
   | "selectAccountResponse"
   | "signMessageResponse"
+  | "signTypedMessageResponse"
   | "sendTransactionResponse"
   | "switchChainResponse";
 export const isResponseType = (v: string): v is ResponseType => {
@@ -130,5 +133,6 @@ export const UnsupportedMethodError = "unsupported provider method";
 export const InvalidSwitchChainError = "invalid switch chain parameters";
 export const InvalidTxError = "invalid transaction parameters";
 export const InvalidSignatureError = "invalid signature parameters";
+export const InvalidTypedMessageError = "invalid typed message";
 export const ChainNotSupportedError = "chain ID not supported";
 export const NotConnectedError = "wallet is not connected";
