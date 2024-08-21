@@ -1,11 +1,8 @@
+import config from "../config";
 import "../subscripts/onInstalled";
-import {
-  ProviderEvent,
-  ProviderRequest,
-  isExternalRequestType,
-  isResponseType,
-} from "../types/wallet";
+import {clearAllConnectedSites} from "../types/connection";
 import {supportedDomains} from "../util/helpers";
+import {backgroundEventListener} from "./liteWalletProvider/background";
 
 /************************************
  * Onchain domain IPFS redirect logic
@@ -106,96 +103,10 @@ setTimeout(() => {
  * Wallet extension popup management
  ***********************************/
 
-// listen for requests to open the wallet extension popup
-let extensionPopupWindowId = null;
-chrome.runtime.onMessage.addListener(
-  (
-    request: ProviderRequest,
-    _sender: chrome.runtime.MessageSender,
-    popupResponseHandler: (response: ProviderEvent) => void,
-  ) => {
-    // only handle the popup for supported external requests types
-    if (isExternalRequestType(request.type)) {
-      // find the active tab that requested the wallet extension popup
-      chrome.tabs
-        .query({
-          active: true,
-          lastFocusedWindow: true,
-        })
-        .then((activeTabs) => {
-          // generate a URL with encoded state to open a wallet extension popup. The pieces encoded state
-          // includes information about the tab requesting the popup, and the wallet provider request
-          // parameters that should be handled by the popup.
-          const requestSource = activeTabs[0];
-          const requestUrl = chrome.runtime.getURL(
-            `index.html?request=${encodeURIComponent(JSON.stringify(request))}&source=${encodeURIComponent(JSON.stringify(requestSource))}#connect`,
-          );
+// clear all connected sites when in local development mode
+if (config.NODE_ENV === "localhost") {
+  void clearAllConnectedSites();
+}
 
-          // if a widow ID is already generated, use it
-          if (extensionPopupWindowId) {
-            // if a popup window is already open, use it
-            chrome.tabs.query(
-              {windowId: extensionPopupWindowId},
-              (extensionPopupWindow) => {
-                if (extensionPopupWindow.length === 0) {
-                  // the previous window ID has been closed, so a new extension popup
-                  // needs to be opened
-                  extensionPopupWindowId = null;
-                  openPopupWindow(popupResponseHandler, requestUrl);
-                } else {
-                  // listen for a response on the existing wallet extension popup
-                  listenForPopupResponse(popupResponseHandler);
-                }
-              },
-            );
-          } else {
-            // open a new wallet extension popup
-            openPopupWindow(popupResponseHandler, requestUrl);
-          }
-        });
-
-      // successfully handled request to open wallet extension popup
-      return true;
-    }
-  },
-);
-
-// openPopupWindow creates a new wallet extension popup window
-const openPopupWindow = (
-  popupResponseHandler: (response: ProviderEvent) => void,
-  popupUrl: string,
-) => {
-  // open a new wallet extension popup
-  chrome.windows.create(
-    {
-      url: popupUrl,
-      type: "popup",
-      width: 400,
-      height: 630,
-    },
-    (window) => {
-      // store the ID of the popup
-      extensionPopupWindowId = window.id;
-
-      // listen for a response from the popup
-      listenForPopupResponse(popupResponseHandler);
-    },
-  );
-};
-
-// listenForPopupResponse registers a handler to wait for the wallet extension popup
-// to respond to the wallet provider request
-const listenForPopupResponse = (
-  popupResponseHandler: (response: ProviderEvent) => void,
-) => {
-  chrome.runtime.onMessage.addListener(function listener(
-    response: ProviderEvent,
-  ) {
-    // ensure the expected response type is handled
-    if (isResponseType(response.type)) {
-      // cleanup the listener and handle the response
-      chrome.runtime.onMessage.removeListener(listener);
-      popupResponseHandler(response);
-    }
-  });
-};
+// register the wallet popup event listener
+chrome.runtime.onMessage.addListener(backgroundEventListener);

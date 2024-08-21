@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Paper, Avatar} from "@mui/material";
+import {Box, Paper} from "@mui/material";
 import useIsMounted from "react-is-mounted-hook";
 import type {Signer} from "ethers";
 import queryString from "query-string";
@@ -19,7 +19,6 @@ import {Button, Typography} from "@unstoppabledomains/ui-kit";
 import web3 from "web3";
 import {
   ChainNotSupportedError,
-  DEFAULT_CHAINS,
   NotConnectedError,
   ProviderRequest,
   ResponseType,
@@ -29,6 +28,7 @@ import {
   isPermissionType,
 } from "../../types/wallet";
 import {isAscii} from "../../util/wallet/isAscii";
+import config from "../../config";
 
 enum ConnectionState {
   ACCOUNT,
@@ -138,15 +138,19 @@ const Connect: React.FC = () => {
       try {
         setConnectionStateMessage(message);
         switch (message.type) {
-          case "selectAccountRequest":
-            setConnectionState(ConnectionState.ACCOUNT);
+          case "accountRequest":
+            setConnectionState(ConnectionState.CHAINID);
+            handleGetAccount();
             break;
-          case "selectChainIdRequest":
+          case "chainIdRequest":
             setConnectionState(ConnectionState.CHAINID);
             handleGetChainId();
             break;
           case "requestPermissionsRequest":
             setConnectionState(ConnectionState.PERMISSIONS);
+            break;
+          case "selectAccountRequest":
+            setConnectionState(ConnectionState.ACCOUNT);
             break;
           case "signMessageRequest":
             setConnectionState(ConnectionState.SIGN);
@@ -192,9 +196,9 @@ const Connect: React.FC = () => {
     };
   }, [web3Deps]);
 
-  const getAccount = (chainIds: number[] = DEFAULT_CHAINS) => {
-    const matchingAccount = accountEvmAddresses.find((a) =>
-      chainIds.includes(a.networkId),
+  const getAccount = (chainId: number = config.DEFAULT_CHAIN) => {
+    const matchingAccount = accountEvmAddresses.find(
+      (a) => chainId === a.networkId,
     );
     return matchingAccount?.address ? matchingAccount : accountEvmAddresses[0];
   };
@@ -203,14 +207,29 @@ const Connect: React.FC = () => {
     // retrieve the default account
     const defaultAccount = getAccount();
     if (!defaultAccount) {
-      handleError("selectChainIdResponse", new Error(NotConnectedError));
+      handleError("chainIdResponse", new Error(NotConnectedError));
       return;
     }
 
     // return the connected account
-    let networkId = defaultAccount.networkId;
     chrome.runtime.sendMessage({
-      type: "selectChainIdResponse",
+      type: "chainIdResponse",
+      chainId: defaultAccount.networkId,
+    });
+  };
+
+  const handleGetAccount = () => {
+    // retrieve the default account
+    const defaultAccount = getAccount();
+    if (!defaultAccount) {
+      handleError("accountResponse", new Error(NotConnectedError));
+      return;
+    }
+
+    // return the connected account
+    chrome.runtime.sendMessage({
+      type: "accountResponse",
+      address: defaultAccount.address,
       chainId: defaultAccount.networkId,
     });
   };
@@ -231,7 +250,7 @@ const Connect: React.FC = () => {
     }
 
     // find the requested chain
-    const account = getAccount([networkId]);
+    const account = getAccount(networkId);
     if (account?.networkId !== networkId) {
       handleError(
         getResponseType(connectionStateMessage.type),
@@ -256,19 +275,22 @@ const Connect: React.FC = () => {
       connectionStateMessage?.params
         // ensure a permission has been provided
         ?.filter((permissions: any) => {
-          try {
-            const permissionNames = Object.keys(permissions);
-            return permissionNames && permissionNames.length > 0;
-          } catch (e) {
-            return false;
+          if (typeof permissions !== "string") {
+            try {
+              const permissionNames = Object.keys(permissions);
+              return permissionNames && permissionNames.length > 0;
+            } catch (e) {
+              return false;
+            }
           }
+          return false;
         })
         // handle requested permissions
         .map((permissions: Record<string, Record<string, string>>) => {
           Object.keys(permissions).map((permission) => {
             // validate the requested permission is supported
             if (!isPermissionType(permission)) {
-              throw new Error(UnsupportedPermissionError);
+              throw new Error(`${UnsupportedPermissionError}: ${permission}`);
             }
 
             // add permission to accepted permission list

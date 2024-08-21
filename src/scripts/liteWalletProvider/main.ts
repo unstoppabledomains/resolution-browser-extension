@@ -100,18 +100,16 @@ class LiteWalletProvider extends EventEmitter {
         // Wallet connection methods
         case "eth_chainId":
           // requests current chain ID
-          result = await this.handleChainIdRequest();
+          result = await this.handleGetConnectedChainIds();
           break;
         case "eth_accounts":
-          // requires a previous connection to be established, so the
-          // false flag is passed here to indicate an error should be
-          // throw if state is not connected.
-          result = await this.handleAccountRequest(false);
+          // requires a previous connection to be established
+          result = await this.handleGetConnectedAccounts();
           break;
         case "eth_requestAccounts":
           // retrieves connected account list, and requests a permission
           // to connect if not yet completed.
-          result = await this.handleAccountRequest(true);
+          result = await this.handleRequestAccounts();
           break;
         case "wallet_requestPermissions":
           // requests permission to connect to the wallet, similar to the
@@ -192,15 +190,46 @@ class LiteWalletProvider extends EventEmitter {
     this.isStatus = true;
   }
 
-  private async handleAccountRequest(requestPermission: boolean) {
+  private async handleGetConnectedAccounts() {
     if (cachedAccountAddress) {
       return [cachedAccountAddress];
     }
 
-    // permission not yet granted, so the account list will not be
-    // provided, instead returning an empty list
-    if (!requestPermission) {
-      return [];
+    // connect to account
+    const accountResponse = new Promise((resolve, reject) => {
+      document.dispatchEvent(new ProviderEvent("accountRequest"));
+      this.addEventListener("accountResponse", (event: ProviderResponse) => {
+        if (event.detail.error) {
+          reject(
+            new EthereumProviderError(
+              PROVIDER_CODE_USER_ERROR,
+              event.detail.error,
+            ),
+          );
+        } else if ("address" in event.detail) {
+          // handle success events
+          this.handleConnected(event.detail);
+
+          // resolve the promise
+          resolve(event.detail.address);
+        } else {
+          reject(
+            new EthereumProviderError(
+              PROVIDER_CODE_USER_ERROR,
+              UnexpectedResponseError,
+            ),
+          );
+        }
+      });
+    });
+
+    // return list of accounts
+    return [await accountResponse];
+  }
+
+  private async handleRequestAccounts() {
+    if (cachedAccountAddress) {
+      return [cachedAccountAddress];
     }
 
     // connect to account
@@ -240,42 +269,39 @@ class LiteWalletProvider extends EventEmitter {
     return [await accountResponse];
   }
 
-  private async handleChainIdRequest() {
+  private async handleGetConnectedChainIds() {
     if (cachedAccountChainId) {
       return cachedAccountChainId;
     }
 
     // connect to chain ID
     return await new Promise((resolve, reject) => {
-      document.dispatchEvent(new ProviderEvent("selectChainIdRequest"));
-      this.addEventListener(
-        "selectChainIdResponse",
-        (event: ProviderResponse) => {
-          if (event.detail.error) {
-            reject(
-              new EthereumProviderError(
-                PROVIDER_CODE_USER_ERROR,
-                event.detail.error,
-              ),
-            );
-          } else if ("chainId" in event.detail) {
-            // handle success events
-            this.handleConnected(event.detail);
-            this.emitEvent("connect", {chainId: event.detail.chainId});
-            this.emitEvent("chainChanged", event.detail.chainId);
+      document.dispatchEvent(new ProviderEvent("chainIdRequest"));
+      this.addEventListener("chainIdResponse", (event: ProviderResponse) => {
+        if (event.detail.error) {
+          reject(
+            new EthereumProviderError(
+              PROVIDER_CODE_USER_ERROR,
+              event.detail.error,
+            ),
+          );
+        } else if ("chainId" in event.detail) {
+          // handle success events
+          this.handleConnected(event.detail);
+          this.emitEvent("connect", {chainId: event.detail.chainId});
+          this.emitEvent("chainChanged", event.detail.chainId);
 
-            // resolve the promise
-            resolve(event.detail.chainId);
-          } else {
-            reject(
-              new EthereumProviderError(
-                PROVIDER_CODE_USER_ERROR,
-                UnexpectedResponseError,
-              ),
-            );
-          }
-        },
-      );
+          // resolve the promise
+          resolve(event.detail.chainId);
+        } else {
+          reject(
+            new EthereumProviderError(
+              PROVIDER_CODE_USER_ERROR,
+              UnexpectedResponseError,
+            ),
+          );
+        }
+      });
     });
   }
 

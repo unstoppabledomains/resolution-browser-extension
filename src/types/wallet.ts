@@ -1,6 +1,3 @@
-// use Ethereum mainnet and Sepolia by default
-export const DEFAULT_CHAINS = [1, 11155111];
-
 // define provider method names
 export type ProviderMethod =
   | "eth_requestAccounts"
@@ -28,9 +25,10 @@ export const isPermissionType = (v: string): v is PermissionType => {
 
 // define external message types
 export const ExternalMessageTypes = [
-  "selectAccountRequest",
-  "selectChainIdRequest",
+  "accountRequest",
+  "chainIdRequest",
   "requestPermissionsRequest",
+  "selectAccountRequest",
   "signMessageRequest",
   "sendTransactionRequest",
   "switchChainRequest",
@@ -53,9 +51,10 @@ export interface ProviderRequest {
 
 // define response types
 export type ResponseType =
-  | "selectAccountResponse"
-  | "selectChainIdResponse"
+  | "accountResponse"
+  | "chainIdResponse"
   | "requestPermissionsResponse"
+  | "selectAccountResponse"
   | "signMessageResponse"
   | "sendTransactionResponse"
   | "switchChainResponse";
@@ -80,11 +79,11 @@ export interface ProviderAccountResponse {
   address: string;
   chainId: number;
   permissions?: any[];
-  error: string;
+  error?: string;
 }
 
 export interface ProviderOperationResponse {
-  response: string;
+  response?: string;
   error: string;
 }
 
@@ -94,9 +93,21 @@ export class ProviderEvent extends CustomEvent<ProviderEventParams> {
     typeName: ExternalRequestType | InternalRequestType | ResponseType,
     init?: ProviderEventInit,
   ) {
+    if (isExternalRequestType(typeName)) {
+      // append hostname to params
+      const initParams = (init ? init.detail : []) as any[];
+      initParams.push(window.location.hostname);
+      init = {
+        detail: initParams,
+      };
+    }
     super(typeName, init);
   }
 }
+
+export type ProviderEventResponse = ProviderResponseParams & {
+  type: string;
+};
 
 interface ProviderEventInit extends CustomEventInit<ProviderEventParams> {
   detail: ProviderEventParams;
