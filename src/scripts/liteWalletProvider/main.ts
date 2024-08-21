@@ -21,7 +21,6 @@ import {Mutex} from "async-mutex";
 import {EventEmitter} from "events";
 import {announceProvider} from "../../util/wallet/eip6963";
 import {MetaMaskInpageProvider, shimWeb3} from "@metamask/providers";
-import {sleep} from "../../util/wallet/sleep";
 
 let cachedAccountAddress = null;
 let cachedAccountChainId = null;
@@ -99,19 +98,30 @@ class LiteWalletProvider extends EventEmitter {
       let result: any;
       switch (method) {
         // Wallet connection methods
-        case "eth_requestAccounts":
-          result = await this.handleAccountRequest();
-          break;
         case "eth_chainId":
+          // requests current chain ID
           result = await this.handleChainIdRequest();
           break;
         case "eth_accounts":
-          result = await this.handleAccountRequest();
+          // requires a previous connection to be established, so the
+          // false flag is passed here to indicate an error should be
+          // throw if state is not connected.
+          result = await this.handleAccountRequest(false);
+          break;
+        case "eth_requestAccounts":
+          // retrieves connected account list, and requests a permission
+          // to connect if not yet completed.
+          result = await this.handleAccountRequest(true);
           break;
         case "wallet_requestPermissions":
+          // requests permission to connect to the wallet, similar to the
+          // above call to eth_requestAccounts but with different return
+          // format and user experience.
           result = await this.handleRequestPermissions(params);
           break;
         case "wallet_switchEthereumChain":
+          // request to change network ID for subsequent operations, and
+          // returns an error if network is not supported.
           result = await this.handleSwitchChain(params);
           break;
         // Message signing methods
@@ -182,9 +192,15 @@ class LiteWalletProvider extends EventEmitter {
     this.isStatus = true;
   }
 
-  private async handleAccountRequest() {
+  private async handleAccountRequest(requestPermission: boolean) {
     if (cachedAccountAddress) {
       return [cachedAccountAddress];
+    }
+
+    // permission not yet granted, so the account list will not be
+    // provided, instead returning an empty list
+    if (!requestPermission) {
+      return [];
     }
 
     // connect to account

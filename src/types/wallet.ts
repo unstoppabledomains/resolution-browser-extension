@@ -63,7 +63,7 @@ export const isResponseType = (v: string): v is ResponseType => {
   return isExternalRequestType(v.replaceAll("Response", "Request"));
 };
 export const getResponseType = (
-  requestType: ExternalRequestType,
+  requestType: InternalRequestType | ExternalRequestType,
 ): ResponseType => {
   return requestType.replaceAll("Request", "Response") as ResponseType;
 };

@@ -152,7 +152,7 @@ const WalletComp: React.FC = () => {
           />
         )}
         {!authAddress && (
-          <Box display="flex" flexDirection="column" width="100%" mt={2}>
+          <Box display="flex" flexDirection="column" width="100%">
             {authButton}
           </Box>
         )}
