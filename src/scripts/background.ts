@@ -1,7 +1,7 @@
 import config from "../config";
 import "../subscripts/onInstalled";
-import {clearAllConnectedSites} from "../types/connection";
-import {supportedDomains} from "../util/helpers";
+import {clearAllConnectedSites} from "../lib/wallet/evm/connection";
+import {supportedDomains} from "../lib/helpers";
 import {backgroundEventListener} from "./liteWalletProvider/background";
 
 /************************************

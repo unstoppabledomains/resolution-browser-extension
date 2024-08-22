@@ -5,7 +5,7 @@ import List from "./List";
 import {
   chromeStorageSyncGet,
   StorageSyncKey,
-} from "../../util/chromeStorageSync";
+} from "../../lib/chromeStorageSync";
 import {Box} from "@mui/material";
 
 const styles = {

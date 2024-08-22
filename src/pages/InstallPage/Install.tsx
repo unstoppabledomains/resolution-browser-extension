@@ -3,7 +3,7 @@ import {
   StorageSyncKey,
   chromeStorageSyncGet,
   chromeStorageSyncSet,
-} from "../../util/chromeStorageSync";
+} from "../../lib/chromeStorageSync";
 import {ExtensionOptions, ExtensionURIMap} from "../../types/redirect";
 import {Box, Link, Typography} from "@mui/material";
 

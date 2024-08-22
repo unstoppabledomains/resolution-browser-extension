@@ -2,6 +2,7 @@ export enum StorageSyncKey {
   GatewayBaseURL = "GatewayBaseURL",
   GatewayOption = "GatewayOption",
   BookmarkedDomains = "BookmarkedDomains",
+  WalletConnections = "WalletConnections",
 }
 
 export function chromeStorageSyncClear(): Promise<void> {
@@ -18,7 +19,7 @@ export function chromeStorageSyncGet(keys: StorageSyncKey): Promise<any> {
 
 export function chromeStorageSyncSet(
   key: StorageSyncKey,
-  value: string,
+  value: any,
 ): Promise<void> {
   return new Promise((resolve) => {
     chrome.storage.sync.set({[key]: value}, resolve);

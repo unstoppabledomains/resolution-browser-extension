@@ -2,7 +2,7 @@ import {
   chromeStorageSyncSet,
   chromeStorageSyncClear,
   StorageSyncKey,
-} from "../util/chromeStorageSync";
+} from "../lib/chromeStorageSync";
 import {ExtensionOptions, ExtensionURIMap} from "../types/redirect";
 
 console.log("Background Script Started!");

@@ -28,7 +28,7 @@ import {
   getResponseType,
   isPermissionType,
 } from "../../types/wallet";
-import {isAscii} from "../../util/wallet/isAscii";
+import {isAscii} from "../../lib/wallet/isAscii";
 import config from "../../config";
 
 enum ConnectionState {

@@ -7,7 +7,7 @@ import {
   StorageSyncKey,
   chromeStorageSyncSet,
   chromeStorageSyncGet,
-} from "../../util/chromeStorageSync";
+} from "../../lib/chromeStorageSync";
 import {Box, Divider, Typography} from "@mui/material";
 
 const styles = {

@@ -20,7 +20,7 @@ import {EthereumProviderError} from "eth-rpc-errors";
 import {ExternalProvider} from "@ethersproject/providers";
 import {Mutex} from "async-mutex";
 import {EventEmitter} from "events";
-import {announceProvider} from "../../util/wallet/eip6963";
+import {announceProvider} from "../../lib/wallet/evm/eip6963";
 import {MetaMaskInpageProvider, shimWeb3} from "@metamask/providers";
 import {EIP_712_KEY, TypedMessage} from "../../types/eip712";
 
@@ -608,7 +608,7 @@ class LiteWalletProvider extends EventEmitter {
 }
 
 // create a wallet provider object
-const provider = new LiteWalletProvider();
+const provider = new LiteWalletProvider(false);
 const proxyProvider = new Proxy(provider, {
   deleteProperty: () => true,
 });

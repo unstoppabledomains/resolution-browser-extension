@@ -1,9 +1,9 @@
 import config from "../../config";
 import {
-  ConnectedSite,
   getConnectedSite,
   setConnectedSite,
-} from "../../types/connection";
+} from "../../lib/wallet/evm/connection";
+import {ConnectedSite} from "../../types/connection";
 import {
   NotConnectedError,
   ProviderEventResponse,

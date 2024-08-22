@@ -3,13 +3,13 @@ import {
   chromeStorageSyncGet,
   chromeStorageSyncSet,
   StorageSyncKey,
-} from "../../util/chromeStorageSync";
+} from "../../lib/chromeStorageSync";
 import {
   ExtensionOptions,
   ExtensionLabel,
   ExtensionURIMap,
 } from "../../types/redirect";
-import OAURL from "../../util/OsAgnosticURL";
+import OAURL from "../../lib/OsAgnosticURL";
 import {
   Box,
   FormControl,
