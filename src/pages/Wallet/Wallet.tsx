@@ -13,6 +13,7 @@ import useIsMounted from "react-is-mounted-hook";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {AUTH_STATE_KEY, AuthState, FIVE_MINUTES} from "../../types/wallet/auth";
 import {Logger} from "../../lib/logger";
+import {Preferences} from "./Preferences";
 
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
@@ -25,6 +26,7 @@ const WalletComp: React.FC = () => {
   const [authState, setAuthState] = useState<AuthState>();
   const [authButton, setAuthButton] = useState<React.ReactNode>();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleAuthComplete = () => {
     localStorage.removeItem(AUTH_STATE_KEY);
@@ -125,7 +127,17 @@ const WalletComp: React.FC = () => {
     window.close();
   };
 
-  return (
+  const handleShowPreferences = () => {
+    setShowSettings(true);
+  };
+
+  const handleClosePreferences = () => {
+    setShowSettings(false);
+  };
+
+  return showSettings ? (
+    <Preferences onClose={handleClosePreferences} />
+  ) : (
     <Paper className={classes.container}>
       <Box
         className={classes.walletContainer}
@@ -145,6 +157,7 @@ const WalletComp: React.FC = () => {
             disableInlineEducation={true}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}
+            onSettingsClick={handleShowPreferences}
             onUpdate={(_t: DomainProfileTabType) => {
               handleAuthComplete();
             }}

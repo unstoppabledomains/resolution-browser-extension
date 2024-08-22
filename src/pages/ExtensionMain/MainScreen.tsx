@@ -25,13 +25,14 @@ import {useFlags} from "launchdarkly-react-client-sdk";
 
 const styles = {
   main: {
-    padding: 2,
     height: "100%",
+    width: "100%",
   },
   column: {
     display: "flex",
     flexDirection: "column",
     height: "100%",
+    width: "100%",
   },
   title: {
     fontWeight: "bold",
@@ -54,6 +55,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     height: "100%",
+    width: "100%",
   },
   input: {
     marginTop: 3,
@@ -72,11 +74,13 @@ const styles = {
   },
 };
 
-interface Props {}
+interface Props {
+  hideUserId?: boolean;
+}
 
-const MainScreen: React.FC<Props> = () => {
+const MainScreen: React.FC<Props> = ({hideUserId}) => {
   const flags = useFlags();
-  const showUserId = flags.extensionShowUserid;
+  const showUserId = !hideUserId && flags.extensionShowUserid;
 
   const [gatewayBaseURL, setGatewayBaseURL] = useState(
     ExtensionURIMap[ExtensionOptions.InfuraAPI] as string,

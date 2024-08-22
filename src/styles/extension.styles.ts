@@ -13,6 +13,9 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     backgroundColor: theme.palette.common.white,
     borderRadius: 0,
   },
+  preferenceContainer: {
+    height: "100%",
+  },
   contentContainer: {
     display: "flex",
     flexDirection: "column",
@@ -31,5 +34,12 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     height: "75px",
     padding: theme.spacing(1),
     backgroundColor: theme.palette.neutralShades[100],
+  },
+  loadingSpinner: {
+    width: "75px",
+    height: "75px",
+  },
+  button: {
+    marginTop: theme.spacing(1),
   },
 }));

@@ -70,9 +70,9 @@ class LiteWalletProvider extends EventEmitter {
    * Public provider methods
    *************************/
 
-  constructor(overrideMetaMask?: boolean) {
+  constructor() {
     super();
-    this.isMetaMask = overrideMetaMask || false;
+    this.isMetaMask = true;
     this.mutex = new Mutex();
     this.pendingRequests = 0;
   }
@@ -654,7 +654,7 @@ class LiteWalletProvider extends EventEmitter {
 }
 
 // create a wallet provider object
-const provider = new LiteWalletProvider(false);
+const provider = new LiteWalletProvider();
 const proxyProvider = new Proxy(provider, {
   deleteProperty: () => true,
 });

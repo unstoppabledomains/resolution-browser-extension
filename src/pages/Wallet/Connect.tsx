@@ -13,6 +13,7 @@ import {
   ReactSigner,
   CreateTransaction,
   SignForDappHeader,
+  useTranslationContext,
 } from "@unstoppabledomains/ui-components";
 import {useNavigate} from "react-router-dom";
 import {Button, Typography} from "@unstoppabledomains/ui-kit";
@@ -42,6 +43,7 @@ enum ConnectionState {
 const Connect: React.FC = () => {
   const {classes} = useExtensionStyles();
   const [walletState] = useFireblocksState();
+  const [t] = useTranslationContext();
   const {web3Deps, setWeb3Deps, setMessageToSign, setTxToSign} =
     useWeb3Context();
   const [accountEvmAddresses, setAccountEvmAddresses] = useState<any[]>([]);
@@ -433,7 +435,7 @@ const Connect: React.FC = () => {
           fullWidth
           variant="contained"
         >
-          Connect
+          {t("common.connect")}
         </Button>
       );
     }
@@ -446,7 +448,7 @@ const Connect: React.FC = () => {
           fullWidth
           variant="contained"
         >
-          Approve
+          {t("wallet.approve")}
         </Button>
       );
     }
@@ -459,7 +461,7 @@ const Connect: React.FC = () => {
       ) && (
         <Box className={classes.walletContainer}>
           <Box className={classes.contentContainer}>
-            <Typography variant="h4">Confirmation</Typography>
+            <Typography variant="h4">{t("wallet.signMessage")}</Typography>
             {web3Deps?.unstoppableWallet?.connectedApp && (
               <SignForDappHeader
                 name={web3Deps.unstoppableWallet.connectedApp.name}
@@ -473,7 +475,7 @@ const Connect: React.FC = () => {
               />
             )}
             <Typography variant="body1" mt={3}>
-              Wallet address:
+              {t("auth.walletAddress")}:
             </Typography>
             <Typography
               variant="body2"
@@ -493,7 +495,7 @@ const Connect: React.FC = () => {
                 fullWidth
                 variant="outlined"
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
             </Box>
           </Box>
