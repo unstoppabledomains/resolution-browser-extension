@@ -16689,6 +16689,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ts-retry@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "ts-retry@npm:5.0.1"
+  checksum: 8cf23a09cd260e18baa5775a8220c482445c50fad0450d4b1b3e88a472e4486014140939dc7009db1081cdc5a32041ca8fb07ac3d0d3eb6d5be6dcf8b6b47f4a
+  languageName: node
+  linkType: hard
+
 "ts-toolbelt@npm:^6.15.1":
   version: 6.15.5
   resolution: "ts-toolbelt@npm:6.15.5"
@@ -16997,6 +17004,7 @@ __metadata:
     rimraf: ^5.0.7
     stream-browserify: ^3.0.0
     stream-http: ^3.1.0
+    ts-retry: ^5.0.1
     typescript: ^5.4.5
     url: ^0.11.0
     use-async-effect: ^2.2.7

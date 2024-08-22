@@ -11,7 +11,8 @@ import {
 } from "@unstoppabledomains/ui-components";
 import useIsMounted from "react-is-mounted-hook";
 import {useExtensionStyles} from "../../styles/extension.styles";
-import {AUTH_STATE_KEY, AuthState, FIVE_MINUTES} from "../../types/auth";
+import {AUTH_STATE_KEY, AuthState, FIVE_MINUTES} from "../../types/wallet/auth";
+import {Logger} from "../../lib/logger";
 
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
@@ -109,7 +110,7 @@ const WalletComp: React.FC = () => {
           }
         }
       } catch (e) {
-        console.error(e, "error", "Wallet", "Configuration");
+        Logger.error(e, "error", "Wallet", "Configuration");
       } finally {
         setIsLoaded(true);
       }

@@ -27,9 +27,10 @@ import {
   UnsupportedRequestError,
   getResponseType,
   isPermissionType,
-} from "../../types/wallet";
+} from "../../types/wallet/provider";
 import {isAscii} from "../../lib/wallet/isAscii";
 import config from "../../config";
+import {Logger} from "../../lib/logger";
 
 enum ConnectionState {
   ACCOUNT,
@@ -91,7 +92,7 @@ const Connect: React.FC = () => {
             try {
               connectionSource = JSON.parse(queryStringArgs.source as string);
             } catch (e) {
-              console.error("unable to retrieve source", e);
+              Logger.error("unable to retrieve source", e);
             }
           }
         }
@@ -120,7 +121,7 @@ const Connect: React.FC = () => {
           },
         });
       } catch (e) {
-        console.error(e, "error", "Wallet", "Configuration");
+        Logger.error(e, "error", "Wallet", "Configuration");
       } finally {
         setIsLoaded(true);
       }
@@ -173,7 +174,7 @@ const Connect: React.FC = () => {
             break;
           default:
             // unsupported method type
-            console.log("Unsupported message type", message);
+            Logger.log("Unsupported message type", message);
             throw new Error(UnsupportedRequestError);
         }
       } catch (e) {
@@ -403,7 +404,7 @@ const Connect: React.FC = () => {
 
   const handleError = (type: ResponseType, e: Error) => {
     // handle provider error and cancel the operation
-    console.error("handling provider error", type, e);
+    Logger.error("handling provider error", type, e);
     chrome.runtime.sendMessage({
       type,
       error: String(e),

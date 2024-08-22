@@ -1,13 +1,14 @@
 import React from "react";
 import {Typography, IconButton, Tooltip, Box} from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import {Logger} from "../lib/logger";
 
 const CopyableLabel = ({text}: {text: string}) => {
   const copyToClipboard = (textToCopy: string) => {
     navigator.clipboard.writeText(textToCopy).then(
       () => {},
       (err) => {
-        console.error("Failed to copy text: ", err);
+        Logger.error("Failed to copy text: ", err);
       },
     );
   };

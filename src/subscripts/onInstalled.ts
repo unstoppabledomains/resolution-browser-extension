@@ -3,9 +3,10 @@ import {
   chromeStorageSyncClear,
   StorageSyncKey,
 } from "../lib/chromeStorageSync";
+import {Logger} from "../lib/logger";
 import {ExtensionOptions, ExtensionURIMap} from "../types/redirect";
 
-console.log("Background Script Started!");
+Logger.log("Background Script Started!");
 
 chrome.runtime.onInstalled.addListener(() => {
   chromeStorageSyncClear().then(async () => {
@@ -19,5 +20,5 @@ chrome.runtime.onInstalled.addListener(() => {
     );
   });
   // chrome.tabs.create({url: "index.html#install"});
-  console.log("Installed!");
+  Logger.log("Installed!");
 });

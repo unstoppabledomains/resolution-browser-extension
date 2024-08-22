@@ -1,3 +1,5 @@
+import {Logger} from "../lib/logger";
+
 class UserIdService {
   private static readonly USER_ID_KEY = "userId";
 
@@ -40,7 +42,7 @@ class UserIdService {
         } else if (result[UserIdService.USER_ID_KEY]) {
           resolve(result[UserIdService.USER_ID_KEY]);
         } else {
-          console.log("User ID not found, generating a new one.");
+          Logger.log("User ID not found, generating a new one.");
           const newUserId = this.generateUUID();
           this.storeUserId(newUserId)
             .then(() => resolve(newUserId))

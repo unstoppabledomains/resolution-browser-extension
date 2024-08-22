@@ -1,8 +1,7 @@
-import config from "../config";
 import "../subscripts/onInstalled";
-import {clearAllConnectedSites} from "../lib/wallet/evm/connection";
 import {supportedDomains} from "../lib/helpers";
 import {backgroundEventListener} from "./liteWalletProvider/background";
+import {Logger} from "../lib/logger";
 
 /************************************
  * Onchain domain IPFS redirect logic
@@ -20,17 +19,17 @@ function deleteAllRules() {
       chrome.declarativeNetRequest.updateDynamicRules(
         {removeRuleIds: ruleIds},
         () => {
-          console.log("All dynamic rules have been removed successfully.");
+          Logger.log("All dynamic rules have been removed successfully.");
         },
       );
     } else {
-      console.log("No dynamic rules to remove.");
+      Logger.log("No dynamic rules to remove.");
     }
   });
 }
 
 function addRules() {
-  console.log("Adding HTTP rules...");
+  Logger.log("Adding HTTP rules...");
   domainsList.forEach((domain, index) => {
     const urlRegex = `https?://([^/]*?\\.${domain})(/|$)`;
     const id = index + 1001;
@@ -56,7 +55,7 @@ function addRules() {
     });
   });
 
-  console.log("Adding search engines rules...");
+  Logger.log("Adding search engines rules...");
   domainsList.forEach((domain, index) => {
     const urlRegex = `https?://.*[?&]q=([^&]*?\\b\\.${domain})(&|$)`;
     const id = index + 2001;
@@ -102,11 +101,6 @@ setTimeout(() => {
 /***********************************
  * Wallet extension popup management
  ***********************************/
-
-// clear all connected sites when in local development mode
-if (config.NODE_ENV === "localhost") {
-  void clearAllConnectedSites();
-}
 
 // register the wallet popup event listener
 chrome.runtime.onMessage.addListener(backgroundEventListener);

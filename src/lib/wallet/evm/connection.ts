@@ -1,10 +1,11 @@
-import {ConnectedSite, ConnectedSites} from "../../../types/connection";
+import {ConnectedSite, ConnectedSites} from "../../../types/wallet/connection";
 import {
   StorageSyncKey,
   chromeStorageSyncGet,
   chromeStorageSyncRemove,
   chromeStorageSyncSet,
 } from "../../chromeStorageSync";
+import {Logger} from "../../logger";
 
 export const clearAllConnectedSites = async () => {
   await chromeStorageSyncRemove(StorageSyncKey.WalletConnections);
@@ -15,7 +16,8 @@ export const getConnectedSites = async (): Promise<ConnectedSites> => {
     StorageSyncKey.WalletConnections,
   );
   if (connectedSitesStr) {
-    return JSON.parse(connectedSitesStr);
+    const connections = JSON.parse(connectedSitesStr);
+    return connections;
   }
   return {};
 };
@@ -24,12 +26,12 @@ export const getConnectedSite = async (
   host: string,
 ): Promise<ConnectedSite | undefined> => {
   const connectedSites = await getConnectedSites();
-  if (!connectedSites) {
-    return undefined;
+  if (connectedSites && connectedSites[host.toLowerCase()]) {
+    const connection = connectedSites[host.toLowerCase()];
+    Logger.log("Wallet connection found", JSON.stringify({host, connection}));
+    return connection;
   }
-  if (connectedSites[host.toLowerCase()]) {
-    return connectedSites[host.toLowerCase()];
-  }
+  Logger.log("Wallet connection not found", JSON.stringify({host}));
   return undefined;
 };
 

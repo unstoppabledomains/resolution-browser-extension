@@ -1,3 +1,5 @@
+import {WalletPreferences} from "./preferences";
+
 // define provider method names
 export type ProviderMethod =
   | "eth_requestAccounts"
@@ -41,8 +43,14 @@ export const isExternalRequestType = (v: string): v is ExternalRequestType => {
 };
 
 // define internal message types
-export const InternalMessageTypes = ["closeWindowRequest"] as const;
+export const InternalMessageTypes = [
+  "closeWindowRequest",
+  "getPreferencesRequest",
+] as const;
 export type InternalRequestType = (typeof InternalMessageTypes)[number];
+export const isInternalRequestType = (v: string): v is InternalRequestType => {
+  return InternalMessageTypes.indexOf(v as InternalRequestType) !== -1;
+};
 
 // define a provider request interface
 export type ProviderRequestParams = any[];
@@ -60,7 +68,8 @@ export type ResponseType =
   | "signMessageResponse"
   | "signTypedMessageResponse"
   | "sendTransactionResponse"
-  | "switchChainResponse";
+  | "switchChainResponse"
+  | "getPreferencesResponse";
 export const isResponseType = (v: string): v is ResponseType => {
   return isExternalRequestType(v.replaceAll("Response", "Request"));
 };
@@ -76,7 +85,8 @@ export interface ProviderResponse extends Event {
 
 export type ProviderResponseParams =
   | ProviderAccountResponse
-  | ProviderOperationResponse;
+  | ProviderOperationResponse
+  | ProviderPreferenceResponse;
 
 export interface ProviderAccountResponse {
   address: string;
@@ -87,7 +97,12 @@ export interface ProviderAccountResponse {
 
 export interface ProviderOperationResponse {
   response?: string;
-  error: string;
+  error?: string;
+}
+
+export interface ProviderPreferenceResponse {
+  preferences: WalletPreferences;
+  error?: string;
 }
 
 // define custom provider event

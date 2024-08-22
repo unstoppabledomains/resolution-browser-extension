@@ -2,7 +2,7 @@ import {
   EIP6963EventNames,
   EIP6963ProviderDetail,
   EIP6963RequestProviderEvent,
-} from "../../../types/eip6963";
+} from "../../../types/wallet/eip6963";
 
 export function announceProvider(providerDetail: EIP6963ProviderDetail): void {
   const {info, provider} = providerDetail;

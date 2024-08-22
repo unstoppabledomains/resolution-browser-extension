@@ -14,7 +14,7 @@ import {
   PROVIDER_CODE_NOT_IMPLEMENTED,
   UnsupportedMethodError,
   InvalidTypedMessageError,
-} from "../../types/wallet";
+} from "../../types/wallet/provider";
 import config, {WINDOW_PROPERTY_NAME, LOGO_BASE_64} from "../../config";
 import {EthereumProviderError} from "eth-rpc-errors";
 import {ExternalProvider} from "@ethersproject/providers";
@@ -22,7 +22,10 @@ import {Mutex} from "async-mutex";
 import {EventEmitter} from "events";
 import {announceProvider} from "../../lib/wallet/evm/eip6963";
 import {MetaMaskInpageProvider, shimWeb3} from "@metamask/providers";
-import {EIP_712_KEY, TypedMessage} from "../../types/eip712";
+import {EIP_712_KEY, TypedMessage} from "../../types/wallet/eip712";
+import {Logger} from "../../lib/logger";
+import {WalletPreferences} from "../../types/wallet/preferences";
+import {retryAsync, waitUntilAsync} from "ts-retry";
 
 let cachedAccountAddress = null;
 let cachedAccountChainId = null;
@@ -72,9 +75,6 @@ class LiteWalletProvider extends EventEmitter {
     this.isMetaMask = overrideMetaMask || false;
     this.mutex = new Mutex();
     this.pendingRequests = 0;
-
-    // print a message to indicate the extension is loaded
-    console.log("Unstoppable Domains Lite Wallet extension loaded");
   }
 
   // represents the extension is available for requests, not necessarily an
@@ -95,7 +95,7 @@ class LiteWalletProvider extends EventEmitter {
     this.pendingRequests--;
 
     // process the provider request
-    console.log("Request received", JSON.stringify({method, params}));
+    Logger.log("Request received", JSON.stringify({method, params}));
     try {
       let result: any;
       switch (method) {
@@ -148,11 +148,11 @@ class LiteWalletProvider extends EventEmitter {
       }
 
       // result is successful
-      console.log("Request successful", JSON.stringify({method, result}));
+      Logger.log("Request successful", JSON.stringify({method, result}));
       return result;
     } catch (error) {
       // result is failure
-      console.log("Request failed", {method, error});
+      Logger.log("Request failed", {method, error});
       throw error;
     } finally {
       // close the window if no pending requests remain
@@ -174,6 +174,52 @@ class LiteWalletProvider extends EventEmitter {
     throw new EthereumProviderError(
       PROVIDER_CODE_NOT_IMPLEMENTED,
       UnsupportedMethodError,
+    );
+  }
+
+  /*************************
+   * Public custom methods
+   *************************/
+
+  async getPreferences(): Promise<WalletPreferences> {
+    const fetchPreferences = () =>
+      new Promise<WalletPreferences>((resolve, reject) => {
+        document.dispatchEvent(new ProviderEvent("getPreferencesRequest"));
+        this.addEventListener(
+          "getPreferencesResponse",
+          (event: ProviderResponse) => {
+            if (event.detail.error) {
+              reject(
+                new EthereumProviderError(
+                  PROVIDER_CODE_USER_ERROR,
+                  event.detail.error,
+                ),
+              );
+            } else if ("preferences" in event.detail) {
+              resolve(event.detail.preferences);
+            } else {
+              reject(
+                new EthereumProviderError(
+                  PROVIDER_CODE_USER_ERROR,
+                  UnexpectedResponseError,
+                ),
+              );
+            }
+          },
+        );
+      });
+
+    // Retry several times to ensure listeners are available when the page first
+    // loads. There is a race condition where getPreferences() is called during
+    // page load, but the extension listeners are not fully loaded. The retry will
+    // allow the page load to continue and retrieve preferences as expected after
+    // a short wait.
+    return await retryAsync(
+      async () => await waitUntilAsync(fetchPreferences, 500),
+      {
+        delay: 100,
+        maxTry: 5,
+      },
     );
   }
 
@@ -431,7 +477,7 @@ class LiteWalletProvider extends EventEmitter {
 
       // validate the first element is an ethereum address
       if (!params[0].startsWith("0x")) {
-        console.error(
+        Logger.error(
           "first element of typed message parameters must be an Ethereum address",
           params[0],
         );
@@ -443,7 +489,7 @@ class LiteWalletProvider extends EventEmitter {
 
       // validate the second element contains an EIP-712 identifier
       if (!params[1].includes(EIP_712_KEY)) {
-        console.error(
+        Logger.error(
           "second element of typed message parameters must an EIP-712 message",
           params[1],
         );
@@ -460,7 +506,7 @@ class LiteWalletProvider extends EventEmitter {
           throw new Error("invalid EIP-712 message format");
         }
       } catch (e) {
-        console.error("invalid fields in EIP-712 message", params[1]);
+        Logger.error("invalid fields in EIP-712 message", params[1]);
         throw new EthereumProviderError(
           PROVIDER_CODE_USER_ERROR,
           InvalidTypedMessageError,
@@ -615,15 +661,20 @@ const proxyProvider = new Proxy(provider, {
 
 // EIP-1193: attach the provider to global window object
 // as window.unstoppable by default
-window[WINDOW_PROPERTY_NAME] = proxyProvider;
-if (provider.isMetaMask) {
+provider.getPreferences().then((walletPreferences) => {
+  window[WINDOW_PROPERTY_NAME] = proxyProvider;
+  Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
+
   // Optionally override the window.ethereum global property if the
   // provider is created with the metamask flag. Initializing the
   // extension in this way can interfere with other extensions and
   // make the inaccessible to the user.
-  window.ethereum = proxyProvider;
-}
-window.dispatchEvent(new Event("ethereum#initialized"));
+  if (walletPreferences.OverrideMetamask) {
+    window.ethereum = proxyProvider;
+    Logger.log("Injected Ethereum provider", "window.ethereum");
+  }
+  window.dispatchEvent(new Event("ethereum#initialized"));
+});
 
 // EIP-6963: announce the provider
 announceProvider({
@@ -633,6 +684,7 @@ announceProvider({
   },
   provider: proxyProvider,
 });
+Logger.log("Announced Ethereum provider");
 
 // Backwards compatibility for legacy connections
 shimWeb3(proxyProvider as unknown as MetaMaskInpageProvider);

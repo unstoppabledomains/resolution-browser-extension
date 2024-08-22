@@ -1,17 +1,20 @@
 import config from "../../config";
+import {Logger} from "../../lib/logger";
 import {
   getConnectedSite,
   setConnectedSite,
 } from "../../lib/wallet/evm/connection";
-import {ConnectedSite} from "../../types/connection";
+import {getWalletPreferences} from "../../lib/wallet/preferences";
+import {ConnectedSite} from "../../types/wallet/connection";
 import {
   NotConnectedError,
   ProviderEventResponse,
   ProviderRequest,
   getResponseType,
   isExternalRequestType,
+  isInternalRequestType,
   isResponseType,
-} from "../../types/wallet";
+} from "../../types/wallet/provider";
 
 // keep track of the wallet extension popup window ID
 let extensionPopupWindowId = null;
@@ -25,7 +28,20 @@ export const backgroundEventListener = (
   _sender: chrome.runtime.MessageSender,
   popupResponseHandler: (response: ProviderEventResponse) => void,
 ) => {
-  // only handle the popup for supported external requests types
+  // log the incoming event
+  Logger.log("Handling event start", JSON.stringify(request));
+
+  // handle internal request types
+  if (isInternalRequestType(request.type)) {
+    switch (request.type) {
+      case "getPreferencesRequest":
+        void handleFetchPreferences(popupResponseHandler);
+        break;
+    }
+    return true;
+  }
+
+  // handle external request types
   if (isExternalRequestType(request.type)) {
     // find the active tab that requested the wallet extension popup
     chrome.tabs
@@ -59,7 +75,8 @@ export const backgroundEventListener = (
               // only provide data if the account has been previously connected
               // specifically by the user. Otherwise return a provider error per
               // the EIP-1193 spec
-              popupResponseHandler(
+              handleResponse(
+                popupResponseHandler,
                 walletConnection?.accounts && walletConnection?.chainId
                   ? {
                       type: getResponseType(request.type),
@@ -76,7 +93,7 @@ export const backgroundEventListener = (
             case "chainIdRequest":
               // return a specifically selected chain if available, but always
               // provide at least the default chain ID per the EIP-1193 spec
-              popupResponseHandler({
+              handleResponse(popupResponseHandler, {
                 type: getResponseType(request.type),
                 chainId: walletConnection?.chainId || config.DEFAULT_CHAIN,
                 address:
@@ -95,7 +112,7 @@ export const backgroundEventListener = (
               ) {
                 // a previously approved permission should be returned, otherwise
                 // the user should be prompted for the permission
-                popupResponseHandler({
+                handleResponse(popupResponseHandler, {
                   type: getResponseType(request.type),
                   chainId: walletConnection.chainId,
                   address: walletConnection.accounts[0],
@@ -109,7 +126,7 @@ export const backgroundEventListener = (
               if (walletConnection?.accounts && walletConnection?.chainId) {
                 // a previously connected account should be returned, otherwise
                 // the user should be prompted for connection
-                popupResponseHandler({
+                handleResponse(popupResponseHandler, {
                   type: getResponseType(request.type),
                   chainId: walletConnection.chainId,
                   address: walletConnection.accounts[0],
@@ -202,7 +219,26 @@ const listenForPopupResponse = (
 
       // cleanup the listener and handle the response
       chrome.runtime.onMessage.removeListener(listener);
-      popupResponseHandler(response);
+      handleResponse(popupResponseHandler, response);
     }
+  });
+};
+
+const handleResponse = (
+  popupResponseHandler: (response: ProviderEventResponse) => void,
+  response: ProviderEventResponse,
+) => {
+  // log the incoming event
+  Logger.log("Handling event complete", JSON.stringify(response));
+  popupResponseHandler(response);
+};
+
+const handleFetchPreferences = async (
+  popupResponseHandler: (response: ProviderEventResponse) => void,
+) => {
+  const preferences = await getWalletPreferences();
+  handleResponse(popupResponseHandler, {
+    type: getResponseType("getPreferencesRequest"),
+    preferences,
   });
 };
