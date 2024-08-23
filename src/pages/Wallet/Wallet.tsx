@@ -112,7 +112,7 @@ const WalletComp: React.FC = () => {
           }
         }
       } catch (e) {
-        Logger.error(e, "error", "Wallet", "Configuration");
+        Logger.error(e, "Popup", "error loading wallet in extension popup");
       } finally {
         setIsLoaded(true);
       }

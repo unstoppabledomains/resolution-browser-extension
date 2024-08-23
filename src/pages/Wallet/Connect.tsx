@@ -94,7 +94,11 @@ const Connect: React.FC = () => {
             try {
               connectionSource = JSON.parse(queryStringArgs.source as string);
             } catch (e) {
-              Logger.error("unable to retrieve source", e);
+              Logger.error(
+                e,
+                "Popup",
+                "unable to retrieve connection source tab",
+              );
             }
           }
         }
@@ -123,7 +127,7 @@ const Connect: React.FC = () => {
           },
         });
       } catch (e) {
-        Logger.error(e, "error", "Wallet", "Configuration");
+        Logger.error(e, "Popup", "error loading wallet in connect popup");
       } finally {
         setIsLoaded(true);
       }
@@ -406,7 +410,7 @@ const Connect: React.FC = () => {
 
   const handleError = (type: ResponseType, e: Error) => {
     // handle provider error and cancel the operation
-    Logger.error("handling provider error", type, e);
+    Logger.error(e, "Popup", "handled provider error", type);
     chrome.runtime.sendMessage({
       type,
       error: String(e),

@@ -17,7 +17,7 @@ function useUserId() {
         setUserId(id);
       })
       .catch((err) => {
-        Logger.error("Failed to retrieve user ID:", err);
+        Logger.error(err, "Popup", "Failed to retrieve user ID");
         setError(err);
       })
       .finally(() => setIsLoading(false));

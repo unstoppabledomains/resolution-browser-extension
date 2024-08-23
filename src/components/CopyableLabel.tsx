@@ -8,7 +8,7 @@ const CopyableLabel = ({text}: {text: string}) => {
     navigator.clipboard.writeText(textToCopy).then(
       () => {},
       (err) => {
-        Logger.error("Failed to copy text: ", err);
+        Logger.error(err, "Popup", "Failed to copy text");
       },
     );
   };

@@ -146,10 +146,10 @@ class LiteWalletProvider extends EventEmitter {
       // result is successful
       Logger.log("Request successful", JSON.stringify({method, result}));
       return result;
-    } catch (error) {
+    } catch (e) {
       // result is failure
-      Logger.log("Request failed", {method, error});
-      throw error;
+      Logger.error(e, "Popup", "Request failed", method, params);
+      throw e;
     } finally {
       // close the window if no pending requests remain
       if (!this.pendingRequests) {
@@ -538,7 +538,10 @@ class LiteWalletProvider extends EventEmitter {
       // validate the first element is an ethereum address
       if (!params[0].startsWith("0x")) {
         Logger.error(
-          "first element of typed message parameters must be an Ethereum address",
+          new Error(
+            "first element of typed message parameters must be an Ethereum address",
+          ),
+          "Popup",
           params[0],
         );
         throw new EthereumProviderError(
@@ -550,7 +553,10 @@ class LiteWalletProvider extends EventEmitter {
       // validate the second element contains an EIP-712 identifier
       if (!params[1].includes(EIP_712_KEY)) {
         Logger.error(
-          "second element of typed message parameters must an EIP-712 message",
+          new Error(
+            "second element of typed message parameters must an EIP-712 message",
+          ),
+          "Popup",
           params[1],
         );
         throw new EthereumProviderError(
@@ -566,7 +572,11 @@ class LiteWalletProvider extends EventEmitter {
           throw new Error("invalid EIP-712 message format");
         }
       } catch (e) {
-        Logger.error("invalid fields in EIP-712 message", params[1]);
+        Logger.error(
+          new Error("invalid fields in EIP-712 message"),
+          "Popup",
+          params[1],
+        );
         throw new EthereumProviderError(
           PROVIDER_CODE_USER_ERROR,
           InvalidTypedMessageError,
