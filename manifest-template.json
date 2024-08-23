@@ -27,16 +27,12 @@
       "js": ["./scripts/liteWalletProvider/main.ts"],
       "world": "MAIN",
       "run_at": "document_start"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["./scripts/liteWalletProvider/main.ts"],
-      "world": "MAIN"
-    },
+    }, 
     {
       "matches": ["<all_urls>"],
       "js": ["./scripts/liteWalletProvider/isolated.ts"],
-      "world": "ISOLATED"
+      "world": "ISOLATED",
+      "run_at": "document_start"
     }
   ],
   "options_ui": {"page": "index.html#/options", "open_in_tab": false},

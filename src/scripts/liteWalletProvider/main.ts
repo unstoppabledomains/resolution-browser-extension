@@ -217,7 +217,7 @@ class LiteWalletProvider extends EventEmitter {
     this.emit(type, data);
   }
 
-  private async withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  private async withRetry<T>(fn: () => Promise<T>, maxTry = 10): Promise<T> {
     // Retry several times to ensure listeners are available when the page first
     // loads. There is a race condition where a listener method is called during
     // page load, but the extension listeners are not fully loaded. The retry will
@@ -225,7 +225,7 @@ class LiteWalletProvider extends EventEmitter {
     // a short wait.
     return await retryAsync(async () => await waitUntilAsync(fn, 500), {
       delay: 100,
-      maxTry: 5,
+      maxTry,
     });
   }
 

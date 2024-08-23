@@ -155,6 +155,7 @@ const WalletComp: React.FC = () => {
             avatarUrl={authAvatar}
             showMessages={false}
             disableInlineEducation={true}
+            fullScreenModals={true}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}
             onSettingsClick={handleShowPreferences}

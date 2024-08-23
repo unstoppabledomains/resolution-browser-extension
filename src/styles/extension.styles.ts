@@ -14,7 +14,8 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     borderRadius: 0,
   },
   preferenceContainer: {
-    height: "100%",
+    height: "500px",
+    overflow: "auto",
   },
   contentContainer: {
     display: "flex",

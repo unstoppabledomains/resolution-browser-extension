@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
   Box,
-  Paper,
   Typography,
   CircularProgress,
   Button,
@@ -17,8 +16,8 @@ import {
 } from "../../lib/wallet/preferences";
 import {
   useTranslationContext,
-  TitleWithBackButton,
   Link,
+  Modal,
 } from "@unstoppabledomains/ui-components";
 import {ConnectedSites} from "../../types/wallet/connection";
 import {
@@ -62,14 +61,14 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   };
 
   return (
-    <Paper className={cx(classes.container, classes.preferenceContainer)}>
-      <Box className={cx(classes.walletContainer, classes.contentContainer)}>
-        <Box className={classes.contentContainer}>
-          <TitleWithBackButton
-            variant="h4"
-            label={t("push.settings")}
-            onCancelClick={onClose}
-          />
+    <Box className={classes.container}>
+      <Modal
+        open={true}
+        fullScreen={true}
+        title={t("push.settings")}
+        onClose={onClose}
+      >
+        <Box className={classes.preferenceContainer}>
           {!preferences ? (
             <Box
               className={cx(classes.walletContainer, classes.contentContainer)}
@@ -77,7 +76,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
               <CircularProgress className={classes.loadingSpinner} />
             </Box>
           ) : (
-            <Box className={classes.contentContainer} mb={1}>
+            <Box className={classes.contentContainer} mb={1} mt={-3}>
               <PreferenceSection
                 title="Compatibility mode"
                 description="Unstoppable Lite Wallet can override MetaMask in apps to ensure maximum compatibility. Enabling this setting may interfere with other extensions."
@@ -133,8 +132,8 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
             </Box>
           )}
         </Box>
-      </Box>
-    </Paper>
+      </Modal>
+    </Box>
   );
 };
 
