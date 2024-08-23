@@ -27,9 +27,6 @@ import {Logger} from "../../lib/logger";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {retryAsync, waitUntilAsync} from "ts-retry";
 
-let cachedAccountAddress = null;
-let cachedAccountChainId = null;
-
 declare global {
   interface Window {
     [WINDOW_PROPERTY_NAME]: ExternalProvider;
@@ -45,15 +42,13 @@ interface RequestArgs {
 class LiteWalletProvider extends EventEmitter {
   // web3 provider properties
   isMetaMask: boolean;
-  isStatus?: boolean;
-  host?: string;
-  path?: string;
-
-  // unused properties, but required to be present in order to properly
-  // emulate MetaMask in the case the user wants maximum compatibility
+  isConnectedStatus: boolean;
   chainId: string | null;
   networkVersion: string | null;
   selectedAddress: string | null;
+
+  // unused properties, but required to be present in order to properly
+  // emulate MetaMask in the case the user wants maximum compatibility
   _metamask = {
     isUnlocked: (): Promise<boolean> => {
       return new Promise((resolve) => {
@@ -73,6 +68,7 @@ class LiteWalletProvider extends EventEmitter {
   constructor() {
     super();
     this.isMetaMask = true;
+    this.isConnectedStatus = false;
     this.mutex = new Mutex();
     this.pendingRequests = 0;
   }
@@ -182,7 +178,7 @@ class LiteWalletProvider extends EventEmitter {
    *************************/
 
   async getPreferences(): Promise<WalletPreferences> {
-    const fetchPreferences = () =>
+    const fetcher = () =>
       new Promise<WalletPreferences>((resolve, reject) => {
         document.dispatchEvent(new ProviderEvent("getPreferencesRequest"));
         this.addEventListener(
@@ -209,18 +205,8 @@ class LiteWalletProvider extends EventEmitter {
         );
       });
 
-    // Retry several times to ensure listeners are available when the page first
-    // loads. There is a race condition where getPreferences() is called during
-    // page load, but the extension listeners are not fully loaded. The retry will
-    // allow the page load to continue and retrieve preferences as expected after
-    // a short wait.
-    return await retryAsync(
-      async () => await waitUntilAsync(fetchPreferences, 500),
-      {
-        delay: 100,
-        maxTry: 5,
-      },
-    );
+    // retrieve preferences with retry support
+    return await this.withRetry(fetcher);
   }
 
   /******************
@@ -231,56 +217,133 @@ class LiteWalletProvider extends EventEmitter {
     this.emit(type, data);
   }
 
+  private async withRetry<T>(fn: () => Promise<T>): Promise<T> {
+    // Retry several times to ensure listeners are available when the page first
+    // loads. There is a race condition where a listener method is called during
+    // page load, but the extension listeners are not fully loaded. The retry will
+    // allow the page load to continue and retrieve the data as expected after
+    // a short wait.
+    return await retryAsync(async () => await waitUntilAsync(fn, 500), {
+      delay: 100,
+      maxTry: 5,
+    });
+  }
+
   private handleClosePopup() {
     document.dispatchEvent(new ProviderEvent("closeWindowRequest"));
   }
 
-  private handleConnected(account: ProviderAccountResponse) {
-    cachedAccountAddress = account.address;
-    cachedAccountChainId = account.chainId;
-    this.isStatus = true;
+  private handleConnected(
+    account: ProviderAccountResponse,
+    emitEvents?: Eip1193Event[],
+  ) {
+    // cache the selected account and chain ID
+    this.selectedAddress = account.address;
+    this.chainId = `0x${account.chainId}`;
+    this.networkVersion = String(account.chainId);
+    this.isConnectedStatus = true;
+
+    // handle any requested events
+    emitEvents?.map((event) => {
+      switch (event) {
+        case "accountsChanged":
+          this.emitEvent("accountsChanged", [this.selectedAddress]);
+          break;
+        case "connect":
+          this.emitEvent("connect", {chainId: this.networkVersion});
+          break;
+        case "chainChanged":
+          this.emitEvent("chainChanged", this.networkVersion);
+          break;
+      }
+    });
   }
 
   private async handleGetConnectedAccounts() {
-    if (cachedAccountAddress) {
-      return [cachedAccountAddress];
+    if (this.selectedAddress) {
+      return [this.selectedAddress];
     }
 
-    // connect to account
-    const accountResponse = new Promise((resolve, reject) => {
-      document.dispatchEvent(new ProviderEvent("accountRequest"));
-      this.addEventListener("accountResponse", (event: ProviderResponse) => {
-        if (event.detail.error) {
-          reject(
-            new EthereumProviderError(
-              PROVIDER_CODE_USER_ERROR,
-              event.detail.error,
-            ),
-          );
-        } else if ("address" in event.detail) {
-          // handle success events
-          this.handleConnected(event.detail);
+    // a method to retrieve account data
+    const fetcher = () =>
+      new Promise<string>((resolve, reject) => {
+        document.dispatchEvent(new ProviderEvent("accountRequest"));
+        this.addEventListener("accountResponse", (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
+          } else if ("address" in event.detail) {
+            // handle success events
+            this.handleConnected(event.detail);
 
-          // resolve the promise
-          resolve(event.detail.address);
-        } else {
-          reject(
-            new EthereumProviderError(
-              PROVIDER_CODE_USER_ERROR,
-              UnexpectedResponseError,
-            ),
-          );
-        }
+            // resolve the promise
+            resolve(event.detail.address);
+          } else {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
+          }
+        });
       });
-    });
+
+    // wait for account data
+    const address = await this.withRetry(fetcher);
 
     // return list of accounts
-    return [await accountResponse];
+    return [address];
+  }
+
+  private async handleGetConnectedChainIds() {
+    if (this.networkVersion) {
+      return this.networkVersion;
+    }
+
+    // a method to retrieve chain ID data
+    const fetcher = () =>
+      new Promise<number>((resolve, reject) => {
+        document.dispatchEvent(new ProviderEvent("chainIdRequest"));
+        this.addEventListener("chainIdResponse", (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
+          } else if ("chainId" in event.detail) {
+            // handle success events
+            this.handleConnected(event.detail);
+
+            // resolve the promise
+            resolve(event.detail.chainId);
+          } else {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
+          }
+        });
+      });
+
+    // wait for chain ID
+    const chainId = await this.withRetry(fetcher);
+
+    // return the chain ID
+    return String(chainId);
   }
 
   private async handleRequestAccounts() {
-    if (cachedAccountAddress) {
-      return [cachedAccountAddress];
+    if (this.selectedAddress) {
+      return [this.selectedAddress];
     }
 
     // connect to account
@@ -298,9 +361,7 @@ class LiteWalletProvider extends EventEmitter {
             );
           } else if ("address" in event.detail) {
             // handle success events
-            this.handleConnected(event.detail);
-            this.emitEvent("accountsChanged", [event.detail.address]);
-            this.emitEvent("connect", {chainId: event.detail.chainId});
+            this.handleConnected(event.detail, ["connect", "accountsChanged"]);
 
             // resolve the promise
             resolve(event.detail.address);
@@ -320,39 +381,39 @@ class LiteWalletProvider extends EventEmitter {
     return [await accountResponse];
   }
 
-  private async handleGetConnectedChainIds() {
-    if (cachedAccountChainId) {
-      return cachedAccountChainId;
-    }
-
-    // connect to chain ID
+  private async handleRequestPermissions(params: any[]) {
     return await new Promise((resolve, reject) => {
-      document.dispatchEvent(new ProviderEvent("chainIdRequest"));
-      this.addEventListener("chainIdResponse", (event: ProviderResponse) => {
-        if (event.detail.error) {
-          reject(
-            new EthereumProviderError(
-              PROVIDER_CODE_USER_ERROR,
-              event.detail.error,
-            ),
-          );
-        } else if ("chainId" in event.detail) {
-          // handle success events
-          this.handleConnected(event.detail);
-          this.emitEvent("connect", {chainId: event.detail.chainId});
-          this.emitEvent("chainChanged", event.detail.chainId);
+      document.dispatchEvent(
+        new ProviderEvent("requestPermissionsRequest", {
+          detail: params,
+        }),
+      );
+      this.addEventListener(
+        "requestPermissionsResponse",
+        (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
+          } else if ("address" in event.detail) {
+            // handle success events
+            this.handleConnected(event.detail, ["connect", "accountsChanged"]);
 
-          // resolve the promise
-          resolve(event.detail.chainId);
-        } else {
-          reject(
-            new EthereumProviderError(
-              PROVIDER_CODE_USER_ERROR,
-              UnexpectedResponseError,
-            ),
-          );
-        }
-      });
+            // resolve the promise
+            resolve(event.detail.permissions);
+          } else {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
+          }
+        },
+      );
     });
   }
 
@@ -392,8 +453,7 @@ class LiteWalletProvider extends EventEmitter {
             );
           } else if ("address" in event.detail) {
             // handle success events
-            this.handleConnected(event.detail);
-            this.emitEvent("chainChanged", event.detail.chainId);
+            this.handleConnected(event.detail, ["chainChanged"]);
 
             // resolve the promise
             resolve(event.detail.chainId);
@@ -547,7 +607,7 @@ class LiteWalletProvider extends EventEmitter {
   private async handleSendTransaction(params: any[]) {
     return await new Promise((resolve, reject) => {
       //validate an account is connected
-      if (!cachedAccountAddress || !cachedAccountChainId) {
+      if (!this.selectedAddress || !this.networkVersion) {
         throw new EthereumProviderError(
           PROVIDER_CODE_USER_ERROR,
           NotConnectedError,
@@ -572,7 +632,7 @@ class LiteWalletProvider extends EventEmitter {
           InvalidTxError,
         );
       }
-      normalizedParams.chainId = String(cachedAccountChainId);
+      normalizedParams.chainId = this.networkVersion;
 
       // send the prepared transaction signing event
       document.dispatchEvent(
@@ -594,44 +654,6 @@ class LiteWalletProvider extends EventEmitter {
             );
           } else if ("response" in event.detail) {
             resolve(event.detail.response);
-          } else {
-            reject(
-              new EthereumProviderError(
-                PROVIDER_CODE_USER_ERROR,
-                UnexpectedResponseError,
-              ),
-            );
-          }
-        },
-      );
-    });
-  }
-
-  private async handleRequestPermissions(params: any[]) {
-    return await new Promise((resolve, reject) => {
-      document.dispatchEvent(
-        new ProviderEvent("requestPermissionsRequest", {
-          detail: params,
-        }),
-      );
-      this.addEventListener(
-        "requestPermissionsResponse",
-        (event: ProviderResponse) => {
-          if (event.detail.error) {
-            reject(
-              new EthereumProviderError(
-                PROVIDER_CODE_USER_ERROR,
-                event.detail.error,
-              ),
-            );
-          } else if ("address" in event.detail) {
-            // handle success events
-            this.handleConnected(event.detail);
-            this.emitEvent("connect", {chainId: event.detail.chainId});
-            this.emitEvent("accountsChanged", [event.detail.address]);
-
-            // resolve the promise
-            resolve(event.detail.permissions);
           } else {
             reject(
               new EthereumProviderError(
