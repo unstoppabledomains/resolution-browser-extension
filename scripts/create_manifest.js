@@ -14,9 +14,6 @@ if (isDevMode) {
 }
 
 if (isChrome) {
-  template["content_security_policy"] = {
-    extension_pages: "script-src 'self'; object-src 'self'",
-  };
   template["offline_enabled"] = false;
   fs.writeFileSync(path, JSON.stringify(template));
   console.log("Chrome manifest is created");
