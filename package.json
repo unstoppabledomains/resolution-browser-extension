@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -8,16 +8,24 @@
   },
   "homepage": "https://unstoppabledomains.com/extension",
   "scripts": {
+    "clean": "rm -rf ./dist; rm -rf ./releases; rm -rf .parcel-cache",
+    "postinstall": "node scripts/create-env.mjs && node ./scripts/create_manifest.js",
     "prettier": "prettier --write --log-level warn \"src/**/*.{js,jsx,json,ts,tsx,css,scss,md}\"",
-    "predev": "rimraf .parcel-cache dist && yarn prettier",
-    "dev": "parcel watch src/manifest.json --host localhost --no-source-maps",
-    "dev:staging": "NODE_ENV=staging; yarn dev",
-    "build": "parcel build src/manifest.json --no-cache --no-source-maps",
-    "clean": "rm -rf ./dist; rm -rf .parcel-cache",
-    "postbuild": "node scripts/remove-source-maps.mjs && node scripts/create-zip.mjs",
-    "create-env": "node scripts/create-env.mjs",
-    "create-manifest": "node create_manifest.js",
-    "postinstall": "npm run create-env && npm run create-manifest"
+    "predev": "yarn clean && yarn prettier",
+    "dev": "NODE_ENV=staging; yarn clean && parcel watch src/manifest.json --host localhost --no-source-maps",
+    "build": "yarn build:chrome",
+    "build:dev": "NODE_ENV=staging; yarn build",
+    "build:all": "yarn clean && yarn build:chrome:archives && yarn build:firefox:archives",
+    "build:all:dev": "NODE_ENV=staging; yarn build:all",
+    "build:extension": "parcel build src/manifest.json --no-cache --no-source-maps --no-scope-hoist",
+    "build:chrome": "yarn build:chrome:manifest && yarn build:extension",
+    "build:chrome:manifest": "node ./scripts/create_manifest.js chrome",
+    "build:chrome:archives": "yarn build:chrome && yarn build:chrome:zip",
+    "build:chrome:zip": "node scripts/create-zip.mjs chrome",
+    "build:firefox": "yarn build:firefox:manifest && yarn build:extension",
+    "build:firefox:manifest": "node ./scripts/create_manifest.js firefox",
+    "build:firefox:archives": "yarn build:firefox && yarn build:firefox:zip",
+    "build:firefox:zip": "node scripts/create-zip.mjs firefox"
   },
   "resolutions": {
     "@types/react": "^17.0.0",

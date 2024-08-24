@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Unstoppable Extension",
   "short_name": "Unstoppable Extension",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
   "icons": {
     "16": "icon/16.png",

@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 const fs = require("fs");
-const template = require("./manifest-template.json");
+const template = require("../manifest-template.json");
 const args = process.argv.slice(2);
 const isChrome = args[0] === "chrome";
 const isFirefox = args[0] === "firefox";
@@ -28,8 +28,12 @@ if (isFirefox) {
   template["applications"] = {
     gecko: {id: "ryan@unstoppabledomains.com"},
   };
+  fs.writeFileSync(path, JSON.stringify(template));
+  console.log("Firefox manifest is created");
+  return;
 }
 
+// No browser specific generation requested
 fs.writeFileSync(path, JSON.stringify(template));
-console.log("Manifest is created");
+console.log("Generic manifest is created");
 return;
