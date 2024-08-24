@@ -1,6 +1,8 @@
 # The Unstoppable Extension
 
-**The Unstoppable Extension** enables access to decentralized blockchain domains, facilitating a secure and user-driven browsing experience. It integrates with decentralized storage networks such as IPFS to resolve domain names stored on the blockchain, such as `.crypto` and `.eth`, directly within the Chrome browser.
+**The Unstoppable Extension** enables access to decentralized blockchain applications and domains, facilitating a secure and user-driven experience. The extension includes an integrated wallet with support for multiple blockchains such as Bitcoin, Ethereum, Base, Polygon and Solana. The wallet enables users to manage their onchain assets directly from the browser and interact with decentralized blockchain applications. 
+
+Additionally, the extension integrates with decentralized storage networks such as IPFS to resolve domain names stored on the blockchain, such as `.crypto` and `.eth`, directly within the Chrome browser.
 
 ## Getting Started
 
@@ -57,6 +59,21 @@ to build a new release version.
 1. Select a sign in option
    1. Existing users may enter their user name and password
    1. New users may create a new account
+1. Manage wallet
+   1. Send / receive crypto by navigating to the desired blockchain asset
+   1. Update wallet settings using the "Settings" menu option
+      1. Compatibility mode - emulates MetaMask
+      1. Connections
+1. Interact with blockchain applications
+   1. The extension will automatically popup when a blockchain application requests to interact with your wallet. For example, the extension may popup for the following application scenarios:
+      1. Connection requests
+      1. Permission requests
+      1. Message signatures
+      1. Transaction approvals
+   1. Wallet operations only proceed with your approval
+1. Decentralized browsing
+   1. Type in a blockchain domain (like matt.crypto) in the browser URL field
+   1. You will be redirected to the IPFS gateway with the domain’s IPFS hash record
 
 ## Frequently Asked Questions (FAQ)
 
