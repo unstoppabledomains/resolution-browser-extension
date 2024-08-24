@@ -55,6 +55,8 @@ to build a new release version.
 
 ## Usage
 
+### Basic instructions
+
 1. Open the extension popup window.
 1. Select a sign in option
    1. Existing users may enter their user name and password
@@ -74,6 +76,11 @@ to build a new release version.
 1. Decentralized browsing
    1. Type in a blockchain domain (like matt.crypto) in the browser URL field
    1. You will be redirected to the IPFS gateway with the domain’s IPFS hash record
+
+### Sample screenshots
+
+#### Main screen
+<img width="452" alt="image" src="https://github.com/user-attachments/assets/e0c0259f-a9ad-4039-9f61-5ff7721645ef">
 
 ## Frequently Asked Questions (FAQ)
 
