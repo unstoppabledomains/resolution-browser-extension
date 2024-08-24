@@ -1,9 +1,9 @@
 import React, {useEffect, useState, useCallback} from "react";
 import {
-  chromeStorageSyncGet,
-  chromeStorageSyncSet,
+  chromeStorageGet,
+  chromeStorageSet,
   StorageSyncKey,
-} from "../../lib/chromeStorageSync";
+} from "../../lib/chromeStorage";
 import {
   ExtensionOptions,
   ExtensionLabel,
@@ -92,14 +92,14 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
   );
 
   useEffect(() => {
-    chromeStorageSyncGet(StorageSyncKey.GatewayOption).then((option) => {
+    chromeStorageGet(StorageSyncKey.GatewayOption).then((option) => {
       if (option === ExtensionOptions.InfuraAPI) setShowTextField(true);
       setGateWayOption(option);
     });
   }, []);
 
   useEffect(() => {
-    chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then((url) => {
+    chromeStorageGet(StorageSyncKey.GatewayBaseURL).then((url) => {
       setGatewayBaseURL(url);
     });
   }, []);
@@ -118,7 +118,7 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
     }
 
     if (okGatewayBaseURL) {
-      chromeStorageSyncSet(
+      chromeStorageSet(
         StorageSyncKey.GatewayBaseURL,
         gatewayBaseURL.includes("://")
           ? gatewayBaseURL.trim()
@@ -129,8 +129,8 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
 
   useEffect(() => {
     const uri = ExtensionURIMap[gatewayOption];
-    if (uri) chromeStorageSyncSet(StorageSyncKey.GatewayBaseURL, uri);
-    chromeStorageSyncSet(StorageSyncKey.GatewayOption, gatewayOption);
+    if (uri) chromeStorageSet(StorageSyncKey.GatewayBaseURL, uri);
+    chromeStorageSet(StorageSyncKey.GatewayOption, gatewayOption);
   }, [gatewayOption]);
 
   const handleChangeGatewayBaseURL: React.ChangeEventHandler<HTMLInputElement> =

@@ -11,9 +11,16 @@ import {
 } from "@unstoppabledomains/ui-components";
 import useIsMounted from "react-is-mounted-hook";
 import {useExtensionStyles} from "../../styles/extension.styles";
-import {AUTH_STATE_KEY, AuthState, FIVE_MINUTES} from "../../types/wallet/auth";
+import {AuthState, FIVE_MINUTES} from "../../types/wallet/auth";
 import {Logger} from "../../lib/logger";
 import {Preferences} from "./Preferences";
+import {
+  StorageSyncKey,
+  chromeStorageClear,
+  chromeStorageGet,
+  chromeStorageRemove,
+  chromeStorageSet,
+} from "../../lib/chromeStorage";
 
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
@@ -28,18 +35,22 @@ const WalletComp: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const handleAuthComplete = () => {
-    localStorage.removeItem(AUTH_STATE_KEY);
+  const handleAuthComplete = async () => {
+    await chromeStorageRemove(StorageSyncKey.AuthState, "session");
     setAuthComplete(true);
   };
 
-  const handleAuthStart = (emailAddress: string, password: string) => {
+  const handleAuthStart = async (emailAddress: string, password: string) => {
     const authState: AuthState = {
       emailAddress,
       password,
       expiration: new Date().getTime() + FIVE_MINUTES,
     };
-    localStorage.setItem(AUTH_STATE_KEY, JSON.stringify(authState));
+    await chromeStorageSet(
+      StorageSyncKey.AuthState,
+      JSON.stringify(authState),
+      "session",
+    );
   };
 
   // load the existing wallet if singed in
@@ -54,7 +65,10 @@ const WalletComp: React.FC = () => {
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
           // attempt to check for in-progress sign in state
-          const inProgressAuthState = localStorage.getItem(AUTH_STATE_KEY);
+          const inProgressAuthState = await chromeStorageGet(
+            StorageSyncKey.AuthState,
+            "session",
+          );
           if (inProgressAuthState) {
             const now = new Date().getTime();
             const state: AuthState = JSON.parse(inProgressAuthState);
@@ -62,7 +76,7 @@ const WalletComp: React.FC = () => {
               setAuthState(state);
               return;
             }
-            localStorage.removeItem(AUTH_STATE_KEY);
+            await chromeStorageRemove(StorageSyncKey.AuthState, "session");
           }
 
           // set empty auth state
@@ -120,10 +134,18 @@ const WalletComp: React.FC = () => {
     void loadWallet();
   }, [isMounted, authComplete]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // clear extension storage
+    await chromeStorageClear("local");
+    await chromeStorageClear("session");
+    await chromeStorageClear("sync");
+
+    // reset identity variable state
     setAuthAddress(undefined);
     setAuthDomain(undefined);
     setAuthAvatar(undefined);
+
+    // close the extension window
     window.close();
   };
 

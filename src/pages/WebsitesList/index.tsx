@@ -2,10 +2,7 @@ import React, {useState, useEffect} from "react";
 import {useAsyncEffect} from "use-async-effect";
 import WeblistHeader, {Extension} from "./WeblistHeader";
 import List from "./List";
-import {
-  chromeStorageSyncGet,
-  StorageSyncKey,
-} from "../../lib/chromeStorageSync";
+import {chromeStorageGet, StorageSyncKey} from "../../lib/chromeStorage";
 import {Box} from "@mui/material";
 
 const styles = {
@@ -76,9 +73,7 @@ const WebsiteList: React.FC<Props> = () => {
   };
 
   const getBookmarks = async (): Promise<string[]> => {
-    const bookmarks = await chromeStorageSyncGet(
-      StorageSyncKey.BookmarkedDomains,
-    );
+    const bookmarks = await chromeStorageGet(StorageSyncKey.BookmarkedDomains);
     if (bookmarks) return JSON.parse(bookmarks);
     return [];
   };

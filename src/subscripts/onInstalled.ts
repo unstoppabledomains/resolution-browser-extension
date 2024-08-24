@@ -1,20 +1,20 @@
 import {
-  chromeStorageSyncSet,
-  chromeStorageSyncClear,
+  chromeStorageSet,
+  chromeStorageClear,
   StorageSyncKey,
-} from "../lib/chromeStorageSync";
+} from "../lib/chromeStorage";
 import {Logger} from "../lib/logger";
 import {ExtensionOptions, ExtensionURIMap} from "../types/redirect";
 
 Logger.log("Background Script Started!");
 
 chrome.runtime.onInstalled.addListener(() => {
-  chromeStorageSyncClear().then(async () => {
-    await chromeStorageSyncSet(
+  chromeStorageClear().then(async () => {
+    await chromeStorageSet(
       StorageSyncKey.GatewayBaseURL,
       ExtensionURIMap[ExtensionOptions.InfuraAPI],
     );
-    await chromeStorageSyncSet(
+    await chromeStorageSet(
       StorageSyncKey.GatewayOption,
       ExtensionOptions.InfuraAPI,
     );

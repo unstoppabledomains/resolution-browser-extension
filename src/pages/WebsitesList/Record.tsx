@@ -5,9 +5,9 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import {
   StorageSyncKey,
-  chromeStorageSyncSet,
-  chromeStorageSyncGet,
-} from "../../lib/chromeStorageSync";
+  chromeStorageSet,
+  chromeStorageGet,
+} from "../../lib/chromeStorage";
 import {Box, Divider, Typography} from "@mui/material";
 
 const styles = {
@@ -35,9 +35,7 @@ const Record: React.FC<Props> = ({domain, setLoading}) => {
   }, []);
 
   const getBookmarks = async (): Promise<string[]> => {
-    const bookmarks = await chromeStorageSyncGet(
-      StorageSyncKey.BookmarkedDomains,
-    );
+    const bookmarks = await chromeStorageGet(StorageSyncKey.BookmarkedDomains);
     if (bookmarks) return JSON.parse(bookmarks);
     return [];
   };
@@ -45,7 +43,7 @@ const Record: React.FC<Props> = ({domain, setLoading}) => {
   const handleBookMarking = async (domain: string) => {
     const bookmarks: string[] = await getBookmarks();
     bookmarks.push(domain);
-    await chromeStorageSyncSet(
+    await chromeStorageSet(
       StorageSyncKey.BookmarkedDomains,
       JSON.stringify(bookmarks),
     );
@@ -61,7 +59,7 @@ const Record: React.FC<Props> = ({domain, setLoading}) => {
   const handleUnboookmarking = async (domain: string) => {
     const bookmarks = await getBookmarks();
     bookmarks.splice(bookmarks.indexOf(domain, 0), 1);
-    await chromeStorageSyncSet(
+    await chromeStorageSet(
       StorageSyncKey.BookmarkedDomains,
       JSON.stringify(bookmarks),
     );

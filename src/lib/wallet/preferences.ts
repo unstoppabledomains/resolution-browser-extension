@@ -1,14 +1,14 @@
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {
   StorageSyncKey,
-  chromeStorageSyncGet,
-  chromeStorageSyncSet,
-} from "../chromeStorageSync";
+  chromeStorageGet,
+  chromeStorageSet,
+} from "../chromeStorage";
 import {Logger} from "../logger";
 
 export const getWalletPreferences = async (): Promise<WalletPreferences> => {
   try {
-    const preferences = await chromeStorageSyncGet(
+    const preferences = await chromeStorageGet(
       StorageSyncKey.WalletPreferences,
     );
     if (preferences) {
@@ -27,7 +27,7 @@ const getDefaultPreferences = (): WalletPreferences => {
 };
 
 export const setWalletPreferences = async (preferences: WalletPreferences) => {
-  await chromeStorageSyncSet(
+  await chromeStorageSet(
     StorageSyncKey.WalletPreferences,
     JSON.stringify(preferences),
   );

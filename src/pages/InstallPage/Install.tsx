@@ -1,9 +1,9 @@
 import React from "react";
 import {
   StorageSyncKey,
-  chromeStorageSyncGet,
-  chromeStorageSyncSet,
-} from "../../lib/chromeStorageSync";
+  chromeStorageGet,
+  chromeStorageSet,
+} from "../../lib/chromeStorage";
 import {ExtensionOptions, ExtensionURIMap} from "../../types/redirect";
 import {Box, Link, Typography} from "@mui/material";
 
@@ -35,9 +35,9 @@ const styles = {
 interface Props {}
 
 const Install: React.FC<Props> = () => {
-  chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL).then((url) => {
+  chromeStorageGet(StorageSyncKey.GatewayBaseURL).then((url) => {
     if (!url)
-      chromeStorageSyncSet(
+      chromeStorageSet(
         StorageSyncKey.GatewayBaseURL,
         ExtensionURIMap[ExtensionOptions.InfuraAPI],
       );

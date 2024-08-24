@@ -1,18 +1,18 @@
 import {ConnectedSite, ConnectedSites} from "../../../types/wallet/connection";
 import {
   StorageSyncKey,
-  chromeStorageSyncGet,
-  chromeStorageSyncRemove,
-  chromeStorageSyncSet,
-} from "../../chromeStorageSync";
+  chromeStorageGet,
+  chromeStorageRemove,
+  chromeStorageSet,
+} from "../../chromeStorage";
 import {Logger} from "../../logger";
 
 export const clearAllConnectedSites = async () => {
-  await chromeStorageSyncRemove(StorageSyncKey.WalletConnections);
+  await chromeStorageRemove(StorageSyncKey.WalletConnections);
 };
 
 export const getConnectedSites = async (): Promise<ConnectedSites> => {
-  const connectedSitesStr = await chromeStorageSyncGet(
+  const connectedSitesStr = await chromeStorageGet(
     StorageSyncKey.WalletConnections,
   );
   if (connectedSitesStr) {
@@ -36,7 +36,7 @@ export const getConnectedSite = async (
 };
 
 export const setConnectedSites = async (connections: ConnectedSites) => {
-  await chromeStorageSyncSet(
+  await chromeStorageSet(
     StorageSyncKey.WalletConnections,
     JSON.stringify(connections),
   );
