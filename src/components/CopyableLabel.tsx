@@ -18,8 +18,6 @@ const CopyableLabel = ({text}: {text: string}) => {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "8px",
-        paddingTop: "16px",
       }}
     >
       <Typography variant="body2" fontSize="small">

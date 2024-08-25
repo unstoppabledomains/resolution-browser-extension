@@ -1,9 +1,19 @@
 import React from "react";
 import useUserId from "../hooks/useUserId";
-import {Box} from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import CopyableLabel from "./CopyableLabel";
 
 interface Props {}
+
+const styles = {
+  subtitle: {
+    fontSize: "14px",
+    fontWeight: 600,
+  },
+  input: {
+    marginTop: 3,
+  },
+};
 
 const ShowUserId: React.FC<Props> = () => {
   const {userId, isLoading, error} = useUserId();
@@ -17,7 +27,10 @@ const ShowUserId: React.FC<Props> = () => {
   }
 
   return (
-    <Box>
+    <Box sx={styles.input}>
+      <Typography variant="body2" sx={styles.subtitle}>
+        User ID:
+      </Typography>
       <CopyableLabel text={userId || ""} />
     </Box>
   );

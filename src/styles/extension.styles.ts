@@ -24,6 +24,12 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     textAlign: "center",
     width: "100%",
   },
+  footerContainer: {
+    marginBottom: theme.spacing(-2),
+  },
+  mainScreenContainer: {
+    padding: theme.spacing(2),
+  },
   walletContainer: {
     display: "flex",
     flexDirection: "column",

@@ -30,9 +30,13 @@ const Extension: React.FC<Props> = () => {
         <Box sx={styles.middleLayout}>
           <Header />
           <Divider />
-          <MainScreen />
+          <Box className={classes.mainScreenContainer}>
+            <MainScreen />
+          </Box>
         </Box>
-        <Footer />
+        <Box className={classes.footerContainer}>
+          <Footer />
+        </Box>
       </Box>
     </Paper>
   );

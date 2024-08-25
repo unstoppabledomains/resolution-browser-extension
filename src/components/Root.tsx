@@ -13,10 +13,8 @@ import {
 import {lightTheme} from "@unstoppabledomains/ui-kit/styles";
 import Extension from "../pages/ExtensionMain/Extension";
 import Wallet from "../pages/Wallet/Wallet";
-import List from "../pages/WebsitesList";
 import Loading from "../pages/Loading/Loading";
 import SomethingWentWrong from "../pages/Errors/SomethingWentWrong";
-import Install from "../pages/InstallPage/Install";
 import useUserId from "../hooks/useUserId";
 import {LDProvider} from "launchdarkly-react-client-sdk";
 import config from "../config";
@@ -29,46 +27,41 @@ const EntryPoint: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (window.location.hash === "#install") {
-      navigate("/install");
-      return;
+    switch (window.location.hash) {
+      case "#loading":
+        navigate("/loading");
+        return;
+      case "#error":
+        navigate("/error");
+        return;
+      case "#extension":
+        navigate("/extension");
+        return;
+      case "#connect":
+        navigate("/connect");
+        return;
+      case "#wallet":
+      default:
+        navigate("/wallet");
     }
-
-    if (window.location.hash === "#error") {
-      navigate("/error");
-      return;
-    }
-
-    if (window.location.hash === "#loading") {
-      navigate("/loading");
-      return;
-    }
-
-    if (window.location.hash === "#list") {
-      navigate("/list");
-      return;
-    }
-
-    if (window.location.hash === "#connect") {
-      navigate("/connect");
-      return;
-    }
-
-    navigate("/wallet");
   }, [navigate]);
 
   return <></>;
 };
 
 const router = createMemoryRouter([
+  /* *******************************
+   * Define default routing behavior
+   * *******************************
+   */
   {
-    path: "/install",
-    Component: Install,
+    path: "/",
+    Component: EntryPoint,
   },
-  {
-    path: "/list",
-    Component: List,
-  },
+  /* ******************************
+   * Legacy browser extension pages
+   * ******************************
+   */
   {
     path: "/loading",
     Component: Loading,
@@ -78,18 +71,20 @@ const router = createMemoryRouter([
     Component: SomethingWentWrong,
   },
   {
-    path: "/",
-    Component: EntryPoint,
-  },
-  {
     path: "/extension",
     Component: Extension,
   },
+  /* *****************************
+   * Unstoppable Lite Wallet pages
+   * *****************************
+   */
   {
+    // Primary wallet extension view
     path: "/wallet",
     Component: Wallet,
   },
   {
+    // Application connect request popup
     path: "/connect",
     Component: Connect,
   },
@@ -125,6 +120,7 @@ const RootApp = () => {
                   display: "flex",
                   alignContent: "center",
                   justifyContent: "center",
+                  width: "100%",
                 }}
               >
                 <Root />
