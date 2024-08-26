@@ -16,7 +16,7 @@ import {
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
 import {useNavigate} from "react-router-dom";
-import {Button, Typography} from "@unstoppabledomains/ui-kit";
+import {Alert, Button, Typography} from "@unstoppabledomains/ui-kit";
 import web3 from "web3";
 import {
   ChainNotSupportedError,
@@ -32,21 +32,25 @@ import {
 import {isAscii} from "../../lib/wallet/isAscii";
 import config from "../../config";
 import {Logger} from "../../lib/logger";
+import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 
 enum ConnectionState {
   ACCOUNT,
   CHAINID,
   PERMISSIONS,
   SIGN,
+  SWITCH_CHAIN,
 }
 
 const Connect: React.FC = () => {
-  const {classes} = useExtensionStyles();
+  const {classes, cx} = useExtensionStyles();
   const [walletState] = useFireblocksState();
   const [t] = useTranslationContext();
   const {web3Deps, setWeb3Deps, setMessageToSign, setTxToSign} =
     useWeb3Context();
+  const [accountAssets, setAccountAssets] = useState<BootstrapState>();
   const [accountEvmAddresses, setAccountEvmAddresses] = useState<any[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string>();
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
   const isMounted = useIsMounted();
@@ -83,6 +87,7 @@ const Connect: React.FC = () => {
         if (accountEvmAddresses.length === 0) {
           return;
         }
+        setAccountAssets(signInState);
         setAccountEvmAddresses(accountEvmAddresses);
 
         // retrieve the source tab information if available, used to show the name
@@ -143,6 +148,45 @@ const Connect: React.FC = () => {
 
     // create and register message listeners
     const handleMessage = (message: ProviderRequest) => {
+      // normalize message parameters
+      if (
+        message?.params &&
+        message.params.length > 0 &&
+        message.params[0].chainId
+      ) {
+        // normalize the chain ID
+        const normalizedChainId = message.params[0].chainId.startsWith("0x")
+          ? web3.utils.hexToNumber(message.params[0].chainId)
+          : typeof message.params[0].chainId === "string"
+            ? parseInt(message.params[0].chainId, 10)
+            : message.params[0].chainId;
+        const originalChainId = message.params[0].chainId;
+
+        // normalize the chain name
+        const normalizedChainName = accountAssets?.assets
+          ?.map((a) => {
+            return {
+              name: a.blockchainAsset.blockchain.name,
+              networkId: a.blockchainAsset.blockchain.networkId,
+            };
+          })
+          .find((a) => a.networkId === normalizedChainId)?.name;
+
+        // set normalized values
+        message.params[0].chainId = String(normalizedChainId);
+        message.params[0].chainName = normalizedChainName
+          ? `the ${normalizedChainName} network`
+          : `an unsupported network`;
+
+        // set an error message if chain is not supported
+        if (!normalizedChainName) {
+          setErrorMessage(
+            `Cannot connect to unsupported network (${originalChainId}). The Unstoppable Lite Wallet browser extension supports Ethereum, Polygon and Base networks.`,
+          );
+        }
+      }
+
+      // handle the message
       try {
         setConnectionStateMessage(message);
         switch (message.type) {
@@ -173,7 +217,7 @@ const Connect: React.FC = () => {
             handleSendTransaction(message.params[0]);
             break;
           case "switchChainRequest":
-            setConnectionState(ConnectionState.ACCOUNT);
+            setConnectionState(ConnectionState.SWITCH_CHAIN);
             break;
           case "closeWindowRequest":
             handleClose();
@@ -256,9 +300,10 @@ const Connect: React.FC = () => {
       connectionStateMessage.params.length > 0 &&
       connectionStateMessage.params[0].chainId
     ) {
-      networkId = parseInt(
-        connectionStateMessage.params[0].chainId.replaceAll("0x", ""),
-      );
+      networkId =
+        typeof connectionStateMessage.params[0].chainId === "string"
+          ? parseInt(connectionStateMessage.params[0].chainId)
+          : connectionStateMessage.params[0].chainId;
     }
 
     // find the requested chain
@@ -351,14 +396,28 @@ const Connect: React.FC = () => {
 
       // request the signature
       const signature = await web3Deps.signer.signMessage(message);
-      chrome.runtime.sendMessage({
-        type: "signMessageResponse",
-        response: signature,
-      });
+
+      // check for a valid response
+      if (signature) {
+        // return successful signature result
+        chrome.runtime.sendMessage({
+          type: "signMessageResponse",
+          response: signature,
+        });
+        return;
+      }
     } catch (e) {
       // handle signing error and cancel the operation
-      handleError("signMessageResponse", e);
+      Logger.error(
+        e,
+        "Signature",
+        "error signing personal message",
+        hexEncodedMessage,
+      );
     }
+
+    // display signing error message
+    setErrorMessage("Error signing message");
   };
 
   const handleSignTypedMessage = async (params: any[]) => {
@@ -375,14 +434,20 @@ const Connect: React.FC = () => {
       // the second request argument contains an encoded typed message, which
       // must be submitted for a signature request
       const signature = await web3Deps.signer.signMessage(params[1]);
-      chrome.runtime.sendMessage({
-        type: "signTypedMessageResponse",
-        response: signature,
-      });
+      if (signature) {
+        chrome.runtime.sendMessage({
+          type: "signTypedMessageResponse",
+          response: signature,
+        });
+        return;
+      }
     } catch (e) {
       // handle signing error and cancel the operation
-      handleError("signTypedMessageResponse", e);
+      Logger.error(e, "Signature", "error signing typed message", params);
     }
+
+    // display signing error message
+    setErrorMessage("Error signing message");
   };
 
   const handleSendTransaction = async (txParams: Record<string, string>) => {
@@ -431,24 +496,32 @@ const Connect: React.FC = () => {
   };
 
   const renderButton = () => {
-    if (connectionState === ConnectionState.ACCOUNT) {
+    if (errorMessage) {
+      return (
+        <Box mb={5}>
+          <Alert severity="error">{errorMessage}</Alert>
+        </Box>
+      );
+    } else if (
+      [ConnectionState.ACCOUNT, ConnectionState.SWITCH_CHAIN].includes(
+        connectionState,
+      )
+    ) {
       return (
         <Button
           onClick={handleConnectAccount}
-          disabled={!isLoaded}
+          disabled={!isLoaded || errorMessage !== undefined}
           fullWidth
           variant="contained"
         >
           {t("common.connect")}
         </Button>
       );
-    }
-
-    if (connectionState === ConnectionState.PERMISSIONS) {
+    } else {
       return (
         <Button
           onClick={handleRequestPermissions}
-          disabled={!isLoaded}
+          disabled={!isLoaded || errorMessage !== undefined}
           fullWidth
           variant="contained"
         >
@@ -460,10 +533,12 @@ const Connect: React.FC = () => {
 
   return (
     <Paper className={classes.container}>
-      {[ConnectionState.ACCOUNT, ConnectionState.PERMISSIONS].includes(
-        connectionState,
-      ) && (
-        <Box className={classes.walletContainer}>
+      <Box className={cx(classes.walletContainer, classes.contentContainer)}>
+        {[
+          ConnectionState.ACCOUNT,
+          ConnectionState.PERMISSIONS,
+          ConnectionState.SWITCH_CHAIN,
+        ].includes(connectionState) && (
           <Box className={classes.contentContainer}>
             <Typography variant="h4">{t("wallet.signMessage")}</Typography>
             {web3Deps?.unstoppableWallet?.connectedApp && (
@@ -474,7 +549,9 @@ const Connect: React.FC = () => {
                 actionText={
                   connectionState === ConnectionState.PERMISSIONS
                     ? "request permission to view your wallet and prompt for transactions"
-                    : "connect"
+                    : connectionState === ConnectionState.SWITCH_CHAIN
+                      ? `connect to ${connectionStateMessage.params[0].chainName}`
+                      : "connect"
                 }
               />
             )}
@@ -490,21 +567,21 @@ const Connect: React.FC = () => {
               {getAccount()?.address}
             </Typography>
           </Box>
-          <Box className={classes.contentContainer}>
-            {renderButton()}
-            <Box mt={1} className={classes.contentContainer}>
-              <Button
-                onClick={handleCancel}
-                disabled={!isLoaded}
-                fullWidth
-                variant="outlined"
-              >
-                {t("common.cancel")}
-              </Button>
-            </Box>
+        )}
+        <Box className={classes.contentContainer}>
+          {renderButton()}
+          <Box mt={1} className={classes.contentContainer}>
+            <Button
+              onClick={handleCancel}
+              disabled={!isLoaded}
+              fullWidth
+              variant={errorMessage ? "contained" : "outlined"}
+            >
+              {t("common.cancel")}
+            </Button>
           </Box>
         </Box>
-      )}
+      </Box>
     </Paper>
   );
 };
