@@ -22,7 +22,10 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
 
 const getDefaultPreferences = (): WalletPreferences => {
   return {
+    WalletEnabled: false,
     OverrideMetamask: false,
+    DefaultView: "onUpdated",
+    Version: chrome.runtime.getManifest().version,
   };
 };
 

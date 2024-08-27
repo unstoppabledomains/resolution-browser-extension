@@ -9,11 +9,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import {useExtensionStyles} from "../../styles/extension.styles";
-import {WalletPreferences} from "../../types/wallet/preferences";
-import {
-  getWalletPreferences,
-  setWalletPreferences,
-} from "../../lib/wallet/preferences";
+import {setWalletPreferences} from "../../lib/wallet/preferences";
 import {
   useTranslationContext,
   Link,
@@ -24,7 +20,8 @@ import {
   clearAllConnectedSites,
   getConnectedSites,
 } from "../../lib/wallet/evm/connection";
-import MainScreen from "../ExtensionMain/MainScreen";
+import MainScreen from "../Legacy/MainScreen";
+import usePreferences from "../../hooks/usePreferences";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -33,18 +30,15 @@ interface PreferencesProps {
 export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
-  const [preferences, setPreferences] = useState<WalletPreferences>();
+  const {preferences, setPreferences} = usePreferences();
   const [connections, setConnections] = useState<ConnectedSites>();
 
+  // load site connections
   useEffect(() => {
-    const loadPreferences = async () => {
-      // load connections
+    const loadConnections = async () => {
       setConnections(await getConnectedSites());
-
-      // load preferences
-      setPreferences(await getWalletPreferences());
     };
-    void loadPreferences();
+    void loadConnections();
   }, []);
 
   const handleCompatibilityMode = async (

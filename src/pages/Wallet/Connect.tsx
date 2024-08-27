@@ -33,6 +33,7 @@ import {isAscii} from "../../lib/wallet/isAscii";
 import config from "../../config";
 import {Logger} from "../../lib/logger";
 import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
+import usePreferences from "../../hooks/usePreferences";
 
 enum ConnectionState {
   ACCOUNT,
@@ -48,6 +49,7 @@ const Connect: React.FC = () => {
   const [t] = useTranslationContext();
   const {web3Deps, setWeb3Deps, setMessageToSign, setTxToSign} =
     useWeb3Context();
+  const {preferences} = usePreferences();
   const [accountAssets, setAccountAssets] = useState<BootstrapState>();
   const [accountEvmAddresses, setAccountEvmAddresses] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -60,7 +62,13 @@ const Connect: React.FC = () => {
   const [connectionState, setConnectionState] = useState<ConnectionState>();
 
   useEffect(() => {
-    if (!isMounted()) {
+    if (!isMounted() || !preferences) {
+      return;
+    }
+
+    // CTA to enable wallet if not yet enabled
+    if (preferences && !preferences.WalletEnabled) {
+      navigate("/onUpdated");
       return;
     }
 
@@ -69,6 +77,7 @@ const Connect: React.FC = () => {
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
           navigate("/wallet");
+          return;
         }
 
         const accountEvmAddresses = [
@@ -138,7 +147,7 @@ const Connect: React.FC = () => {
       }
     };
     void loadWallet();
-  }, [isMounted]);
+  }, [isMounted, preferences]);
 
   useEffect(() => {
     // only register listeners with valid web3deps
@@ -531,6 +540,7 @@ const Connect: React.FC = () => {
     }
   };
 
+  // show wallet connect information
   return (
     <Paper className={classes.container}>
       <Box className={cx(classes.walletContainer, classes.contentContainer)}>

@@ -38,7 +38,7 @@ export class Logger {
       },
       {
         api_key: config.BUGSNAG_API_KEY,
-        app_version: config.APP_VERSION,
+        app_version: chrome.runtime.getManifest().version,
         app_env: config.NODE_ENV,
       },
     );

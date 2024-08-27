@@ -691,23 +691,6 @@ const proxyProvider = new Proxy(provider, {
   deleteProperty: () => true,
 });
 
-// EIP-1193: attach the provider to global window object
-// as window.unstoppable by default
-provider.getPreferences().then((walletPreferences) => {
-  window[WINDOW_PROPERTY_NAME] = proxyProvider;
-  Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
-
-  // Optionally override the window.ethereum global property if the
-  // provider is created with the metamask flag. Initializing the
-  // extension in this way can interfere with other extensions and
-  // make the inaccessible to the user.
-  if (walletPreferences.OverrideMetamask) {
-    window.ethereum = proxyProvider;
-    Logger.log("Injected Ethereum provider", "window.ethereum");
-  }
-  window.dispatchEvent(new Event("ethereum#initialized"));
-});
-
 // EIP-6963: announce the provider
 announceProvider({
   info: {
@@ -717,6 +700,23 @@ announceProvider({
   provider: proxyProvider,
 });
 Logger.log("Announced Ethereum provider");
+
+// EIP-1193: attach the provider to global window object
+// as window.unstoppable by default
+window[WINDOW_PROPERTY_NAME] = proxyProvider;
+Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
+
+// Optionally override the window.ethereum global property if the
+// provider is created with the metamask flag. Initializing the
+// extension in this way can interfere with other extensions and
+// make the inaccessible to the user.
+provider.getPreferences().then((walletPreferences) => {
+  if (walletPreferences.OverrideMetamask) {
+    window.ethereum = proxyProvider;
+    Logger.log("Injected Ethereum provider", "window.ethereum");
+  }
+  window.dispatchEvent(new Event("ethereum#initialized"));
+});
 
 // Backwards compatibility for legacy connections
 shimWeb3(proxyProvider as unknown as MetaMaskInpageProvider);

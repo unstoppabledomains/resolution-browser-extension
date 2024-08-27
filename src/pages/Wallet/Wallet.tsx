@@ -21,6 +21,7 @@ import {
   chromeStorageRemove,
   chromeStorageSet,
 } from "../../lib/chromeStorage";
+import Header from "../../components/Header";
 
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
@@ -161,6 +162,12 @@ const WalletComp: React.FC = () => {
     <Preferences onClose={handleClosePreferences} />
   ) : (
     <Paper className={classes.container}>
+      {!authAddress && (
+        <Header
+          title="Unstoppable Lite Wallet"
+          subTitle="A web3 wallet for domainers and their domains"
+        />
+      )}
       <Box
         className={classes.walletContainer}
         sx={{
@@ -176,7 +183,9 @@ const WalletComp: React.FC = () => {
             recoveryPhrase={authState.password}
             avatarUrl={authAvatar}
             showMessages={false}
+            isNewUser={true}
             disableInlineEducation={true}
+            disableBasicHeader={true}
             fullScreenModals={true}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}

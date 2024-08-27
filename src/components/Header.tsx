@@ -1,14 +1,32 @@
 import React from "react";
-import {Box, Grid, Typography} from "@mui/material";
+import {Box, Divider, Typography} from "@mui/material";
 
 const styles = {
   main: {
     padding: 2,
+    marginTop: "-16px",
+    marginBottom: "16px",
+    display: "flex",
+    flexDirection: "column",
+    width: "400px",
+  },
+  contentContainer: {
+    display: "flex",
+    marginBottom: "8px",
+  },
+  logoContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: "8px",
+  },
+  descriptionContainer: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
   },
   logo: {
-    width: "48px",
-    borderRadius: 1,
-    objectFit: "contain",
+    width: "50px",
   },
   title1: {
     fontSize: "18px",
@@ -20,30 +38,37 @@ const styles = {
   },
 };
 
-interface Props {}
+interface Props {
+  title?: string;
+  subTitle?: string;
+}
 
-const Header: React.FC<Props> = ({}) => (
+const Header: React.FC<Props> = ({
+  title = "Your Portal to Decentralized Web",
+  subTitle = "This extension opens websites on the blockchain",
+}) => (
   <Box sx={styles.main}>
-    <Grid container wrap="nowrap" spacing={1}>
-      <Grid item>
+    <Box sx={styles.contentContainer}>
+      <Box sx={styles.logoContainer}>
         <Box
           component="img"
           sx={styles.logo}
-          src="icon/128.png"
+          src="icon/browser.svg"
           alt="Unstoppable domains logo"
         />
-      </Grid>
-      <Grid item xs zeroMinWidth>
+      </Box>
+      <Box sx={styles.descriptionContainer}>
         <Box fontWeight="fontWeightBold">
           <Typography noWrap variant="subtitle1" sx={styles.title1}>
-            Your Portal to Decentralised web
+            {title}
           </Typography>
         </Box>
         <Typography noWrap variant="subtitle2" sx={styles.title2}>
-          This extension opens websites on the blockchain
+          {subTitle}
         </Typography>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
+    <Divider />
   </Box>
 );
 

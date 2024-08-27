@@ -11,6 +11,8 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     flexDirection: "column",
     alignItems: "center",
     backgroundColor: theme.palette.common.white,
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(242,242,242,1) 100%)",
     borderRadius: 0,
   },
   preferenceContainer: {
@@ -27,8 +29,15 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
   footerContainer: {
     marginBottom: theme.spacing(-2),
   },
+  fullHeightCentered: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    justifyContent: "center",
+  },
   mainScreenContainer: {
-    padding: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
   walletContainer: {
     display: "flex",
@@ -41,6 +50,15 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     height: "75px",
     padding: theme.spacing(1),
     backgroundColor: theme.palette.neutralShades[100],
+  },
+  updatedContentContainer: {
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "left",
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    width: "100%",
   },
   loadingSpinner: {
     width: "75px",

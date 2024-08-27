@@ -4311,6 +4311,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/canvas-confetti@npm:^1.6.4":
+  version: 1.6.4
+  resolution: "@types/canvas-confetti@npm:1.6.4"
+  checksum: 0452e1f381e5d59471578be1b83f2908f0906ba0fddfe16f941a07e070f4ad91ceaf1a68bd84d84bb5e81214c95ef00137677d9d61d81119051425ca5ce307ba
+  languageName: node
+  linkType: hard
+
 "@types/chrome@npm:^0.0.268":
   version: 0.0.268
   resolution: "@types/chrome@npm:0.0.268"
@@ -4908,9 +4915,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.3":
-  version: 0.0.43-browser-extension.3
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.3"
+"@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.4":
+  version: 0.0.43-browser-extension.4
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.4"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5007,7 +5014,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: a5d6b1efa4dc449cc73a130c2fe0af8ecea5a4facd2c75e28b8e7d11ebb719eb510835b4ea8415adf56e0e183ba8e5ce4319516281268a5fb38202b1fcf88038
+  checksum: d46960484c6a1f83052df68ee125398ce5fd7e46544a1bdc27303648f8dc29307416b44ba43dab1c407cc79c4099f59901e55e9f37024c36b125116165c113ce
   languageName: node
   linkType: hard
 
@@ -7244,6 +7251,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"canvas-confetti@npm:^1.9.2":
+  version: 1.9.3
+  resolution: "canvas-confetti@npm:1.9.3"
+  checksum: db044a9c9ca0e58eafd115f7dfc2f9ecc377be34d8a5dd75901dae0dafd4fb0b75fbbf8edd48bbefad2468653c5838348f0e768b79727a924259a9ada343ea30
+  languageName: node
+  linkType: hard
+
 "carbites@npm:^1.0.6":
   version: 1.0.6
   resolution: "carbites@npm:1.0.6"
@@ -7545,6 +7559,13 @@ __metadata:
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
   checksum: 53501cbeee61d5157546c0bef0fedb6cdfc763a882136284bed9a07225f09a14b82d2a84e7637edfd1a679fb35ed9502fd58ef1d091e6287f60d790147f68ddc
+  languageName: node
+  linkType: hard
+
+"compare-versions@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "compare-versions@npm:6.1.1"
+  checksum: 73fe6c4f52d22efe28f0a3be10df2afd704e10b3593360cd963e86b33a7a263c263b41a1361b69c30a0fe68bfa70fef90860c1cf2ef41502629d4402890fcd57
   languageName: node
   linkType: hard
 
@@ -13584,6 +13605,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"os-browserify@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "os-browserify@npm:0.3.0"
+  checksum: 16e37ba3c0e6a4c63443c7b55799ce4066d59104143cb637ecb9fce586d5da319cdca786ba1c867abbe3890d2cbf37953f2d51eea85e20dd6c4570d6c54bfebf
+  languageName: node
+  linkType: hard
+
 "os-filter-obj@npm:^2.0.0":
   version: 2.0.0
   resolution: "os-filter-obj@npm:2.0.0"
@@ -14590,6 +14618,18 @@ __metadata:
   version: 1.1.3
   resolution: "re-emitter@npm:1.1.3"
   checksum: 3234850c26c4e51622ad7e54172396134cd510c2511da680275ab1e663e5d12c8b81e3e6f4ec025527ed241ad53dae9d1478c0148569840d2fec96a37d155431
+  languageName: node
+  linkType: hard
+
+"react-canvas-confetti@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "react-canvas-confetti@npm:2.0.7"
+  dependencies:
+    "@types/canvas-confetti": ^1.6.4
+    canvas-confetti: ^1.9.2
+  peerDependencies:
+    react: "*"
+  checksum: 256f0e6e01b35535d7f26ba43c85d4dad488b3ea77b3e36c6849c8ef76a9354a4d85d8908445cc3820e7553e77a1a7dfa1a86904cc9a74746d5ec12a66cdcd5f
   languageName: node
   linkType: hard
 
@@ -16973,12 +17013,13 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.10
-    "@unstoppabledomains/ui-components": 0.0.43-browser-extension.3
+    "@unstoppabledomains/ui-components": 0.0.43-browser-extension.4
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
     browserify-zlib: ^0.2.0
     buffer: ^5.5.0||^6.0.0
+    compare-versions: ^6.1.1
     crypto-browserify: ^3.12.0
     dotenv: ^16.4.5
     eth-rpc-errors: ^4.0.3
@@ -16990,6 +17031,7 @@ __metadata:
     launchdarkly-react-client-sdk: ^3.3.2
     nodemon: ^3.1.4
     notistack: ^3.0.1
+    os-browserify: ^0.3.0
     parcel: ^2.12.0
     parcel-plugin-static-files-copy: ^2.6.0
     parcel-reporter-static-files-copy: ^1.5.3
@@ -16999,6 +17041,7 @@ __metadata:
     punycode: ^1.4.1
     querystring-es3: ^0.2.1
     react: ^17.0.0
+    react-canvas-confetti: ^2.0.7
     react-dom: ^17.0.0
     react-query: ^3.39.3
     react-router-dom: ^6.23.1

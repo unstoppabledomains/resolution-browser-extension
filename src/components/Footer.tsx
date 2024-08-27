@@ -1,26 +1,64 @@
 import React from "react";
-import {Box, Grid, Link} from "@mui/material";
+import {Box, Grid, Button, IconButton, Typography} from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
+import WalletIcon from "@mui/icons-material/Wallet";
+import {useNavigate} from "react-router-dom";
+import {
+  getWalletPreferences,
+  setWalletPreferences,
+} from "../lib/wallet/preferences";
 
 const styles = {
   main: {
-    maxHeight: "48px",
-    padding: 1,
     backgroundColor: "#eef9ff",
     color: "#2d64ff",
     fontWeight: "bold",
+  },
+  title: {
+    fontWeight: "bold",
+  },
+  icon: {
+    color: "#2d64ff",
   },
 };
 
 interface Props {}
 
 const Footer: React.FC<Props> = ({}) => {
+  const navigate = useNavigate();
+
+  const handleEnableWallet = async () => {
+    // update preferences
+    const preferences = await getWalletPreferences();
+    preferences.WalletEnabled = true;
+    preferences.DefaultView = "wallet";
+    await setWalletPreferences(preferences);
+
+    // navigate to wallet
+    navigate("/wallet");
+  };
+
+  const handleOpenWebsite = () => {
+    window.open("https://unstoppabledomains.com", "_blank");
+  };
+
   return (
     <Box sx={styles.main}>
-      <Grid container wrap="nowrap" spacing={1}>
+      <Grid container wrap="nowrap">
+        <Grid item xs zeroMinWidth>
+          <Button
+            onClick={handleEnableWallet}
+            variant="text"
+            size="small"
+            startIcon={<WalletIcon />}
+          >
+            Enable wallet
+          </Button>
+        </Grid>
         <Grid item>
-          <Link href="https://unstoppabledomains.com" target="blank">
-            <i className="material-icons md-24">home</i>
-          </Link>
+          <IconButton onClick={handleOpenWebsite}>
+            <HomeIcon sx={styles.icon} />
+          </IconButton>
         </Grid>
       </Grid>
     </Box>
