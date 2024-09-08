@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {
   Box,
+  Alert,
   Typography,
   CircularProgress,
   Button,
@@ -8,6 +9,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
+import Markdown from "markdown-to-jsx";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {setWalletPreferences} from "../../lib/wallet/preferences";
 import {
@@ -32,6 +34,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const [t] = useTranslationContext();
   const {preferences, setPreferences} = usePreferences();
   const [connections, setConnections] = useState<ConnectedSites>();
+  const [compatModeSuccess, setCompatModeSuccess] = useState(false);
 
   // load site connections
   useEffect(() => {
@@ -44,9 +47,16 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const handleCompatibilityMode = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    // set the compatibility mode preference
     preferences.OverrideMetamask = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
+
+    // show a message to indicate pages must be reloaded for the new
+    // setting to be applied
+    if (event.target.checked) {
+      setCompatModeSuccess(true);
+    }
   };
 
   const handleDisconnectAll = async () => {
@@ -84,6 +94,16 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     />
                   }
                 />
+                {compatModeSuccess && (
+                  <Box className={classes.settingInfoContainer}>
+                    <Alert severity="info" variant="filled">
+                      <Markdown>
+                        Compatibility mode is now enabled. **Open tabs must be
+                        refreshed** for compatibility mode to take effect.
+                      </Markdown>
+                    </Alert>
+                  </Box>
+                )}
               </PreferenceSection>
               <PreferenceSection
                 title="Connections"

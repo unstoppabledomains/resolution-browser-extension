@@ -39,6 +39,13 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
+  settingInfoContainer: {
+    display: "flex",
+    marginTop: theme.spacing(1),
+    textAlign: "left",
+    justifyContent: "left",
+    width: "100%",
+  },
   walletContainer: {
     display: "flex",
     flexDirection: "column",
@@ -66,5 +73,9 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
   },
   button: {
     marginTop: theme.spacing(1),
+  },
+  actionButton: {
+    color: "white",
+    marginLeft: theme.spacing(1),
   },
 }));

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Paper} from "@mui/material";
+import {Box, Button, Paper} from "@mui/material";
 import {
   DomainProfileTabType,
   DomainProfileKeys,
@@ -8,7 +8,9 @@ import {
   getAddressMetadata,
   getBootstrapState,
   isEthAddress,
+  useTranslationContext,
 } from "@unstoppabledomains/ui-components";
+import config from "../../config";
 import useIsMounted from "react-is-mounted-hook";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {AuthState, FIVE_MINUTES} from "../../types/wallet/auth";
@@ -22,11 +24,22 @@ import {
   chromeStorageSet,
 } from "../../lib/chromeStorage";
 import Header from "../../components/Header";
+import {useSnackbar} from "notistack";
+import usePreferences from "../../hooks/usePreferences";
+import {setWalletPreferences} from "../../lib/wallet/preferences";
+
+const enum SnackbarKey {
+  CTA = "cta",
+  Success = "success",
+}
 
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
   const [walletState] = useFireblocksState();
   const {classes} = useExtensionStyles();
+  const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+  const [t] = useTranslationContext();
+  const {preferences, setPreferences} = usePreferences();
   const [authAddress, setAuthAddress] = useState<string>("");
   const [authDomain, setAuthDomain] = useState<string>("");
   const [authAvatar, setAuthAvatar] = useState<string>();
@@ -134,6 +147,96 @@ const WalletComp: React.FC = () => {
     };
     void loadWallet();
   }, [isMounted, authComplete]);
+
+  // prompt for compatibility mode once settings are loaded
+  useEffect(() => {
+    if (!preferences) {
+      return;
+    }
+
+    // take appropriate action on compatibility mode settings
+    void handleCompatibilitySettings();
+  }, [preferences]);
+
+  // handleCompatibilitySettings determines whether to automatically apply the
+  // compatibility mode, or ask the user in a CTA
+  const handleCompatibilitySettings = async () => {
+    // check whether setting is already applied
+    if (preferences?.OverrideMetamask) {
+      return;
+    }
+
+    // ask the user about compatibility mode if there is already another
+    // wallet extension installed on this browser
+    if (window.ethereum || config.ALWAYS_PROMPT_COMPATIBILITY_MODE === "true") {
+      // check whether CTA has already been shown
+      const hasAlreadyShownCta = await chromeStorageGet(
+        StorageSyncKey.CompatibilityModeCta,
+        "local",
+      );
+      if (hasAlreadyShownCta) {
+        return;
+      }
+
+      // show the CTA
+      enqueueSnackbar(
+        "Enabled compatibility mode? This extension can override other wallets like MetaMask for enhanced functionality.",
+        {
+          variant: "info",
+          key: SnackbarKey.CTA,
+          action: (
+            <Box display="flex" width="100%">
+              <Button
+                variant="text"
+                size="small"
+                color="primary"
+                className={classes.actionButton}
+                onClick={() => closeSnackbar(SnackbarKey.CTA)}
+              >
+                Not now
+              </Button>
+              <Button
+                variant="text"
+                size="small"
+                color="primary"
+                className={classes.actionButton}
+                onClick={handleEnableCompatibilityMode}
+              >
+                {t("manage.enable")}
+              </Button>
+            </Box>
+          ),
+        },
+      );
+
+      // remember that the CTA has been shown
+      await chromeStorageSet(
+        StorageSyncKey.CompatibilityModeCta,
+        "true",
+        "local",
+      );
+    } else {
+      // automatically enable if there are no other wallet extension
+      // installed on this browser
+      await handleEnableCompatibilityMode();
+    }
+  };
+
+  const handleEnableCompatibilityMode = async () => {
+    // set the compatibility mode preference
+    preferences.OverrideMetamask = true;
+    setPreferences({...preferences});
+    await setWalletPreferences(preferences);
+
+    // close existing snackbar
+    closeSnackbar(SnackbarKey.CTA);
+
+    // notify user of successful enablement
+    enqueueSnackbar(
+      "Compatibility mode is enabled, refresh the page for the setting to take effect in open tabs. You can disable this feature from the settings menu.",
+      {key: SnackbarKey.Success, variant: "success"},
+    );
+  };
 
   const handleLogout = async () => {
     // clear extension storage

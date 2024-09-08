@@ -7,6 +7,7 @@ export enum StorageSyncKey {
   BookmarkedDomains = "BookmarkedDomains",
   WalletConnections = "WalletConnections",
   WalletPreferences = "WalletPreferences",
+  CompatibilityModeCta = "CompatibilityModeCta",
 }
 
 type StorageType = "local" | "session" | "sync";

@@ -4887,9 +4887,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@latest, @unstoppabledomains/config@npm:0.0.10":
-  version: 0.0.10
-  resolution: "@unstoppabledomains/config@npm:0.0.10"
+"@unstoppabledomains/config@latest, @unstoppabledomains/config@npm:0.0.11":
+  version: 0.0.11
+  resolution: "@unstoppabledomains/config@npm:0.0.11"
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -4898,7 +4898,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: ed8ffaa6c19eb93afa378c213d1e905c34a55c3e0c3d4a60aab2e74f75f9a504e0f587ef547893d94006d4e1dc206a21b8e3d5ebef6b4427a7a29b13d26cdfcd
+  checksum: 0d1b32b21a7e0dcc58dd368ca37fe1a7ead838215d06bd30dbce984b4d19b622d7b140fd502618453e4e952cbd869402ea22c18b51143b2aca40f908d998c0c7
   languageName: node
   linkType: hard
 
@@ -4915,9 +4915,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.7":
-  version: 0.0.43-browser-extension.7
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.7"
+"@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.8":
+  version: 0.0.43-browser-extension.8
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.8"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5015,7 +5015,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 1dbcb821ce07f720a3105bd3b1b4e6a4ce297977d1486359e18dad8ac9cc6d1fda3a622f35413bca7cb8130384d7c9a6170eafca586d46dfddb2fd61b7ab5194
+  checksum: d89227337343751bd6614d0b69b5a66a1e1299acac8c7b3d94281a0f45fceb791569c359404d69b12c3016a40ff7fb1272c0029bf785a473b8521dd0b1270b68
   languageName: node
   linkType: hard
 
@@ -17013,8 +17013,8 @@ __metadata:
     "@types/node": ^20.14.6
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
-    "@unstoppabledomains/config": 0.0.10
-    "@unstoppabledomains/ui-components": 0.0.43-browser-extension.7
+    "@unstoppabledomains/config": 0.0.11
+    "@unstoppabledomains/ui-components": 0.0.43-browser-extension.8
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
