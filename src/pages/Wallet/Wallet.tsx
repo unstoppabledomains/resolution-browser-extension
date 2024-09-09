@@ -298,7 +298,7 @@ const WalletComp: React.FC = () => {
             emailAddress={authState.emailAddress}
             recoveryPhrase={authState.password}
             avatarUrl={authAvatar}
-            showMessages={false}
+            showMessages={true}
             isNewUser={true}
             disableInlineEducation={true}
             disableBasicHeader={true}
