@@ -97,10 +97,12 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 {compatModeSuccess && (
                   <Box className={classes.settingInfoContainer}>
                     <Alert severity="info" variant="filled">
-                      <Markdown>
-                        Compatibility mode is now enabled. **Open tabs must be
-                        refreshed** for compatibility mode to take effect.
-                      </Markdown>
+                      <Typography variant="body2">
+                        <Markdown>
+                          Compatibility mode is now enabled. **Open tabs must be
+                          refreshed** for compatibility mode to take effect.
+                        </Markdown>
+                      </Typography>
                     </Alert>
                   </Box>
                 )}

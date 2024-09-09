@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Paper} from "@mui/material";
+import {Box, Button, Paper, Typography} from "@mui/material";
 import {
   DomainProfileTabType,
   DomainProfileKeys,
@@ -27,6 +27,7 @@ import Header from "../../components/Header";
 import {useSnackbar} from "notistack";
 import usePreferences from "../../hooks/usePreferences";
 import {setWalletPreferences} from "../../lib/wallet/preferences";
+import {sleep} from "../../lib/wallet/sleep";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -150,13 +151,13 @@ const WalletComp: React.FC = () => {
 
   // prompt for compatibility mode once settings are loaded
   useEffect(() => {
-    if (!preferences) {
+    if (!preferences || !authComplete) {
       return;
     }
 
     // take appropriate action on compatibility mode settings
     void handleCompatibilitySettings();
-  }, [preferences]);
+  }, [preferences, authComplete]);
 
   // handleCompatibilitySettings determines whether to automatically apply the
   // compatibility mode, or ask the user in a CTA
@@ -178,9 +179,17 @@ const WalletComp: React.FC = () => {
         return;
       }
 
+      // wait a few moments before showing the CTA so the has a chance to show base
+      // wallet elements and not overwhelm the user
+      await sleep(2000);
+
       // show the CTA
       enqueueSnackbar(
-        "Enabled compatibility mode? This extension can override other wallets like MetaMask for enhanced functionality.",
+        <Typography variant="body2">
+          Enable compatibility mode? This extension can override other wallets
+          like MetaMask for enhanced functionality. You can update your
+          preference from the settings menu.
+        </Typography>,
         {
           variant: "info",
           key: SnackbarKey.CTA,
@@ -228,12 +237,16 @@ const WalletComp: React.FC = () => {
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
 
-    // close existing snackbar
+    // close existing snackbar and wait a moment
     closeSnackbar(SnackbarKey.CTA);
+    await sleep(500);
 
     // notify user of successful enablement
     enqueueSnackbar(
-      "Compatibility mode is enabled, refresh the page for the setting to take effect in open tabs. You can disable this feature from the settings menu.",
+      <Typography variant="body2">
+        Compatibility mode is enabled. Refresh open tabs for the setting to take
+        effect. You can disable this feature from the settings menu.
+      </Typography>,
       {key: SnackbarKey.Success, variant: "success"},
     );
   };
