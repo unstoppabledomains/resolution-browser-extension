@@ -40,7 +40,7 @@ Ensure that you have `yarn` installed on your machine. If not, you can install i
 This package has builds extension releases for Chrome and Firefox browsers. Follow the steps below
 to build a new release version.
 
-1. Update the release version in the `package.json` and `manifest-template.json` files
+1. Update the release version in the `package.json` file
 
 2. Build a release version
    ```bash

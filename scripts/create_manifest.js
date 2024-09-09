@@ -1,7 +1,8 @@
 #! /usr/bin/env node
 
 const fs = require("fs");
-const template = require("../manifest-template.json");
+const templateJson = require("../manifest-template.json");
+const packageJson = require("../package.json");
 const args = process.argv.slice(2);
 const isChrome = args[0] === "chrome";
 const isFirefox = args[0] === "firefox";
@@ -9,28 +10,32 @@ const isDevMode = args[1] === "dev";
 
 const path = "./src/manifest.json";
 
+// inject version from package.json
+templateJson["version"] = packageJson["version"];
+
+// inject development mode flags
 if (isDevMode) {
-  template["version_name"] = template["version"] + " -dev_mode-";
+  templateJson["version_name"] = templateJson["version"] + " -dev_mode-";
 }
 
 if (isChrome) {
-  template["offline_enabled"] = false;
-  fs.writeFileSync(path, JSON.stringify(template));
+  templateJson["offline_enabled"] = false;
+  fs.writeFileSync(path, JSON.stringify(templateJson));
   console.log("Chrome manifest is created");
   return;
 }
 
 if (isFirefox) {
   // Firefox generation
-  template["applications"] = {
+  templateJson["applications"] = {
     gecko: {id: "ryan@unstoppabledomains.com"},
   };
-  fs.writeFileSync(path, JSON.stringify(template));
+  fs.writeFileSync(path, JSON.stringify(templateJson));
   console.log("Firefox manifest is created");
   return;
 }
 
 // No browser specific generation requested
-fs.writeFileSync(path, JSON.stringify(template));
+fs.writeFileSync(path, JSON.stringify(templateJson));
 console.log("Generic manifest is created");
 return;

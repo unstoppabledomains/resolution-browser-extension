@@ -1189,24 +1189,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-infra@npm:1.0.20-experimental.1":
-  version: 1.0.20-experimental.1
-  resolution: "@fireblocks/ncw-js-infra@npm:1.0.20-experimental.1"
+"@fireblocks/ncw-js-infra@npm:1.0.21-ext.5":
+  version: 1.0.21-ext.5
+  resolution: "@fireblocks/ncw-js-infra@npm:1.0.21-ext.5"
   dependencies:
     "@types/emscripten": ^1.39.7
-  checksum: 360681a9896efd3a0bbea3e37c0faa5b18e70650bbba37bed602616a29af718959d4a6ca48b2b2c118d8a137d47c1a70cb19b9700562607a4f94fc326103d38e
+  checksum: acd82eb535702ecb6614769f77074b2da9e06f96f64197783552fbb48c0eea24eaf8aac549e56f76359b02359a8779732e92a61f6d0c8ed1da16746f76633b88
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-sdk@npm:12.1.3-experimental.1":
-  version: 12.1.3-experimental.1
-  resolution: "@fireblocks/ncw-js-sdk@npm:12.1.3-experimental.1"
+"@fireblocks/ncw-js-sdk@npm:12.5.0-ext.3":
+  version: 12.5.0-ext.3
+  resolution: "@fireblocks/ncw-js-sdk@npm:12.5.0-ext.3"
   dependencies:
     "@babel/runtime": ^7.24.5
-    "@fireblocks/ncw-js-infra": 1.0.20-experimental.1
+    "@fireblocks/ncw-js-infra": 1.0.21-ext.5
     jwt-decode: ^3.1.2
     node-forge: ^1.3.1
-  checksum: a18ca219503bb098bf9eea323dd979ef5c2e74ed418c4b2cdff355370389b9b19144ed2013f3933956df7e3d7c7e73c799bd17b1b5a60fca3f2505853e699d92
+  checksum: c87a953cd7a80c8eceb25deb5bdffbe0d1dde9ae903d263a376104b3d292e3eae014ca79ed4f971090129c6302657e4567917029c41f5f55fb5396844e6010cd
   languageName: node
   linkType: hard
 
@@ -4915,13 +4915,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.8":
-  version: 0.0.43-browser-extension.8
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.43-browser-extension.8"
+"@unstoppabledomains/ui-components@npm:0.0.44":
+  version: 0.0.44
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.44"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
-    "@fireblocks/ncw-js-sdk": 12.1.3-experimental.1
+    "@fireblocks/ncw-js-sdk": 12.5.0-ext.3
     "@ipld/car": ^5.2.5
     "@mui/icons-material": 5.10.3
     "@mui/lab": 5.0.0-alpha.98
@@ -5015,7 +5015,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: d89227337343751bd6614d0b69b5a66a1e1299acac8c7b3d94281a0f45fceb791569c359404d69b12c3016a40ff7fb1272c0029bf785a473b8521dd0b1270b68
+  checksum: 758faf7c8adde7747e1adb8276fd2542f42f752d75dff62e97f79da99e537e8dce7a6d0d250387c7e9579189a04229ae6d3b07709e44178e3d12fe19343b3482
   languageName: node
   linkType: hard
 
@@ -17014,7 +17014,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.11
-    "@unstoppabledomains/ui-components": 0.0.43-browser-extension.8
+    "@unstoppabledomains/ui-components": 0.0.44
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
