@@ -16,6 +16,7 @@ import {
   useTranslationContext,
   Link,
   Modal,
+  notifyEvent,
 } from "@unstoppabledomains/ui-components";
 import {ConnectedSites} from "../../types/wallet/connection";
 import {
@@ -39,7 +40,13 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   // load site connections
   useEffect(() => {
     const loadConnections = async () => {
-      setConnections(await getConnectedSites());
+      try {
+        setConnections(await getConnectedSites());
+      } catch (e) {
+        notifyEvent(e, "warning", "Wallet", "Configuration", {
+          msg: "error loading connections",
+        });
+      }
     };
     void loadConnections();
   }, []);
