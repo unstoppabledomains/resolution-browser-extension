@@ -27,6 +27,10 @@ const getDefaultPreferences = (): WalletPreferences => {
     OverrideMetamask: false,
     DefaultView: "onUpdated",
     Version: chrome.runtime.getManifest().version,
+    Scanning: {
+      Enabled: true,
+      IgnoreHosts: ["ud.me", "unstoppabledomains.com", "ud-staging.com"],
+    },
   };
 };
 

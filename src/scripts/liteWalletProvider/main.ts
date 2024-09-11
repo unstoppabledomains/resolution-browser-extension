@@ -29,7 +29,7 @@ import {retryAsync, waitUntilAsync} from "ts-retry";
 
 declare global {
   interface Window {
-    [WINDOW_PROPERTY_NAME]: ExternalProvider;
+    [WINDOW_PROPERTY_NAME]: LiteWalletProvider;
     ethereum?: ExternalProvider;
   }
 }

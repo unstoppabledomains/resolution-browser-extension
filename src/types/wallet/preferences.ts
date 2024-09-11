@@ -6,4 +6,8 @@ export interface WalletPreferences {
   OverrideMetamask: boolean;
   DefaultView: DefaultPageView;
   Version: string;
+  Scanning: {
+    Enabled: boolean;
+    IgnoreHosts: string[];
+  };
 }

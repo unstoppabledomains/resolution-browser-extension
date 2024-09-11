@@ -33,6 +33,11 @@
       "js": ["./scripts/liteWalletProvider/isolated.ts"],
       "world": "ISOLATED",
       "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./scripts/resolver/main.ts"],
+      "world": "MAIN"
     }
   ],
   "options_ui": {"page": "index.html#/options", "open_in_tab": false},

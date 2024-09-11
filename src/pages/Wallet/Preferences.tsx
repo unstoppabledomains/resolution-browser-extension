@@ -66,6 +66,22 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     }
   };
 
+  const handleScanningMode = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    // initialize if required
+    if (!preferences.Scanning) {
+      preferences.Scanning = {
+        Enabled: true,
+        IgnoreHosts: [],
+      };
+    }
+    // set the compatibility mode preference
+    preferences.Scanning.Enabled = event.target.checked;
+    setPreferences({...preferences});
+    await setWalletPreferences(preferences);
+  };
+
   const handleDisconnectAll = async () => {
     await clearAllConnectedSites();
     setConnections({});
@@ -141,6 +157,32 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     >
                       Disconnect all
                     </Button>
+                  </Box>
+                )}
+              </PreferenceSection>
+              <PreferenceSection
+                title="Address detection"
+                description="Automatically scan webpages for wallet addresses associated with onchain domains. Inserts domain into the live app to provide rich identity details."
+              >
+                <FormControlLabel
+                  label="Enable address detection"
+                  control={
+                    <Checkbox
+                      checked={preferences.Scanning?.Enabled}
+                      onChange={handleScanningMode}
+                    />
+                  }
+                />
+                {compatModeSuccess && (
+                  <Box className={classes.settingInfoContainer}>
+                    <Alert severity="info" variant="filled">
+                      <Typography variant="body2">
+                        <Markdown>
+                          Compatibility mode is now enabled. **Open tabs must be
+                          refreshed** for compatibility mode to take effect.
+                        </Markdown>
+                      </Typography>
+                    </Alert>
                   </Box>
                 )}
               </PreferenceSection>
