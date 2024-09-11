@@ -34,4 +34,5 @@ export const supportedDomains: string[] = [
   ".tball",
   ".farms",
   ".dfz",
+  ".smobler",
 ];
