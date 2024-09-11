@@ -4887,9 +4887,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@latest, @unstoppabledomains/config@npm:0.0.11":
-  version: 0.0.11
-  resolution: "@unstoppabledomains/config@npm:0.0.11"
+"@unstoppabledomains/config@latest, @unstoppabledomains/config@npm:0.0.12":
+  version: 0.0.12
+  resolution: "@unstoppabledomains/config@npm:0.0.12"
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -4898,7 +4898,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: 0d1b32b21a7e0dcc58dd368ca37fe1a7ead838215d06bd30dbce984b4d19b622d7b140fd502618453e4e952cbd869402ea22c18b51143b2aca40f908d998c0c7
+  checksum: 34365870ce3969ca25cb379b9a1f92d15befeb350ad5bde29d306353044ddfeeff010b3ced46fed6bd6e4375177b2fe26f0fd8f627f52a1263752f96a32f8668
   languageName: node
   linkType: hard
 
@@ -4915,9 +4915,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.47":
-  version: 0.0.47
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.47"
+"@unstoppabledomains/ui-components@npm:0.0.48":
+  version: 0.0.48
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.48"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5015,7 +5015,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: a9466a0c2ec9d79d0fcf4f2ca4c5d6c7b9ede4ac762136be316df2deeca6add0579c4d2c01633c91d34d61b112d7e8705349c95f7d35e5d2723dd8d09d9185f7
+  checksum: a82ea82b5561bfbb41061b18c0e01416772731603f395e69344db14d312e34b7f5ed55da257629fd7af4a0a14046f3b90cc22ce3119f4117f7564951645d889c
   languageName: node
   linkType: hard
 
@@ -17013,8 +17013,8 @@ __metadata:
     "@types/node": ^20.14.6
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
-    "@unstoppabledomains/config": 0.0.11
-    "@unstoppabledomains/ui-components": 0.0.47
+    "@unstoppabledomains/config": 0.0.12
+    "@unstoppabledomains/ui-components": 0.0.48
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0

@@ -23,6 +23,7 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
 const getDefaultPreferences = (): WalletPreferences => {
   return {
     WalletEnabled: false,
+    HasExistingWallet: false,
     OverrideMetamask: false,
     DefaultView: "onUpdated",
     Version: chrome.runtime.getManifest().version,

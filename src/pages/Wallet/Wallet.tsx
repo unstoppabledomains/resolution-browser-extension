@@ -26,7 +26,10 @@ import {
 import Header from "../../components/Header";
 import {useSnackbar} from "notistack";
 import usePreferences from "../../hooks/usePreferences";
-import {setWalletPreferences} from "../../lib/wallet/preferences";
+import {
+  getWalletPreferences,
+  setWalletPreferences,
+} from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
 
 const enum SnackbarKey {
@@ -262,6 +265,15 @@ const WalletComp: React.FC = () => {
     setAuthDomain(undefined);
     setAuthAvatar(undefined);
 
+    // set basic wallet enablement preferences, since we can assume
+    // next time the extension loads that the user enabled the wallet
+    // features, and already has an existing wallet.
+    const defaultPreferences = await getWalletPreferences();
+    defaultPreferences.WalletEnabled = true;
+    defaultPreferences.HasExistingWallet = true;
+    defaultPreferences.DefaultView = "wallet";
+    await setWalletPreferences(defaultPreferences);
+
     // close the extension window
     window.close();
   };
@@ -282,6 +294,7 @@ const WalletComp: React.FC = () => {
         <Header
           title="Unstoppable Lite Wallet"
           subTitle="A web3 wallet for domainers and their domains"
+          iconPath="icon/wallet.svg"
         />
       )}
       <Box
@@ -290,7 +303,7 @@ const WalletComp: React.FC = () => {
           display: isLoaded ? "flex" : "none",
         }}
       >
-        {authState && (
+        {authState && preferences && (
           <Wallet
             mode={authAddress ? "portfolio" : "basic"}
             address={authAddress}
@@ -299,10 +312,11 @@ const WalletComp: React.FC = () => {
             recoveryPhrase={authState.password}
             avatarUrl={authAvatar}
             showMessages={true}
-            isNewUser={true}
+            isNewUser={!preferences.HasExistingWallet}
             disableInlineEducation={true}
             disableBasicHeader={true}
             fullScreenModals={true}
+            forceRememberOnDevice={true}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}
             onSettingsClick={handleShowPreferences}

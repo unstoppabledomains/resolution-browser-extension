@@ -27,6 +27,7 @@ const styles = {
   },
   logo: {
     width: "50px",
+    height: "50px",
   },
   title1: {
     fontSize: "18px",
@@ -41,11 +42,13 @@ const styles = {
 interface Props {
   title?: string;
   subTitle?: string;
+  iconPath?: string;
 }
 
 const Header: React.FC<Props> = ({
   title = "Your Portal to Decentralized Web",
   subTitle = "This extension opens websites on the blockchain",
+  iconPath = "icon/browser.svg",
 }) => (
   <Box sx={styles.main}>
     <Box sx={styles.contentContainer}>
@@ -53,7 +56,7 @@ const Header: React.FC<Props> = ({
         <Box
           component="img"
           sx={styles.logo}
-          src="icon/browser.svg"
+          src={iconPath}
           alt="Unstoppable domains logo"
         />
       </Box>
