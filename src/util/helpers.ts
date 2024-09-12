@@ -30,13 +30,33 @@ function isConvertableToV1base32Hash(hash: string, url: string): boolean {
 
 export async function redirectToIpfs(domain: string, tabId?: number) {
   const resolution = new Resolution({apiKey: process.env.RESOLUTION_API_KEY})
+  const baseResolution = new Resolution({
+    sourceConfig: {
+      uns: {
+        locations: {
+          Layer1: {
+            url: `https://mainnet.infura.io/v3/${process.env.RPC_API_KEY}`,
+            network: 'mainnet',
+            proxyReaderAddress: '0x578853aa776Eef10CeE6c4dd2B5862bdcE767A8B',
+          },
+          Layer2: {
+            url: `https://base-mainnet.infura.io/v3/${process.env.RPC_API_KEY}`,
+            network: 'base-mainnet',
+            proxyReaderAddress: '0x78c4b414e1abdf0de267deda01dffd4cd0817a16',
+          },
+        },
+      },
+    },
+  })
   const url = new OAURL(domain)
   try {
     const gatewayBaseURL =
       (await chromeStorageSyncGet(StorageSyncKey.GatewayBaseURL)) ||
       'https://{ipfs}.ipfs.infura-ipfs.io'
     logger.log(`resolving domain ${url.hostname()}`)
-    let hash = await resolution.ipfsHash(url.hostname())
+    let hash = isBaseBlockchainDomain(url.hostname())
+      ? await baseResolution.ipfsHash(url.hostname())
+      : await resolution.ipfsHash(url.hostname())
     logger.log(`resolved ipfs hash = ${hash}`)
     if (isConvertableToV1base32Hash(hash, gatewayBaseURL)) {
       hash = new ipfsClient.CID(hash).toV1() // convert to V1 base32 ipfs hash
@@ -116,8 +136,15 @@ export const supportedDomains: string[] = [
   '.tball',
   '.farms',
   '.dfz',
+  '.smobler',
 ]
 
 //return true if url ends in one of the supported domains
 export const supportedDomain = (q: string): boolean =>
   supportedDomains.some((d: string): boolean => q.endsWith(d))
+
+const isBaseBlockchainDomain = (domain: string): boolean => {
+  const tld = domain.toLowerCase().trim().split('.').pop()
+  if (!tld) return false
+  return ['smobler'].includes(tld)
+}

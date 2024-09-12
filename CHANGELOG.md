@@ -1,3 +1,6 @@
+## 3.0.12
+* Add .smobler TLDs support
+
 ## 3.0.11
 * Add .dfz TLDs support
 
