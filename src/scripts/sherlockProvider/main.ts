@@ -1,7 +1,6 @@
-import {isEthAddress} from "@unstoppabledomains/ui-components";
 import {Logger} from "../../lib/logger";
 import {scanForAddresses} from "../../lib/sherlock/scanner";
-import {isPartialAddress} from "../../lib/sherlock/matcher";
+import {isEthAddress, isPartialAddress} from "../../lib/sherlock/matcher";
 import {ContextMenu} from "../../lib/sherlock/contextMenu";
 
 // check preferences to ensure desired behavior
@@ -16,7 +15,7 @@ window.unstoppable?.getPreferences().then((preferences) => {
   }
 
   // start a resolver to scan page for addresses
-  Logger.log("Sherlock assistant enabled");
+  Logger.log("Sherlock Assistant enabled");
   void scanForAddresses();
 
   // create an observer to watch for future DOM changes

@@ -107,7 +107,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
           ) : (
             <Box className={classes.contentContainer} mb={1} mt={-3}>
               <PreferenceSection
-                title="Compatibility mode"
+                title="Compatibility Mode"
                 description="Unstoppable Lite Wallet can override MetaMask in apps to ensure maximum compatibility. Enabling this setting may interfere with other extensions."
               >
                 <FormControlLabel
@@ -133,11 +133,11 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 )}
               </PreferenceSection>
               <PreferenceSection
-                title="Sherlock assistant"
-                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. The Sherlock assistant augments apps in this browser with rich identity details in realtime."
+                title="Sherlock Assistant"
+                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. The Sherlock Assistant augments apps in this browser with rich identity details in realtime."
               >
                 <FormControlLabel
-                  label="Enable Sherlock assistant"
+                  label="Enable Sherlock Assistant"
                   control={
                     <Checkbox
                       checked={preferences.Scanning?.Enabled}
@@ -145,18 +145,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     />
                   }
                 />
-                {compatModeSuccess && (
-                  <Box className={classes.settingInfoContainer}>
-                    <Alert severity="info" variant="filled">
-                      <Typography variant="body2">
-                        <Markdown>
-                          Compatibility mode is now enabled. **Open tabs must be
-                          refreshed** for compatibility mode to take effect.
-                        </Markdown>
-                      </Typography>
-                    </Alert>
-                  </Box>
-                )}
               </PreferenceSection>
               <PreferenceSection
                 title="Connections"

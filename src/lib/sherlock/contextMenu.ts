@@ -44,8 +44,8 @@ export class ContextMenu {
 
   private getTitle(origin: string) {
     return this.isSherlockDisabled(origin)
-      ? `Enable Sherlock assistant on this site`
-      : `Disable Sherlock assistant on this site`;
+      ? `Enable Sherlock Assistant on this site`
+      : `Disable Sherlock Assistant on this site`;
   }
 
   private clear() {
