@@ -32,7 +32,9 @@ export const getDefaultPreferences = (): WalletPreferences => {
       IgnoreOrigins: [
         "https://ud.me",
         "https://unstoppabledomains.com",
+        "https://staging.ud.me",
         "https://ud-staging.com",
+        "https://www.ud-staging.com",
       ],
     },
   };
