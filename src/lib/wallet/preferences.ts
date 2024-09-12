@@ -20,7 +20,7 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
   return getDefaultPreferences();
 };
 
-const getDefaultPreferences = (): WalletPreferences => {
+export const getDefaultPreferences = (): WalletPreferences => {
   return {
     WalletEnabled: false,
     HasExistingWallet: false,
@@ -29,7 +29,11 @@ const getDefaultPreferences = (): WalletPreferences => {
     Version: chrome.runtime.getManifest().version,
     Scanning: {
       Enabled: true,
-      IgnoreHosts: ["ud.me", "unstoppabledomains.com", "ud-staging.com"],
+      IgnoreOrigins: [
+        "https://ud.me",
+        "https://unstoppabledomains.com",
+        "https://ud-staging.com",
+      ],
     },
   };
 };

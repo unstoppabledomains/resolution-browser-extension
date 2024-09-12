@@ -8,6 +8,6 @@ export interface WalletPreferences {
   Version: string;
   Scanning: {
     Enabled: boolean;
-    IgnoreHosts: string[];
+    IgnoreOrigins: string[];
   };
 }

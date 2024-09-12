@@ -6,7 +6,9 @@
   "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
   "icons": {
     "16": "icon/16.png",
+    "38": "icon/38.png",
     "48": "icon/48.png",
+    "96": "icon/96.png",
     "128": "icon/128.png"
   },
   "homepage_url": "http://unstoppabledomains.com",
@@ -36,7 +38,7 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": ["./scripts/resolver/main.ts"],
+      "js": ["./scripts/sherlockProvider/main.ts"],
       "world": "MAIN"
     }
   ],
@@ -99,9 +101,10 @@
   ],
   "permissions": [
     "activeTab",
-    "tabs",
-    "storage",
+    "contextMenus",
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
+    "declarativeNetRequestFeedback",
+    "storage",
+    "tabs"
   ]
 }

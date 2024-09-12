@@ -2,6 +2,7 @@ import "../subscripts/onInstalled";
 import {supportedDomains} from "../lib/helpers";
 import {backgroundEventListener} from "./liteWalletProvider/background";
 import {Logger} from "../lib/logger";
+import {ContextMenu} from "../lib/sherlock/contextMenu";
 
 /************************************
  * Onchain domain IPFS redirect logic
@@ -104,3 +105,9 @@ setTimeout(() => {
 
 // register the wallet popup event listener
 chrome.runtime.onMessage.addListener(backgroundEventListener);
+
+/***********************************
+ * Context menu and tab management
+ ***********************************/
+const contextMenu = new ContextMenu();
+void contextMenu.waitForEvents();

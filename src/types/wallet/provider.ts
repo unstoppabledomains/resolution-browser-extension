@@ -46,6 +46,7 @@ export const isExternalRequestType = (v: string): v is ExternalRequestType => {
 export const InternalMessageTypes = [
   "closeWindowRequest",
   "getPreferencesRequest",
+  "newTabRequest",
 ] as const;
 export type InternalRequestType = (typeof InternalMessageTypes)[number];
 export const isInternalRequestType = (v: string): v is InternalRequestType => {

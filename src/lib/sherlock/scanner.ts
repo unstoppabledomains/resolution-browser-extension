@@ -121,14 +121,20 @@ const scan = async () => {
         // create a link to the resolved name
         const augmentNode = document.createElement("a");
         augmentNode.id = `${AUGMENT_ID_PREFIX}${addressMatch.address}`;
-        augmentNode.style.marginLeft = "4px";
+        augmentNode.style.marginRight = "4px";
         augmentNode.style.fontWeight = "bold";
-        augmentNode.textContent = `(${resolvedName})`;
+        augmentNode.textContent = resolvedName;
         augmentNode.href = `${config.UD_ME_BASE_URL}/${resolvedName}`;
         augmentNode.target = "_blank";
 
+        // update the text of the existing node
+        addressMatch.node.textContent = `(${addressMatch.node.textContent})`;
+
         // augment the page with the resolved name
-        addressMatch.node.parentNode.appendChild(augmentNode);
+        addressMatch.node.parentNode.insertBefore(
+          augmentNode,
+          addressMatch.node,
+        );
       }
     },
     {concurrency: 3},

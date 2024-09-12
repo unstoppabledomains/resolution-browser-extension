@@ -1,5 +1,5 @@
 export const isPartialAddress = (v: string): boolean => {
-  const partialAddress = v.match(/0x[a-zA-Z0-9]+\.+[a-zA-Z0-9]+/);
+  const partialAddress = v.match(/0x[a-zA-Z0-9]+[…\.]+[a-zA-Z0-9]+/);
   return partialAddress && partialAddress.length > 0;
 };
 
@@ -8,9 +8,12 @@ export const fromPartialAddress = (
   text: string,
 ): string | undefined => {
   // prepare the partial address
-  const addressParts = partialAddress.split(".");
+  let addressParts = partialAddress.split(".");
   if (addressParts.length < 2) {
-    return;
+    addressParts = partialAddress.split("…");
+    if (addressParts.length < 2) {
+      return;
+    }
   }
 
   // prepare the regex

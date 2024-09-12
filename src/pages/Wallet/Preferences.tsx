@@ -11,7 +11,10 @@ import {
 } from "@mui/material";
 import Markdown from "markdown-to-jsx";
 import {useExtensionStyles} from "../../styles/extension.styles";
-import {setWalletPreferences} from "../../lib/wallet/preferences";
+import {
+  getDefaultPreferences,
+  setWalletPreferences,
+} from "../../lib/wallet/preferences";
 import {
   useTranslationContext,
   Link,
@@ -66,17 +69,16 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     }
   };
 
-  const handleScanningMode = async (
+  const handleSherlockMode = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    // initialize if required
+    // initialize scanning preferences if required
     if (!preferences.Scanning) {
-      preferences.Scanning = {
-        Enabled: true,
-        IgnoreHosts: [],
-      };
+      const defaultPreferences = getDefaultPreferences();
+      preferences.Scanning = defaultPreferences.Scanning;
     }
-    // set the compatibility mode preference
+
+    // set the sherlock mode preference
     preferences.Scanning.Enabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
@@ -131,6 +133,32 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 )}
               </PreferenceSection>
               <PreferenceSection
+                title="Sherlock mode"
+                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. Sherlock mode augments apps in this browser with rich identity details in realtime."
+              >
+                <FormControlLabel
+                  label="Enable Sherlock mode"
+                  control={
+                    <Checkbox
+                      checked={preferences.Scanning?.Enabled}
+                      onChange={handleSherlockMode}
+                    />
+                  }
+                />
+                {compatModeSuccess && (
+                  <Box className={classes.settingInfoContainer}>
+                    <Alert severity="info" variant="filled">
+                      <Typography variant="body2">
+                        <Markdown>
+                          Compatibility mode is now enabled. **Open tabs must be
+                          refreshed** for compatibility mode to take effect.
+                        </Markdown>
+                      </Typography>
+                    </Alert>
+                  </Box>
+                )}
+              </PreferenceSection>
+              <PreferenceSection
                 title="Connections"
                 description={
                   connections && Object.keys(connections).length > 0
@@ -160,32 +188,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   </Box>
                 )}
               </PreferenceSection>
-              <PreferenceSection
-                title="Address detection"
-                description="Automatically scan webpages for wallet addresses associated with onchain domains. Inserts domain into the live app to provide rich identity details."
-              >
-                <FormControlLabel
-                  label="Enable address detection"
-                  control={
-                    <Checkbox
-                      checked={preferences.Scanning?.Enabled}
-                      onChange={handleScanningMode}
-                    />
-                  }
-                />
-                {compatModeSuccess && (
-                  <Box className={classes.settingInfoContainer}>
-                    <Alert severity="info" variant="filled">
-                      <Typography variant="body2">
-                        <Markdown>
-                          Compatibility mode is now enabled. **Open tabs must be
-                          refreshed** for compatibility mode to take effect.
-                        </Markdown>
-                      </Typography>
-                    </Alert>
-                  </Box>
-                )}
-              </PreferenceSection>
+
               <PreferenceSection
                 title="Decentralized Browsing"
                 description="Level up your browser by resolving onchain domains. Names like lisa.x or sandy.nft can be looked up using the DNS alternatives configured below."
