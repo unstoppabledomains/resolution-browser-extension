@@ -69,7 +69,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     }
   };
 
-  const handleSherlockMode = async (
+  const handleSherlockAssistant = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     // initialize scanning preferences if required
@@ -78,7 +78,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
       preferences.Scanning = defaultPreferences.Scanning;
     }
 
-    // set the sherlock mode preference
+    // set the sherlock assistant preference
     preferences.Scanning.Enabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
@@ -133,15 +133,15 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 )}
               </PreferenceSection>
               <PreferenceSection
-                title="Sherlock mode"
-                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. Sherlock mode augments apps in this browser with rich identity details in realtime."
+                title="Sherlock assistant"
+                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. The Sherlock assistant augments apps in this browser with rich identity details in realtime."
               >
                 <FormControlLabel
-                  label="Enable Sherlock mode"
+                  label="Enable Sherlock assistant"
                   control={
                     <Checkbox
                       checked={preferences.Scanning?.Enabled}
-                      onChange={handleSherlockMode}
+                      onChange={handleSherlockAssistant}
                     />
                   }
                 />

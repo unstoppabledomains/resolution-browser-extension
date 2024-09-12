@@ -6,17 +6,17 @@ import {ContextMenu} from "../../lib/sherlock/contextMenu";
 
 // check preferences to ensure desired behavior
 window.unstoppable?.getPreferences().then((preferences) => {
-  // inject into context menu into the webpage to manage Sherlock mode
+  // broadcast an event indicating this tab needs context menu update
   const contextMenu = new ContextMenu(preferences);
   contextMenu.broadcastTab();
 
   // only start the scanner if enabled
-  if (contextMenu.isSherlockModeDisabled(window.location.origin)) {
+  if (contextMenu.isSherlockDisabled(window.location.origin)) {
     return;
   }
 
   // start a resolver to scan page for addresses
-  Logger.log("Sherlock mode enabled");
+  Logger.log("Sherlock assistant enabled");
   void scanForAddresses();
 
   // create an observer to watch for future DOM changes

@@ -43,9 +43,9 @@ export class ContextMenu {
   }
 
   private getTitle(origin: string) {
-    return this.isSherlockModeDisabled(origin)
-      ? `Enable Sherlock mode on this site`
-      : `Disable Sherlock mode on this site`;
+    return this.isSherlockDisabled(origin)
+      ? `Enable Sherlock assistant on this site`
+      : `Disable Sherlock assistant on this site`;
   }
 
   private clear() {
@@ -81,7 +81,7 @@ export class ContextMenu {
     );
   }
 
-  isSherlockModeDisabled(origin: string) {
+  isSherlockDisabled(origin: string) {
     return (
       !this.preferences ||
       !this.preferences.Scanning ||
@@ -149,15 +149,15 @@ export class ContextMenu {
     }
 
     // update current preferences
-    if (this.isSherlockModeDisabled(origin)) {
-      // enable sherlock mode
+    if (this.isSherlockDisabled(origin)) {
+      // enable sherlock
       const ignoreOrigins = this.preferences.Scanning.IgnoreOrigins.filter(
         (h) => !h.toLowerCase().includes(origin.toLowerCase()),
       );
       this.preferences.Scanning.Enabled = true;
       this.preferences.Scanning.IgnoreOrigins = ignoreOrigins;
     } else {
-      // disable sherlock mode
+      // disable sherlock
       this.preferences.Scanning.IgnoreOrigins.push(origin.toLowerCase());
     }
 
