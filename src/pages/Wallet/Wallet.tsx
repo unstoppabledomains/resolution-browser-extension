@@ -43,7 +43,7 @@ const WalletComp: React.FC = () => {
   const {classes} = useExtensionStyles();
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
-  const {preferences, setPreferences} = usePreferences();
+  const {preferences, setPreferences, refreshPreferences} = usePreferences();
   const [authAddress, setAuthAddress] = useState<string>("");
   const [authDomain, setAuthDomain] = useState<string>("");
   const [authAvatar, setAuthAvatar] = useState<string>();
@@ -52,6 +52,7 @@ const WalletComp: React.FC = () => {
   const [authButton, setAuthButton] = useState<React.ReactNode>();
   const [isLoaded, setIsLoaded] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [messagingEnabled, setMessagingEnabled] = useState(false);
 
   const handleAuthComplete = async () => {
     await chromeStorageRemove(StorageSyncKey.AuthState, "session");
@@ -157,6 +158,9 @@ const WalletComp: React.FC = () => {
     if (!preferences || !authComplete) {
       return;
     }
+
+    // update messaging status
+    setMessagingEnabled(preferences.MessagingEnabled);
 
     // take appropriate action on compatibility mode settings
     void handleCompatibilitySettings();
@@ -282,7 +286,8 @@ const WalletComp: React.FC = () => {
     setShowSettings(true);
   };
 
-  const handleClosePreferences = () => {
+  const handleClosePreferences = async () => {
+    await refreshPreferences();
     setShowSettings(false);
   };
 
@@ -311,7 +316,7 @@ const WalletComp: React.FC = () => {
             emailAddress={authState.emailAddress}
             recoveryPhrase={authState.password}
             avatarUrl={authAvatar}
-            showMessages={true}
+            showMessages={messagingEnabled}
             isNewUser={!preferences.HasExistingWallet}
             disableInlineEducation={true}
             disableBasicHeader={true}

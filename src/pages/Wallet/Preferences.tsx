@@ -84,6 +84,14 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     await setWalletPreferences(preferences);
   };
 
+  const handleMessaging = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    preferences.MessagingEnabled = event.target.checked;
+    setPreferences({...preferences});
+    await setWalletPreferences(preferences);
+  };
+
   const handleDisconnectAll = async () => {
     await clearAllConnectedSites();
     setConnections({});
@@ -106,6 +114,34 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
             </Box>
           ) : (
             <Box className={classes.contentContainer} mb={1} mt={-3}>
+              <PreferenceSection
+                title="Sherlock Assistant"
+                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. Augments apps in this browser with rich identity details."
+              >
+                <FormControlLabel
+                  label="Enable Sherlock Assistant"
+                  control={
+                    <Checkbox
+                      checked={preferences.Scanning?.Enabled}
+                      onChange={handleSherlockAssistant}
+                    />
+                  }
+                />
+              </PreferenceSection>
+              <PreferenceSection
+                title="Messaging"
+                description="Chat securely with friends with Unstoppable Messaging, powered by XMTP and Push Protocol."
+              >
+                <FormControlLabel
+                  label="Enable messaging"
+                  control={
+                    <Checkbox
+                      checked={preferences.MessagingEnabled}
+                      onChange={handleMessaging}
+                    />
+                  }
+                />
+              </PreferenceSection>
               <PreferenceSection
                 title="Compatibility Mode"
                 description="Unstoppable Lite Wallet can override MetaMask in apps to ensure maximum compatibility. Enabling this setting may interfere with other extensions."
@@ -133,21 +169,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 )}
               </PreferenceSection>
               <PreferenceSection
-                title="Sherlock Assistant"
-                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. The Sherlock Assistant augments apps in this browser with rich identity details in realtime."
-              >
-                <FormControlLabel
-                  label="Enable Sherlock Assistant"
-                  control={
-                    <Checkbox
-                      checked={preferences.Scanning?.Enabled}
-                      onChange={handleSherlockAssistant}
-                    />
-                  }
-                />
-              </PreferenceSection>
-              <PreferenceSection
-                title="Connections"
+                title="Wallet Connections"
                 description={
                   connections && Object.keys(connections).length > 0
                     ? "You have authorized the following websites to connect to Unstoppable Lite Wallet."

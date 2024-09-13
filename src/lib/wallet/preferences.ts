@@ -7,17 +7,32 @@ import {
 import {Logger} from "../logger";
 
 export const getWalletPreferences = async (): Promise<WalletPreferences> => {
+  const defaultPreferences = getDefaultPreferences();
+
   try {
     const preferences = await chromeStorageGet(
       StorageSyncKey.WalletPreferences,
     );
     if (preferences) {
-      return JSON.parse(preferences);
+      // base preferences stored in browser config
+      const basePreferences: WalletPreferences = JSON.parse(preferences);
+
+      // normalize preferences before returning
+      if (basePreferences.MessagingEnabled === undefined) {
+        basePreferences.MessagingEnabled = defaultPreferences.MessagingEnabled;
+      }
+      if (basePreferences.Scanning === undefined) {
+        basePreferences.Scanning = defaultPreferences.Scanning;
+      }
+
+      // return normalized preferences
+      return basePreferences;
     }
   } catch (e) {
     Logger.warn("error retrieving preferences", e);
   }
-  return getDefaultPreferences();
+  // use default preferences
+  return defaultPreferences;
 };
 
 export const getDefaultPreferences = (): WalletPreferences => {
@@ -27,6 +42,7 @@ export const getDefaultPreferences = (): WalletPreferences => {
     OverrideMetamask: false,
     DefaultView: "onUpdated",
     Version: chrome.runtime.getManifest().version,
+    MessagingEnabled: true,
     Scanning: {
       Enabled: true,
       IgnoreOrigins: [

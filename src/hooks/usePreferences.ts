@@ -21,7 +21,11 @@ function usePreferences() {
     void loadPreferences();
   }, []);
 
-  return {preferences, setPreferences};
+  const refreshPreferences = async () => {
+    setPreferences(await getWalletPreferences());
+  };
+
+  return {preferences, setPreferences, refreshPreferences};
 }
 
 export default usePreferences;
