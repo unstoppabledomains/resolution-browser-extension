@@ -133,7 +133,7 @@ const Connect: React.FC = () => {
             fullScreenModal: true,
             connectedApp: connectionSource
               ? {
-                  name: connectionSource.title,
+                  name: new URL(connectionSource.url).hostname,
                   hostUrl: new URL(connectionSource.url).hostname,
                   iconUrl: connectionSource.favIconUrl,
                 }
@@ -425,8 +425,11 @@ const Connect: React.FC = () => {
       );
     }
 
-    // display signing error message
-    setErrorMessage("Error signing message");
+    // the message was not signed, return an error to caller
+    handleError(
+      getResponseType("signMessageRequest"),
+      new Error("personal message not signed"),
+    );
   };
 
   const handleSignTypedMessage = async (params: any[]) => {
@@ -455,8 +458,11 @@ const Connect: React.FC = () => {
       Logger.error(e, "Signature", "error signing typed message", params);
     }
 
-    // display signing error message
-    setErrorMessage("Error signing message");
+    // the message was not signed, return an error to caller
+    handleError(
+      getResponseType("signTypedMessageRequest"),
+      new Error("typed message not signed"),
+    );
   };
 
   const handleSendTransaction = async (txParams: Record<string, string>) => {
@@ -561,7 +567,7 @@ const Connect: React.FC = () => {
                     ? "request permission to view your wallet and prompt for transactions"
                     : connectionState === ConnectionState.SWITCH_CHAIN
                       ? `connect to ${connectionStateMessage.params[0].chainName}`
-                      : "connect"
+                      : "connect to Unstoppable Lite Wallet"
                 }
               />
             )}
