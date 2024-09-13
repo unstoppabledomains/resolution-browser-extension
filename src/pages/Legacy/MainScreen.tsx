@@ -105,6 +105,10 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
   }, []);
 
   useEffect(() => {
+    if (!gatewayBaseURL) {
+      return;
+    }
+
     try {
       new OAURL(gatewayBaseURL.trim());
       setOkGatewayBaseURL(true);
