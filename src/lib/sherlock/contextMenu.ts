@@ -1,11 +1,19 @@
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {ProviderEvent, ProviderRequest} from "../../types/wallet/provider";
 import {Logger} from "../logger";
+import {getConnectedSites, removeConnectedSite} from "../wallet/evm/connection";
 import {
   getDefaultPreferences,
   getWalletPreferences,
   setWalletPreferences,
 } from "../wallet/preferences";
+
+const ORIGINS: Record<string, boolean> = {};
+
+enum MenuType {
+  Sherlock = "sherlock",
+  Connection = "connection",
+}
 
 // tabListener wraps a context menu instance and handles tab events
 const tabListener = (ctx: ContextMenu) => {
@@ -21,52 +29,42 @@ const menuListener = (ctx: ContextMenu) => {
   };
 };
 
-const ORIGINS: Record<string, boolean> = {};
-
 // ContextMenu manages lifecycle of browser extension context menus and
 // handles user interaction with menu options
 export class ContextMenu {
   constructor(private preferences?: WalletPreferences) {}
 
-  async waitForEvents() {
-    if (chrome?.contextMenus && chrome.runtime) {
-      this.clear();
-      this.preferences = await getWalletPreferences();
-
-      // listen for page requests for context menu updates
-      chrome.runtime.onMessage.addListener(tabListener(this));
-
-      // listen for context menu clicks
-      chrome.contextMenus.onClicked.addListener(menuListener(this));
-      Logger.log("Waiting for context menu events...");
-    }
-  }
-
-  private getTitle(origin: string) {
-    return this.isSherlockDisabled(origin)
-      ? `Enable Sherlock Assistant on this site`
-      : `Disable Sherlock Assistant on this site`;
-  }
-
   private clear() {
     chrome.contextMenus.removeAll();
   }
 
-  private remove(origin: string) {
-    chrome.contextMenus.remove(origin);
-  }
-
-  private create(origin: string) {
+  private createAll(origin: string) {
+    // add Sherlock menu item
     chrome.contextMenus.create({
-      id: origin,
-      title: this.getTitle(origin),
+      id: `${MenuType.Sherlock}-${origin}`,
+      title: this.getSherlockMenuTitle(origin),
       documentUrlPatterns: [`${origin}/*`],
+    });
+
+    // add connection menu item if disconnected
+    this.getConnectionMenuTitle(origin).then((connectionTitle) => {
+      if (connectionTitle) {
+        chrome.contextMenus.create({
+          id: `${MenuType.Connection}-${origin}`,
+          title: connectionTitle,
+          documentUrlPatterns: [`${origin}/*`],
+        });
+      }
     });
   }
 
-  private update(origin: string) {
-    chrome.contextMenus.update(origin, {
-      title: this.getTitle(origin),
+  private remove(origin: string, menuType: MenuType) {
+    chrome.contextMenus.remove(`${menuType}-${origin}`);
+  }
+
+  private update(origin: string, menuType: MenuType) {
+    chrome.contextMenus.update(`${menuType}-${origin}`, {
+      title: this.getSherlockMenuTitle(origin),
     });
   }
 
@@ -81,17 +79,6 @@ export class ContextMenu {
     );
   }
 
-  isSherlockDisabled(origin: string) {
-    return (
-      !this.preferences ||
-      !this.preferences.Scanning ||
-      !this.preferences.Scanning.Enabled ||
-      this.preferences.Scanning.IgnoreOrigins?.find((h) =>
-        origin.toLowerCase().includes(h.toLowerCase()),
-      )
-    );
-  }
-
   refreshAll() {
     Object.keys(ORIGINS).map((origin) => {
       this.refreshTab(origin);
@@ -102,11 +89,12 @@ export class ContextMenu {
     try {
       // remove existing context menu item
       if (ORIGINS[origin]) {
-        this.remove(origin);
+        this.remove(origin, MenuType.Connection);
+        this.remove(origin, MenuType.Sherlock);
       }
 
       // create new context menu item
-      this.create(origin);
+      this.createAll(origin);
       ORIGINS[origin] = true;
     } catch (e) {
       // gracefully ignore errors
@@ -135,9 +123,28 @@ export class ContextMenu {
       return;
     }
 
-    // retrieve origin from the event
-    const origin = info.menuItemId;
+    // determine type of menu
+    const menuOptions = info.menuItemId.split("-");
+    if (menuOptions.length !== 2) {
+      return;
+    }
 
+    // handle the menu action
+    switch (menuOptions[0]) {
+      case MenuType.Sherlock:
+        this.handleSherlockMenu(menuOptions[1]);
+        break;
+      case MenuType.Connection:
+        this.handleDisconnectMenu(menuOptions[1]);
+        break;
+    }
+  }
+
+  /* **********************
+   * Sherlock menu handling
+   * **********************/
+
+  async handleSherlockMenu(origin: string) {
     // retrieve current preferences and initialize if needed
     this.preferences = await getWalletPreferences();
     if (!this.preferences.Scanning?.IgnoreOrigins) {
@@ -162,7 +169,71 @@ export class ContextMenu {
     }
 
     // update menu and store preferences
-    this.update(origin);
+    this.update(origin, MenuType.Sherlock);
     await setWalletPreferences(this.preferences);
+  }
+
+  isSherlockDisabled(origin: string) {
+    return (
+      !this.preferences ||
+      !this.preferences.Scanning ||
+      !this.preferences.Scanning.Enabled ||
+      this.preferences.Scanning.IgnoreOrigins?.find((h) =>
+        origin.toLowerCase().includes(h.toLowerCase()),
+      )
+    );
+  }
+
+  private getSherlockMenuTitle(origin: string) {
+    return this.isSherlockDisabled(origin)
+      ? `Enable Sherlock Assistant on this site`
+      : `Disable Sherlock Assistant on this site`;
+  }
+
+  /* ************************
+   * Connection menu handling
+   * ************************/
+
+  async handleDisconnectMenu(origin: string) {
+    await removeConnectedSite(new URL(origin).hostname);
+    chrome.contextMenus.remove(
+      `${MenuType.Connection}-${origin.toLowerCase()}`,
+    );
+  }
+
+  async waitForEvents() {
+    if (chrome?.contextMenus && chrome.runtime) {
+      this.clear();
+      this.preferences = await getWalletPreferences();
+
+      // listen for page requests for context menu updates
+      chrome.runtime.onMessage.addListener(tabListener(this));
+
+      // listen for context menu clicks
+      chrome.contextMenus.onClicked.addListener(menuListener(this));
+      Logger.log("Waiting for context menu events...");
+    }
+  }
+
+  async isWalletConnected(origin: string) {
+    const allConnections = await getConnectedSites();
+    if (!allConnections || Object.keys(allConnections).length === 0) {
+      return false;
+    }
+    return (
+      Object.keys(allConnections).filter((connectedHost) => {
+        const originHost = new URL(origin.toLowerCase()).hostname;
+        Logger.log(
+          "Comparing hosts",
+          JSON.stringify({originHost, connectedHost}),
+        );
+        return originHost === connectedHost.toLowerCase();
+      }).length > 0
+    );
+  }
+
+  private async getConnectionMenuTitle(origin: string) {
+    const isConnected = await this.isWalletConnected(origin);
+    return isConnected ? "Disconnect wallet from this site" : "";
   }
 }

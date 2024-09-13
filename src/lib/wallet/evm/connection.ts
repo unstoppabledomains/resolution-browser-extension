@@ -17,6 +17,7 @@ export const getConnectedSites = async (): Promise<ConnectedSites> => {
   );
   if (connectedSitesStr) {
     const connections = JSON.parse(connectedSitesStr);
+    Logger.log("Wallet connections", JSON.stringify(connections));
     return connections;
   }
   return {};
@@ -35,11 +36,20 @@ export const getConnectedSite = async (
   return undefined;
 };
 
+export const removeConnectedSite = async (host: string): Promise<void> => {
+  const connectedSites = await getConnectedSites();
+  if (connectedSites && connectedSites[host.toLowerCase()]) {
+    delete connectedSites[host.toLowerCase()];
+    await setConnectedSites(connectedSites);
+  }
+};
+
 export const setConnectedSites = async (connections: ConnectedSites) => {
   await chromeStorageSet(
     StorageSyncKey.WalletConnections,
     JSON.stringify(connections),
   );
+  Logger.log("Wallet connections updated", JSON.stringify(connections));
 };
 
 export const setConnectedSite = async (
