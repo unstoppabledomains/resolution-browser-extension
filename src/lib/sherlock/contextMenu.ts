@@ -1,4 +1,5 @@
 import {WalletPreferences} from "../../types/wallet/preferences";
+import config from "@unstoppabledomains/config";
 import {ProviderEvent, ProviderRequest} from "../../types/wallet/provider";
 import {Logger} from "../logger";
 import {getConnectedSites, removeConnectedSite} from "../wallet/evm/connection";
@@ -13,6 +14,7 @@ const ORIGINS: Record<string, boolean> = {};
 enum MenuType {
   Sherlock = "sherlock",
   Connection = "connection",
+  SelectedText = "selectedText",
 }
 
 // tabListener wraps a context menu instance and handles tab events
@@ -46,7 +48,7 @@ export class ContextMenu {
       documentUrlPatterns: [`${origin}/*`],
     });
 
-    // add connection menu item if disconnected
+    // add connection menu item if wallet connected
     this.getConnectionMenuTitle(origin).then((connectionTitle) => {
       if (connectionTitle) {
         chrome.contextMenus.create({
@@ -55,6 +57,14 @@ export class ContextMenu {
           documentUrlPatterns: [`${origin}/*`],
         });
       }
+    });
+
+    // add selected text menu item
+    chrome.contextMenus.create({
+      id: `${MenuType.SelectedText}-${origin}`,
+      title: "Find domains related to “%s“",
+      documentUrlPatterns: [`${origin}/*`],
+      contexts: ["selection"],
     });
   }
 
@@ -91,6 +101,7 @@ export class ContextMenu {
       if (ORIGINS[origin]) {
         this.remove(origin, MenuType.Connection);
         this.remove(origin, MenuType.Sherlock);
+        this.remove(origin, MenuType.SelectedText);
       }
 
       // create new context menu item
@@ -136,6 +147,9 @@ export class ContextMenu {
         break;
       case MenuType.Connection:
         this.handleDisconnectMenu(menuOptions[1]);
+        break;
+      case MenuType.SelectedText:
+        this.handleFindDomainMenu(info);
         break;
     }
   }
@@ -190,6 +204,16 @@ export class ContextMenu {
       : `Disable Sherlock Assistant on this site`;
   }
 
+  /* *************************
+   * Find domain menu handling
+   * *************************/
+
+  async handleFindDomainMenu(info: chrome.contextMenus.OnClickData) {
+    chrome.tabs.create({
+      url: `${config.UNSTOPPABLE_WEBSITE_URL}/search?searchTerm=${encodeURIComponent(info.selectionText)}&searchRef=extension`,
+    });
+  }
+
   /* ************************
    * Connection menu handling
    * ************************/
@@ -211,7 +235,6 @@ export class ContextMenu {
 
       // listen for context menu clicks
       chrome.contextMenus.onClicked.addListener(menuListener(this));
-      Logger.log("Waiting for context menu events...");
     }
   }
 
