@@ -14,6 +14,15 @@ window.unstoppable?.getPreferences().then((preferences) => {
     return;
   }
 
+  // only start the scanner for certain content types
+  if (!["text/html"].includes(document.contentType?.toLowerCase())) {
+    Logger.log(
+      "Sherlock Assistant disabled for content type",
+      document.contentType,
+    );
+    return;
+  }
+
   // start a resolver to scan page for addresses
   Logger.log("Sherlock Assistant enabled");
   void scanForAddresses();
