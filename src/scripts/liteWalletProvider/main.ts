@@ -28,6 +28,7 @@ import {EIP_712_KEY, TypedMessage} from "../../types/wallet/eip712";
 import {Logger} from "../../lib/logger";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {retryAsync, waitUntilAsync} from "ts-retry";
+import {utils as web3utils} from "web3";
 
 declare global {
   interface Window {
@@ -488,16 +489,21 @@ class LiteWalletProvider extends EventEmitter {
           InvalidSignatureError,
         );
       }
-      const messageToSign = params[0];
-      if (
-        typeof messageToSign !== "string" ||
-        !messageToSign.startsWith("0x")
-      ) {
+      const messageParam = params[0];
+      if (typeof messageParam !== "string") {
         throw new EthereumProviderError(
           PROVIDER_CODE_USER_ERROR,
           InvalidSignatureError,
         );
       }
+
+      // Convert ASCII to hex if not already completed. The client should
+      // have already done this, but we have seen cases where plain text is
+      // passed to the wallet directly. Doing this conversion saves an the
+      // user from encountering an error.
+      const messageToSign = messageParam.startsWith("0x")
+        ? messageParam
+        : web3utils.asciiToHex(messageParam);
 
       // send the message signing event
       document.dispatchEvent(
