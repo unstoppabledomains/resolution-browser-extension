@@ -27,6 +27,8 @@ import {
   UnsupportedPermissionError,
   UnsupportedRequestError,
   getResponseType,
+  isConnectionRequired,
+  isExternalRequestType,
   isPermissionType,
 } from "../../types/wallet/provider";
 import {isAscii} from "../../lib/wallet/isAscii";
@@ -34,6 +36,7 @@ import config from "../../config";
 import {Logger} from "../../lib/logger";
 import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 import usePreferences from "../../hooks/usePreferences";
+import useConnections from "../../hooks/useConnections";
 
 enum ConnectionState {
   ACCOUNT,
@@ -50,6 +53,8 @@ const Connect: React.FC = () => {
   const {web3Deps, setWeb3Deps, setMessageToSign, setTxToSign} =
     useWeb3Context();
   const {preferences} = usePreferences();
+  const {connections} = useConnections();
+  const [isConnected, setIsConnected] = useState<boolean>();
   const [accountAssets, setAccountAssets] = useState<BootstrapState>();
   const [accountEvmAddresses, setAccountEvmAddresses] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -62,7 +67,8 @@ const Connect: React.FC = () => {
   const [connectionState, setConnectionState] = useState<ConnectionState>();
 
   useEffect(() => {
-    if (!isMounted() || !preferences) {
+    // wait for required fields to be loaded
+    if (!isMounted() || !preferences || !connections) {
       return;
     }
 
@@ -117,6 +123,14 @@ const Connect: React.FC = () => {
           }
         }
 
+        // determine app connection status
+        const connectedHostname = new URL(connectionSource.url).hostname;
+        setIsConnected(
+          Object.keys(connections).filter(
+            (c) => c.toLowerCase() === connectedHostname,
+          ).length > 0,
+        );
+
         // set web3 dependencies for connected wallet to enable prompts to
         // sign messages
         const defaultAccount = accountEvmAddresses[0];
@@ -133,8 +147,8 @@ const Connect: React.FC = () => {
             fullScreenModal: true,
             connectedApp: connectionSource
               ? {
-                  name: new URL(connectionSource.url).hostname,
-                  hostUrl: new URL(connectionSource.url).hostname,
+                  name: connectedHostname,
+                  hostUrl: connectedHostname,
                   iconUrl: connectionSource.favIconUrl,
                 }
               : undefined,
@@ -147,7 +161,7 @@ const Connect: React.FC = () => {
       }
     };
     void loadWallet();
-  }, [isMounted, preferences]);
+  }, [isMounted, connections, preferences]);
 
   useEffect(() => {
     // only register listeners with valid web3deps
@@ -195,8 +209,20 @@ const Connect: React.FC = () => {
         }
       }
 
-      // handle the message
       try {
+        // validate whether the given message type requires a connection
+        // from the parent app
+        if (
+          !isConnected &&
+          isExternalRequestType(message.type) &&
+          isConnectionRequired(message.type)
+        ) {
+          // cannot continue if a connection is required for the given
+          // message type
+          throw new Error(NotConnectedError);
+        }
+
+        // handle the message
         setConnectionStateMessage(message);
         switch (message.type) {
           case "accountRequest":

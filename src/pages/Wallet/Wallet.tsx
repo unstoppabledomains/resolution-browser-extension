@@ -31,6 +31,8 @@ import {
   setWalletPreferences,
 } from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
+import useConnections from "../../hooks/useConnections";
+import {sendMessageToClient} from "../../lib/wallet/message";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -44,6 +46,7 @@ const WalletComp: React.FC = () => {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
   const {preferences, setPreferences, refreshPreferences} = usePreferences();
+  const {isConnected, disconnect} = useConnections();
   const [authAddress, setAuthAddress] = useState<string>("");
   const [authDomain, setAuthDomain] = useState<string>("");
   const [authAvatar, setAuthAvatar] = useState<string>();
@@ -251,11 +254,40 @@ const WalletComp: React.FC = () => {
     // notify user of successful enablement
     enqueueSnackbar(
       <Typography variant="body2">
-        Compatibility mode is enabled. Refresh open tabs for the setting to take
-        effect. You can disable this feature from the settings menu.
+        Compatibility mode is enabled, but will not take effect on open tabs
+        until you refresh the page.
       </Typography>,
-      {key: SnackbarKey.Success, variant: "success"},
+      {
+        key: SnackbarKey.Success,
+        variant: "warning",
+        action: (
+          <Box display="flex" width="100%">
+            <Button
+              variant="text"
+              size="small"
+              color="primary"
+              className={classes.actionButton}
+              onClick={handleRefreshParent}
+            >
+              Refresh now
+            </Button>
+          </Box>
+        ),
+      },
     );
+  };
+
+  const handleRefreshParent = async () => {
+    closeSnackbar(SnackbarKey.Success);
+    await sendMessageToClient("refreshRequest");
+  };
+
+  const handleDisconnect = async () => {
+    // disconnect internally
+    await disconnect();
+
+    // notify the client of disconnection
+    await sendMessageToClient("disconnectRequest");
   };
 
   const handleLogout = async () => {
@@ -324,6 +356,7 @@ const WalletComp: React.FC = () => {
             forceRememberOnDevice={true}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}
+            onDisconnect={isConnected ? handleDisconnect : undefined}
             onSettingsClick={handleShowPreferences}
             onUpdate={(_t: DomainProfileTabType) => {
               handleAuthComplete();

@@ -4915,9 +4915,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.48-browser-extension.2":
-  version: 0.0.48-browser-extension.2
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.48-browser-extension.2"
+"@unstoppabledomains/ui-components@npm:0.0.48-browser-extension.8":
+  version: 0.0.48-browser-extension.8
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.48-browser-extension.8"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5015,7 +5015,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: ce33ae1c827d64c5c4f5b9e8fbbf1ac657496998ead8cac483fb2cf29e2e15183ef017c76e3cd498d9a773436f9d31182095bfdcdf46090d0a992c4a50fd92e6
+  checksum: 232e8feb060c001df35e183f07d0f051ba995931fa6052061620c787dfaa50aab9488aad44c07612a15f4b412502facb9eb5973606eff2a420fe7ad049997a27
   languageName: node
   linkType: hard
 
@@ -17014,7 +17014,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.12
-    "@unstoppabledomains/ui-components": 0.0.48-browser-extension.2
+    "@unstoppabledomains/ui-components": 0.0.48-browser-extension.8
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0

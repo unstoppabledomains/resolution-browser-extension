@@ -14,6 +14,8 @@ import {
   PROVIDER_CODE_NOT_IMPLEMENTED,
   UnsupportedMethodError,
   InvalidTypedMessageError,
+  ClientSideMessageTypes,
+  isClientSideRequestType,
 } from "../../types/wallet/provider";
 import config, {WINDOW_PROPERTY_NAME, LOGO_BASE_64} from "../../config";
 import {EthereumProviderError} from "eth-rpc-errors";
@@ -171,6 +173,12 @@ class LiteWalletProvider extends EventEmitter {
       PROVIDER_CODE_NOT_IMPLEMENTED,
       UnsupportedMethodError,
     );
+  }
+
+  // disconnect raises a disconnect event to the app
+  async disconnect() {
+    Logger.log("Disconnecting from app");
+    this.emitEvent("disconnect", {});
   }
 
   /*************************
@@ -720,3 +728,21 @@ provider.getPreferences().then((walletPreferences) => {
 
 // Backwards compatibility for legacy connections
 shimWeb3(proxyProvider as unknown as MetaMaskInpageProvider);
+
+// listen for events that should be handled by the provider
+ClientSideMessageTypes.map((messageType) => {
+  document.addEventListener(messageType, () => {
+    if (isClientSideRequestType(messageType)) {
+      switch (messageType) {
+        case "refreshRequest":
+          window.location.reload();
+          break;
+        case "disconnectRequest":
+          if (window.unstoppable) {
+            void window.unstoppable.disconnect();
+          }
+          break;
+      }
+    }
+  });
+});

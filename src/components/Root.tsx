@@ -23,6 +23,7 @@ import Connect from "../pages/Wallet/Connect";
 import OnUpdated from "../pages/OnUpdated";
 import {compareVersions} from "compare-versions";
 import usePreferences from "../hooks/usePreferences";
+import ConnectionProvider from "../providers/ConnectionProvider";
 
 const queryClient = new QueryClient();
 
@@ -153,16 +154,18 @@ const RootApp = () => {
                 key: userId,
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignContent: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <Root />
-              </Box>
+              <ConnectionProvider>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignContent: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                  }}
+                >
+                  <Root />
+                </Box>
+              </ConnectionProvider>
             </LDProvider>
           </DomainConfigProvider>
         </UnstoppableMessagingProvider>

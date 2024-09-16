@@ -41,6 +41,14 @@ export type ExternalRequestType = (typeof ExternalMessageTypes)[number];
 export const isExternalRequestType = (v: string): v is ExternalRequestType => {
   return ExternalMessageTypes.indexOf(v as ExternalRequestType) !== -1;
 };
+export const isConnectionRequired = (v: ExternalRequestType): boolean => {
+  return [
+    "accountRequest",
+    "signMessageRequest",
+    "signTypedMessageRequest",
+    "sendTransactionRequest",
+  ].includes(v);
+};
 
 // define internal message types
 export const InternalMessageTypes = [
@@ -51,6 +59,18 @@ export const InternalMessageTypes = [
 export type InternalRequestType = (typeof InternalMessageTypes)[number];
 export const isInternalRequestType = (v: string): v is InternalRequestType => {
   return InternalMessageTypes.indexOf(v as InternalRequestType) !== -1;
+};
+
+// define client side message types
+export const ClientSideMessageTypes = [
+  "refreshRequest",
+  "disconnectRequest",
+] as const;
+export type ClientSideRequestType = (typeof ClientSideMessageTypes)[number];
+export const isClientSideRequestType = (
+  v: string,
+): v is ClientSideRequestType => {
+  return ClientSideMessageTypes.indexOf(v as ClientSideRequestType) !== -1;
 };
 
 // define a provider request interface

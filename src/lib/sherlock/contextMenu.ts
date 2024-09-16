@@ -8,6 +8,7 @@ import {
   getWalletPreferences,
   setWalletPreferences,
 } from "../wallet/preferences";
+import {sendMessageToClient} from "../wallet/message";
 
 const ORIGINS: Record<string, boolean> = {};
 
@@ -219,10 +220,14 @@ export class ContextMenu {
    * ************************/
 
   async handleDisconnectMenu(origin: string) {
+    // remove connection internally
     await removeConnectedSite(new URL(origin).hostname);
     chrome.contextMenus.remove(
       `${MenuType.Connection}-${origin.toLowerCase()}`,
     );
+
+    // notify client of disconnection
+    await sendMessageToClient("disconnectRequest");
   }
 
   async waitForEvents() {

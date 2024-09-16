@@ -19,15 +19,12 @@ import {
   useTranslationContext,
   Link,
   Modal,
-  notifyEvent,
 } from "@unstoppabledomains/ui-components";
-import {ConnectedSites} from "../../types/wallet/connection";
-import {
-  clearAllConnectedSites,
-  getConnectedSites,
-} from "../../lib/wallet/evm/connection";
+import {clearAllConnectedSites} from "../../lib/wallet/evm/connection";
 import MainScreen from "../Legacy/MainScreen";
 import usePreferences from "../../hooks/usePreferences";
+import useConnections from "../../hooks/useConnections";
+import {sendMessageToClient} from "../../lib/wallet/message";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -37,22 +34,8 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
   const {preferences, setPreferences} = usePreferences();
-  const [connections, setConnections] = useState<ConnectedSites>();
+  const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
-
-  // load site connections
-  useEffect(() => {
-    const loadConnections = async () => {
-      try {
-        setConnections(await getConnectedSites());
-      } catch (e) {
-        notifyEvent(e, "warning", "Wallet", "Configuration", {
-          msg: "error loading connections",
-        });
-      }
-    };
-    void loadConnections();
-  }, []);
 
   const handleCompatibilityMode = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -93,8 +76,17 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   };
 
   const handleDisconnectAll = async () => {
+    // handle disconnect internally
     await clearAllConnectedSites();
     setConnections({});
+
+    // send disconnect event to client
+    await sendMessageToClient("disconnectRequest");
+  };
+
+  const handleRefreshParent = async () => {
+    await sendMessageToClient("refreshRequest");
+    setCompatModeSuccess(false);
   };
 
   return (
@@ -160,10 +152,20 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     <Alert severity="info" variant="filled">
                       <Typography variant="body2">
                         <Markdown>
-                          Compatibility mode is now enabled. **Open tabs must be
-                          refreshed** for compatibility mode to take effect.
+                          Compatibility mode is now enabled, but **open tabs
+                          must be refreshed** for compatibility mode to take
+                          effect.
                         </Markdown>
                       </Typography>
+                      <Box display="flex" justifyContent="right">
+                        <Button
+                          variant="text"
+                          onClick={handleRefreshParent}
+                          className={classes.actionButton}
+                        >
+                          Refresh now
+                        </Button>
+                      </Box>
                     </Alert>
                   </Box>
                 )}

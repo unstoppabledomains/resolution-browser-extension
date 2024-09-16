@@ -6,6 +6,7 @@ import {
   getResponseType,
   isExternalRequestType,
   isInternalRequestType,
+  isClientSideRequestType,
 } from "../../types/wallet/provider";
 
 // register event listeners for all supported internal and external
@@ -32,4 +33,11 @@ import {
       },
     );
   });
+});
+
+// listen for extension events that should be handled in browser window
+chrome.runtime.onMessage.addListener((request: ProviderEvent) => {
+  if (isClientSideRequestType(request.type)) {
+    document.dispatchEvent(new CustomEvent(request.type));
+  }
 });
