@@ -25,6 +25,8 @@ import MainScreen from "../Legacy/MainScreen";
 import usePreferences from "../../hooks/usePreferences";
 import useConnections from "../../hooks/useConnections";
 import {sendMessageToClient} from "../../lib/wallet/message";
+import config from "../../config";
+import {getManifestVersion} from "../../lib/runtime";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -200,7 +202,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   </Box>
                 )}
               </PreferenceSection>
-
               <PreferenceSection
                 title="Decentralized Browsing"
                 description="Level up your browser by resolving onchain domains. Names like lisa.x or sandy.nft can be looked up using the DNS alternatives configured below."
@@ -209,6 +210,10 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   <MainScreen hideUserId={true} />
                 </Box>
               </PreferenceSection>
+              <PreferenceSection
+                title="Version"
+                description={`${getManifestVersion()} (${config.NODE_ENV})`}
+              />
             </Box>
           )}
         </Box>

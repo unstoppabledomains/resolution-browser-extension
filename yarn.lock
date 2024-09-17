@@ -4887,9 +4887,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@latest, @unstoppabledomains/config@npm:0.0.12":
-  version: 0.0.12
-  resolution: "@unstoppabledomains/config@npm:0.0.12"
+"@unstoppabledomains/config@latest, @unstoppabledomains/config@npm:0.0.13":
+  version: 0.0.13
+  resolution: "@unstoppabledomains/config@npm:0.0.13"
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -4898,7 +4898,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: 34365870ce3969ca25cb379b9a1f92d15befeb350ad5bde29d306353044ddfeeff010b3ced46fed6bd6e4375177b2fe26f0fd8f627f52a1263752f96a32f8668
+  checksum: edf0b6a9fe30b61a4f7e731c7a205ac814b6757b74c6bbf164c47b92be308141c1ab397775bc5c6bda900f176f46c09fe04afc30a6429e41d14ccb684d1d35ca
   languageName: node
   linkType: hard
 
@@ -17013,7 +17013,7 @@ __metadata:
     "@types/node": ^20.14.6
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
-    "@unstoppabledomains/config": 0.0.12
+    "@unstoppabledomains/config": 0.0.13
     "@unstoppabledomains/ui-components": 0.0.48-browser-extension.9
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0

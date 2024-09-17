@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.17",
+  "version": "3.1.18",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -35,7 +35,7 @@
     "@metamask/providers": "^17.1.2",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@unstoppabledomains/config": "0.0.12",
+    "@unstoppabledomains/config": "0.0.13",
     "@unstoppabledomains/ui-components": "0.0.48-browser-extension.9",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "async-mutex": "^0.5.0",

@@ -37,6 +37,7 @@ import {Logger} from "../../lib/logger";
 import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 import usePreferences from "../../hooks/usePreferences";
 import useConnections from "../../hooks/useConnections";
+import {getProviderRequest} from "../../lib/wallet/request";
 
 enum ConnectionState {
   ACCOUNT,
@@ -283,14 +284,9 @@ const Connect: React.FC = () => {
 
     // manually handle a message that was sent along with the initial window
     // popup, since the event listener did not yet exist
-    const queryStringArgs = queryString.parse(window.location.search);
-    if (queryStringArgs && Object.keys(queryStringArgs).length > 0) {
-      if (queryStringArgs.request) {
-        const request = JSON.parse(queryStringArgs.request as string);
-        if (request.type) {
-          handleMessage(request);
-        }
-      }
+    const providerRequest = getProviderRequest();
+    if (providerRequest) {
+      handleMessage(providerRequest);
     }
 
     // cleanup listeners

@@ -33,6 +33,9 @@ import {
 import {sleep} from "../../lib/wallet/sleep";
 import useConnections from "../../hooks/useConnections";
 import {sendMessageToClient} from "../../lib/wallet/message";
+import {useNavigate} from "react-router-dom";
+import {ResponseType, getResponseType} from "../../types/wallet/provider";
+import {getProviderRequest} from "../../lib/wallet/request";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -41,6 +44,7 @@ const enum SnackbarKey {
 
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
+  const navigate = useNavigate();
   const [walletState] = useFireblocksState();
   const {classes} = useExtensionStyles();
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
@@ -57,9 +61,21 @@ const WalletComp: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
 
+  // method to remove the window close listener, used to catch the situation
+  // where user closes the window. If the window is closed by expected means,
+  // this method is used to cancel the listener so the handler doesn't fire.
+  let removeBeforeUnloadListener: () => void;
+
   const handleAuthComplete = async () => {
+    // cleanup state from authentication attempt
     await chromeStorageRemove(StorageSyncKey.AuthState, "session");
     setAuthComplete(true);
+
+    // if the sign in was initiated by a wallet connection, route the processing
+    // back to the connect page now that sign in is completed
+    if (getProviderRequest()) {
+      navigate("/connect");
+    }
   };
 
   const handleAuthStart = async (emailAddress: string, password: string) => {
@@ -79,6 +95,17 @@ const WalletComp: React.FC = () => {
   useEffect(() => {
     if (!isMounted()) {
       return;
+    }
+
+    // add a listener for unload, which will detect if a user manually closes
+    // the window before handling the connection request, only if this login
+    // request is associated with a wallet connect request.
+    const providerRequest = getProviderRequest();
+    if (providerRequest) {
+      const beforeUnloadHandler = handleUnexpectedClose(providerRequest);
+      window.addEventListener("beforeunload", beforeUnloadHandler);
+      removeBeforeUnloadListener = () =>
+        window.removeEventListener("beforeunload", beforeUnloadHandler);
     }
 
     const loadWallet = async () => {
@@ -169,11 +196,45 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
+  const handleUnexpectedClose = (m: any) => (_e: BeforeUnloadEvent) => {
+    // called when the user manually closes the connection window, without
+    // interacting with any of the buttons
+    if (m) {
+      handleError(getResponseType(m.type), new Error("user closed wallet"));
+    }
+    return;
+  };
+
+  const handleError = (type: ResponseType, e: Error) => {
+    // handle provider error and cancel the operation
+    Logger.error(e, "Popup", "handled provider error", type);
+    chrome.runtime.sendMessage({
+      type,
+      error: String(e),
+    });
+    handleClose();
+  };
+
+  const handleClose = () => {
+    // remove the window unload listener, since this is an expected
+    // call by the user to close the window
+    if (removeBeforeUnloadListener) {
+      removeBeforeUnloadListener();
+    }
+    window.close();
+  };
+
   // handleCompatibilitySettings determines whether to automatically apply the
   // compatibility mode, or ask the user in a CTA
   const handleCompatibilitySettings = async () => {
     // check whether setting is already applied
     if (preferences?.OverrideMetamask) {
+      return;
+    }
+
+    // check whether this is a wallet connect request, as the snackbar notification
+    // is very distracting to an operation
+    if (getProviderRequest()) {
       return;
     }
 
@@ -311,7 +372,7 @@ const WalletComp: React.FC = () => {
     await setWalletPreferences(defaultPreferences);
 
     // close the extension window
-    window.close();
+    handleClose();
   };
 
   const handleShowPreferences = () => {
