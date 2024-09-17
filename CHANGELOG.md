@@ -1,3 +1,6 @@
+## 3.0.14
+* Add .dream TLDs support
+
 ## 3.0.13
 * Add .lfg TLDs support
 
