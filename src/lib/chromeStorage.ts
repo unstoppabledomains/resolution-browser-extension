@@ -2,6 +2,7 @@ import {Logger} from "./logger";
 
 export enum StorageSyncKey {
   AuthState = "AuthState",
+  Account = "Account",
   GatewayBaseURL = "GatewayBaseURL",
   GatewayOption = "GatewayOption",
   BookmarkedDomains = "BookmarkedDomains",

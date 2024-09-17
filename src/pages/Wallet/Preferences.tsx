@@ -27,6 +27,7 @@ import useConnections from "../../hooks/useConnections";
 import {sendMessageToClient} from "../../lib/wallet/message";
 import config from "../../config";
 import {getManifestVersion} from "../../lib/runtime";
+import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -38,6 +39,14 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {preferences, setPreferences} = usePreferences();
   const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
+  const [account, setAccount] = useState<string>();
+
+  useEffect(() => {
+    const loadAccount = async () => {
+      setAccount(await chromeStorageGet(StorageSyncKey.Account));
+    };
+    void loadAccount();
+  }, []);
 
   const handleCompatibilityMode = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -109,11 +118,11 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
           ) : (
             <Box className={classes.contentContainer} mb={1} mt={-3}>
               <PreferenceSection
-                title="Sherlock Assistant"
-                description="Gain insight into apps by automatically detecting wallet addresses associated with onchain domains. Augments apps in this browser with rich identity details."
+                title={t("extension.sherlockAssistant")}
+                description={t("extension.sherlockAssistantDescription")}
               >
                 <FormControlLabel
-                  label="Enable Sherlock Assistant"
+                  label={`${t("manage.enable")} ${t("extension.sherlockAssistant")}`}
                   control={
                     <Checkbox
                       checked={preferences.Scanning?.Enabled}
@@ -123,11 +132,11 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 />
               </PreferenceSection>
               <PreferenceSection
-                title="Messaging"
-                description="Chat securely with friends with Unstoppable Messaging, powered by XMTP and Push Protocol."
+                title={t("push.messages")}
+                description={t("push.description")}
               >
                 <FormControlLabel
-                  label="Enable messaging"
+                  label={`${t("manage.enable")} ${t("push.messages")}`}
                   control={
                     <Checkbox
                       checked={preferences.MessagingEnabled}
@@ -137,11 +146,11 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 />
               </PreferenceSection>
               <PreferenceSection
-                title="Compatibility Mode"
-                description="Unstoppable Lite Wallet can override MetaMask in apps to ensure maximum compatibility. Enabling this setting may interfere with other extensions."
+                title={t("extension.compatibilityMode")}
+                description={t("extension.compatibilityModeDescription")}
               >
                 <FormControlLabel
-                  label="Enable compatibility mode"
+                  label={`${t("manage.enable")} ${t("extension.compatibilityMode")}`}
                   control={
                     <Checkbox
                       checked={preferences.OverrideMetamask}
@@ -154,9 +163,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     <Alert severity="info" variant="filled">
                       <Typography variant="body2">
                         <Markdown>
-                          Compatibility mode is now enabled, but **open tabs
-                          must be refreshed** for compatibility mode to take
-                          effect.
+                          {t("extension.compatibilityModeEnabled")}
                         </Markdown>
                       </Typography>
                       <Box display="flex" justifyContent="right">
@@ -165,7 +172,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                           onClick={handleRefreshParent}
                           className={classes.actionButton}
                         >
-                          Refresh now
+                          {t("extension.refreshNow")}
                         </Button>
                       </Box>
                     </Alert>
@@ -173,11 +180,11 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 )}
               </PreferenceSection>
               <PreferenceSection
-                title="Wallet Connections"
+                title={t("extension.walletConnections")}
                 description={
                   connections && Object.keys(connections).length > 0
-                    ? "You have authorized the following websites to connect to Unstoppable Lite Wallet."
-                    : "No authorized connections"
+                    ? t("extension.walletConnectionsDescription")
+                    : t("extension.noWalletConnections")
                 }
               >
                 {connections &&
@@ -197,21 +204,27 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                       fullWidth
                       size="small"
                     >
-                      Disconnect all
+                      {t("header.disconnectAll")}
                     </Button>
                   </Box>
                 )}
               </PreferenceSection>
               <PreferenceSection
-                title="Decentralized Browsing"
-                description="Level up your browser by resolving onchain domains. Names like lisa.x or sandy.nft can be looked up using the DNS alternatives configured below."
+                title={t("extension.decentralizedBrowsing")}
+                description={t("extension.decentralizedBrowsingDescription")}
               >
                 <Box display="flex" width="100%" mt={1}>
                   <MainScreen hideUserId={true} />
                 </Box>
               </PreferenceSection>
+              {account && (
+                <PreferenceSection
+                  title={t("common.account")}
+                  description={account}
+                />
+              )}
               <PreferenceSection
-                title="Version"
+                title={t("extension.version")}
                 description={`${getManifestVersion()} (${config.NODE_ENV})`}
               />
             </Box>

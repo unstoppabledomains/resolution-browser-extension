@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Paper, Typography} from "@mui/material";
+import {Box, Chip, Button, Paper, Typography} from "@mui/material";
 import {
   DomainProfileTabType,
   DomainProfileKeys,
@@ -36,6 +36,7 @@ import {sendMessageToClient} from "../../lib/wallet/message";
 import {useNavigate} from "react-router-dom";
 import {ResponseType, getResponseType} from "../../types/wallet/provider";
 import {getProviderRequest} from "../../lib/wallet/request";
+import {AppEnv} from "@unstoppabledomains/config";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -67,6 +68,11 @@ const WalletComp: React.FC = () => {
   let removeBeforeUnloadListener: () => void;
 
   const handleAuthComplete = async () => {
+    // remember the user email address
+    if (authState.emailAddress) {
+      await chromeStorageSet(StorageSyncKey.Account, authState.emailAddress);
+    }
+
     // cleanup state from authentication attempt
     await chromeStorageRemove(StorageSyncKey.AuthState, "session");
     setAuthComplete(true);
@@ -257,9 +263,7 @@ const WalletComp: React.FC = () => {
       // show the CTA
       enqueueSnackbar(
         <Typography variant="body2">
-          Enable compatibility mode? This extension can override other wallets
-          like MetaMask for enhanced functionality. You can update your
-          preference from the settings menu.
+          {t("extension.compatibilityModeCta")}
         </Typography>,
         {
           variant: "info",
@@ -315,8 +319,7 @@ const WalletComp: React.FC = () => {
     // notify user of successful enablement
     enqueueSnackbar(
       <Typography variant="body2">
-        Compatibility mode is enabled, but will not take effect on open tabs
-        until you refresh the page.
+        {t("extension.compatibilityModeEnabled")}
       </Typography>,
       {
         key: SnackbarKey.Success,
@@ -330,7 +333,7 @@ const WalletComp: React.FC = () => {
               className={classes.actionButton}
               onClick={handleRefreshParent}
             >
-              Refresh now
+              {t("extension.refreshNow")}
             </Button>
           </Box>
         ),
@@ -390,10 +393,26 @@ const WalletComp: React.FC = () => {
     <Paper className={classes.container}>
       {!authAddress && (
         <Header
-          title="Unstoppable Lite Wallet"
-          subTitle="A web3 wallet for domainers and their domains"
+          title={t("wallet.title")}
+          subTitle={t("manage.cryptoWalletDescriptionShort")}
           iconPath="icon/wallet.svg"
         />
+      )}
+      {(config.NODE_ENV as AppEnv) !== "production" && (
+        <Box
+          className={
+            authAddress
+              ? classes.testNetContainerLeft
+              : classes.testNetContainerRight
+          }
+        >
+          <Chip
+            variant="filled"
+            label={config.NODE_ENV}
+            color="warning"
+            size="small"
+          />
+        </Box>
       )}
       <Box
         className={classes.walletContainer}

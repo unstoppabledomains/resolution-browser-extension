@@ -78,4 +78,14 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     color: "white",
     marginLeft: theme.spacing(1),
   },
+  testNetContainerLeft: {
+    position: "absolute",
+    top: theme.spacing(2),
+    left: theme.spacing(2),
+  },
+  testNetContainerRight: {
+    position: "absolute",
+    top: theme.spacing(2),
+    right: theme.spacing(2),
+  },
 }));

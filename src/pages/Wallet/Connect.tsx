@@ -209,9 +209,7 @@ const Connect: React.FC = () => {
 
         // set an error message if chain is not supported
         if (!normalizedChainName) {
-          setErrorMessage(
-            `Cannot connect to unsupported network (${originalChainId}). The Unstoppable Lite Wallet browser extension supports Ethereum, Polygon and Base networks.`,
-          );
+          setErrorMessage(t("extension.unsupportedChain", {originalChainId}));
         }
       }
 
@@ -615,10 +613,12 @@ const Connect: React.FC = () => {
                 hostUrl={web3Deps.unstoppableWallet.connectedApp.hostUrl}
                 actionText={
                   connectionState === ConnectionState.PERMISSIONS
-                    ? "request permission to view your wallet and prompt for transactions"
+                    ? t("extension.connectRequest")
                     : connectionState === ConnectionState.SWITCH_CHAIN
-                      ? `connect to ${connectionStateMessage.params[0].chainName}`
-                      : "connect to Unstoppable Lite Wallet"
+                      ? t("extension.connectToChain", {
+                          chainName: connectionStateMessage.params[0].chainName,
+                        })
+                      : t("extension.connect")
                 }
               />
             )}

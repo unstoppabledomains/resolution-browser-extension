@@ -9,12 +9,14 @@ import Markdown from "markdown-to-jsx";
 import config from "../../config";
 import usePreferences from "../../hooks/usePreferences";
 import {getManifestVersion} from "../../lib/runtime";
+import {useTranslationContext} from "@unstoppabledomains/ui-components";
 
 interface Props {}
 
 const OnUpdated: React.FC<Props> = () => {
   const {classes, cx} = useExtensionStyles();
   const {preferences} = usePreferences();
+  const [t] = useTranslationContext();
   const navigate = useNavigate();
 
   const handleOptOut = async () => {
@@ -42,7 +44,7 @@ const OnUpdated: React.FC<Props> = () => {
         >
           <img src={chrome.runtime.getURL("/icon/browser.svg")} />
           <Typography variant="h4" mt={1}>
-            Welcome to version {getManifestVersion()}!
+            {t("extension.welcomeToVersion", {version: getManifestVersion()})}
           </Typography>
           <Paper variant="outlined" className={classes.updatedContentContainer}>
             <Typography variant="body1">
@@ -53,16 +55,16 @@ const OnUpdated: React.FC<Props> = () => {
         <Box className={classes.contentContainer}>
           {preferences?.WalletEnabled ? (
             <Button variant="contained" onClick={handleUseWallet} fullWidth>
-              Continue
+              {t("common.continue")}
             </Button>
           ) : (
             <>
               <Button variant="contained" onClick={handleUseWallet} fullWidth>
-                Enable Wallet Features
+                {t("extension.enableWallet")}
               </Button>
               <Box className={classes.contentContainer} mt={1}>
                 <Button variant="text" onClick={handleOptOut} size="small">
-                  Continue without wallet
+                  {t("extension.continueWithoutWallet")}
                 </Button>
               </Box>
             </>
