@@ -24,6 +24,7 @@ import OnUpdated from "../pages/OnUpdated";
 import {compareVersions} from "compare-versions";
 import usePreferences from "../hooks/usePreferences";
 import ConnectionProvider from "../providers/ConnectionProvider";
+import {getManifestVersion} from "../lib/runtime";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,7 @@ const EntryPoint: React.FC = () => {
     // to determine if a new version UX should be displayed
     if (
       compareVersions(
-        chrome.runtime.getManifest().version, // currently installed version
+        getManifestVersion(), // currently installed version
         preferences.Version, // last observed version
       )
     ) {

@@ -8,6 +8,7 @@ import Animation from "react-canvas-confetti/dist/presets/fireworks";
 import Markdown from "markdown-to-jsx";
 import config from "../../config";
 import usePreferences from "../../hooks/usePreferences";
+import {getManifestVersion} from "../../lib/runtime";
 
 interface Props {}
 
@@ -27,7 +28,7 @@ const OnUpdated: React.FC<Props> = () => {
   const handlePreference = async (view: DefaultPageView) => {
     preferences.DefaultView = view;
     preferences.WalletEnabled = view === "wallet";
-    preferences.Version = chrome.runtime.getManifest().version;
+    preferences.Version = getManifestVersion();
     await setWalletPreferences(preferences);
     navigate("/");
   };
@@ -41,7 +42,7 @@ const OnUpdated: React.FC<Props> = () => {
         >
           <img src={chrome.runtime.getURL("/icon/browser.svg")} />
           <Typography variant="h4" mt={1}>
-            Welcome to version {chrome.runtime.getManifest().version}!
+            Welcome to version {getManifestVersion()}!
           </Typography>
           <Paper variant="outlined" className={classes.updatedContentContainer}>
             <Typography variant="body1">

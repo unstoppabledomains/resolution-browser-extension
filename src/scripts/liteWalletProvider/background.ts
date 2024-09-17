@@ -5,6 +5,7 @@ import {
   setConnectedSite,
 } from "../../lib/wallet/evm/connection";
 import {getWalletPreferences} from "../../lib/wallet/preferences";
+import {sleep} from "../../lib/wallet/sleep";
 import {ConnectedSite} from "../../types/wallet/connection";
 import {
   NotConnectedError,
@@ -139,26 +140,30 @@ export const backgroundEventListener = (
 
           // if a widow ID is already generated, use it
           if (extensionPopupWindowId) {
-            // if a popup window is already open, use it
-            chrome.tabs.query(
-              {windowId: extensionPopupWindowId},
-              (extensionPopupWindow) => {
-                if (extensionPopupWindow.length === 0) {
-                  // the previous window ID has been closed, so a new extension popup
-                  // needs to be opened
-                  extensionPopupWindowId = null;
-                  openPopupWindow(
-                    popupResponseHandler,
-                    requestUrl,
-                    requestHost,
-                    requestSource,
-                  );
-                } else {
-                  // listen for a response on the existing wallet extension popup
-                  listenForPopupResponse(popupResponseHandler, requestHost);
-                }
-              },
-            );
+            // brief wait to avoid a race where the window is currently closing while
+            // also attempting to query existence
+            sleep(250).then(() => {
+              // if a popup window is already open, use it
+              chrome.tabs.query(
+                {windowId: extensionPopupWindowId},
+                (extensionPopupWindow) => {
+                  if (extensionPopupWindow.length === 0) {
+                    // the previous window ID has been closed, so a new extension popup
+                    // needs to be opened
+                    extensionPopupWindowId = null;
+                    openPopupWindow(
+                      popupResponseHandler,
+                      requestUrl,
+                      requestHost,
+                      requestSource,
+                    );
+                  } else {
+                    // listen for a response on the existing wallet extension popup
+                    listenForPopupResponse(popupResponseHandler, requestHost);
+                  }
+                },
+              );
+            });
           } else {
             // open a new wallet extension popup
             openPopupWindow(

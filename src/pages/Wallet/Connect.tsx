@@ -66,6 +66,11 @@ const Connect: React.FC = () => {
   const [connectionStateMessage, setConnectionStateMessage] = useState<any>();
   const [connectionState, setConnectionState] = useState<ConnectionState>();
 
+  // method to remove the window close listener, used to catch the situation
+  // where user closes the window. If the window is closed by expected means,
+  // this method is used to cancel the listener so the handler doesn't fire.
+  let removeBeforeUnloadListener: () => void;
+
   useEffect(() => {
     // wait for required fields to be loaded
     if (!isMounted() || !preferences || !connections) {
@@ -262,6 +267,13 @@ const Connect: React.FC = () => {
             Logger.log("Unsupported message type", message);
             throw new Error(UnsupportedRequestError);
         }
+
+        // add a listener for unload, which will detect if a user manually closes
+        // the window before handling the connection request
+        const beforeUnloadHandler = handleUnexpectedClose(message);
+        window.addEventListener("beforeunload", beforeUnloadHandler);
+        removeBeforeUnloadListener = () =>
+          window.removeEventListener("beforeunload", beforeUnloadHandler);
       } catch (e) {
         // handle the error
         handleError(getResponseType(message.type), e);
@@ -533,7 +545,24 @@ const Connect: React.FC = () => {
   };
 
   const handleClose = () => {
+    // remove the window unload listener, since this is an expected
+    // call by the user to close the window
+    if (removeBeforeUnloadListener) {
+      removeBeforeUnloadListener();
+    }
     window.close();
+  };
+
+  const handleUnexpectedClose = (message: any) => (_e: BeforeUnloadEvent) => {
+    // called when the user manually closes the connection window, without
+    // interacting with any of the buttons
+    if (message) {
+      handleError(
+        getResponseType(message.type),
+        new Error("user closed wallet"),
+      );
+    }
+    return;
   };
 
   const renderButton = () => {

@@ -1,5 +1,6 @@
 import {BugsnagErrorClasses, notifyBugsnag} from "@unstoppabledomains/config";
 import config from "../config";
+import {getManifestVersion} from "./runtime";
 
 const PREFIX = "Unstoppable Domains";
 
@@ -38,7 +39,7 @@ export class Logger {
       },
       {
         api_key: config.BUGSNAG_API_KEY,
-        app_version: chrome.runtime.getManifest().version,
+        app_version: getManifestVersion(),
         app_env: config.NODE_ENV,
       },
     );
