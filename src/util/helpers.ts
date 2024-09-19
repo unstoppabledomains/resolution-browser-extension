@@ -35,4 +35,5 @@ export const supportedDomains: string[] = [
   ".farms",
   ".dfz",
   ".smobler",
+  ".lfg",
 ];

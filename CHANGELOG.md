@@ -1,3 +1,6 @@
+## 3.0.13
+* Add .lfg TLDs support
+
 ## 3.0.12
 * Add .smobler TLDs support
 
