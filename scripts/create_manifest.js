@@ -6,16 +6,14 @@ const packageJson = require("../package.json");
 const args = process.argv.slice(2);
 const isChrome = args[0] === "chrome";
 const isFirefox = args[0] === "firefox";
-const isDevMode = args[1] === "dev";
+const envName = process.env.NODE_ENV || "production";
 
 const path = "./src/manifest.json";
 
 // inject version from package.json
 templateJson["version"] = packageJson["version"];
-
-// inject development mode flags
-if (isDevMode) {
-  templateJson["version_name"] = templateJson["version"] + " -dev_mode-";
+if (envName !== "production") {
+  templateJson["version_name"] = `${packageJson["version"]}-${envName.toLowerCase()}`;
 }
 
 if (isChrome) {

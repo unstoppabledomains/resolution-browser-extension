@@ -4,6 +4,7 @@
   "short_name": "Unstoppable Domains",
   "version": "<injected from package.json using create_manifest.js>",
   "description": "The Unstoppable Domains browser extension is used to access decentralized blockchain domains.",
+  "minimum_chrome_version": "102",
   "icons": {
     "16": "icon/16.png",
     "38": "icon/38.png",
@@ -16,7 +17,11 @@
   "action": {
     "default_popup": "index.html",
     "default_icon": {
-      "48": "icon/48.png"
+      "16": "icon/16.png",
+      "38": "icon/38.png",
+      "48": "icon/48.png",
+      "96": "icon/96.png",
+      "128": "icon/128.png"
     }
   },
   "background": {

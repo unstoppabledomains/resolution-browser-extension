@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.20",
+  "version": "3.1.21",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -9,7 +9,7 @@
   "homepage": "https://unstoppabledomains.com/extension",
   "scripts": {
     "clean": "rm -rf ./dist; rm -rf ./releases; rm -rf .parcel-cache",
-    "postinstall": "node scripts/create-env.mjs && node ./scripts/create_manifest.js",
+    "postinstall": "NODE_ENV=staging; node scripts/create-env.mjs && node ./scripts/create_manifest.js",
     "prettier": "prettier --write --log-level warn \"src/**/*.{js,jsx,json,ts,tsx,css,scss,md}\"",
     "predev": "yarn clean && yarn prettier",
     "dev": "NODE_ENV=staging; yarn clean && parcel watch src/manifest.json --host localhost --no-source-maps",

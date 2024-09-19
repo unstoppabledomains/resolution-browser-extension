@@ -10,16 +10,13 @@ import {
   ExtensionURIMap,
 } from "../../types/redirect";
 import OAURL from "../../lib/OsAgnosticURL";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  TextField,
-  Typography,
-} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select, {SelectChangeEvent} from "@mui/material/Select";
+import TextField from "@mui/material/TextField";
 import ShowUserId from "../../components/ShowUserId";
 import {useFlags} from "launchdarkly-react-client-sdk";
 

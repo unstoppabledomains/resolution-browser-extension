@@ -1,5 +1,8 @@
 import React from "react";
-import {Box, Grid, Button, IconButton, Typography} from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import HomeIcon from "@mui/icons-material/Home";
 import WalletIcon from "@mui/icons-material/Wallet";
 import {useNavigate} from "react-router-dom";

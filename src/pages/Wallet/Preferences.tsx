@@ -1,14 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {
-  Box,
-  Alert,
-  Typography,
-  CircularProgress,
-  Button,
-  Divider,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import Markdown from "markdown-to-jsx";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {
@@ -26,7 +24,7 @@ import usePreferences from "../../hooks/usePreferences";
 import useConnections from "../../hooks/useConnections";
 import {sendMessageToClient} from "../../lib/wallet/message";
 import config from "../../config";
-import {getManifestVersion} from "../../lib/runtime";
+import {getManifestVersion, setIcon} from "../../lib/runtime";
 import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 
 interface PreferencesProps {
@@ -90,6 +88,9 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     // handle disconnect internally
     await clearAllConnectedSites();
     setConnections({});
+
+    // remove the connected icon
+    setIcon("default");
 
     // send disconnect event to client
     await sendMessageToClient("disconnectRequest");

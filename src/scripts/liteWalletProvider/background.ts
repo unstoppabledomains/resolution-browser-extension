@@ -1,5 +1,6 @@
 import config from "../../config";
 import {Logger} from "../../lib/logger";
+import {setBadgeCount, setIcon} from "../../lib/runtime";
 import {
   getConnectedSite,
   setConnectedSite,
@@ -20,6 +21,27 @@ import {
 // keep track of the wallet extension popup window ID
 let extensionPopupWindowId = null;
 
+// tabChangeEventListener listens for tab switches
+export const tabChangeEventListener = async (
+  tabInfo: chrome.tabs.TabActiveInfo,
+) => {
+  // retrieve current tab
+  const tab = await chrome.tabs.get(tabInfo.tabId);
+  await handleTabStatus(tab);
+};
+
+// tabUpdatedEventListener listens for changes to existing tabs
+export const tabUpdatedEventListener = async (tabId: number) => {
+  // retrieve current tab
+  const tab = await chrome.tabs.get(tabId);
+  await handleTabStatus(tab);
+};
+
+// tabCreatedEventListener listens for new tabs
+export const tabCreatedEventListener = async (tab: chrome.tabs.Tab) => {
+  await handleTabStatus(tab);
+};
+
 // backgroundEventListener listens for requests to open the wallet extension popup. Awkward note
 // that the signature cannot contain async, even though the contents of this method do call some
 // promises. They must be handled using .then() pattern, due to the way event listeners work in
@@ -29,18 +51,21 @@ export const backgroundEventListener = (
   _sender: chrome.runtime.MessageSender,
   popupResponseHandler: (response: ProviderEventResponse) => void,
 ) => {
-  // log the incoming event
-  Logger.log("Handling event start", JSON.stringify(request));
-
-  // handle internal request types
+  // handle incoming internal event
   if (isInternalRequestType(request.type)) {
     switch (request.type) {
       case "getPreferencesRequest":
         void handleFetchPreferences(popupResponseHandler);
         break;
+      case "queueRequest":
+        void handleQueueUpdate(request);
+        break;
     }
     return true;
   }
+
+  // log the incoming external event
+  Logger.log("Handling event start", JSON.stringify(request));
 
   // handle external request types
   if (isExternalRequestType(request.type)) {
@@ -244,6 +269,7 @@ const listenForPopupResponse = (
           timestamp: new Date().getTime(),
         };
         void setConnectedSite(host, connection);
+        void setIcon("connected");
       }
 
       // cleanup the listener and handle the response
@@ -262,6 +288,20 @@ const handleResponse = (
   popupResponseHandler(response);
 };
 
+const handleTabStatus = async (tab: chrome.tabs.Tab) => {
+  if (!tab?.url || !tab.id) {
+    return;
+  }
+
+  // determine if tab is connected
+  const hostname = new URL(tab.url).hostname;
+  if (await getConnectedSite(hostname)) {
+    setIcon("connected", tab.id);
+    return;
+  }
+  setIcon("default", tab.id);
+};
+
 const handleFetchPreferences = async (
   popupResponseHandler: (response: ProviderEventResponse) => void,
 ) => {
@@ -270,4 +310,16 @@ const handleFetchPreferences = async (
     type: getResponseType("getPreferencesRequest"),
     preferences,
   });
+};
+
+const handleQueueUpdate = async (request: ProviderRequest) => {
+  if (!request?.params || request.params.length === 0) {
+    return;
+  }
+  try {
+    const count = parseInt(request.params[0]);
+    await setBadgeCount(count);
+  } catch (e) {
+    // ignore errors
+  }
 };

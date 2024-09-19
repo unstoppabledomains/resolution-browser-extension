@@ -1,5 +1,7 @@
 import React from "react";
-import {Paper, CircularProgress, Typography} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Paper from "@mui/material/Paper";
 import {useExtensionStyles} from "../../styles/extension.styles";
 
 const styles = {

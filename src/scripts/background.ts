@@ -1,6 +1,11 @@
 import "../subscripts/onInstalled";
 import {supportedDomains} from "../lib/helpers";
-import {backgroundEventListener} from "./liteWalletProvider/background";
+import {
+  backgroundEventListener,
+  tabChangeEventListener as tabActivatedEventListener,
+  tabCreatedEventListener,
+  tabUpdatedEventListener,
+} from "./liteWalletProvider/background";
 import {Logger} from "../lib/logger";
 import {ContextMenu} from "../lib/sherlock/contextMenu";
 
@@ -105,6 +110,9 @@ setTimeout(() => {
 
 // register the wallet popup event listener
 chrome.runtime.onMessage.addListener(backgroundEventListener);
+chrome.tabs.onActivated.addListener(tabActivatedEventListener);
+chrome.tabs.onCreated.addListener(tabCreatedEventListener);
+chrome.tabs.onUpdated.addListener(tabUpdatedEventListener);
 
 /***********************************
  * Context menu and tab management

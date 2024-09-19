@@ -12,6 +12,15 @@ export type ProviderMethod =
   | "wallet_requestPermissions"
   | "wallet_switchEthereumChain";
 
+export const ProviderMethodsWithPrompt: ProviderMethod[] = [
+  "eth_requestAccounts",
+  "wallet_requestPermissions",
+  "wallet_switchEthereumChain",
+  "personal_sign",
+  "eth_signTypedData_v4",
+  "eth_sendTransaction",
+];
+
 // define required EIP-1193 events
 export type Eip1193Event =
   | "accountsChanged"
@@ -55,6 +64,7 @@ export const InternalMessageTypes = [
   "closeWindowRequest",
   "getPreferencesRequest",
   "newTabRequest",
+  "queueRequest",
   "signInRequest",
 ] as const;
 export type InternalRequestType = (typeof InternalMessageTypes)[number];

@@ -1,6 +1,7 @@
 import React from "react";
 import useUserId from "../hooks/useUserId";
-import {Box, Typography} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import CopyableLabel from "./CopyableLabel";
 
 interface Props {}

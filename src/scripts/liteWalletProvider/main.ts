@@ -16,6 +16,7 @@ import {
   InvalidTypedMessageError,
   ClientSideMessageTypes,
   isClientSideRequestType,
+  ProviderMethodsWithPrompt,
 } from "../../types/wallet/provider";
 import {clone} from "lodash";
 import config, {WINDOW_PROPERTY_NAME, LOGO_BASE_64} from "../../config";
@@ -95,11 +96,16 @@ class LiteWalletProvider extends EventEmitter {
 
   // primary method used to make requests to the wallet extension
   async request(request: RequestArgs) {
+    // queue the incoming request
+    Logger.log("Request queued", JSON.stringify(request));
+    this.requestQueue.push(request);
+
+    // set the badge count
+    this.handleQueueUpdate(this.uniqueRequestCount(ProviderMethodsWithPrompt));
+
     // Serialize operation requests, waiting for completion before moving on
     // to subsequent operations. Keep track of the number of queued requests,
     // which will determine window close behavior.
-    Logger.log("Request queued", JSON.stringify(request));
-    this.requestQueue.push(request);
     const unlock = await this.mutex.acquire();
 
     // eventual result
@@ -183,8 +189,13 @@ class LiteWalletProvider extends EventEmitter {
       this.lastCompletedRequest = request;
       this.lastCompletedRequest.result = result;
 
+      // determine the number of remaining requests
+      this.handleQueueUpdate(
+        this.uniqueRequestCount(ProviderMethodsWithPrompt),
+      );
+
       // close the window if no unique pending requests remain
-      if (!this.requestQueue.find((r) => !this.isDuplicateRequest(r))) {
+      if (this.uniqueRequestCount() === 0) {
         this.handleClosePopup();
       }
 
@@ -290,6 +301,19 @@ class LiteWalletProvider extends EventEmitter {
     return (
       allAddresses.find((a) => a.toLowerCase() === address.toLowerCase()) !==
       undefined
+    );
+  }
+
+  private uniqueRequestCount(filter?: ProviderMethod[]) {
+    return this.requestQueue.filter(
+      (r) =>
+        !this.isDuplicateRequest(r) && (!filter || filter.includes(r.method)),
+    ).length;
+  }
+
+  private handleQueueUpdate(count: number) {
+    document.dispatchEvent(
+      new ProviderEvent("queueRequest", {detail: [count]}),
     );
   }
 

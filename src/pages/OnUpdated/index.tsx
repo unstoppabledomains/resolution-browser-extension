@@ -1,5 +1,9 @@
 import React from "react";
-import {Box, Button, Chip, Paper, Typography} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {setWalletPreferences} from "../../lib/wallet/preferences";
 import {useNavigate} from "react-router-dom";

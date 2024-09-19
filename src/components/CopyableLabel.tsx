@@ -1,5 +1,8 @@
 import React from "react";
-import {Typography, IconButton, Tooltip, Box} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {Logger} from "../lib/logger";
 

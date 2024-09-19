@@ -1,5 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {Box, Chip, Button, Paper, Typography} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Chip from "@mui/material/Chip";
+import Button from "@mui/material/Button";
 import {
   DomainProfileTabType,
   DomainProfileKeys,
@@ -39,6 +43,7 @@ import {getProviderRequest} from "../../lib/wallet/request";
 import {AppEnv} from "@unstoppabledomains/config";
 import {SignInCta} from "./SignInCta";
 import {initializeBrowserSettings} from "../../lib/helpers";
+import {setIcon} from "../../lib/runtime";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -70,42 +75,6 @@ const WalletComp: React.FC = () => {
   // where user closes the window. If the window is closed by expected means,
   // this method is used to cancel the listener so the handler doesn't fire.
   let removeBeforeUnloadListener: () => void;
-
-  const handleAuthComplete = async () => {
-    // remember the user email address
-    if (authState.emailAddress) {
-      await chromeStorageSet(StorageSyncKey.Account, authState.emailAddress);
-    }
-
-    // cleanup state from authentication attempt
-    await chromeStorageRemove(StorageSyncKey.AuthState, "session");
-    setAuthComplete(true);
-
-    // if the sign in was initiated by a wallet connection, route the processing
-    // back to the connect page now that sign in is completed
-    const providerRequest = getProviderRequest();
-    if (providerRequest) {
-      if (providerRequest.type === "signInRequest") {
-        handleClose();
-        return;
-      }
-      navigate("/connect");
-    }
-  };
-
-  const handleAuthStart = async (emailAddress: string, password: string) => {
-    const authState: AuthState = {
-      emailAddress,
-      password,
-      expiration: new Date().getTime() + FIVE_MINUTES,
-    };
-    setAuthState(authState);
-    await chromeStorageSet(
-      StorageSyncKey.AuthState,
-      JSON.stringify(authState),
-      "session",
-    );
-  };
 
   // load the existing wallet if singed in
   useEffect(() => {
@@ -225,6 +194,72 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
+  const handleAuthComplete = async () => {
+    // remember the user email address
+    if (authState.emailAddress) {
+      await chromeStorageSet(StorageSyncKey.Account, authState.emailAddress);
+    }
+
+    // cleanup state from authentication attempt
+    await chromeStorageRemove(StorageSyncKey.AuthState, "session");
+    setAuthComplete(true);
+
+    // if the sign in was initiated by a wallet connection, route the processing
+    // back to the connect page now that sign in is completed
+    const providerRequest = getProviderRequest();
+    if (providerRequest) {
+      if (providerRequest.type === "signInRequest") {
+        handleClose();
+        return;
+      }
+      navigate("/connect");
+    }
+  };
+
+  const handleAuthStart = async (emailAddress: string, password: string) => {
+    const authState: AuthState = {
+      emailAddress,
+      password,
+      expiration: new Date().getTime() + FIVE_MINUTES,
+    };
+    setAuthState(authState);
+    await chromeStorageSet(
+      StorageSyncKey.AuthState,
+      JSON.stringify(authState),
+      "session",
+    );
+  };
+
+  const handleLogout = async () => {
+    // clear extension storage
+    await chromeStorageClear("local");
+    await chromeStorageClear("session");
+    await chromeStorageClear("sync");
+
+    // reset identity variable state
+    setAuthAddress(undefined);
+    setAuthDomain(undefined);
+    setAuthAvatar(undefined);
+
+    // set basic wallet enablement preferences, since we can assume
+    // next time the extension loads that the user enabled the wallet
+    // features, and already has an existing wallet.
+    const defaultPreferences = await getWalletPreferences();
+    defaultPreferences.WalletEnabled = true;
+    defaultPreferences.HasExistingWallet = true;
+    defaultPreferences.DefaultView = "wallet";
+    await setWalletPreferences(defaultPreferences);
+
+    // initialize browser settings
+    await initializeBrowserSettings();
+
+    // set default icon
+    await setIcon("default");
+
+    // close the extension window
+    handleClose();
+  };
+
   const handleUnexpectedClose = (m: any) => (_e: BeforeUnloadEvent) => {
     // called when the user manually closes the connection window, without
     // interacting with any of the buttons
@@ -291,6 +326,7 @@ const WalletComp: React.FC = () => {
         {
           variant: "info",
           key: SnackbarKey.CTA,
+          persist: true,
           action: (
             <Box display="flex" width="100%">
               <Button
@@ -373,35 +409,11 @@ const WalletComp: React.FC = () => {
     // disconnect internally
     await disconnect();
 
+    // set default icon
+    await setIcon("default");
+
     // notify the client of disconnection
     await sendMessageToClient("disconnectRequest");
-  };
-
-  const handleLogout = async () => {
-    // clear extension storage
-    await chromeStorageClear("local");
-    await chromeStorageClear("session");
-    await chromeStorageClear("sync");
-
-    // reset identity variable state
-    setAuthAddress(undefined);
-    setAuthDomain(undefined);
-    setAuthAvatar(undefined);
-
-    // set basic wallet enablement preferences, since we can assume
-    // next time the extension loads that the user enabled the wallet
-    // features, and already has an existing wallet.
-    const defaultPreferences = await getWalletPreferences();
-    defaultPreferences.WalletEnabled = true;
-    defaultPreferences.HasExistingWallet = true;
-    defaultPreferences.DefaultView = "wallet";
-    await setWalletPreferences(defaultPreferences);
-
-    // initialize browser settings
-    await initializeBrowserSettings();
-
-    // close the extension window
-    handleClose();
   };
 
   const handleShowPreferences = () => {

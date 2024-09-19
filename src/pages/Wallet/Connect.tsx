@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {Box, Paper} from "@mui/material";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import useIsMounted from "react-is-mounted-hook";
 import type {Signer} from "ethers";
 import queryString from "query-string";
@@ -394,8 +395,6 @@ const Connect: React.FC = () => {
             // add permission to accepted permission list
             acceptedPermissions.push({
               parentCapability: permission,
-              invoker: "https://docs.metamask.io",
-              context: ["https://github.com/MetaMask/rpc-cap"],
               date: new Date().getTime(),
               caveats: [
                 {

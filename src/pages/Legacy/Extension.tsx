@@ -2,7 +2,8 @@ import React from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import MainScreen from "./MainScreen";
-import {Box, Paper} from "@mui/material";
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
 import {useExtensionStyles} from "../../styles/extension.styles";
 
 const styles = {

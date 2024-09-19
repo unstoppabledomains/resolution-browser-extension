@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {
   RouterProvider,
   createMemoryRouter,
@@ -18,7 +18,7 @@ import SomethingWentWrong from "../pages/Errors/SomethingWentWrong";
 import useUserId from "../hooks/useUserId";
 import {LDProvider} from "launchdarkly-react-client-sdk";
 import config from "../config";
-import {Box} from "@mui/material";
+import Box from "@mui/material/Box";
 import Connect from "../pages/Wallet/Connect";
 import OnUpdated from "../pages/OnUpdated";
 import {compareVersions} from "compare-versions";

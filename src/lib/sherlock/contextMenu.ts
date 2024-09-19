@@ -9,6 +9,7 @@ import {
   setWalletPreferences,
 } from "../wallet/preferences";
 import {sendMessageToClient} from "../wallet/message";
+import {setIcon} from "../runtime";
 
 const ORIGINS: Record<string, boolean> = {};
 
@@ -225,6 +226,9 @@ export class ContextMenu {
     chrome.contextMenus.remove(
       `${MenuType.Connection}-${origin.toLowerCase()}`,
     );
+
+    // remove the connected icon
+    await setIcon("default");
 
     // notify client of disconnection
     await sendMessageToClient("disconnectRequest");
