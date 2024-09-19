@@ -137,6 +137,7 @@ export const supportedDomains: string[] = [
   '.farms',
   '.dfz',
   '.smobler',
+  '.lfg',
 ]
 
 //return true if url ends in one of the supported domains
