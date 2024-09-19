@@ -1,5 +1,5 @@
 import React from "react";
-import {Box, Button, Paper, Typography} from "@mui/material";
+import {Box, Button, Chip, Paper, Typography} from "@mui/material";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {setWalletPreferences} from "../../lib/wallet/preferences";
 import {useNavigate} from "react-router-dom";
@@ -10,10 +10,9 @@ import config from "../../config";
 import usePreferences from "../../hooks/usePreferences";
 import {getManifestVersion} from "../../lib/runtime";
 import {useTranslationContext} from "@unstoppabledomains/ui-components";
+import {AppEnv} from "@unstoppabledomains/config";
 
-interface Props {}
-
-const OnUpdated: React.FC<Props> = () => {
+const OnUpdated: React.FC = () => {
   const {classes, cx} = useExtensionStyles();
   const {preferences} = usePreferences();
   const [t] = useTranslationContext();
@@ -51,6 +50,16 @@ const OnUpdated: React.FC<Props> = () => {
               <Markdown>{config.VERSION_DESCRIPTION}</Markdown>
             </Typography>
           </Paper>
+          {(config.NODE_ENV as AppEnv) !== "production" && (
+            <Box mt={2}>
+              <Chip
+                variant="filled"
+                label={config.NODE_ENV}
+                color="warning"
+                size="small"
+              />
+            </Box>
+          )}
         </Box>
         <Box className={classes.contentContainer}>
           {preferences?.WalletEnabled ? (

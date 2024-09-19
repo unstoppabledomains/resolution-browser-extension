@@ -17,6 +17,7 @@ import {
   ClientSideMessageTypes,
   isClientSideRequestType,
 } from "../../types/wallet/provider";
+import {clone} from "lodash";
 import config, {WINDOW_PROPERTY_NAME, LOGO_BASE_64} from "../../config";
 import {EthereumProviderError} from "eth-rpc-errors";
 import {ExternalProvider} from "@ethersproject/providers";
@@ -40,6 +41,7 @@ declare global {
 interface RequestArgs {
   method: ProviderMethod;
   params: any[];
+  result?: any;
 }
 
 class LiteWalletProvider extends EventEmitter {
@@ -62,7 +64,8 @@ class LiteWalletProvider extends EventEmitter {
 
   // internal properties
   private mutex: Mutex;
-  private pendingRequests: number;
+  private requestQueue: RequestArgs[];
+  private lastCompletedRequest: RequestArgs;
 
   /*************************
    * Public provider methods
@@ -70,10 +73,18 @@ class LiteWalletProvider extends EventEmitter {
 
   constructor() {
     super();
+    this.init();
+  }
+
+  private init() {
     this.isMetaMask = true;
     this.isConnectedStatus = false;
     this.mutex = new Mutex();
-    this.pendingRequests = 0;
+    this.lastCompletedRequest = null;
+    this.chainId = null;
+    this.networkVersion = null;
+    this.selectedAddress = null;
+    this.requestQueue = [];
   }
 
   // represents the extension is available for requests, not necessarily an
@@ -83,21 +94,31 @@ class LiteWalletProvider extends EventEmitter {
   }
 
   // primary method used to make requests to the wallet extension
-  async request({method, params}: RequestArgs) {
+  async request(request: RequestArgs) {
     // Serialize operation requests, waiting for completion before moving on
     // to subsequent operations. Keep track of the number of queued requests,
     // which will determine window close behavior.
-    this.pendingRequests++;
+    Logger.log("Request queued", JSON.stringify(request));
+    this.requestQueue.push(request);
     const unlock = await this.mutex.acquire();
 
-    // request is no longer pending
-    this.pendingRequests--;
+    // eventual result
+    let result: any;
 
     // process the provider request
-    Logger.log("Request received", JSON.stringify({method, params}));
+    Logger.log("Request processing", JSON.stringify(request));
     try {
-      let result: any;
-      switch (method) {
+      // check for duplicate request and return previous answer
+      if (this.isDuplicateRequest(request)) {
+        Logger.warn(
+          "Request duplicate detected",
+          JSON.stringify({request, result: this.lastCompletedRequest.result}),
+        );
+        result = this.lastCompletedRequest.result;
+        return result;
+      }
+
+      switch (request.method) {
         // Wallet connection methods
         case "eth_chainId":
           // requests current chain ID
@@ -116,23 +137,23 @@ class LiteWalletProvider extends EventEmitter {
           // requests permission to connect to the wallet, similar to the
           // above call to eth_requestAccounts but with different return
           // format and user experience.
-          result = await this.handleRequestPermissions(params);
+          result = await this.handleRequestPermissions(clone(request.params));
           break;
         case "wallet_switchEthereumChain":
           // request to change network ID for subsequent operations, and
           // returns an error if network is not supported.
-          result = await this.handleSwitchChain(params);
+          result = await this.handleSwitchChain(clone(request.params));
           break;
         // Message signing methods
         case "personal_sign":
-          result = await this.handlePersonalSign(params);
+          result = await this.handlePersonalSign(clone(request.params));
           break;
         case "eth_signTypedData_v4":
-          result = await this.handleTypedSign(params);
+          result = await this.handleTypedSign(clone(request.params));
           break;
         // Transaction methods
         case "eth_sendTransaction":
-          result = await this.handleSendTransaction(params);
+          result = await this.handleSendTransaction(clone(request.params));
           break;
         case "eth_getTransactionByHash":
           // not implemented, but stubbed out with "not found" to prevent runtime
@@ -142,20 +163,28 @@ class LiteWalletProvider extends EventEmitter {
         default:
           throw new EthereumProviderError(
             PROVIDER_CODE_NOT_IMPLEMENTED,
-            `Unsupported method: ${method}`,
+            `Unsupported method: ${request.method}`,
           );
       }
 
       // result is successful
-      Logger.log("Request successful", JSON.stringify({method, result}));
+      Logger.log(
+        "Request successful",
+        JSON.stringify({method: request.method, result}),
+      );
       return result;
     } catch (e) {
       // result is failure
-      Logger.error(e, "Popup", "Request failed", method, params);
+      Logger.error(e, "Popup", "Request failed", JSON.stringify(request));
       throw e;
     } finally {
-      // close the window if no pending requests remain
-      if (!this.pendingRequests) {
+      // remove the first element from the request service queue
+      this.requestQueue.shift();
+      this.lastCompletedRequest = request;
+      this.lastCompletedRequest.result = result;
+
+      // close the window if no unique pending requests remain
+      if (!this.requestQueue.find((r) => !this.isDuplicateRequest(r))) {
         this.handleClosePopup();
       }
 
@@ -177,9 +206,10 @@ class LiteWalletProvider extends EventEmitter {
   }
 
   // disconnect raises a disconnect event to the app
-  async disconnect() {
-    Logger.log("Disconnecting from app");
+  async requestDisconnect() {
+    this.init();
     this.emitEvent("disconnect", {});
+    Logger.log("Disconnected from app");
   }
 
   /*************************
@@ -236,6 +266,31 @@ class LiteWalletProvider extends EventEmitter {
       delay: 100,
       maxTry,
     });
+  }
+
+  private isDuplicateRequest(request: RequestArgs) {
+    // only if there was already a completed request
+    if (!this.lastCompletedRequest) {
+      return false;
+    }
+
+    // prepare a comparison request
+    const lastRequest = {
+      method: this.lastCompletedRequest.method,
+      params: this.lastCompletedRequest.params,
+    };
+    return (
+      this.lastCompletedRequest?.result &&
+      JSON.stringify(request) === JSON.stringify(lastRequest)
+    );
+  }
+
+  private async isAddressInAccount(address: string) {
+    const allAddresses = await this.handleGetConnectedAccounts();
+    return (
+      allAddresses.find((a) => a.toLowerCase() === address.toLowerCase()) !==
+      undefined
+    );
   }
 
   private handleClosePopup() {
@@ -444,7 +499,7 @@ class LiteWalletProvider extends EventEmitter {
 
     // attempt to switch to the new chain ID, or throw an error
     // if the chain is not available
-    await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       document.dispatchEvent(
         new ProviderEvent("switchChainRequest", {
           detail: [{chainId: requestedChainId}],
@@ -480,31 +535,43 @@ class LiteWalletProvider extends EventEmitter {
   }
 
   private async handlePersonalSign(params: any[]) {
+    // validate the provided parameters include a string in hex format
+    // that can be signed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidSignatureError,
+      );
+    }
+    const messageParam = params[0];
+    if (typeof messageParam !== "string") {
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidSignatureError,
+      );
+    }
+
+    // Convert ASCII to hex if not already completed. The client should
+    // have already done this, but we have seen cases where plain text is
+    // passed to the wallet directly. Doing this conversion saves an the
+    // user from encountering an error.
+    const messageToSign = messageParam.startsWith("0x")
+      ? messageParam
+      : web3utils.asciiToHex(messageParam);
+
+    // if a second address parameter is provided, verify that it matches
+    // the connected account
+    if (params.length > 1 && params[1].startsWith("0x")) {
+      const isValid = await this.isAddressInAccount(params[1]);
+      if (!isValid) {
+        throw new EthereumProviderError(
+          PROVIDER_CODE_USER_ERROR,
+          NotConnectedError,
+        );
+      }
+    }
+
     return await new Promise((resolve, reject) => {
-      // validate the provided parameters include a string in hex format
-      // that can be signed
-      if (!params || params.length === 0) {
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidSignatureError,
-        );
-      }
-      const messageParam = params[0];
-      if (typeof messageParam !== "string") {
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidSignatureError,
-        );
-      }
-
-      // Convert ASCII to hex if not already completed. The client should
-      // have already done this, but we have seen cases where plain text is
-      // passed to the wallet directly. Doing this conversion saves an the
-      // user from encountering an error.
-      const messageToSign = messageParam.startsWith("0x")
-        ? messageParam
-        : web3utils.asciiToHex(messageParam);
-
       // send the message signing event
       document.dispatchEvent(
         new ProviderEvent("signMessageRequest", {
@@ -539,64 +606,78 @@ class LiteWalletProvider extends EventEmitter {
   }
 
   private async handleTypedSign(params: any[]) {
+    // validate the provided parameters contain at least two elements,
+    // the first being an address, and the second being a typed message
+    if (!params || params.length < 0) {
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidTypedMessageError,
+      );
+    }
+
+    // validate the first element is an ethereum address
+    if (!params[0].startsWith("0x")) {
+      Logger.error(
+        new Error(
+          "first element of typed message parameters must be an Ethereum address",
+        ),
+        "Popup",
+        params[0],
+      );
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidTypedMessageError,
+      );
+    }
+
+    // validate the provided address is found in the connected account
+    const isAddressValid = await this.isAddressInAccount(params[0]);
+    if (!isAddressValid) {
+      Logger.error(
+        new Error("address not found in Lite Wallet account"),
+        "Popup",
+        params[0],
+      );
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        NotConnectedError,
+      );
+    }
+
+    // validate the second element contains an EIP-712 identifier
+    if (!params[1].includes(EIP_712_KEY)) {
+      Logger.error(
+        new Error(
+          "second element of typed message parameters must an EIP-712 message",
+        ),
+        "Popup",
+        params[1],
+      );
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidTypedMessageError,
+      );
+    }
+
+    // parse the second element to ensure it matches EIP-712 format
+    try {
+      const parsedMessage: TypedMessage = JSON.parse(params[1]);
+      if (!parsedMessage?.domain?.name || !parsedMessage.message) {
+        throw new Error("invalid EIP-712 message format");
+      }
+    } catch (e) {
+      Logger.error(
+        new Error("invalid fields in EIP-712 message"),
+        "Popup",
+        params[1],
+      );
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidTypedMessageError,
+      );
+    }
+
     return await new Promise((resolve, reject) => {
-      // validate the provided parameters contain at least two elements,
-      // the first being an address, and the second being a typed message
-      if (!params || params.length < 0) {
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidTypedMessageError,
-        );
-      }
-
-      // validate the first element is an ethereum address
-      if (!params[0].startsWith("0x")) {
-        Logger.error(
-          new Error(
-            "first element of typed message parameters must be an Ethereum address",
-          ),
-          "Popup",
-          params[0],
-        );
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidTypedMessageError,
-        );
-      }
-
-      // validate the second element contains an EIP-712 identifier
-      if (!params[1].includes(EIP_712_KEY)) {
-        Logger.error(
-          new Error(
-            "second element of typed message parameters must an EIP-712 message",
-          ),
-          "Popup",
-          params[1],
-        );
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidTypedMessageError,
-        );
-      }
-
-      // parse the second element to ensure it matches EIP-712 format
-      try {
-        const parsedMessage: TypedMessage = JSON.parse(params[1]);
-        if (!parsedMessage?.domain?.name || !parsedMessage.message) {
-          throw new Error("invalid EIP-712 message format");
-        }
-      } catch (e) {
-        Logger.error(
-          new Error("invalid fields in EIP-712 message"),
-          "Popup",
-          params[1],
-        );
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidTypedMessageError,
-        );
-      }
-
       // send the typed message signing event
       document.dispatchEvent(
         new ProviderEvent("signTypedMessageRequest", {
@@ -629,35 +710,29 @@ class LiteWalletProvider extends EventEmitter {
   }
 
   private async handleSendTransaction(params: any[]) {
+    //validate an account is connected
+    if (!this.selectedAddress || !this.networkVersion) {
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        NotConnectedError,
+      );
+    }
+
+    // validate any Tx parameters have been passed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
+    }
+
+    // validate repackage the transaction parameters to include
+    // the currently connected chain ID. This will be needed by
+    // the extension popup to complete the signature.
+    const normalizedParams = params[0];
+    if (!normalizedParams.data || !normalizedParams.to) {
+      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
+    }
+    normalizedParams.chainId = this.networkVersion;
+
     return await new Promise((resolve, reject) => {
-      //validate an account is connected
-      if (!this.selectedAddress || !this.networkVersion) {
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          NotConnectedError,
-        );
-      }
-
-      // validate any Tx parameters have been passed
-      if (!params || params.length === 0) {
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidTxError,
-        );
-      }
-
-      // validate repackage the transaction parameters to include
-      // the currently connected chain ID. This will be needed by
-      // the extension popup to complete the signature.
-      const normalizedParams = params[0];
-      if (!normalizedParams.data || !normalizedParams.to) {
-        throw new EthereumProviderError(
-          PROVIDER_CODE_USER_ERROR,
-          InvalidTxError,
-        );
-      }
-      normalizedParams.chainId = this.networkVersion;
-
       // send the prepared transaction signing event
       document.dispatchEvent(
         new ProviderEvent("sendTransactionRequest", {
@@ -745,7 +820,7 @@ ClientSideMessageTypes.map((messageType) => {
           break;
         case "disconnectRequest":
           if (window.unstoppable) {
-            void window.unstoppable.disconnect();
+            void window.unstoppable.requestDisconnect();
           }
           break;
       }

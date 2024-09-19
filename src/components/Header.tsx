@@ -1,5 +1,7 @@
 import React from "react";
 import {Box, Divider, Typography} from "@mui/material";
+import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
+import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 
 const styles = {
   main: {
@@ -46,19 +48,25 @@ interface Props {
 }
 
 const Header: React.FC<Props> = ({
+  iconPath,
   title = "Your Portal to Decentralized Web",
   subTitle = "This extension opens websites on the blockchain",
-  iconPath = "icon/browser.svg",
 }) => (
   <Box sx={styles.main}>
     <Box sx={styles.contentContainer}>
       <Box sx={styles.logoContainer}>
-        <Box
-          component="img"
-          sx={styles.logo}
-          src={iconPath}
-          alt="Unstoppable domains logo"
-        />
+        {iconPath ? (
+          <Box
+            component="img"
+            sx={styles.logo}
+            src={iconPath}
+            alt="Unstoppable domains logo"
+          />
+        ) : (
+          <IconPlate size={50} variant="info">
+            <UnstoppableWalletIcon />
+          </IconPlate>
+        )}
       </Box>
       <Box sx={styles.descriptionContainer}>
         <Box fontWeight="fontWeightBold">

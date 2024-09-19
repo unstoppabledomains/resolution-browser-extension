@@ -37,6 +37,8 @@ import {useNavigate} from "react-router-dom";
 import {ResponseType, getResponseType} from "../../types/wallet/provider";
 import {getProviderRequest} from "../../lib/wallet/request";
 import {AppEnv} from "@unstoppabledomains/config";
+import {SignInCta} from "./SignInCta";
+import {initializeBrowserSettings} from "../../lib/helpers";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -52,6 +54,7 @@ const WalletComp: React.FC = () => {
   const [t] = useTranslationContext();
   const {preferences, setPreferences, refreshPreferences} = usePreferences();
   const {isConnected, disconnect} = useConnections();
+  const [isNewUser, setIsNewUser] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
   const [authDomain, setAuthDomain] = useState<string>("");
   const [authAvatar, setAuthAvatar] = useState<string>();
@@ -60,6 +63,7 @@ const WalletComp: React.FC = () => {
   const [authButton, setAuthButton] = useState<React.ReactNode>();
   const [isLoaded, setIsLoaded] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSignInCta, setShowSignInCta] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
 
   // method to remove the window close listener, used to catch the situation
@@ -79,7 +83,12 @@ const WalletComp: React.FC = () => {
 
     // if the sign in was initiated by a wallet connection, route the processing
     // back to the connect page now that sign in is completed
-    if (getProviderRequest()) {
+    const providerRequest = getProviderRequest();
+    if (providerRequest) {
+      if (providerRequest.type === "signInRequest") {
+        handleClose();
+        return;
+      }
       navigate("/connect");
     }
   };
@@ -90,6 +99,7 @@ const WalletComp: React.FC = () => {
       password,
       expiration: new Date().getTime() + FIVE_MINUTES,
     };
+    setAuthState(authState);
     await chromeStorageSet(
       StorageSyncKey.AuthState,
       JSON.stringify(authState),
@@ -119,6 +129,18 @@ const WalletComp: React.FC = () => {
         // retrieve state of logged in wallet (if any)
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
+          // show the sign in CTA unless a provider request is present that indicates
+          // an sign in has already been initiated by the user
+          const providerRequest = getProviderRequest();
+          if (providerRequest?.type === "signInRequest") {
+            // set new user status for the sign in request
+            setIsNewUser(providerRequest.params[0]);
+          } else if (!providerRequest) {
+            // show sign in CTA since no provider request
+            setShowSignInCta(true);
+            return;
+          }
+
           // attempt to check for in-progress sign in state
           const inProgressAuthState = await chromeStorageGet(
             StorageSyncKey.AuthState,
@@ -197,6 +219,7 @@ const WalletComp: React.FC = () => {
 
     // update messaging status
     setMessagingEnabled(preferences.MessagingEnabled);
+    setIsNewUser(!preferences.HasExistingWallet);
 
     // take appropriate action on compatibility mode settings
     void handleCompatibilitySettings();
@@ -374,6 +397,9 @@ const WalletComp: React.FC = () => {
     defaultPreferences.DefaultView = "wallet";
     await setWalletPreferences(defaultPreferences);
 
+    // initialize browser settings
+    await initializeBrowserSettings();
+
     // close the extension window
     handleClose();
   };
@@ -387,7 +413,9 @@ const WalletComp: React.FC = () => {
     setShowSettings(false);
   };
 
-  return showSettings ? (
+  return showSignInCta ? (
+    <SignInCta />
+  ) : showSettings ? (
     <Preferences onClose={handleClosePreferences} />
   ) : (
     <Paper className={classes.container}>
@@ -395,7 +423,6 @@ const WalletComp: React.FC = () => {
         <Header
           title={t("wallet.title")}
           subTitle={t("manage.cryptoWalletDescriptionShort")}
-          iconPath="icon/wallet.svg"
         />
       )}
       {(config.NODE_ENV as AppEnv) !== "production" && (
@@ -429,7 +456,7 @@ const WalletComp: React.FC = () => {
             recoveryPhrase={authState.password}
             avatarUrl={authAvatar}
             showMessages={messagingEnabled}
-            isNewUser={!preferences.HasExistingWallet}
+            isNewUser={isNewUser}
             disableInlineEducation={true}
             disableBasicHeader={true}
             fullScreenModals={true}

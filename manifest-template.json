@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Unstoppable Extension",
-  "short_name": "Unstoppable Extension",
+  "name": "Unstoppable Domains",
+  "short_name": "Unstoppable Domains",
   "version": "<injected from package.json using create_manifest.js>",
-  "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
+  "description": "The Unstoppable Domains browser extension is used to access decentralized blockchain domains.",
   "icons": {
     "16": "icon/16.png",
     "38": "icon/38.png",

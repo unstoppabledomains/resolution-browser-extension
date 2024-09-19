@@ -28,7 +28,7 @@ const Extension: React.FC<Props> = () => {
     <Paper className={classes.container}>
       <Box sx={styles.topLayout}>
         <Box sx={styles.middleLayout}>
-          <Header />
+          <Header iconPath="icon/browser.svg" />
           <Box className={classes.mainScreenContainer}>
             <MainScreen />
           </Box>
