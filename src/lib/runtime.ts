@@ -1,4 +1,5 @@
 import {Logger} from "./logger";
+import Bluebird from "bluebird";
 
 export const getManifestVersion = () => {
   try {
@@ -48,4 +49,16 @@ export const setBadgeCount = async (count: number) => {
   await chrome.action.setBadgeBackgroundColor({color: "#4caf50"});
   await chrome.action.setBadgeTextColor({color: "#ffffff"});
   await chrome.action.setBadgeText({text: count > 0 ? String(count) : ""});
+};
+
+export const getAllPopups = async (): Promise<number[]> => {
+  const popupTabs = await chrome.tabs.query({windowType: "popup"});
+  return [...new Set(popupTabs.map((t) => t.windowId))];
+};
+
+export const focusAllPopups = async () => {
+  const allWindows = await getAllPopups();
+  Bluebird.map(allWindows, async (windowId) => {
+    await chrome.windows.update(windowId, {focused: true});
+  });
 };

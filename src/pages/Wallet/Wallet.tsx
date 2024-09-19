@@ -43,7 +43,12 @@ import {getProviderRequest} from "../../lib/wallet/request";
 import {AppEnv} from "@unstoppabledomains/config";
 import {SignInCta} from "./SignInCta";
 import {initializeBrowserSettings} from "../../lib/helpers";
-import {setIcon} from "../../lib/runtime";
+import {
+  focusAllPopups,
+  getAllPopups,
+  setBadgeCount,
+  setIcon,
+} from "../../lib/runtime";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -107,6 +112,9 @@ const WalletComp: React.FC = () => {
           } else if (!providerRequest) {
             // show sign in CTA since no provider request
             setShowSignInCta(true);
+
+            // check whether there are popups that need focus
+            await handleFocusPopups();
             return;
           }
 
@@ -127,6 +135,11 @@ const WalletComp: React.FC = () => {
 
           // set empty auth state
           setAuthState({emailAddress: "", password: ""});
+          return;
+        }
+
+        // check whether there are popups that need focus
+        if (await handleFocusPopups()) {
           return;
         }
 
@@ -202,18 +215,21 @@ const WalletComp: React.FC = () => {
 
     // cleanup state from authentication attempt
     await chromeStorageRemove(StorageSyncKey.AuthState, "session");
-    setAuthComplete(true);
 
     // if the sign in was initiated by a wallet connection, route the processing
     // back to the connect page now that sign in is completed
     const providerRequest = getProviderRequest();
     if (providerRequest) {
       if (providerRequest.type === "signInRequest") {
+        await setBadgeCount(0);
         handleClose();
         return;
       }
       navigate("/connect");
     }
+
+    // set the complete flag
+    setAuthComplete(true);
   };
 
   const handleAuthStart = async (emailAddress: string, password: string) => {
@@ -267,6 +283,17 @@ const WalletComp: React.FC = () => {
       handleError(getResponseType(m.type), new Error("user closed wallet"));
     }
     return;
+  };
+
+  const handleFocusPopups = async () => {
+    const allPopups = await getAllPopups();
+    await setBadgeCount(allPopups.length);
+    if (allPopups.length > 0) {
+      await focusAllPopups();
+      handleClose();
+      return true;
+    }
+    return false;
   };
 
   const handleError = (type: ResponseType, e: Error) => {

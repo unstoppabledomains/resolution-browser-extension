@@ -10,6 +10,7 @@ import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
 import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 import config from "../../config";
 import {AppEnv} from "@unstoppabledomains/config";
+import {setBadgeCount} from "../../lib/runtime";
 
 export const SignInCta: React.FC = () => {
   const {classes, cx} = useExtensionStyles();
@@ -36,7 +37,7 @@ export const SignInCta: React.FC = () => {
     );
 
     // open a new wallet extension popup
-    chrome.windows.create({
+    await chrome.windows.create({
       url: popupUrl,
       type: "popup",
       focused: true,
@@ -45,6 +46,9 @@ export const SignInCta: React.FC = () => {
       width: popupWidth,
       height: popupHeight,
     });
+
+    // set a badge
+    await setBadgeCount(1);
 
     // close the existing extension popup
     chrome.extension.getViews({type: "popup"}).forEach((v) => v.close());
