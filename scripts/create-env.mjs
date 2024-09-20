@@ -2,7 +2,19 @@ import {config} from "dotenv";
 import fs from "fs-extra";
 
 const populateEnv = () => {
-  // Check if .env file exists
+  // Copy the environment specific config file
+  const envFileName = `.env.${process.env.NODE_ENV}`;
+  if (!fs.existsSync(envFileName)) {
+    console.error(
+      `Error: ${envFileName} file not found. Populate the .env file and try again.`,
+    );
+    process.exit(1);
+  }
+
+  // Copy the environment specific file to the default env
+  fs.copySync(envFileName, ".env", {overwrite:true});
+
+  // Validate that .env exists as expected
   if (!fs.existsSync(".env")) {
     console.error(
       "Error: .env file not found. Populate the .env file and try again.",
@@ -29,6 +41,7 @@ const populateEnv = () => {
   const tsContent = `export const env = ${JSON.stringify(envObject, null, 2)} as const;\n`;
 
   // Write the content to env.ts
+  console.log(`Environment populated from ${envFileName}`)
   fs.writeFileSync("src/env.ts", tsContent);
 };
 

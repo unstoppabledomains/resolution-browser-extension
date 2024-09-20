@@ -16,16 +16,14 @@ Ensure that you have `yarn` installed on your machine. If not, you can install i
    ```bash
    git clone <repository-url>
 
-3. Copy .env.sample to .env and fill in the required values:
+3. Copy .env.template to .env and fill in the required values:
    ```bash
-   cp .env.sample .env
+   cp .env.template .env
    ```
 
 4. Install dependencies and setup your environment:
    ```bash
    yarn install
-   yarn postinstall
-   yarn predev
    ```
 
 5. Run the project locally:
@@ -42,13 +40,23 @@ to build a new release version.
 
 1. Update the release version in the `package.json` file
 
-2. Build a release version
+2. Build a release for distribution
    ```bash
+   ##################################
+   # Build everything
+   ##################################
+
+   yarn dist
+
+   ##################################
+   # Build specific release version
+   ##################################
+
    # For a mainnet production release
-   yarn build:all
+   NODE_ENV=production; yarn build:all
 
    # For a testnet development release
-   yarn build:all:dev
+   NODE_ENV=staging; yarn build:all
    ```
 
 3. Find the release files in the `./releases` directory

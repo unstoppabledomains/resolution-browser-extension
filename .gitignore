@@ -15,4 +15,6 @@ tmp
 src/env.ts
 src/manifest.json
 .env
+.env.staging
+.env.production
 .yarn
