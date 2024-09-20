@@ -51,14 +51,17 @@ export const setBadgeCount = async (count: number) => {
   await chrome.action.setBadgeText({text: count > 0 ? String(count) : ""});
 };
 
-export const getAllPopups = async (): Promise<number[]> => {
-  const popupTabs = await chrome.tabs.query({windowType: "popup"});
-  return [...new Set(popupTabs.map((t) => t.windowId))];
+export const getAllPopups = (): Window[] => {
+  return chrome.extension.getViews({type: "tab"});
 };
 
 export const focusAllPopups = async () => {
-  const allWindows = await getAllPopups();
-  Bluebird.map(allWindows, async (windowId) => {
-    await chrome.windows.update(windowId, {focused: true});
+  const popupTabs = await chrome.tabs.query({windowType: "popup"});
+  const allWindows = getAllPopups();
+  Bluebird.map(allWindows, async (window) => {
+    const tab = popupTabs.find((t) => t.url.includes(window.location.href));
+    if (tab) {
+      await chrome.windows.update(tab.windowId, {focused: true});
+    }
   });
 };

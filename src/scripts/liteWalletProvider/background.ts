@@ -19,7 +19,7 @@ import {
 } from "../../types/wallet/provider";
 
 // keep track of the wallet extension popup window ID
-let extensionPopupWindowId = null;
+let extensionPopupWindowId: number = null;
 
 // tabChangeEventListener listens for tab switches
 export const tabChangeEventListener = async (
@@ -177,10 +177,10 @@ export const backgroundEventListener = (
                     // needs to be opened
                     extensionPopupWindowId = null;
                     openPopupWindow(
-                      popupResponseHandler,
                       requestUrl,
+                      requestSource.windowId,
                       requestHost,
-                      requestSource,
+                      popupResponseHandler,
                     );
                   } else {
                     // listen for a response on the existing wallet extension popup
@@ -192,10 +192,10 @@ export const backgroundEventListener = (
           } else {
             // open a new wallet extension popup
             openPopupWindow(
-              popupResponseHandler,
               requestUrl,
+              requestSource.windowId,
               requestHost,
-              requestSource,
+              popupResponseHandler,
             );
           }
         });
@@ -207,45 +207,44 @@ export const backgroundEventListener = (
 };
 
 // openPopupWindow creates a new wallet extension popup window
-const openPopupWindow = (
-  popupResponseHandler: (response: ProviderEventResponse) => void,
+export const openPopupWindow = async (
   popupUrl: string,
-  host: string,
-  parentTab: chrome.tabs.Tab,
+  windowId: number,
+  host?: string,
+  popupResponseHandler?: (response: ProviderEventResponse) => void,
 ) => {
+  const parentWindow = await chrome.windows.get(windowId);
+
   // lookup the parent window
-  chrome.windows.get(parentTab.windowId).then((parentWindow) => {
-    // popup window dimensions
-    const popupWidth = 400;
-    const popupHeight = 630;
+  // popup window dimensions
+  const popupWidth = 400;
+  const popupHeight = 630;
 
-    // determine location of popup based on parent window
-    const popupTop = parentWindow?.top;
-    const popupLeft =
-      parentWindow?.left && parentWindow?.top
-        ? parentWindow.left + parentWindow.width - popupWidth
-        : undefined;
+  // determine location of popup based on parent window
+  const popupTop = parentWindow?.top;
+  const popupLeft =
+    parentWindow?.left && parentWindow?.top
+      ? parentWindow.left + parentWindow.width - popupWidth
+      : undefined;
 
-    // open a new wallet extension popup
-    chrome.windows.create(
-      {
-        url: popupUrl,
-        type: "popup",
-        focused: true,
-        left: popupLeft,
-        top: popupTop,
-        width: popupWidth,
-        height: popupHeight,
-      },
-      (window) => {
-        // store the ID of the popup
-        extensionPopupWindowId = window.id;
-
-        // listen for a response from the popup
-        listenForPopupResponse(popupResponseHandler, host);
-      },
-    );
+  // open a new wallet extension popup
+  const window = await chrome.windows.create({
+    url: popupUrl,
+    type: "popup",
+    focused: true,
+    left: popupLeft,
+    top: popupTop,
+    width: popupWidth,
+    height: popupHeight,
   });
+
+  // store the ID of the popup
+  extensionPopupWindowId = window.id;
+
+  // listen for a response from the popup
+  if (popupResponseHandler && host) {
+    listenForPopupResponse(popupResponseHandler, host);
+  }
 };
 
 // listenForPopupResponse registers a handler to wait for the wallet extension popup

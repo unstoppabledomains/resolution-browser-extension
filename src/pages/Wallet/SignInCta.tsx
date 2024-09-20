@@ -11,41 +11,23 @@ import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableW
 import config from "../../config";
 import {AppEnv} from "@unstoppabledomains/config";
 import {setBadgeCount} from "../../lib/runtime";
+import {openPopupWindow} from "../../scripts/liteWalletProvider/background";
 
 export const SignInCta: React.FC = () => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
 
   const handleSignIn = async (newUser: boolean) => {
-    // popup window dimensions
-    const popupWidth = 400;
-    const popupHeight = 630;
-
     // find current window
     const parentWindow = await chrome.windows.getLastFocused();
-
-    // determine location of popup based on parent window
-    const popupTop = parentWindow?.top;
-    const popupLeft =
-      parentWindow?.left && parentWindow?.top
-        ? parentWindow.left + parentWindow.width - popupWidth
-        : undefined;
 
     // determine the popup URL
     const popupUrl = chrome.runtime.getURL(
       `index.html?request=${encodeURIComponent(JSON.stringify({type: "signInRequest", params: [newUser]}))}#connect`,
     );
 
-    // open a new wallet extension popup
-    await chrome.windows.create({
-      url: popupUrl,
-      type: "popup",
-      focused: true,
-      left: popupLeft,
-      top: popupTop,
-      width: popupWidth,
-      height: popupHeight,
-    });
+    // open the popup
+    await openPopupWindow(popupUrl, parentWindow.id);
 
     // set a badge
     await setBadgeCount(1);

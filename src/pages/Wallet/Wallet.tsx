@@ -286,7 +286,7 @@ const WalletComp: React.FC = () => {
   };
 
   const handleFocusPopups = async () => {
-    const allPopups = await getAllPopups();
+    const allPopups = getAllPopups();
     await setBadgeCount(allPopups.length);
     if (allPopups.length > 0) {
       await focusAllPopups();
