@@ -8,6 +8,7 @@ import {
 } from "./liteWalletProvider/background";
 import {Logger} from "../lib/logger";
 import {ContextMenu} from "../lib/sherlock/contextMenu";
+import {listenForXmtpMessages} from "../lib/xmtp/listener";
 
 /************************************
  * Onchain domain IPFS redirect logic
@@ -119,3 +120,8 @@ chrome.tabs.onUpdated.addListener(tabUpdatedEventListener);
  ***********************************/
 const contextMenu = new ContextMenu();
 void contextMenu.waitForEvents();
+
+/***********************************
+ * XMTP listener
+ ***********************************/
+void listenForXmtpMessages();

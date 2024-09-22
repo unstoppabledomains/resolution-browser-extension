@@ -9,6 +9,7 @@ export enum StorageSyncKey {
   WalletConnections = "WalletConnections",
   WalletPreferences = "WalletPreferences",
   CompatibilityModeCta = "CompatibilityModeCta",
+  XmtpKey = "XmtpKey",
 }
 
 type StorageType = "local" | "session" | "sync";
@@ -18,10 +19,10 @@ export const chromeStorageClear = async (type: StorageType = "sync") => {
   await chrome.storage[type].clear();
 };
 
-export const chromeStorageGet = async (
+export const chromeStorageGet = async <T>(
   k: StorageSyncKey,
   type: StorageType = "sync",
-): Promise<any> => {
+): Promise<T> => {
   Logger.log("Retrieving storage key", type, k);
   const data = await chrome.storage[type].get(k);
   return data[k];
@@ -29,14 +30,14 @@ export const chromeStorageGet = async (
 
 export const chromeStorageSet = async (
   k: StorageSyncKey,
-  v: string,
+  v: any,
   type: StorageType = "sync",
 ) => {
   try {
-    Logger.log("Setting storage key", type, JSON.stringify({k, v}));
+    Logger.log("Setting storage key", type, k);
     await chrome.storage[type].set({[k]: v});
   } catch (e) {
-    Logger.warn("Error storing key", e, type, JSON.stringify({k, v}));
+    Logger.warn("Error storing key", e, type, k);
   }
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.22",
+  "version": "3.1.23",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -27,7 +27,9 @@
   },
   "resolutions": {
     "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0"
+    "@types/react-dom": "^17.0.0",
+    "@xmtp/xmtp-js@11.3.0": "patch:@xmtp/xmtp-js@npm%3A11.3.0#./.yarn/patches/@xmtp-xmtp-js-npm-11.3.0-325a05833e.patch",
+    "@xmtp/xmtp-js@^11.6.3": "patch:@xmtp/xmtp-js@npm%3A11.3.0#./.yarn/patches/@xmtp-xmtp-js-npm-11.3.0-325a05833e.patch"
   },
   "dependencies": {
     "@metamask/providers": "^17.1.2",

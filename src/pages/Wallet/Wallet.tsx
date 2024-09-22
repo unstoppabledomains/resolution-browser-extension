@@ -13,6 +13,7 @@ import {
   getBootstrapState,
   isEthAddress,
   useTranslationContext,
+  useUnstoppableMessaging,
 } from "@unstoppabledomains/ui-components";
 import config from "../../config";
 import useIsMounted from "react-is-mounted-hook";
@@ -36,10 +37,13 @@ import {
 } from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
 import useConnections from "../../hooks/useConnections";
-import {sendMessageToClient} from "../../lib/wallet/message";
+import {
+  sendMessageToBackground,
+  sendMessageToClient,
+} from "../../lib/wallet/message";
 import {useNavigate} from "react-router-dom";
 import {ResponseType, getResponseType} from "../../types/wallet/provider";
-import {getProviderRequest} from "../../lib/wallet/request";
+import {getProviderRequest, getXmtpChatAddress} from "../../lib/wallet/request";
 import {AppEnv} from "@unstoppabledomains/config";
 import {SignInCta} from "./SignInCta";
 import {initializeBrowserSettings} from "../../lib/helpers";
@@ -49,6 +53,8 @@ import {
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
+import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
+import {fetcher} from "@xmtp/proto";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -63,6 +69,7 @@ const WalletComp: React.FC = () => {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
   const {preferences, setPreferences, refreshPreferences} = usePreferences();
+  const {setOpenChat, isChatReady} = useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
@@ -119,7 +126,7 @@ const WalletComp: React.FC = () => {
           }
 
           // attempt to check for in-progress sign in state
-          const inProgressAuthState = await chromeStorageGet(
+          const inProgressAuthState = await chromeStorageGet<string>(
             StorageSyncKey.AuthState,
             "session",
           );
@@ -206,6 +213,37 @@ const WalletComp: React.FC = () => {
     // take appropriate action on compatibility mode settings
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
+
+  useEffect(() => {
+    if (!authAddress || !isChatReady) {
+      return;
+    }
+
+    // check for an XMTP conversation ID
+    const xmtpChatAddress = getXmtpChatAddress();
+    if (xmtpChatAddress) {
+      setOpenChat(xmtpChatAddress);
+      return;
+    }
+
+    // wait for XMTP to be ready and notify the service worker
+    const notifyServiceWorker = async () => {
+      // retrieve the XMTP key
+      const xmtpKey = getXmtpLocalKey(authAddress);
+      if (!xmtpKey) {
+        Logger.warn("XMTP key not available");
+        return false;
+      }
+
+      // encode the key for transport
+      const xmtpKeyEncoded = fetcher.b64Encode(xmtpKey, 0, xmtpKey.length);
+
+      // provide the key to service worker
+      await sendMessageToBackground("xmtpReadyRequest", xmtpKeyEncoded);
+      return true;
+    };
+    void notifyServiceWorker();
+  }, [authAddress, isChatReady]);
 
   const handleAuthComplete = async () => {
     // remember the user email address

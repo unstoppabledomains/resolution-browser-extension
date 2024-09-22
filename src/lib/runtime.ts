@@ -45,8 +45,27 @@ export const setIcon = async (
   });
 };
 
-export const setBadgeCount = async (count: number) => {
-  await chrome.action.setBadgeBackgroundColor({color: "#4caf50"});
+export const incrementBadgeCount = async (
+  color: "blue" | "green" = "green",
+) => {
+  let currentCount = await chrome.action.getBadgeText({});
+  if (!currentCount) {
+    currentCount = "0";
+  }
+  try {
+    await setBadgeCount(parseInt(currentCount) + 1, color);
+  } catch (e) {
+    Logger.warn("unable to increment badge count", e);
+  }
+};
+
+export const setBadgeCount = async (
+  count: number,
+  color: "blue" | "green" = "green",
+) => {
+  await chrome.action.setBadgeBackgroundColor({
+    color: color === "green" ? "#4caf50" : "#1976d2",
+  });
   await chrome.action.setBadgeTextColor({color: "#ffffff"});
   await chrome.action.setBadgeText({text: count > 0 ? String(count) : ""});
 };

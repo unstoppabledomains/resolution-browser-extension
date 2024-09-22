@@ -11,7 +11,7 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
   const defaultPreferences = getDefaultPreferences();
 
   try {
-    const preferences = await chromeStorageGet(
+    const preferences = await chromeStorageGet<string>(
       StorageSyncKey.WalletPreferences,
     );
     if (preferences) {

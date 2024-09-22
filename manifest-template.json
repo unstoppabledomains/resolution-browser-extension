@@ -109,6 +109,7 @@
     "contextMenus",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
+    "notifications",
     "storage",
     "tabs"
   ]

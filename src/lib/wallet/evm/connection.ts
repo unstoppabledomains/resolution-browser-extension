@@ -12,7 +12,7 @@ export const clearAllConnectedSites = async () => {
 };
 
 export const getConnectedSites = async (): Promise<ConnectedSites> => {
-  const connectedSitesStr = await chromeStorageGet(
+  const connectedSitesStr = await chromeStorageGet<string>(
     StorageSyncKey.WalletConnections,
   );
   if (connectedSitesStr) {

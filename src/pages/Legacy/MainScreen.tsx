@@ -89,14 +89,14 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
   );
 
   useEffect(() => {
-    chromeStorageGet(StorageSyncKey.GatewayOption).then((option) => {
+    chromeStorageGet<string>(StorageSyncKey.GatewayOption).then((option) => {
       if (option === ExtensionOptions.InfuraAPI) setShowTextField(true);
       setGateWayOption(option);
     });
   }, []);
 
   useEffect(() => {
-    chromeStorageGet(StorageSyncKey.GatewayBaseURL).then((url) => {
+    chromeStorageGet<string>(StorageSyncKey.GatewayBaseURL).then((url) => {
       setGatewayBaseURL(url);
     });
   }, []);

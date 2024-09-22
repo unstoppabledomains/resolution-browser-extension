@@ -66,6 +66,7 @@ export const InternalMessageTypes = [
   "newTabRequest",
   "queueRequest",
   "signInRequest",
+  "xmtpReadyRequest",
 ] as const;
 export type InternalRequestType = (typeof InternalMessageTypes)[number];
 export const isInternalRequestType = (v: string): v is InternalRequestType => {
