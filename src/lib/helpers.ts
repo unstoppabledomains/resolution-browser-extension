@@ -39,6 +39,10 @@ export const supportedDomains: string[] = [
   ".kryptic",
   ".ubu",
   ".tball",
+  ".farms",
+  ".dfz",
+  ".smobler",
+  ".lfg",
 ];
 
 //return true if url ends in one of the supported domains

@@ -1,6 +1,18 @@
 ## 3.1.0
 * Add Unstoppable Lite Wallet
 
+## 3.0.13
+* Add .lfg TLDs support
+
+## 3.0.12
+* Add .smobler TLDs support
+
+## 3.0.11
+* Add .dfz TLDs support
+
+## 3.0.10
+* Add .farms TLDs support
+
 ## 3.0.9
 * Add .tball TLDs support
 
