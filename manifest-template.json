@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Unstoppable Extension",
     "short_name": "Unstoppable Extension",
-    "version": "3.0.13",
+    "version": "3.0.14",
     "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
     "icons": {
       "16": "icon/16.png",
@@ -60,6 +60,7 @@
       "*://*.dfz/*",
       "*://*.smobler/*",
       "*://*.lfg/*",
+      "*://*.dream/*",
       "*://*.unstoppable/*",
       "*://*.google.com/*",
       "*://*.duckduckgo.com/*",
