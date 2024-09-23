@@ -1,0 +1,41 @@
+diff --git a/_esm/actions/public/call.js b/_esm/actions/public/call.js
+index 8639174e892a8101367d56e1626feaa55198bd1f..a49e2c5df6adf09f6950ccc95c00007f18069ec6 100644
+--- a/_esm/actions/public/call.js
++++ b/_esm/actions/public/call.js
+@@ -17,6 +17,7 @@ import { extract } from '../../utils/formatters/extract.js';
+ import { formatTransactionRequest, } from '../../utils/formatters/transactionRequest.js';
+ import { createBatchScheduler, } from '../../utils/promise/createBatchScheduler.js';
+ import { assertRequest } from '../../utils/transaction/assertRequest.js';
++import { offchainLookup, offchainLookupSignature } from '../../utils/ccip.js';
+ /**
+  * Executes a new message call immediately without submitting a transaction to the network.
+  *
+@@ -92,7 +93,6 @@ export async function call(client, args) {
+     }
+     catch (err) {
+         const data = getRevertErrorData(err);
+-        const { offchainLookup, offchainLookupSignature } = await import('../../utils/ccip.js');
+         if (data?.slice(0, 10) === offchainLookupSignature && to) {
+             return { data: await offchainLookup(client, { data, to }) };
+         }
+diff --git a/_esm/utils/signature/recoverPublicKey.js b/_esm/utils/signature/recoverPublicKey.js
+index 76f72cfe7599f5b920c0ddad9f8a445c08b9fcee..e9104c3a3d8082d7509ea817b117df96225dd784 100644
+--- a/_esm/utils/signature/recoverPublicKey.js
++++ b/_esm/utils/signature/recoverPublicKey.js
+@@ -1,6 +1,8 @@
+ import { isHex } from '../data/isHex.js';
+ import { hexToNumber } from '../encoding/fromHex.js';
+ import { toHex } from '../encoding/toHex.js';
++import { secp256k1 } from '@noble/curves/secp256k1';
++
+ export async function recoverPublicKey({ hash, signature, }) {
+     const signatureHex = isHex(signature) ? signature : toHex(signature);
+     const hashHex = isHex(hash) ? hash : toHex(hash);
+@@ -9,7 +11,6 @@ export async function recoverPublicKey({ hash, signature, }) {
+     let v = hexToNumber(`0x${signatureHex.slice(130)}`);
+     if (v === 0 || v === 1)
+         v += 27;
+-    const { secp256k1 } = await import('@noble/curves/secp256k1');
+     const publicKey = secp256k1.Signature.fromCompact(signatureHex.substring(2, 130))
+         .addRecoveryBit(v - 27)
+         .recoverPublicKey(hashHex.substring(2))

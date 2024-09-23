@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "ES2015"],
+    "target": "esnext",
+    "lib": ["DOM", "esnext"],
     "jsx": "react",
     "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["chrome"]
+    "moduleResolution": "node",
+    "module": "esnext",
+    "typeRoots": ["./node_modules/@types", "./typings"],
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src", 
+  ],
 }

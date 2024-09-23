@@ -1,32 +1,44 @@
 import "../subscripts/onInstalled";
-import {supportedDomains} from "../util/helpers";
+import {supportedDomains} from "../lib/helpers";
+import {
+  backgroundEventListener,
+  tabChangeEventListener as tabActivatedEventListener,
+  tabCreatedEventListener,
+  tabUpdatedEventListener,
+} from "./liteWalletProvider/background";
+import {Logger} from "../lib/logger";
+import {ContextMenu} from "../lib/sherlock/contextMenu";
+import {listenForXmtpMessages} from "../lib/xmtp/listener";
+
+/************************************
+ * Onchain domain IPFS redirect logic
+ ************************************/
 
 const RESOLUTION_URL = "https://api.unstoppabledomains.com/resolve/";
 const REDIRECT_URL = `${RESOLUTION_URL}redirect?url=`;
-
-const domainsList = supportedDomains.map(domain => domain.replace(".", ""));
+const domainsList = supportedDomains.map((domain) => domain.replace(".", ""));
 
 function deleteAllRules() {
-  chrome.declarativeNetRequest.getDynamicRules(rules => {
-    const ruleIds = rules.map(rule => rule.id);
+  chrome.declarativeNetRequest.getDynamicRules((rules) => {
+    const ruleIds = rules.map((rule) => rule.id);
 
     if (ruleIds.length > 0) {
       chrome.declarativeNetRequest.updateDynamicRules(
         {removeRuleIds: ruleIds},
         () => {
-          console.log("All dynamic rules have been removed successfully.");
+          Logger.log("All dynamic rules have been removed successfully.");
         },
       );
     } else {
-      console.log("No dynamic rules to remove.");
+      Logger.log("No dynamic rules to remove.");
     }
   });
 }
 
 function addRules() {
-  console.log("Adding HTTP rules...");
+  Logger.log("Adding HTTP rules...");
   domainsList.forEach((domain, index) => {
-    const urlRegex = `https?://([^/]*?\.${domain})(/|$)`;
+    const urlRegex = `https?://([^/]*?\\.${domain})(/|$)`;
     const id = index + 1001;
     chrome.declarativeNetRequest.updateDynamicRules({
       addRules: [
@@ -50,7 +62,7 @@ function addRules() {
     });
   });
 
-  console.log("Adding search engines rules...");
+  Logger.log("Adding search engines rules...");
   domainsList.forEach((domain, index) => {
     const urlRegex = `https?://.*[?&]q=([^&]*?\\b\\.${domain})(&|$)`;
     const id = index + 2001;
@@ -92,3 +104,24 @@ deleteAllRules();
 setTimeout(() => {
   addRules();
 }, 2000);
+
+/***********************************
+ * Wallet extension popup management
+ ***********************************/
+
+// register the wallet popup event listener
+chrome.runtime.onMessage.addListener(backgroundEventListener);
+chrome.tabs.onActivated.addListener(tabActivatedEventListener);
+chrome.tabs.onCreated.addListener(tabCreatedEventListener);
+chrome.tabs.onUpdated.addListener(tabUpdatedEventListener);
+
+/***********************************
+ * Context menu and tab management
+ ***********************************/
+const contextMenu = new ContextMenu();
+void contextMenu.waitForEvents();
+
+/***********************************
+ * XMTP listener
+ ***********************************/
+void listenForXmtpMessages();

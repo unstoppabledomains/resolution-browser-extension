@@ -1,12 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Unstoppable Extension",
-  "short_name": "Unstoppable Extension",
-  "version": "3.0.14",
-  "description": "The Unstoppable Extension is used to access decentralized blockchain domains.",
+  "name": "Unstoppable Domains",
+  "short_name": "Unstoppable Domains",
+  "version": "<injected from package.json using create_manifest.js>",
+  "description": "A crypto wallet for domainers: easily interact with onchain identities, assets and apps.",
+  "minimum_chrome_version": "102",
   "icons": {
     "16": "icon/16.png",
+    "38": "icon/38.png",
     "48": "icon/48.png",
+    "96": "icon/96.png",
     "128": "icon/128.png"
   },
   "homepage_url": "http://unstoppabledomains.com",
@@ -14,16 +17,37 @@
   "action": {
     "default_popup": "index.html",
     "default_icon": {
-      "48": "icon/48.png"
+      "16": "icon/16.png",
+      "38": "icon/38.png",
+      "48": "icon/48.png",
+      "96": "icon/96.png",
+      "128": "icon/128.png"
     }
   },
   "background": {
-    "service_worker": "scripts/background.js"
+    "service_worker": "./scripts/background.ts",
+    "type": "module"
   },
-  "options_ui": {
-    "page": "index.html#/options",
-    "open_in_tab": false
-  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./scripts/liteWalletProvider/main.ts"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    }, 
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./scripts/liteWalletProvider/isolated.ts"],
+      "world": "ISOLATED",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./scripts/sherlockProvider/main.ts"],
+      "world": "MAIN"
+    }
+  ],
+  "options_ui": {"page": "index.html#/options", "open_in_tab": false},
   "host_permissions": [
     "*://*.crypto/*",
     "*://*.zil/*",
@@ -72,11 +96,25 @@
     "*://*.aol.co.uk/*",
     "*://*.baidu.com/*",
     "*://*.bing.com/*",
-    "*://*.wiki.com/*"
+    "*://*.wiki.com/*",
+    "https://api.ud-staging.com/",
+    "*://*.fireblocks.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "web_accessible_resources": [
+    {
+      "matches": ["<all_urls>"],
+      "resources": ["js/wasm/cosigner.esm.wasm", "./scripts/contentIsolated.ts", "index.html"]
+    }
   ],
   "permissions": [
-    "storage",
+    "contextMenus",
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback"
+    "declarativeNetRequestFeedback",
+    "notifications",
+    "storage",
+    "tabs"
   ]
 }

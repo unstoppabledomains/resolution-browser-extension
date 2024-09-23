@@ -1,34 +1,88 @@
-import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Box from '@material-ui/core/Box'
-import {WithStyles, withStyles} from '@material-ui/core/styles'
-import styles from '../styles/header.style'
+import React from "react";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
+import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 
-interface Props extends WithStyles<typeof styles> {}
+const styles = {
+  main: {
+    padding: 2,
+    marginTop: "-16px",
+    marginBottom: "16px",
+    display: "flex",
+    flexDirection: "column",
+    width: "400px",
+  },
+  contentContainer: {
+    display: "flex",
+    marginBottom: "8px",
+  },
+  logoContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: "8px",
+  },
+  descriptionContainer: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+  },
+  logo: {
+    width: "50px",
+    height: "50px",
+  },
+  title1: {
+    fontSize: "18px",
+    fontWeight: "bold",
+  },
+  title2: {
+    fontSize: "13px",
+    color: "#939799",
+  },
+};
 
-const Header: React.FC<Props> = ({classes}) => (
-  <div className={classes.main}>
-    <Grid container wrap="nowrap" spacing={1}>
-      <Grid item>
-        <img
-          className={classes.logo}
-          src="icon/128.png"
-          alt="Unstoppable domains logo"
-        />
-      </Grid>
-      <Grid item xs zeroMinWidth>
+interface Props {
+  title?: string;
+  subTitle?: string;
+  iconPath?: string;
+}
+
+const Header: React.FC<Props> = ({
+  iconPath,
+  title = "Your Portal to Decentralized Web",
+  subTitle = "This extension opens websites on the blockchain",
+}) => (
+  <Box sx={styles.main}>
+    <Box sx={styles.contentContainer}>
+      <Box sx={styles.logoContainer}>
+        {iconPath ? (
+          <Box
+            component="img"
+            sx={styles.logo}
+            src={iconPath}
+            alt="Unstoppable domains logo"
+          />
+        ) : (
+          <IconPlate size={50} variant="info">
+            <UnstoppableWalletIcon />
+          </IconPlate>
+        )}
+      </Box>
+      <Box sx={styles.descriptionContainer}>
         <Box fontWeight="fontWeightBold">
-          <Typography noWrap variant="subtitle1" className={classes.title1}>
-            Your Portal to Decentralised web
+          <Typography noWrap variant="subtitle1" sx={styles.title1}>
+            {title}
           </Typography>
         </Box>
-        <Typography noWrap variant="subtitle2" className={classes.title2}>
-          This extension opens websites on the blockchain
+        <Typography noWrap variant="subtitle2" sx={styles.title2}>
+          {subTitle}
         </Typography>
-      </Grid>
-    </Grid>
-  </div>
-)
+      </Box>
+    </Box>
+    <Divider />
+  </Box>
+);
 
-export default withStyles(styles)(Header)
+export default Header;

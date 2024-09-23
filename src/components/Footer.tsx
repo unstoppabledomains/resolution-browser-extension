@@ -1,38 +1,71 @@
-import React from 'react'
-import {WithStyles, withStyles} from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Link from '@material-ui/core/Link'
-import styles from '../styles/footer.style'
+import React from "react";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import HomeIcon from "@mui/icons-material/Home";
+import WalletIcon from "@mui/icons-material/Wallet";
+import {useNavigate} from "react-router-dom";
+import {
+  getWalletPreferences,
+  setWalletPreferences,
+} from "../lib/wallet/preferences";
 
-interface Props extends WithStyles<typeof styles> {}
+const styles = {
+  main: {
+    backgroundColor: "#eef9ff",
+    color: "#2d64ff",
+    fontWeight: "bold",
+  },
+  title: {
+    fontWeight: "bold",
+  },
+  icon: {
+    color: "#2d64ff",
+  },
+};
 
-const Footer: React.FC<Props> = ({classes}) => {
-  const navigateToList = () => {
-    return chrome.tabs.update({url: 'index.html#list'})
-  }
+interface Props {}
+
+const Footer: React.FC<Props> = ({}) => {
+  const navigate = useNavigate();
+
+  const handleEnableWallet = async () => {
+    // update preferences
+    const preferences = await getWalletPreferences();
+    preferences.WalletEnabled = true;
+    preferences.DefaultView = "wallet";
+    await setWalletPreferences(preferences);
+
+    // navigate to wallet
+    navigate("/wallet");
+  };
+
+  const handleOpenWebsite = () => {
+    window.open("https://unstoppabledomains.com", "_blank");
+  };
 
   return (
-    <div className={classes.main}>
-      <Grid container wrap="nowrap" spacing={1}>
-        <Grid item>
-          <i className="material-icons md-24">folder</i>
-        </Grid>
+    <Box sx={styles.main}>
+      <Grid container wrap="nowrap">
         <Grid item xs zeroMinWidth>
-          <Link onClick={navigateToList}>
-            <Typography variant="subtitle1" className={classes.title}>
-              View list of websites
-            </Typography>
-          </Link>
+          <Button
+            onClick={handleEnableWallet}
+            variant="text"
+            size="small"
+            startIcon={<WalletIcon />}
+          >
+            Enable wallet
+          </Button>
         </Grid>
-        <Grid item className={classes.trailing}>
-          <a href="https://unstoppabledomains.com" target="blank">
-            <i className="material-icons md-24">home</i>
-          </a>
+        <Grid item>
+          <IconButton onClick={handleOpenWebsite}>
+            <HomeIcon sx={styles.icon} />
+          </IconButton>
         </Grid>
       </Grid>
-    </div>
-  )
-}
+    </Box>
+  );
+};
 
-export default withStyles(styles)(Footer)
+export default Footer;
