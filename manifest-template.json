@@ -3,7 +3,7 @@
   "name": "Unstoppable Domains",
   "short_name": "Unstoppable Domains",
   "version": "<injected from package.json using create_manifest.js>",
-  "description": "A crypto wallet for domainers: Easily interact with onchain identities, assets and decentralized apps.",
+  "description": "A crypto wallet for domainers: easily interact with onchain identities, assets and apps.",
   "minimum_chrome_version": "102",
   "icons": {
     "16": "icon/16.png",
