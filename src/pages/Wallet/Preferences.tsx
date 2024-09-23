@@ -17,6 +17,7 @@ import {
   useTranslationContext,
   Link,
   Modal,
+  DomainProfileKeys,
 } from "@unstoppabledomains/ui-components";
 import {clearAllConnectedSites} from "../../lib/wallet/evm/connection";
 import MainScreen from "../Legacy/MainScreen";
@@ -26,6 +27,7 @@ import {sendMessageToClient} from "../../lib/wallet/message";
 import config from "../../config";
 import {getManifestVersion, setIcon} from "../../lib/runtime";
 import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
+import {notifyXmtpServiceWorker} from "../../lib/xmtp/state";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -79,9 +81,18 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const handleMessaging = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    // store messaging preference
     preferences.MessagingEnabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
+
+    // sign the user in if enabling
+    if (preferences.MessagingEnabled) {
+      const address = localStorage.getItem(DomainProfileKeys.AuthAddress);
+      if (address) {
+        await notifyXmtpServiceWorker(address);
+      }
+    }
   };
 
   const handleDisconnectAll = async () => {

@@ -37,10 +37,7 @@ import {
 } from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
 import useConnections from "../../hooks/useConnections";
-import {
-  sendMessageToBackground,
-  sendMessageToClient,
-} from "../../lib/wallet/message";
+import {sendMessageToClient} from "../../lib/wallet/message";
 import {useNavigate} from "react-router-dom";
 import {ResponseType, getResponseType} from "../../types/wallet/provider";
 import {getProviderRequest, getXmtpChatAddress} from "../../lib/wallet/request";
@@ -53,8 +50,7 @@ import {
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
-import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
-import {fetcher} from "@xmtp/proto";
+import {notifyXmtpServiceWorker} from "../../lib/xmtp/state";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -227,22 +223,7 @@ const WalletComp: React.FC = () => {
     }
 
     // wait for XMTP to be ready and notify the service worker
-    const notifyServiceWorker = async () => {
-      // retrieve the XMTP key
-      const xmtpKey = getXmtpLocalKey(authAddress);
-      if (!xmtpKey) {
-        Logger.warn("XMTP key not available");
-        return false;
-      }
-
-      // encode the key for transport
-      const xmtpKeyEncoded = fetcher.b64Encode(xmtpKey, 0, xmtpKey.length);
-
-      // provide the key to service worker
-      await sendMessageToBackground("xmtpReadyRequest", xmtpKeyEncoded);
-      return true;
-    };
-    void notifyServiceWorker();
+    void notifyXmtpServiceWorker(authAddress);
   }, [authAddress, isChatReady]);
 
   const handleAuthComplete = async () => {
@@ -290,10 +271,14 @@ const WalletComp: React.FC = () => {
     await chromeStorageClear("session");
     await chromeStorageClear("sync");
 
+    // switch back to sign in CTA view
+    setShowSignInCta(true);
+
     // reset identity variable state
     setAuthAddress(undefined);
     setAuthDomain(undefined);
     setAuthAvatar(undefined);
+    setAuthState(undefined);
 
     // set basic wallet enablement preferences, since we can assume
     // next time the extension loads that the user enabled the wallet

@@ -23,7 +23,6 @@ export const chromeStorageGet = async <T>(
   k: StorageSyncKey,
   type: StorageType = "sync",
 ): Promise<T> => {
-  Logger.log("Retrieving storage key", type, k);
   const data = await chrome.storage[type].get(k);
   return data[k];
 };

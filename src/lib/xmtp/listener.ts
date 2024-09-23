@@ -4,14 +4,13 @@ import {Mutex} from "async-mutex";
 import {fetcher} from "@xmtp/proto";
 import {ContentTypeText} from "@xmtp/xmtp-js";
 import config from "@unstoppabledomains/config";
-import * as extConfig from "../../config";
 
 import {
   StorageSyncKey,
   chromeStorageGet,
   chromeStorageSet,
 } from "../chromeStorage";
-import {incrementBadgeCount} from "../runtime";
+import {createNotification, incrementBadgeCount} from "../runtime";
 import {getReverseResolution} from "../resolver/resolver";
 import {getWalletPreferences} from "../wallet/preferences";
 import {XMTP_CONVERSATION_FLAG} from "../../types/wallet/messages";
@@ -55,6 +54,14 @@ export const listenForXmtpMessages = async (xmtpKey?: string) => {
 
     // wait for messages
     void waitForMessages();
+
+    // check every so often for messaging enablement
+    const interval = setInterval(async () => {
+      const isEnabled = await assertMessagingEnabled();
+      if (!isEnabled) {
+        clearInterval(interval);
+      }
+    }, 5000);
   });
 };
 
@@ -70,6 +77,15 @@ const waitForMessages = async () => {
   // listen for notification clicks
   chrome.notifications.onClicked.addListener(handleMessageClick);
 
+  // notify the user of their signed in status
+  await createNotification(
+    "xmtp-chat-initialized",
+    "Unstoppable Messaging",
+    "You're signed in! Connect with friends using Unstoppable Messaging, powered by XMTP. Over 2 million onchain identities use XMTP for secure, private, and portable messaging.",
+    undefined,
+    2,
+  );
+
   // listen for XMTP messages
   Logger.log(
     "Waiting for XMTP messages...",
@@ -77,18 +93,8 @@ const waitForMessages = async () => {
   );
   for await (const message of await xmtpClient.conversations.streamAllMessages()) {
     // ensure the user is still signed in
-    const xmtpKey = await chromeStorageGet(StorageSyncKey.XmtpKey, "local");
-    if (!xmtpKey) {
-      Logger.warn("Listener exiting, XMTP key not found");
-      xmtpClient = null;
-      return;
-    }
-
-    // ensure the user still desires notifications
-    const preferences = await getWalletPreferences();
-    if (!preferences.MessagingEnabled) {
-      Logger.warn("Listener existing, messaging is disabled");
-      xmtpClient = null;
+    const isEnabled = await assertMessagingEnabled();
+    if (!isEnabled) {
       return;
     }
 
@@ -103,6 +109,27 @@ const waitForMessages = async () => {
       }
     }
   }
+};
+
+const assertMessagingEnabled = async () => {
+  // ensure the user is still signed in
+  const xmtpKey = await chromeStorageGet(StorageSyncKey.XmtpKey, "local");
+  if (!xmtpKey) {
+    Logger.warn("Listener exiting, XMTP key not found");
+    xmtpClient = null;
+    return false;
+  }
+
+  // ensure the user still desires notifications
+  const preferences = await getWalletPreferences();
+  if (!preferences.MessagingEnabled) {
+    Logger.warn("Listener existing, messaging is disabled");
+    xmtpClient = null;
+    return false;
+  }
+
+  // still signed in
+  return true;
 };
 
 const handleMessage = async (decodedMessage: DecodedMessage) => {
@@ -137,22 +164,15 @@ const handleMessage = async (decodedMessage: DecodedMessage) => {
   const senderName = await getReverseResolution(decodedMessage.senderAddress);
 
   // notify the user of the message if permission available
-  if (chrome.notifications) {
-    chrome.notifications.create(
-      `xmtp-${decodedMessage.senderAddress.toLowerCase()}-${decodedMessage.id}`,
-      {
-        type: "basic",
-        title: senderName || decodedMessage.senderAddress,
-        iconUrl: chrome.runtime.getURL("/icon/128.png"),
-        message: decodedMessage.contentType.sameAs(ContentTypeText)
-          ? decodedMessage.content
-          : "Attachment",
-        isClickable: true,
-        contextMessage: isApproved ? "Approved contact" : undefined,
-        priority: isApproved ? 2 : 0,
-      },
-    );
-  }
+  await createNotification(
+    `xmtp-${decodedMessage.senderAddress.toLowerCase()}-${decodedMessage.id}`,
+    senderName || decodedMessage.senderAddress,
+    decodedMessage.contentType.sameAs(ContentTypeText)
+      ? decodedMessage.content
+      : "Attachment",
+    isApproved ? "Approved contact" : undefined,
+    isApproved ? 2 : 0,
+  );
 };
 
 const handleMessageClick = async (notificationId: string) => {
@@ -166,20 +186,32 @@ const handleMessageClick = async (notificationId: string) => {
     return;
   }
 
-  // get the currently active window (if any)
-  const activeTab = await chrome.tabs.getCurrent();
+  try {
+    // get the currently active window (if any)
+    const activeTab = await chrome.tabs.getCurrent();
+    if (!activeTab) {
+      return;
+    }
 
-  // get the default popup URL
-  const defaultPopupUrl = await chrome.action.getPopup({tabId: activeTab?.id});
+    // get the default popup URL
+    const defaultPopupUrl = await chrome.action.getPopup({
+      tabId: activeTab.id,
+    });
+    if (!defaultPopupUrl) {
+      return;
+    }
 
-  // open the popup with the current conversation in focus
-  await chrome.action.setPopup({
-    popup: `${defaultPopupUrl}?${XMTP_CONVERSATION_FLAG}=${xmtpChatId}`,
-  });
-  await chrome.action.openPopup({windowId: activeTab?.windowId});
+    // open the popup with the current conversation in focus
+    await chrome.action.setPopup({
+      popup: `${defaultPopupUrl}?${XMTP_CONVERSATION_FLAG}=${xmtpChatId}`,
+    });
+    await chrome.action.openPopup({windowId: activeTab?.windowId});
 
-  // reset the popup URL to default
-  await chrome.action.setPopup({
-    popup: defaultPopupUrl,
-  });
+    // reset the popup URL to default
+    await chrome.action.setPopup({
+      popup: defaultPopupUrl,
+    });
+  } catch (e) {
+    Logger.warn("Error handling notification click", e);
+  }
 };

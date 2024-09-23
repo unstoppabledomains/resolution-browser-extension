@@ -17,7 +17,6 @@ export const getConnectedSites = async (): Promise<ConnectedSites> => {
   );
   if (connectedSitesStr) {
     const connections = JSON.parse(connectedSitesStr);
-    Logger.log("Wallet connections", JSON.stringify(connections));
     return connections;
   }
   return {};
@@ -29,10 +28,8 @@ export const getConnectedSite = async (
   const connectedSites = await getConnectedSites();
   if (connectedSites && connectedSites[host.toLowerCase()]) {
     const connection = connectedSites[host.toLowerCase()];
-    Logger.log("Wallet connection found", JSON.stringify({host, connection}));
     return connection;
   }
-  Logger.log("Wallet connection not found", JSON.stringify({host}));
   return undefined;
 };
 

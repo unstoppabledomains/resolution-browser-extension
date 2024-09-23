@@ -32,7 +32,6 @@ export const setIcon = async (
   }
 
   // update the requested tab
-  Logger.log("Updating connection icon", JSON.stringify({tabId, variant}));
   const suffix = variant === "default" ? "" : `-${variant}`;
   await chrome.action.setIcon({
     path: {
@@ -83,4 +82,24 @@ export const focusAllPopups = async () => {
       await chrome.windows.update(tab.windowId, {focused: true});
     }
   });
+};
+
+export const createNotification = async (
+  id: string,
+  title: string,
+  message: string,
+  contextMessage?: string,
+  priority?: number,
+) => {
+  if (chrome.notifications) {
+    chrome.notifications.create(id, {
+      type: "basic",
+      title,
+      iconUrl: chrome.runtime.getURL("/icon/128.png"),
+      message,
+      isClickable: true,
+      contextMessage,
+      priority,
+    });
+  }
 };
