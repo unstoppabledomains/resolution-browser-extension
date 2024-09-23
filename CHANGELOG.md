@@ -1,5 +1,10 @@
-## 3.1.0
-* Add Unstoppable Lite Wallet
+## 3.1.24
+* Support for Unstoppable Lite Wallet, a wallet for domainers
+* Support for Unstoppable Messaging, powered by XMTP
+* Support for Sherlock Assistant, discover onchain identities
+
+## 3.0.14
+* Add .dream TLDs support
 
 ## 3.0.13
 * Add .lfg TLDs support

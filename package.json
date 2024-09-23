@@ -14,7 +14,7 @@
     "predev": "yarn clean && yarn prettier",
     "dev": "NODE_ENV=staging; yarn clean && yarn postinstall && parcel watch src/manifest.json --host localhost --no-source-maps",
     "dist": "yarn clean; NODE_ENV=production; yarn build:all; NODE_ENV=staging; yarn build:all",
-    "build:all": "yarn build:chrome:archives && yarn build:firefox:archives",
+    "build:all": "yarn build:chrome:archives",
     "build:extension": "parcel build src/manifest.json --no-cache --no-source-maps --no-scope-hoist",
     "build:chrome": "yarn build:chrome:manifest && yarn build:extension",
     "build:chrome:manifest": "node scripts/create-env.mjs && node ./scripts/create_manifest.js chrome",
