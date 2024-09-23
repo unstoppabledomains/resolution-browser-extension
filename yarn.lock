@@ -4948,9 +4948,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.49-browser-extension.1":
-  version: 0.0.49-browser-extension.1
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.49-browser-extension.1"
+"@unstoppabledomains/ui-components@npm:0.0.49-browser-extension.2":
+  version: 0.0.49-browser-extension.2
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.49-browser-extension.2"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -4998,6 +4998,7 @@ __metadata:
     clipboard-copy: ^4.0.1
     compress-json: ^3.0.0
     date-fns: ^2.16.1
+    elliptic: ^6.5.7
     filesize: ^10.0.8
     font-awesome: ^4.7.0
     hash.js: ^1.1.7
@@ -5048,7 +5049,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 59619f4907f1a1eac796baa9bba5e040e8a651e75cd131e55b8541dc95453ad08b6f4670df7c2bd8a6a7bec32b57466cc8896e6b394b107ff36a81c688a7a420
+  checksum: 1defd4c4d06bf2bdaa41b1e3c9f617c0623f415d1d2365c307a114e535143e9c39b7e58df11fd89b97e611fbf19fc7aeced3ba7e5182cc6874c85e58450c08c3
   languageName: node
   linkType: hard
 
@@ -8525,6 +8526,21 @@ __metadata:
     minimalistic-assert: ^1.0.1
     minimalistic-crypto-utils: ^1.0.1
   checksum: 213d778ccfe99ec8f0f871b1cc96a10ac3763d9175215d0a9dc026f291e5f50fea6f635e4e47b4506f9ada25aeb703bd807d8737b880dbb24d092a3001c6d97d
+  languageName: node
+  linkType: hard
+
+"elliptic@npm:^6.5.7":
+  version: 6.5.7
+  resolution: "elliptic@npm:6.5.7"
+  dependencies:
+    bn.js: ^4.11.9
+    brorand: ^1.1.0
+    hash.js: ^1.0.0
+    hmac-drbg: ^1.0.1
+    inherits: ^2.0.4
+    minimalistic-assert: ^1.0.1
+    minimalistic-crypto-utils: ^1.0.1
+  checksum: af0ffddffdbc2fea4eeec74388cd73e62ed5a0eac6711568fb28071566319785df529c968b0bf1250ba4bc628e074b2d64c54a633e034aa6f0c6b152ceb49ab8
   languageName: node
   linkType: hard
 
@@ -17009,7 +17025,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.13
-    "@unstoppabledomains/ui-components": 0.0.49-browser-extension.1
+    "@unstoppabledomains/ui-components": 0.0.49-browser-extension.2
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
