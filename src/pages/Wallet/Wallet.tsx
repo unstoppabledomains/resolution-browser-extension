@@ -45,6 +45,7 @@ import {AppEnv} from "@unstoppabledomains/config";
 import {SignInCta} from "./SignInCta";
 import {initializeBrowserSettings} from "../../lib/helpers";
 import {
+  createNotification,
   focusAllPopups,
   getAllPopups,
   setBadgeCount,
@@ -240,7 +241,24 @@ const WalletComp: React.FC = () => {
     const providerRequest = getProviderRequest();
     if (providerRequest) {
       if (providerRequest.type === "signInRequest") {
-        await setBadgeCount(0);
+        await Promise.all([
+          // clear badge count
+          setBadgeCount(0),
+
+          // create a notification to indicate sign in was successful
+          createNotification(
+            `signIn${Date.now()}`,
+            t("wallet.title"),
+            t("wallet.readyToUse"),
+            undefined,
+            2,
+          ),
+
+          // short delay to ensure notification processes
+          sleep(500),
+        ]);
+
+        // close the window after successful login
         handleClose();
         return;
       }

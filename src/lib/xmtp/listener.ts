@@ -23,8 +23,13 @@ export const listenForXmtpMessages = async (xmtpKey?: string) => {
   await xmtpMutex.runExclusive(async () => {
     // no work to do if client already initialized
     if (xmtpClient) {
-      Logger.log("XMTP listener already initialized");
       return;
+    }
+
+    // listen for notification clicks
+    if (!chrome.notifications.onClicked.hasListeners()) {
+      Logger.log("Listening for notification clicks...");
+      chrome.notifications.onClicked.addListener(handleNotificationClick);
     }
 
     // validate the provided XMTP key
@@ -73,9 +78,6 @@ const waitForMessages = async () => {
 
   // refresh the local consent list
   const consentList = await xmtpClient.contacts.refreshConsentList();
-
-  // listen for notification clicks
-  chrome.notifications.onClicked.addListener(handleMessageClick);
 
   // notify the user of their signed in status
   await createNotification(
@@ -175,36 +177,32 @@ const handleMessage = async (decodedMessage: DecodedMessage) => {
   );
 };
 
-const handleMessageClick = async (notificationId: string) => {
+const handleNotificationClick = async (notificationId: string) => {
   // clear the notification
   chrome.notifications.clear(notificationId);
 
-  // get the chat ID from notification ID
-  const idParts = notificationId.split("-");
-  const xmtpChatId = idParts.length > 0 ? idParts[1] : undefined;
-  if (!xmtpChatId) {
-    return;
-  }
-
   try {
-    // get the currently active window (if any)
-    const activeTab = await chrome.tabs.getCurrent();
-    if (!activeTab) {
-      return;
-    }
+    // get the chat ID from notification ID
+    const idParts = notificationId.split("-");
+    const xmtpChatId = idParts.length > 0 ? idParts[1] : undefined;
 
     // get the default popup URL
+    const activeTab = await chrome.tabs.getCurrent();
     const defaultPopupUrl = await chrome.action.getPopup({
-      tabId: activeTab.id,
+      tabId: activeTab?.id,
     });
     if (!defaultPopupUrl) {
-      return;
+      throw new Error("unable to find active tab ID");
     }
 
-    // open the popup with the current conversation in focus
-    await chrome.action.setPopup({
-      popup: `${defaultPopupUrl}?${XMTP_CONVERSATION_FLAG}=${xmtpChatId}`,
-    });
+    // if a conversation ID is specified, set the popup focus
+    if (xmtpChatId) {
+      await chrome.action.setPopup({
+        popup: `${defaultPopupUrl}?${XMTP_CONVERSATION_FLAG}=${xmtpChatId}`,
+      });
+    }
+
+    // open the popup
     await chrome.action.openPopup({windowId: activeTab?.windowId});
 
     // reset the popup URL to default
