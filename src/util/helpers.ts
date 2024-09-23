@@ -36,4 +36,5 @@ export const supportedDomains: string[] = [
   ".dfz",
   ".smobler",
   ".lfg",
+  ".dream",
 ];
