@@ -151,6 +151,9 @@ to build a new release version.
 #### Approving a signature
 <img width="1055" alt="image" src="https://github.com/user-attachments/assets/157825a7-fc8f-4df0-aeb9-b895558f465a">
 
+#### Context menu to manage connection
+![image](https://github.com/user-attachments/assets/a96f2b7a-a5ff-4694-9f92-a147f4d3adbd)
+
 ## Frequently Asked Questions (FAQ)
 
 ### Why does this extension require access to `*.google.com` and other search engine domains?
