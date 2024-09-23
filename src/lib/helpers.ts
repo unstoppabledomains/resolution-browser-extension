@@ -43,6 +43,7 @@ export const supportedDomains: string[] = [
   ".dfz",
   ".smobler",
   ".lfg",
+  ".dream",
 ];
 
 //return true if url ends in one of the supported domains
