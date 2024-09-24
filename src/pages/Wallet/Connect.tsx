@@ -228,44 +228,60 @@ const Connect: React.FC = () => {
         }
 
         // handle the message
-        setConnectionStateMessage(message);
         switch (message.type) {
           case "accountRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.CHAINID);
             handleGetAccount();
             break;
           case "chainIdRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.CHAINID);
             handleGetChainId();
             break;
           case "requestPermissionsRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.PERMISSIONS);
             break;
           case "selectAccountRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.ACCOUNT);
             break;
           case "signMessageRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SIGN);
             handleSignMessage(message.params[0]);
             break;
           case "signTypedMessageRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SIGN);
             handleSignTypedMessage(message.params);
             break;
           case "sendTransactionRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SIGN);
             handleSendTransaction(message.params[0]);
             break;
           case "switchChainRequest":
+            setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SWITCH_CHAIN);
             break;
           case "closeWindowRequest":
             handleClose();
             break;
+          // the following messages types can silently be ignored, as they
+          // are not relevant in the connect window
+          case "getPreferencesRequest":
+          case "newTabRequest":
+          case "queueRequest":
+          case "signInRequest":
+          case "xmtpReadyRequest":
+            return;
           default:
-            // unsupported method type
-            Logger.log("Unsupported message type", message);
-            throw new Error(UnsupportedRequestError);
+            // other unsupported method types can be ignored, but we'll show
+            // a warning message for visibility
+            Logger.warn("Ignoring unsupported message type", message);
+            return;
         }
 
         // add a listener for unload, which will detect if a user manually closes
