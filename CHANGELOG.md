@@ -1,4 +1,4 @@
-## 3.1.24
+## 3.1.25
 * Support for Unstoppable Lite Wallet, a wallet for domainers
 * Support for Unstoppable Messaging, powered by XMTP
 * Support for Sherlock Assistant, discover onchain identities

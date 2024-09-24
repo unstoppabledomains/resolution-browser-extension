@@ -4948,9 +4948,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.49-browser-extension.2":
-  version: 0.0.49-browser-extension.2
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.49-browser-extension.2"
+"@unstoppabledomains/ui-components@npm:0.0.50":
+  version: 0.0.50
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.50"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -4998,7 +4998,6 @@ __metadata:
     clipboard-copy: ^4.0.1
     compress-json: ^3.0.0
     date-fns: ^2.16.1
-    elliptic: ^6.5.7
     filesize: ^10.0.8
     font-awesome: ^4.7.0
     hash.js: ^1.1.7
@@ -5049,7 +5048,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 1defd4c4d06bf2bdaa41b1e3c9f617c0623f415d1d2365c307a114e535143e9c39b7e58df11fd89b97e611fbf19fc7aeced3ba7e5182cc6874c85e58450c08c3
+  checksum: 07cf6a714bc03aa450bb386bb570142595d5078ac32a640805af087dac72f46d9993cb9414eb734c4d5bc2915ab2db6e8350c8a4201ea400c43734bda1e557b7
   languageName: node
   linkType: hard
 
@@ -8486,7 +8485,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"elliptic@npm:6.5.4, elliptic@npm:^6.4.0, elliptic@npm:^6.5.2, elliptic@npm:^6.5.3, elliptic@npm:^6.5.4, elliptic@npm:^6.5.5, elliptic@npm:^6.5.7":
+"elliptic@npm:6.5.4, elliptic@npm:^6.4.0, elliptic@npm:^6.5.2, elliptic@npm:^6.5.3, elliptic@npm:^6.5.4, elliptic@npm:^6.5.5":
   version: 6.5.7
   resolution: "elliptic@npm:6.5.7"
   dependencies:
@@ -16924,7 +16923,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.13
-    "@unstoppabledomains/ui-components": 0.0.49-browser-extension.2
+    "@unstoppabledomains/ui-components": 0.0.50
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
