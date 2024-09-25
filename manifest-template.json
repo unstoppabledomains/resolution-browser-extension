@@ -60,10 +60,12 @@
   "host_permissions": ["<all_urls>"],
   "permissions": [
     "alarms",
-    "contextMenus",
     "declarativeNetRequest",
+    "storage"
+  ],
+  "optional_permissions": [
+    "contextMenus",
     "notifications",
-    "storage",
     "tabs"
   ]
 }

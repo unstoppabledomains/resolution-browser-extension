@@ -48,10 +48,12 @@ import {
   createNotification,
   focusAllPopups,
   getAllPopups,
+  hasOptionalPermissions,
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
 import {notifyXmtpServiceWorker} from "../../lib/xmtp/state";
+import {PermissionCta} from "./PermissionCta";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -76,6 +78,8 @@ const WalletComp: React.FC = () => {
   const [authState, setAuthState] = useState<AuthState>();
   const [authButton, setAuthButton] = useState<React.ReactNode>();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isPermissionGranted, setIsPermissionGranted] = useState(false);
+  const [showPermissionCta, setShowPermissionCta] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSignInCta, setShowSignInCta] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
@@ -104,6 +108,10 @@ const WalletComp: React.FC = () => {
 
     const loadWallet = async () => {
       try {
+        // check required permissions for wallet features
+        const isGranted = await hasOptionalPermissions();
+        setIsPermissionGranted(isGranted);
+
         // retrieve state of logged in wallet (if any)
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
@@ -197,6 +205,14 @@ const WalletComp: React.FC = () => {
     void loadWallet();
   }, [isMounted, authComplete]);
 
+  // prompt for permissions if required
+  useEffect(() => {
+    if (showPermissionCta) {
+      return;
+    }
+    setShowPermissionCta(authAddress && !isPermissionGranted);
+  }, [authAddress, isPermissionGranted, showPermissionCta]);
+
   // prompt for compatibility mode once settings are loaded
   useEffect(() => {
     if (!preferences || !authComplete) {
@@ -258,6 +274,13 @@ const WalletComp: React.FC = () => {
           sleep(500),
         ]);
 
+        // show the permission CTA and leave the window open if optional
+        // permissions are not yet granted
+        if (!isPermissionGranted) {
+          setShowPermissionCta(true);
+          return;
+        }
+
         // close the window after successful login
         handleClose();
         return;
@@ -281,6 +304,11 @@ const WalletComp: React.FC = () => {
       JSON.stringify(authState),
       "session",
     );
+  };
+
+  const handlePermissionGranted = async () => {
+    await sleep(500);
+    handleClose();
   };
 
   const handleLogout = async () => {
@@ -384,7 +412,7 @@ const WalletComp: React.FC = () => {
 
       // wait a few moments before showing the CTA so the has a chance to show base
       // wallet elements and not overwhelm the user
-      await sleep(2000);
+      await sleep(20000);
 
       // show the CTA
       enqueueSnackbar(
@@ -495,6 +523,8 @@ const WalletComp: React.FC = () => {
 
   return showSignInCta ? (
     <SignInCta />
+  ) : showPermissionCta ? (
+    <PermissionCta onPermissionGranted={handlePermissionGranted} />
   ) : showSettings ? (
     <Preferences onClose={handleClosePreferences} />
   ) : (

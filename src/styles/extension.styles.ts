@@ -55,8 +55,7 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
   walletIcon: {
     width: "75px",
     height: "75px",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.neutralShades[100],
+    color: theme.palette.common.black,
   },
   updatedContentContainer: {
     display: "flex",

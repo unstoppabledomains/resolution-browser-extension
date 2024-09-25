@@ -27,7 +27,10 @@ export const waitForXmtpMessages = async (xmtpKey?: string) => {
     }
 
     // listen for notification clicks
-    if (!chrome.notifications.onClicked.hasListeners()) {
+    if (
+      chrome.notifications &&
+      !chrome.notifications.onClicked.hasListeners()
+    ) {
       Logger.log("Listening for notification clicks...");
       chrome.notifications.onClicked.addListener(handleNotificationClick);
     }
