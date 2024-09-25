@@ -43,7 +43,7 @@ import {ResponseType, getResponseType} from "../../types/wallet/provider";
 import {getProviderRequest, getXmtpChatAddress} from "../../lib/wallet/request";
 import {AppEnv} from "@unstoppabledomains/config";
 import {SignInCta} from "./SignInCta";
-import {initializeBrowserSettings} from "../../lib/helpers";
+import {initializeBrowserSettings} from "../../lib/resolver/settings";
 import {
   createNotification,
   focusAllPopups,

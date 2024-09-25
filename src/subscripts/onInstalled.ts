@@ -1,4 +1,4 @@
-import {initializeBrowserSettings} from "../lib/helpers";
+import {initializeBrowserSettings} from "../lib/resolver/settings";
 import {Logger} from "../lib/logger";
 
 Logger.log("Background Script Started!");

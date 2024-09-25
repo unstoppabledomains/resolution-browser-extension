@@ -18,7 +18,7 @@ import {XMTP_CONVERSATION_FLAG} from "../../types/wallet/messages";
 let xmtpClient: Client = null;
 const xmtpMutex = new Mutex();
 
-export const listenForXmtpMessages = async (xmtpKey?: string) => {
+export const waitForXmtpMessages = async (xmtpKey?: string) => {
   // ensure xmtpClient singleton instance
   await xmtpMutex.runExclusive(async () => {
     // no work to do if client already initialized

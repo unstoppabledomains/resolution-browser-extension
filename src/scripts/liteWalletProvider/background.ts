@@ -7,7 +7,7 @@ import {
 } from "../../lib/wallet/evm/connection";
 import {getWalletPreferences} from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
-import {listenForXmtpMessages} from "../../lib/xmtp/listener";
+import {waitForXmtpMessages} from "../../lib/xmtp/listener";
 import {ConnectedSite} from "../../types/wallet/connection";
 import {
   NotConnectedError,
@@ -63,7 +63,7 @@ export const backgroundEventListener = (
         break;
       case "xmtpReadyRequest":
         if (request.params && request.params.length > 0) {
-          void listenForXmtpMessages(request.params[0]);
+          void waitForXmtpMessages(request.params[0]);
         }
         break;
     }
