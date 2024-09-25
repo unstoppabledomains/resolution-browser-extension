@@ -57,6 +57,7 @@
       "resources": ["js/wasm/cosigner.esm.wasm", "./scripts/contentIsolated.ts", "index.html"]
     }
   ],
+  "host_permissions": ["<all_urls>"],
   "permissions": [
     "alarms",
     "contextMenus",
