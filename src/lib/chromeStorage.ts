@@ -11,6 +11,7 @@ export enum StorageSyncKey {
   CompatibilityModeCta = "CompatibilityModeCta",
   WindowId = "windowId",
   XmtpKey = "XmtpKey",
+  XmtpNotifications = "XmtpNotifications",
 }
 
 type StorageType = "local" | "session" | "sync";
