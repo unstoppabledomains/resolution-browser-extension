@@ -2,8 +2,9 @@ import {Client, DecodedMessage, StaticKeystoreProvider} from "@xmtp/xmtp-js";
 import {Logger} from "../logger";
 import {Mutex} from "async-mutex";
 import {fetcher} from "@xmtp/proto";
-import {ContentTypeText} from "@xmtp/xmtp-js";
+import {ContentTypeText} from "@xmtp/content-type-text";
 import config from "@unstoppabledomains/config";
+import truncateMiddle from "truncate-middle";
 
 import {
   StorageSyncKey,
@@ -177,14 +178,42 @@ const handleMessage = async (decodedMessage: DecodedMessage) => {
   // attempt to resolve a name for the address
   const senderName = await getReverseResolution(decodedMessage.senderAddress);
 
+  // for unapproved contacts, only show the notification one time
+  if (!isApproved) {
+    // check to see whether this contact was already shown
+    const xmtpSpam =
+      (await chromeStorageGet<string[]>(
+        StorageSyncKey.XmtpNotifications,
+        "session",
+      )) || [];
+    if (xmtpSpam.includes(decodedMessage.senderAddress.toLowerCase())) {
+      Logger.warn(
+        "Dropping XMTP notification, already displayed for unknown contact",
+        {address: decodedMessage.senderAddress},
+      );
+      return;
+    }
+
+    // remember that we notified for this contact
+    xmtpSpam.push(decodedMessage.senderAddress.toLowerCase());
+    await chromeStorageSet(
+      StorageSyncKey.XmtpNotifications,
+      xmtpSpam,
+      "session",
+    );
+  }
+
   // notify the user of the message if permission available
   await createNotification(
     `xmtp-${decodedMessage.senderAddress.toLowerCase()}-${decodedMessage.id}`,
-    senderName || decodedMessage.senderAddress,
-    decodedMessage.contentType.sameAs(ContentTypeText)
-      ? decodedMessage.content
-      : "Attachment",
-    isApproved ? "Approved contact" : undefined,
+    senderName ||
+      `Wallet ${truncateMiddle(decodedMessage.senderAddress, 6, 4, "...")}`,
+    isApproved
+      ? decodedMessage.contentType.sameAs(ContentTypeText)
+        ? decodedMessage.content
+        : "Attachment"
+      : "You have a new message request",
+    isApproved ? "Approved contact" : "Possible spam",
     isApproved ? 2 : 0,
   );
 };

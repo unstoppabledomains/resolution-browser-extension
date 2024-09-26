@@ -2,7 +2,7 @@ import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
 import {Logger} from "./logger";
 import Bluebird from "bluebird";
 
-const permissions = ["contextMenus", "notifications", "tabs"];
+const permissions = ["contextMenus", "notifications", "sidePanel", "tabs"];
 
 export const hasOptionalPermissions = async (): Promise<boolean> => {
   return await chrome.permissions.contains({permissions});

@@ -66,6 +66,7 @@
   "optional_permissions": [
     "contextMenus",
     "notifications",
+    "sidePanel",
     "tabs"
   ]
 }
