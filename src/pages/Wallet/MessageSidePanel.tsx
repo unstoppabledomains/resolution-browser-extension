@@ -13,14 +13,14 @@ import {
   isEthAddress,
 } from "@unstoppabledomains/ui-components";
 import {Logger} from "../../lib/logger";
-import {sleep} from "../../lib/wallet/sleep";
 import {getXmtpChatAddress} from "../../lib/wallet/request";
 
 export const MessageSidePanel: React.FC = () => {
   const {classes, cx} = useExtensionStyles();
   const isMounted = useIsMounted();
   const [walletState] = useFireblocksState();
-  const {isChatReady, isChatOpen, setOpenChat} = useUnstoppableMessaging();
+  const {isChatReady, isChatOpen, setOpenChat, setIsChatOpen} =
+    useUnstoppableMessaging();
   const [address, setAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [t] = useTranslationContext();
@@ -74,16 +74,18 @@ export const MessageSidePanel: React.FC = () => {
       // determine if a specific chat should be opened
       const xmtpChatAddress = getXmtpChatAddress();
 
-      // wait a few moments
-      await sleep(2000);
-      setOpenChat(xmtpChatAddress || t("push.messages"));
+      // open the chat window
+      setIsChatOpen(true);
+      if (xmtpChatAddress) {
+        setOpenChat(xmtpChatAddress);
+      }
       setIsLoading(false);
     };
     void loadChat();
   }, [address, isChatReady]);
 
   const handleOpenMessages = () => {
-    setOpenChat(t("push.messages"));
+    setIsChatOpen(true);
   };
 
   return (
