@@ -384,6 +384,24 @@ const WalletComp: React.FC = () => {
     window.close();
   };
 
+  const handleMessagesClicked = async () => {
+    // determine the current window ID
+    const currentWindow = await chrome.windows.getCurrent();
+    if (!currentWindow?.id) {
+      return;
+    }
+
+    // open the side panel
+    await chrome.sidePanel.setOptions({
+      enabled: true,
+      path: chrome.runtime.getURL("/index.html#messages"),
+    });
+    chrome.sidePanel.open({windowId: currentWindow.id});
+
+    // close the current popup
+    handleClose();
+  };
+
   // handleCompatibilitySettings determines whether to automatically apply the
   // compatibility mode, or ask the user in a CTA
   const handleCompatibilitySettings = async () => {
@@ -575,6 +593,7 @@ const WalletComp: React.FC = () => {
             onLogout={handleLogout}
             onDisconnect={isConnected ? handleDisconnect : undefined}
             onSettingsClick={handleShowPreferences}
+            onMessagesClick={handleMessagesClicked}
             onUpdate={(_t: DomainProfileTabType) => {
               handleAuthComplete();
             }}

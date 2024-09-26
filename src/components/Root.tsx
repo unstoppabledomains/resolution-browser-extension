@@ -25,6 +25,7 @@ import {compareVersions} from "compare-versions";
 import usePreferences from "../hooks/usePreferences";
 import ConnectionProvider from "../providers/ConnectionProvider";
 import {getManifestVersion} from "../lib/runtime";
+import {MessageSidePanel} from "../pages/Wallet/MessageSidePanel";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,9 @@ const EntryPoint: React.FC = () => {
         return;
       case "#connect":
         navigate("/connect");
+        return;
+      case "#messages":
+        navigate("/messages");
         return;
       case "#wallet":
         navigate("/wallet");
@@ -127,6 +131,11 @@ const router = createMemoryRouter([
     // Application connect request popup
     path: "/connect",
     Component: Connect,
+  },
+  {
+    // Messaging side panel
+    path: "/messages",
+    Component: MessageSidePanel,
   },
 ]);
 

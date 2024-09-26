@@ -26,7 +26,6 @@ import {
   ProviderRequest,
   ResponseType,
   UnsupportedPermissionError,
-  UnsupportedRequestError,
   getResponseType,
   isConnectionRequired,
   isExternalRequestType,

@@ -41,7 +41,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@unstoppabledomains/config": "0.0.13",
-    "@unstoppabledomains/ui-components": "0.0.50-browser-extension.3",
+    "@unstoppabledomains/ui-components": "0.0.50-browser-extension.4",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "async-mutex": "^0.5.0",
     "compare-versions": "^6.1.1",
