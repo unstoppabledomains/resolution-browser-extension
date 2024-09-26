@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.28",
+  "version": "3.1.29",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -29,14 +29,19 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@xmtp/xmtp-js@11.3.0": "patch:@xmtp/xmtp-js@npm%3A11.3.0#./.yarn/patches/@xmtp-xmtp-js-npm-11.3.0-325a05833e.patch",
-    "@xmtp/xmtp-js@^11.6.3": "patch:@xmtp/xmtp-js@npm%3A11.3.0#./.yarn/patches/@xmtp-xmtp-js-npm-11.3.0-325a05833e.patch"
+    "@xmtp/xmtp-js@^11.6.3": "patch:@xmtp/xmtp-js@npm%3A12.1.0#./.yarn/patches/@xmtp-xmtp-js-npm-12.1.0-2828604809.patch",
+    "@xmtp/xmtp-js@12.1.0": "patch:@xmtp/xmtp-js@npm%3A12.1.0#./.yarn/patches/@xmtp-xmtp-js-npm-12.1.0-2828604809.patch",
+    "viem@2.7.15": "patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch",
+    "viem@^1.20.3": "patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch",
+    "viem@^1.0.0": "patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch",
+    "viem@^2.1.1": "patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch"
   },
   "dependencies": {
     "@metamask/providers": "^17.1.2",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@unstoppabledomains/config": "0.0.13",
-    "@unstoppabledomains/ui-components": "0.0.50",
+    "@unstoppabledomains/ui-components": "0.0.50-browser-extension.1",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "async-mutex": "^0.5.0",
     "compare-versions": "^6.1.1",

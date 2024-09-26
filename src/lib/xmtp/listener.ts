@@ -2,7 +2,7 @@ import {Client, DecodedMessage, StaticKeystoreProvider} from "@xmtp/xmtp-js";
 import {Logger} from "../logger";
 import {Mutex} from "async-mutex";
 import {fetcher} from "@xmtp/proto";
-import {ContentTypeText} from "@xmtp/xmtp-js";
+import {ContentTypeText} from "@xmtp/content-type-text";
 import config from "@unstoppabledomains/config";
 
 import {
