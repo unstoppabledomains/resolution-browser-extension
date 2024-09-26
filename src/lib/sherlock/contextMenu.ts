@@ -235,7 +235,7 @@ export class ContextMenu {
   }
 
   async waitForEvents() {
-    if (chrome?.contextMenus && chrome.runtime) {
+    if (chrome?.contextMenus?.onClicked && chrome.runtime) {
       this.clear();
       this.preferences = await getWalletPreferences();
 
@@ -244,6 +244,16 @@ export class ContextMenu {
 
       // listen for context menu clicks
       chrome.contextMenus.onClicked.addListener(menuListener(this));
+      Logger.log("Listening for context menu events...");
+    } else {
+      // wait for the contextMenu permission to be created and
+      // try again with the callback
+      Logger.log("Waiting for contextMenus permission to be available...");
+      chrome.permissions.onAdded.addListener(async (p) => {
+        if (p?.permissions?.includes("contextMenus")) {
+          await this.waitForEvents();
+        }
+      });
     }
   }
 

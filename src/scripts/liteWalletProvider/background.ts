@@ -1,4 +1,5 @@
 import config from "../../config";
+import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
 import {setBadgeCount, setIcon} from "../../lib/runtime";
 import {
@@ -7,7 +8,7 @@ import {
 } from "../../lib/wallet/evm/connection";
 import {getWalletPreferences} from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
-import {listenForXmtpMessages} from "../../lib/xmtp/listener";
+import {waitForXmtpMessages} from "../../lib/xmtp/listener";
 import {ConnectedSite} from "../../types/wallet/connection";
 import {
   NotConnectedError,
@@ -63,7 +64,7 @@ export const backgroundEventListener = (
         break;
       case "xmtpReadyRequest":
         if (request.params && request.params.length > 0) {
-          void listenForXmtpMessages(request.params[0]);
+          void waitForXmtpMessages(request.params[0]);
         }
         break;
     }
@@ -251,6 +252,10 @@ export const openPopupWindow = async (
   if (popupResponseHandler && host) {
     listenForPopupResponse(popupResponseHandler, host);
   }
+
+  // return the window ID
+  await chromeStorageSet(StorageSyncKey.WindowId, window.id, "session");
+  return window.id;
 };
 
 // listenForPopupResponse registers a handler to wait for the wallet extension popup

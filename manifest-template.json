@@ -48,58 +48,6 @@
     }
   ],
   "options_ui": {"page": "index.html#/options", "open_in_tab": false},
-  "host_permissions": [
-    "*://*.crypto/*",
-    "*://*.zil/*",
-    "*://*.wallet/*",
-    "*://*.nft/*",
-    "*://*.888/*",
-    "*://*.blockchain/*",
-    "*://*.bitcoin/*",
-    "*://*.dao/*",
-    "*://*.x/*",
-    "*://*.hi/*",
-    "*://*.klever/*",
-    "*://*.kresus/*",
-    "*://*.polygon/*",
-    "*://*.anime/*",
-    "*://*.manga/*",
-    "*://*.binanceus/*",
-    "*://*.go/*",
-    "*://*.altimist/*",
-    "*://*.pudgy/*",
-    "*://*.austin/*",
-    "*://*.bitget/*",
-    "*://*.pog/*",
-    "*://*.clay/*",
-    "*://*.witg/*",
-    "*://*.metropolis/*",
-    "*://*.wrkx/*",
-    "*://*.secret/*",
-    "*://*.raiin/*",
-    "*://*.stepn/*",
-    "*://*.kryptic/*",
-    "*://*.ubu/*",
-    "*://*.tball/*",
-    "*://*.farms/*",
-    "*://*.dfz/*",
-    "*://*.smobler/*",
-    "*://*.lfg/*",
-    "*://*.dream/*",
-    "*://*.unstoppable/*",
-    "*://*.google.com/*",
-    "*://*.duckduckgo.com/*",
-    "*://*.yahoo.com/*",
-    "*://*.yandex.ru/*",
-    "*://*.qwant.com/*",
-    "*://*.mojeek.com/*",
-    "*://*.aol.co.uk/*",
-    "*://*.baidu.com/*",
-    "*://*.bing.com/*",
-    "*://*.wiki.com/*",
-    "https://api.ud-staging.com/",
-    "*://*.fireblocks.com/*"
-  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
   },
@@ -109,12 +57,15 @@
       "resources": ["js/wasm/cosigner.esm.wasm", "./scripts/contentIsolated.ts", "index.html"]
     }
   ],
+  "host_permissions": ["<all_urls>"],
   "permissions": [
-    "contextMenus",
+    "alarms",
     "declarativeNetRequest",
-    "declarativeNetRequestFeedback",
+    "storage"
+  ],
+  "optional_permissions": [
+    "contextMenus",
     "notifications",
-    "storage",
     "tabs"
   ]
 }

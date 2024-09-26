@@ -18,7 +18,7 @@ import {XMTP_CONVERSATION_FLAG} from "../../types/wallet/messages";
 let xmtpClient: Client = null;
 const xmtpMutex = new Mutex();
 
-export const listenForXmtpMessages = async (xmtpKey?: string) => {
+export const waitForXmtpMessages = async (xmtpKey?: string) => {
   // ensure xmtpClient singleton instance
   await xmtpMutex.runExclusive(async () => {
     // no work to do if client already initialized
@@ -26,10 +26,22 @@ export const listenForXmtpMessages = async (xmtpKey?: string) => {
       return;
     }
 
-    // listen for notification clicks
-    if (!chrome.notifications.onClicked.hasListeners()) {
-      Logger.log("Listening for notification clicks...");
-      chrome.notifications.onClicked.addListener(handleNotificationClick);
+    // determine if notification permission is available
+    if (chrome.notifications) {
+      // listen for notification clicks
+      if (!chrome.notifications.onClicked.hasListeners()) {
+        Logger.log("Listening for notification clicks...");
+        chrome.notifications.onClicked.addListener(handleNotificationClick);
+      }
+    } else {
+      // register for permission updates and try again when available
+      Logger.log("Waiting for notifications permission to be available...");
+      chrome.permissions.onAdded.addListener(async (p) => {
+        if (p?.permissions?.includes("notifications")) {
+          await waitForXmtpMessages(xmtpKey);
+        }
+      });
+      return;
     }
 
     // validate the provided XMTP key

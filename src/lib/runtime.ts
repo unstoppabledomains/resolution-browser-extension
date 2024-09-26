@@ -1,5 +1,37 @@
+import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
 import {Logger} from "./logger";
 import Bluebird from "bluebird";
+
+const permissions = ["contextMenus", "notifications", "tabs"];
+
+export const hasOptionalPermissions = async (): Promise<boolean> => {
+  return await chrome.permissions.contains({permissions});
+};
+
+export const requestOptionalPermissions = async (): Promise<boolean> => {
+  // determine if permissions are already granted
+  if (await hasOptionalPermissions()) {
+    return true;
+  }
+
+  // request permissions if not already granted
+  const isGranted = await chrome.permissions.request({
+    permissions,
+  });
+
+  // show a notification when permissions granted
+  if (isGranted) {
+    // create a notification to indicate sign in was successful
+    await createNotification(
+      `permissions${Date.now()}`,
+      "Unstoppable Domains",
+      "Your wallet is ready to use! Click to open.",
+      undefined,
+      2,
+    );
+  }
+  return isGranted;
+};
 
 export const getManifestVersion = () => {
   try {
@@ -74,14 +106,37 @@ export const getAllPopups = (): Window[] => {
 };
 
 export const focusAllPopups = async () => {
-  const popupTabs = await chrome.tabs.query({windowType: "popup"});
-  const allWindows = getAllPopups();
-  Bluebird.map(allWindows, async (window) => {
-    const tab = popupTabs.find((t) => t.url.includes(window.location.href));
-    if (tab) {
-      await chrome.windows.update(tab.windowId, {focused: true});
+  await Promise.all([focusExtensionPopups(), focusKnownPopup()]);
+};
+
+export const focusExtensionPopups = async () => {
+  try {
+    const popupTabs = await chrome.tabs.query({windowType: "popup"});
+    const allWindows = getAllPopups();
+    await Bluebird.map(allWindows, async (window) => {
+      const tab = popupTabs.find((t) => t.url?.includes(window.location.href));
+      if (tab) {
+        await chrome.windows.update(tab.windowId, {focused: true});
+      }
+    });
+  } catch (e) {
+    // ignore error
+  }
+};
+
+export const focusKnownPopup = async () => {
+  try {
+    const windowId = await chromeStorageGet<number>(
+      StorageSyncKey.WindowId,
+      "session",
+    );
+    if (!windowId) {
+      return;
     }
-  });
+    await chrome.windows.update(windowId, {focused: true});
+  } catch (e) {
+    // ignore error
+  }
 };
 
 export const createNotification = async (
