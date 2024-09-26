@@ -1,3 +1,6 @@
+## 3.0.15
+* Add .benji TLDs support
+
 ## 3.0.14
 * Add .dream TLDs support
 

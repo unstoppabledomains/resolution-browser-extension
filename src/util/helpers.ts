@@ -138,7 +138,8 @@ export const supportedDomains: string[] = [
   '.dfz',
   '.smobler',
   '.lfg',
-  '.dream'
+  '.dream',
+  '.benji'
 ]
 
 //return true if url ends in one of the supported domains
@@ -148,5 +149,5 @@ export const supportedDomain = (q: string): boolean =>
 const isBaseBlockchainDomain = (domain: string): boolean => {
   const tld = domain.toLowerCase().trim().split('.').pop()
   if (!tld) return false
-  return ['smobler'].includes(tld)
+  return ['smobler', 'benji'].includes(tld)
 }
