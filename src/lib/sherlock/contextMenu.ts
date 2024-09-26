@@ -248,9 +248,10 @@ export class ContextMenu {
     } else {
       // wait for the contextMenu permission to be created and
       // try again with the callback
-      chrome.permissions.onAdded.addListener((p) => {
-        if (p.permissions?.includes("contextMenus")) {
-          this.waitForEvents();
+      Logger.log("Waiting for contextMenus permission to be available...");
+      chrome.permissions.onAdded.addListener(async (p) => {
+        if (p?.permissions?.includes("contextMenus")) {
+          await this.waitForEvents();
         }
       });
     }

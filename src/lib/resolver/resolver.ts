@@ -6,7 +6,7 @@ import {Logger} from "../logger";
 export const getSupportedTlds = async (): Promise<string[]> => {
   // retrieve ICANN supported TLDs
   const icannTlds = await getIcannTlds();
-  if (!icannTlds || icannTlds.length === 0) {
+  if (!icannTlds || icannTlds.size === 0) {
     // cannot continue if the ICANN domains were not found
     Logger.warn("ICANN domains not found");
     return [];
@@ -20,8 +20,8 @@ export const getSupportedTlds = async (): Promise<string[]> => {
       const tlds = resolutionData?.tlds;
       if (tlds && Array.isArray(tlds)) {
         return tlds
-          .map((d) => d.toLowerCase().replace(".", ""))
-          .filter((d) => !icannTlds.includes(d));
+          .map((d) => d.toLowerCase())
+          .filter((d) => !icannTlds.has(d));
       }
     }
   } catch (e) {
@@ -31,7 +31,7 @@ export const getSupportedTlds = async (): Promise<string[]> => {
 };
 
 // getIcannTlds retrieves list of all known ICANN domains
-export const getIcannTlds = async (): Promise<string[]> => {
+export const getIcannTlds = async (): Promise<Set<string>> => {
   try {
     const icannResponse = await fetch(
       `https://data.iana.org/TLD/tlds-alpha-by-domain.txt`,
@@ -40,14 +40,14 @@ export const getIcannTlds = async (): Promise<string[]> => {
       const icannData = await icannResponse.text();
       const tlds = icannData.split(/\n/);
       if (tlds.length > 1) {
-        return tlds.slice(1).map((d) => d.toLowerCase());
+        return new Set(tlds.slice(1).map((d) => d.toLowerCase()));
       }
     }
   } catch (e) {
     Logger.warn("Error retrieving ICANN domains", e);
   }
 
-  return [];
+  return new Set<string>();
 };
 
 // getReverseResolution retrieves primary domain for an address if it exists

@@ -9,6 +9,7 @@ export enum StorageSyncKey {
   WalletConnections = "WalletConnections",
   WalletPreferences = "WalletPreferences",
   CompatibilityModeCta = "CompatibilityModeCta",
+  WindowId = "windowId",
   XmtpKey = "XmtpKey",
 }
 

@@ -1,4 +1,5 @@
 import config from "../../config";
+import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
 import {setBadgeCount, setIcon} from "../../lib/runtime";
 import {
@@ -251,6 +252,10 @@ export const openPopupWindow = async (
   if (popupResponseHandler && host) {
     listenForPopupResponse(popupResponseHandler, host);
   }
+
+  // return the window ID
+  await chromeStorageSet(StorageSyncKey.WindowId, window.id, "session");
+  return window.id;
 };
 
 // listenForPopupResponse registers a handler to wait for the wallet extension popup

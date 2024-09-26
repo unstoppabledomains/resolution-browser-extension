@@ -6,8 +6,13 @@ import {
 } from "../../lib/resolver/types";
 
 export const waitForSupportedDomains = async () => {
-  // start be removing all rules on extension startup
-  await deleteAllRules();
+  // start by checking for availability of supported domains, and then
+  // removing all rules on extension if they are found. This first check
+  // keeps us from clearing rules when the API is unavailable.
+  const supportedDomains = await getSupportedTlds();
+  if (supportedDomains && supportedDomains.length > 0) {
+    await deleteAllRules();
+  }
 
   // make an initial call to initialize dynamic rules
   await refreshRules();

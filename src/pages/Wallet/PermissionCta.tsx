@@ -47,16 +47,16 @@ export const PermissionCta: React.FC<PermissionCtaProps> = ({
           <Paper variant="outlined" className={classes.updatedContentContainer}>
             <Typography variant="body2">
               <Markdown>
-                - **Create notifications:** to notify you about wallet activity
-                as well as incoming chats when messaging is enabled
+                - **Create notifications:** to show wallet activity and incoming
+                chats when messaging is enabled
               </Markdown>
               <Markdown>
-                - **Manage context menus:** to provide easy access to wallet
-                features by right clicking a webpage
+                - **Manage context menus:** to provide right click access to
+                wallet features
               </Markdown>
               <Markdown>
-                - **View open tabs:** to display a wallet connection status
-                icon, and help manage popup windows
+                - **View open tabs:** to display a connection status icon and
+                improve popup window management
               </Markdown>
             </Typography>
           </Paper>

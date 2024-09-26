@@ -33,7 +33,7 @@ export const SignInCta: React.FC = () => {
     await setBadgeCount(1);
 
     // close the existing extension popup
-    chrome.extension.getViews({type: "popup"}).forEach((v) => v.close());
+    chrome.extension.getViews({type: "popup"}).map((w) => w.close());
   };
 
   return (
