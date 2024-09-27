@@ -68,7 +68,7 @@ const WalletComp: React.FC = () => {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
   const {preferences, setPreferences, refreshPreferences} = usePreferences();
-  const {setOpenChat, isChatReady} = useUnstoppableMessaging();
+  const {setOpenChat, isChatReady, setIsChatOpen} = useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
@@ -307,7 +307,8 @@ const WalletComp: React.FC = () => {
   };
 
   const handlePermissionGranted = async () => {
-    await sleep(500);
+    // reload the extension after permissions granted
+    chrome.runtime.reload();
     handleClose();
   };
 
@@ -385,21 +386,30 @@ const WalletComp: React.FC = () => {
   };
 
   const handleMessagesClicked = async () => {
-    // determine the current window ID
-    const currentWindow = await chrome.windows.getCurrent();
-    if (!currentWindow?.id) {
-      return;
+    if (chrome.sidePanel) {
+      try {
+        // determine the current window ID
+        const currentWindow = await chrome.windows.getCurrent();
+        if (!currentWindow?.id) {
+          return;
+        }
+
+        // open the side panel
+        await chrome.sidePanel.setOptions({enabled: true});
+        await chrome.sidePanel.open({windowId: currentWindow.id});
+
+        // close the current popup
+        handleClose();
+        return;
+      } catch (e) {
+        // gracefully handle the error and fallback to opening the chat within
+        // the same window instead of side panel
+        Logger.error(e, "Popup", "Unable to open message side panel");
+      }
     }
 
-    // open the side panel
-    await chrome.sidePanel.setOptions({
-      enabled: true,
-      path: chrome.runtime.getURL("/index.html#messages"),
-    });
-    chrome.sidePanel.open({windowId: currentWindow.id});
-
-    // close the current popup
-    handleClose();
+    // simply show the chat in current window
+    setIsChatOpen(true);
   };
 
   // handleCompatibilitySettings determines whether to automatically apply the
@@ -430,7 +440,7 @@ const WalletComp: React.FC = () => {
 
       // wait a few moments before showing the CTA so the has a chance to show base
       // wallet elements and not overwhelm the user
-      await sleep(20000);
+      await sleep(12000);
 
       // show the CTA
       enqueueSnackbar(
