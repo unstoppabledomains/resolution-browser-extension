@@ -1,3 +1,12 @@
+## 3.1.30
+* Update XMTP version to 12.1.0
+* Enhanced message spam protections
+* Open messages in browser side panel
+
+## 3.1.28
+* Reduce the set of required extension permissions
+* Make permissions optional where possible
+
 ## 3.1.25
 * Support for Unstoppable Lite Wallet, a wallet for domainers
 * Support for Unstoppable Messaging, powered by XMTP
