@@ -1,6 +1,13 @@
 import {Logger} from "./logger";
 import Bluebird from "bluebird";
 import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
+import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
+import rgbHex from "rgb-hex";
+
+export enum BadgeColor {
+  Blue = "#1976d2",
+  Green = "#4caf50",
+}
 
 const permissions = ["contextMenus", "notifications", "sidePanel", "tabs"];
 
@@ -76,27 +83,37 @@ export const setIcon = async (
   });
 };
 
-export const incrementBadgeCount = async (
-  color: "blue" | "green" = "green",
-) => {
+export const getBadgeCount = async (color: BadgeColor) => {
+  // determine if color matches query
+  const currentRgb = await chrome.action.getBadgeBackgroundColor({});
+  const currentHex = rgbHex(currentRgb[0], currentRgb[1], currentRgb[2]);
+  if (!color.toLowerCase().includes(currentHex.toLowerCase())) {
+    return 0;
+  }
+
+  // get current count
   let currentCount = await chrome.action.getBadgeText({});
   if (!currentCount) {
     currentCount = "0";
   }
   try {
-    await setBadgeCount(parseInt(currentCount) + 1, color);
+    return parseInt(currentCount);
   } catch (e) {
-    Logger.warn("unable to increment badge count", e);
+    // ignore error
   }
+  return 0;
+};
+
+export const incrementBadgeCount = async (color: BadgeColor) => {
+  const currentCount = await getBadgeCount(color);
+  await setBadgeCount(currentCount + 1, color);
 };
 
 export const setBadgeCount = async (
   count: number,
-  color: "blue" | "green" = "green",
+  color: BadgeColor = BadgeColor.Green,
 ) => {
-  await chrome.action.setBadgeBackgroundColor({
-    color: color === "green" ? "#4caf50" : "#1976d2",
-  });
+  await chrome.action.setBadgeBackgroundColor({color});
   await chrome.action.setBadgeTextColor({color: "#ffffff"});
   await chrome.action.setBadgeText({text: count > 0 ? String(count) : ""});
 };
@@ -120,7 +137,28 @@ export const focusExtensionWindows = async (
   } catch (e) {
     // ignore error
   }
+
+  // if no popup was found to focus, try alternative method
+  if (focussedCount === 0) {
+    return await focusKnownPopup();
+  }
   return focussedCount;
+};
+
+export const focusKnownPopup = async () => {
+  try {
+    const windowId = await chromeStorageGet<number>(
+      StorageSyncKey.WindowId,
+      "session",
+    );
+    if (windowId) {
+      await chrome.windows.update(windowId, {focused: true});
+      return 1;
+    }
+  } catch (e) {
+    // ignore error
+  }
+  return 0;
 };
 
 export const createNotification = async (

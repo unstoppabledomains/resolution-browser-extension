@@ -15105,6 +15105,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rgb-hex@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "rgb-hex@npm:4.1.0"
+  checksum: 662dcc1e9016852a0cd28250edc68a6bcf5ad07bf0ab92c2419da79b3ad6880cf94cdf93412f035c88662e2b8482d6852171a3c015ed5eec031613740edd791e
+  languageName: node
+  linkType: hard
+
 "rimraf@npm:3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
@@ -16918,6 +16925,7 @@ __metadata:
     react-dom: ^17.0.0
     react-query: ^3.39.3
     react-router-dom: ^6.23.1
+    rgb-hex: ^4.1.0
     rimraf: ^5.0.7
     stream-browserify: ^3.0.0
     stream-http: ^3.1.0

@@ -45,8 +45,10 @@ import {AppEnv} from "@unstoppabledomains/config";
 import {SignInCta} from "./SignInCta";
 import {initializeBrowserSettings} from "../../lib/resolver/settings";
 import {
+  BadgeColor,
   createNotification,
   focusExtensionWindows,
+  getBadgeCount,
   hasOptionalPermissions,
   openSidePanel,
   setBadgeCount,
@@ -58,6 +60,7 @@ import {PermissionCta} from "./PermissionCta";
 const enum SnackbarKey {
   CTA = "cta",
   Success = "success",
+  UnreadMessage = "unreadMessage",
 }
 
 const WalletComp: React.FC = () => {
@@ -213,11 +216,14 @@ const WalletComp: React.FC = () => {
     setShowPermissionCta(authAddress && !isPermissionGranted);
   }, [authAddress, isPermissionGranted, showPermissionCta]);
 
-  // prompt for compatibility mode once settings are loaded
+  // complete page load steps after sign in confirmed
   useEffect(() => {
     if (!preferences || !authComplete) {
       return;
     }
+
+    // handle message notifications if necessary
+    void handleUnreadMessages();
 
     // update messaging status
     setMessagingEnabled(preferences.MessagingEnabled);
@@ -227,6 +233,7 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
+  // complete page load steps after messaging is ready
   useEffect(() => {
     if (!authAddress || !isChatReady) {
       return;
@@ -259,7 +266,7 @@ const WalletComp: React.FC = () => {
       if (providerRequest.type === "signInRequest") {
         await Promise.all([
           // clear badge count
-          setBadgeCount(0),
+          await setBadgeCount(0),
 
           // create a notification to indicate sign in was successful
           createNotification(
@@ -356,8 +363,10 @@ const WalletComp: React.FC = () => {
   };
 
   const handleFocusPopups = async () => {
+    // focus the windows
     const focussedPopups = await focusExtensionWindows();
-    await setBadgeCount(focussedPopups);
+
+    // close window if popups were located
     if (focussedPopups > 0) {
       handleClose();
       return true;
@@ -382,6 +391,57 @@ const WalletComp: React.FC = () => {
       removeBeforeUnloadListener();
     }
     window.close();
+  };
+
+  const handleUnreadMessages = async () => {
+    // determine if there is an unread message badge
+    const badgeCount = await getBadgeCount(BadgeColor.Blue);
+    if (badgeCount === 0) {
+      return;
+    }
+
+    // clear the unread count
+    await setBadgeCount(0, BadgeColor.Blue);
+
+    // do not show the snackbar if the user is already attempting
+    // to open the conversation
+    const xmtpChatAddress = getXmtpChatAddress();
+    if (xmtpChatAddress) {
+      return;
+    }
+
+    // show a message notification if so
+    enqueueSnackbar(
+      <Typography variant="body2">
+        You have <b>{badgeCount}</b> unread message{badgeCount > 0 ? "s" : ""}
+      </Typography>,
+      {
+        variant: "info",
+        key: SnackbarKey.UnreadMessage,
+        action: (
+          <Box display="flex" width="100%">
+            <Button
+              variant="text"
+              size="small"
+              color="primary"
+              className={classes.actionButton}
+              onClick={() => closeSnackbar(SnackbarKey.UnreadMessage)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="text"
+              size="small"
+              color="primary"
+              className={classes.actionButton}
+              onClick={handleMessagesClicked}
+            >
+              {t("push.setup.openMessaging")}
+            </Button>
+          </Box>
+        ),
+      },
+    );
   };
 
   const handleMessagePopoutClick = async (address?: string) => {

@@ -11,7 +11,7 @@ import {
   chromeStorageGet,
   chromeStorageSet,
 } from "../chromeStorage";
-import {createNotification, incrementBadgeCount} from "../runtime";
+import {BadgeColor, createNotification, incrementBadgeCount} from "../runtime";
 import {getReverseResolution} from "../resolver/resolver";
 import {getWalletPreferences} from "../wallet/preferences";
 import {XMTP_CONVERSATION_FLAG} from "../../types/wallet/messages";
@@ -161,7 +161,7 @@ const handleMessage = async (decodedMessage: DecodedMessage) => {
   });
 
   // update badge count to indicate new message
-  await incrementBadgeCount("blue");
+  await incrementBadgeCount(BadgeColor.Blue);
 
   // no work required if popup is already active
   const activePopups = await chrome.runtime.getContexts({
@@ -222,19 +222,13 @@ const handleNotificationClick = async (notificationId: string) => {
   // clear the notification
   chrome.notifications.clear(notificationId);
 
+  // retrieve the default popup URL
+  const defaultPopupUrl = chrome.runtime.getURL("/index.html");
+
   try {
     // get the chat ID from notification ID
     const idParts = notificationId.split("-");
     const xmtpChatId = idParts.length > 0 ? idParts[1] : undefined;
-
-    // get the default popup URL
-    const activeTab = await chrome.tabs.getCurrent();
-    const defaultPopupUrl = await chrome.action.getPopup({
-      tabId: activeTab?.id,
-    });
-    if (!defaultPopupUrl) {
-      throw new Error("unable to find active tab ID");
-    }
 
     // if a conversation ID is specified, set the popup focus
     if (xmtpChatId) {
@@ -243,14 +237,17 @@ const handleNotificationClick = async (notificationId: string) => {
       });
     }
 
+    // get the default popup URL
+    const activeTab = await chrome.tabs.getCurrent();
+
     // open the popup
     await chrome.action.openPopup({windowId: activeTab?.windowId});
-
+  } catch (e) {
+    Logger.warn("Error handling notification click", e);
+  } finally {
     // reset the popup URL to default
     await chrome.action.setPopup({
       popup: defaultPopupUrl,
     });
-  } catch (e) {
-    Logger.warn("Error handling notification click", e);
   }
 };
