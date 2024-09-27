@@ -46,9 +46,9 @@ import {SignInCta} from "./SignInCta";
 import {initializeBrowserSettings} from "../../lib/resolver/settings";
 import {
   createNotification,
-  focusAllPopups,
-  getAllPopups,
+  focusExtensionWindows,
   hasOptionalPermissions,
+  openSidePanel,
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
@@ -356,10 +356,9 @@ const WalletComp: React.FC = () => {
   };
 
   const handleFocusPopups = async () => {
-    const allPopups = getAllPopups();
-    await setBadgeCount(allPopups.length);
-    if (allPopups.length > 0) {
-      await focusAllPopups();
+    const focussedPopups = await focusExtensionWindows();
+    await setBadgeCount(focussedPopups);
+    if (focussedPopups > 0) {
       handleClose();
       return true;
     }
@@ -385,30 +384,19 @@ const WalletComp: React.FC = () => {
     window.close();
   };
 
+  const handleMessagePopoutClick = async (address?: string) => {
+    await openSidePanel(address);
+  };
+
   const handleMessagesClicked = async () => {
-    if (chrome.sidePanel) {
-      try {
-        // determine the current window ID
-        const currentWindow = await chrome.windows.getCurrent();
-        if (!currentWindow?.id) {
-          return;
-        }
-
-        // open the side panel
-        await chrome.sidePanel.setOptions({enabled: true});
-        await chrome.sidePanel.open({windowId: currentWindow.id});
-
-        // close the current popup
-        handleClose();
-        return;
-      } catch (e) {
-        // gracefully handle the error and fallback to opening the chat within
-        // the same window instead of side panel
-        Logger.error(e, "Popup", "Unable to open message side panel");
-      }
+    // attempt to open a side panel and close the current popup
+    if (await openSidePanel()) {
+      handleClose();
+      return;
     }
 
-    // simply show the chat in current window
+    // simply show the chat in current window if opening the side
+    // panel didn't work for some reason (e.g. permissions)
     setIsChatOpen(true);
   };
 
@@ -604,6 +592,7 @@ const WalletComp: React.FC = () => {
             onDisconnect={isConnected ? handleDisconnect : undefined}
             onSettingsClick={handleShowPreferences}
             onMessagesClick={handleMessagesClicked}
+            onMessagePopoutClick={handleMessagePopoutClick}
             onUpdate={(_t: DomainProfileTabType) => {
               handleAuthComplete();
             }}

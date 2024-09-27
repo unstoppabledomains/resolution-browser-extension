@@ -1,6 +1,6 @@
-import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
 import {Logger} from "./logger";
 import Bluebird from "bluebird";
+import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
 
 const permissions = ["contextMenus", "notifications", "sidePanel", "tabs"];
 
@@ -101,42 +101,26 @@ export const setBadgeCount = async (
   await chrome.action.setBadgeText({text: count > 0 ? String(count) : ""});
 };
 
-export const getAllPopups = (): Window[] => {
-  return chrome.extension.getViews({type: "tab"});
-};
-
-export const focusAllPopups = async () => {
-  await Promise.all([focusExtensionPopups(), focusKnownPopup()]);
-};
-
-export const focusExtensionPopups = async () => {
+export const focusExtensionWindows = async (
+  windowType?: chrome.tabs.QueryInfo["windowType"],
+) => {
+  let focussedCount = 0;
   try {
-    const popupTabs = await chrome.tabs.query({windowType: "popup"});
-    const allWindows = getAllPopups();
-    await Bluebird.map(allWindows, async (window) => {
-      const tab = popupTabs.find((t) => t.url?.includes(window.location.href));
-      if (tab) {
+    // retrieve all active windows for requested type
+    const allOpenWindows = await chrome.tabs.query({windowType});
+    const extensionBaseUrl = chrome.runtime.getURL("");
+
+    // focus for side panels
+    await Bluebird.map(allOpenWindows, async (tab) => {
+      if (tab.url?.includes(extensionBaseUrl)) {
         await chrome.windows.update(tab.windowId, {focused: true});
+        focussedCount++;
       }
     });
   } catch (e) {
     // ignore error
   }
-};
-
-export const focusKnownPopup = async () => {
-  try {
-    const windowId = await chromeStorageGet<number>(
-      StorageSyncKey.WindowId,
-      "session",
-    );
-    if (!windowId) {
-      return;
-    }
-    await chrome.windows.update(windowId, {focused: true});
-  } catch (e) {
-    // ignore error
-  }
+  return focussedCount;
 };
 
 export const createNotification = async (
@@ -157,4 +141,29 @@ export const createNotification = async (
       priority,
     });
   }
+};
+
+export const openSidePanel = async (address?: string) => {
+  if (chrome.sidePanel) {
+    try {
+      // determine the current window ID
+      const currentWindow = await chrome.windows.getCurrent();
+      if (!currentWindow?.id) {
+        return;
+      }
+
+      // build the URL used to open the side panel
+      const sidePanelUrl = `${chrome.runtime.getURL(`index.html${address ? `?${XMTP_CONVERSATION_FLAG}=${address}` : ""}`)}#messages`;
+
+      // open the side panel
+      await chrome.sidePanel.setOptions({enabled: true, path: sidePanelUrl});
+      await chrome.sidePanel.open({windowId: currentWindow.id});
+      return true;
+    } catch (e) {
+      // gracefully handle the error and fallback to opening the chat within
+      // the same window instead of side panel
+      Logger.error(e, "Popup", "Unable to open message side panel");
+    }
+  }
+  return false;
 };
