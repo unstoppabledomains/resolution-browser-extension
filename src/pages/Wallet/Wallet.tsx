@@ -269,16 +269,13 @@ const WalletComp: React.FC = () => {
           await setBadgeCount(0),
 
           // create a notification to indicate sign in was successful
-          createNotification(
+          await createNotification(
             `signIn${Date.now()}`,
             t("wallet.title"),
             t("wallet.readyToUse"),
             undefined,
             2,
           ),
-
-          // short delay to ensure notification processes
-          sleep(500),
         ]);
 
         // show the permission CTA and leave the window open if optional
@@ -315,8 +312,8 @@ const WalletComp: React.FC = () => {
 
   const handlePermissionGranted = async () => {
     // reload the extension after permissions granted
+    await sleep(1000);
     chrome.runtime.reload();
-    handleClose();
   };
 
   const handleLogout = async () => {

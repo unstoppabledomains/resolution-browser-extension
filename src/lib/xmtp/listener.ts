@@ -95,8 +95,8 @@ const waitForMessages = async () => {
   // notify the user of their signed in status
   await createNotification(
     "xmtp-chat-initialized",
-    "Unstoppable Messaging",
-    "You're signed in! Connect with friends using Unstoppable Messaging, powered by XMTP. Over 2 million onchain identities use XMTP for secure, private, and portable messaging.",
+    "Unstoppable Domains",
+    "Your inbox is ready to use, powered by XMTP. Click to chat with friends.",
     undefined,
     2,
   );

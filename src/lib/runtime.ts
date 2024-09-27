@@ -3,6 +3,7 @@ import Bluebird from "bluebird";
 import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
 import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
 import rgbHex from "rgb-hex";
+import {sleep} from "./wallet/sleep";
 
 export enum BadgeColor {
   Blue = "#1976d2",
@@ -169,15 +170,31 @@ export const createNotification = async (
   priority?: number,
 ) => {
   if (chrome.notifications) {
-    chrome.notifications.create(id, {
-      type: "basic",
-      title,
-      iconUrl: chrome.runtime.getURL("/icon/128.png"),
-      message,
-      isClickable: true,
-      contextMessage,
-      priority,
-    });
+    // a callback to determine when the notification is finished
+    let isComplete = false;
+    const callback = () => {
+      isComplete = true;
+    };
+
+    // request the notification to be created
+    chrome.notifications.create(
+      id,
+      {
+        type: "basic",
+        title,
+        iconUrl: chrome.runtime.getURL("/icon/128.png"),
+        message,
+        isClickable: true,
+        contextMessage,
+        priority,
+      },
+      callback,
+    );
+
+    // wait for complete
+    while (!isComplete) {
+      await sleep(250);
+    }
   }
 };
 
