@@ -311,9 +311,7 @@ const WalletComp: React.FC = () => {
   };
 
   const handlePermissionGranted = async () => {
-    // reload the extension after permissions granted
-    await sleep(1000);
-    chrome.runtime.reload();
+    handleClose();
   };
 
   const handleLogout = async () => {

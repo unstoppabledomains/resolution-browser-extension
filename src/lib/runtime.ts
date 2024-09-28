@@ -10,7 +10,7 @@ export enum BadgeColor {
   Green = "#4caf50",
 }
 
-const permissions = ["contextMenus", "notifications", "sidePanel", "tabs"];
+const permissions = ["contextMenus", "notifications", "tabs"];
 
 export const hasOptionalPermissions = async (): Promise<boolean> => {
   return await chrome.permissions.contains({permissions});
