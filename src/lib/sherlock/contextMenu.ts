@@ -67,6 +67,7 @@ export class ContextMenu {
     chrome.contextMenus.create({
       id: `${MenuType.Messages}-${origin}`,
       title: "Open messages",
+      documentUrlPatterns: [`${origin}/*`],
     });
 
     // add selected text menu item
