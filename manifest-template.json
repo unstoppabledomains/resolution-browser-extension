@@ -4,7 +4,7 @@
   "short_name": "Unstoppable Domains",
   "version": "<injected from package.json using create_manifest.js>",
   "description": "A crypto wallet for domainers: easily interact with onchain identities, assets and apps.",
-  "minimum_chrome_version": "102",
+  "minimum_chrome_version": "114",
   "icons": {
     "16": "icon/16.png",
     "38": "icon/38.png",
@@ -23,6 +23,9 @@
       "96": "icon/96.png",
       "128": "icon/128.png"
     }
+  },
+  "side_panel": {
+    "default_path": "index.html#messages"
   },
   "background": {
     "service_worker": "./scripts/background.ts",
@@ -61,12 +64,12 @@
   "permissions": [
     "alarms",
     "declarativeNetRequest",
+    "sidePanel",
     "storage"
   ],
   "optional_permissions": [
     "contextMenus",
     "notifications",
-    "sidePanel",
     "tabs"
   ]
 }

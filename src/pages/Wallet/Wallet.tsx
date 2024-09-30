@@ -45,10 +45,12 @@ import {AppEnv} from "@unstoppabledomains/config";
 import {SignInCta} from "./SignInCta";
 import {initializeBrowserSettings} from "../../lib/resolver/settings";
 import {
+  BadgeColor,
   createNotification,
-  focusAllPopups,
-  getAllPopups,
+  focusExtensionWindows,
+  getBadgeCount,
   hasOptionalPermissions,
+  openSidePanel,
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
@@ -58,6 +60,7 @@ import {PermissionCta} from "./PermissionCta";
 const enum SnackbarKey {
   CTA = "cta",
   Success = "success",
+  UnreadMessage = "unreadMessage",
 }
 
 const WalletComp: React.FC = () => {
@@ -68,7 +71,7 @@ const WalletComp: React.FC = () => {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
   const {preferences, setPreferences, refreshPreferences} = usePreferences();
-  const {setOpenChat, isChatReady} = useUnstoppableMessaging();
+  const {setOpenChat, isChatReady, setIsChatOpen} = useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
@@ -213,11 +216,14 @@ const WalletComp: React.FC = () => {
     setShowPermissionCta(authAddress && !isPermissionGranted);
   }, [authAddress, isPermissionGranted, showPermissionCta]);
 
-  // prompt for compatibility mode once settings are loaded
+  // complete page load steps after sign in confirmed
   useEffect(() => {
     if (!preferences || !authComplete) {
       return;
     }
+
+    // handle message notifications if necessary
+    void handleUnreadMessages();
 
     // update messaging status
     setMessagingEnabled(preferences.MessagingEnabled);
@@ -227,6 +233,7 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
+  // complete page load steps after messaging is ready
   useEffect(() => {
     if (!authAddress || !isChatReady) {
       return;
@@ -259,19 +266,16 @@ const WalletComp: React.FC = () => {
       if (providerRequest.type === "signInRequest") {
         await Promise.all([
           // clear badge count
-          setBadgeCount(0),
+          await setBadgeCount(0),
 
           // create a notification to indicate sign in was successful
-          createNotification(
+          await createNotification(
             `signIn${Date.now()}`,
             t("wallet.title"),
             t("wallet.readyToUse"),
             undefined,
             2,
           ),
-
-          // short delay to ensure notification processes
-          sleep(500),
         ]);
 
         // show the permission CTA and leave the window open if optional
@@ -307,7 +311,6 @@ const WalletComp: React.FC = () => {
   };
 
   const handlePermissionGranted = async () => {
-    await sleep(500);
     handleClose();
   };
 
@@ -355,10 +358,11 @@ const WalletComp: React.FC = () => {
   };
 
   const handleFocusPopups = async () => {
-    const allPopups = getAllPopups();
-    await setBadgeCount(allPopups.length);
-    if (allPopups.length > 0) {
-      await focusAllPopups();
+    // focus the windows
+    const focussedPopups = await focusExtensionWindows();
+
+    // close window if popups were located
+    if (focussedPopups > 0) {
       handleClose();
       return true;
     }
@@ -384,22 +388,71 @@ const WalletComp: React.FC = () => {
     window.close();
   };
 
-  const handleMessagesClicked = async () => {
-    // determine the current window ID
-    const currentWindow = await chrome.windows.getCurrent();
-    if (!currentWindow?.id) {
+  const handleUnreadMessages = async () => {
+    // determine if there is an unread message badge
+    const badgeCount = await getBadgeCount(BadgeColor.Blue);
+    if (badgeCount === 0) {
       return;
     }
 
-    // open the side panel
-    await chrome.sidePanel.setOptions({
-      enabled: true,
-      path: chrome.runtime.getURL("/index.html#messages"),
-    });
-    chrome.sidePanel.open({windowId: currentWindow.id});
+    // clear the unread count
+    await setBadgeCount(0, BadgeColor.Blue);
 
-    // close the current popup
-    handleClose();
+    // do not show the snackbar if the user is already attempting
+    // to open the conversation
+    const xmtpChatAddress = getXmtpChatAddress();
+    if (xmtpChatAddress) {
+      return;
+    }
+
+    // show a message notification if so
+    enqueueSnackbar(
+      <Typography variant="body2">
+        You have <b>{badgeCount}</b> unread message{badgeCount > 0 ? "s" : ""}
+      </Typography>,
+      {
+        variant: "info",
+        key: SnackbarKey.UnreadMessage,
+        action: (
+          <Box display="flex" width="100%">
+            <Button
+              variant="text"
+              size="small"
+              color="primary"
+              className={classes.actionButton}
+              onClick={() => closeSnackbar(SnackbarKey.UnreadMessage)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="text"
+              size="small"
+              color="primary"
+              className={classes.actionButton}
+              onClick={handleMessagesClicked}
+            >
+              {t("push.setup.openMessaging")}
+            </Button>
+          </Box>
+        ),
+      },
+    );
+  };
+
+  const handleMessagePopoutClick = async (address?: string) => {
+    await openSidePanel({address});
+  };
+
+  const handleMessagesClicked = async () => {
+    // attempt to open a side panel and close the current popup
+    if (await openSidePanel()) {
+      handleClose();
+      return;
+    }
+
+    // simply show the chat in current window if opening the side
+    // panel didn't work for some reason (e.g. permissions)
+    setIsChatOpen(true);
   };
 
   // handleCompatibilitySettings determines whether to automatically apply the
@@ -430,7 +483,7 @@ const WalletComp: React.FC = () => {
 
       // wait a few moments before showing the CTA so the has a chance to show base
       // wallet elements and not overwhelm the user
-      await sleep(20000);
+      await sleep(12000);
 
       // show the CTA
       enqueueSnackbar(
@@ -594,6 +647,7 @@ const WalletComp: React.FC = () => {
             onDisconnect={isConnected ? handleDisconnect : undefined}
             onSettingsClick={handleShowPreferences}
             onMessagesClick={handleMessagesClicked}
+            onMessagePopoutClick={handleMessagePopoutClick}
             onUpdate={(_t: DomainProfileTabType) => {
               handleAuthComplete();
             }}

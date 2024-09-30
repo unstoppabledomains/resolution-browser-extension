@@ -1,16 +1,17 @@
-import React from "react";
+import React, {useState} from "react";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import AddModeratorOutlinedIcon from "@mui/icons-material/AddModeratorOutlined";
 import Button from "@mui/material/Button";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {useTranslationContext} from "@unstoppabledomains/ui-components";
 import {requestOptionalPermissions} from "../../lib/runtime";
 import Markdown from "markdown-to-jsx";
 
 interface PermissionCtaProps {
-  onPermissionGranted: () => void;
+  onPermissionGranted: () => Promise<void>;
 }
 
 export const PermissionCta: React.FC<PermissionCtaProps> = ({
@@ -18,16 +19,19 @@ export const PermissionCta: React.FC<PermissionCtaProps> = ({
 }) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCancel = () => {
     window.close();
   };
 
   const handleGrantClicked = async () => {
+    setIsLoading(true);
     const isGranted = await requestOptionalPermissions();
     if (isGranted) {
-      onPermissionGranted();
+      await onPermissionGranted();
     }
+    setIsLoading(false);
   };
 
   return (
@@ -62,14 +66,15 @@ export const PermissionCta: React.FC<PermissionCtaProps> = ({
           </Paper>
         </Box>
         <Box className={classes.contentContainer}>
-          <Button
+          <LoadingButton
             variant="contained"
             fullWidth
             className={classes.button}
             onClick={handleGrantClicked}
+            loading={isLoading}
           >
             Grant Permissions
-          </Button>
+          </LoadingButton>
           <Button
             variant="outlined"
             fullWidth

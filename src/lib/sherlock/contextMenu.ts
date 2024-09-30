@@ -9,7 +9,8 @@ import {
   setWalletPreferences,
 } from "../wallet/preferences";
 import {sendMessageToClient} from "../wallet/message";
-import {setIcon} from "../runtime";
+import {openSidePanel, setIcon} from "../runtime";
+import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 
 const ORIGINS: Record<string, boolean> = {};
 
@@ -17,19 +18,20 @@ enum MenuType {
   Sherlock = "sherlock",
   Connection = "connection",
   SelectedText = "selectedText",
+  Messages = "messages",
 }
 
-// tabListener wraps a context menu instance and handles tab events
-const tabListener = (ctx: ContextMenu) => {
+// messageListener wraps a context menu instance and handles message events
+const messageListener = (ctx: ContextMenu) => {
   return (message: ProviderRequest) => {
-    ctx.handleTab(message);
+    ctx.handleMessage(message);
   };
 };
 
 // menuListener wraps a context menu instance and handles menu events
 const menuListener = (ctx: ContextMenu) => {
-  return (info: chrome.contextMenus.OnClickData) => {
-    ctx.handleMenu(info);
+  return async (info: chrome.contextMenus.OnClickData) => {
+    await ctx.handleMenu(info);
   };
 };
 
@@ -59,6 +61,13 @@ export class ContextMenu {
           documentUrlPatterns: [`${origin}/*`],
         });
       }
+    });
+
+    // add message menu item
+    chrome.contextMenus.create({
+      id: `${MenuType.Messages}-${origin}`,
+      title: "Open messages",
+      documentUrlPatterns: [`${origin}/*`],
     });
 
     // add selected text menu item
@@ -104,6 +113,7 @@ export class ContextMenu {
         this.remove(origin, MenuType.Connection);
         this.remove(origin, MenuType.Sherlock);
         this.remove(origin, MenuType.SelectedText);
+        this.remove(origin, MenuType.Messages);
       }
 
       // create new context menu item
@@ -114,7 +124,7 @@ export class ContextMenu {
     }
   }
 
-  async handleTab(message: ProviderRequest) {
+  async handleMessage(message: ProviderRequest) {
     if (message?.type !== "newTabRequest") {
       return;
     }
@@ -145,15 +155,27 @@ export class ContextMenu {
     // handle the menu action
     switch (menuOptions[0]) {
       case MenuType.Sherlock:
-        this.handleSherlockMenu(menuOptions[1]);
+        await this.handleSherlockMenu(menuOptions[1]);
         break;
       case MenuType.Connection:
-        this.handleDisconnectMenu(menuOptions[1]);
+        await this.handleDisconnectMenu(menuOptions[1]);
+        break;
+      case MenuType.Messages:
+        await this.handleMessageMenu();
         break;
       case MenuType.SelectedText:
-        this.handleFindDomainMenu(info);
+        await this.handleFindDomainMenu(info);
         break;
     }
+  }
+
+  /* **********************
+   * Messages menu handling
+   * **********************/
+
+  async handleMessageMenu() {
+    console.log("AJQ opening", currentFocussedWindowId);
+    await openSidePanel({windowId: currentFocussedWindowId});
   }
 
   /* **********************
@@ -239,8 +261,8 @@ export class ContextMenu {
       this.clear();
       this.preferences = await getWalletPreferences();
 
-      // listen for page requests for context menu updates
-      chrome.runtime.onMessage.addListener(tabListener(this));
+      // listen for messages requesting context menu updates
+      chrome.runtime.onMessage.addListener(messageListener(this));
 
       // listen for context menu clicks
       chrome.contextMenus.onClicked.addListener(menuListener(this));

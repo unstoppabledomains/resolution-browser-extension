@@ -20,6 +20,9 @@ import {
   isResponseType,
 } from "../../types/wallet/provider";
 
+// keep track of the most recently focussed window ID
+export let currentFocussedWindowId: number = null;
+
 // keep track of the wallet extension popup window ID
 let extensionPopupWindowId: number = null;
 
@@ -302,6 +305,9 @@ const handleTabStatus = async (tab: chrome.tabs.Tab) => {
   if (!tab?.url || !tab.id) {
     return;
   }
+
+  // determine current window ID
+  currentFocussedWindowId = tab.windowId;
 
   // determine if tab is connected
   const hostname = new URL(tab.url).hostname;

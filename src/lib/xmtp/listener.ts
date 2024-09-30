@@ -11,10 +11,16 @@ import {
   chromeStorageGet,
   chromeStorageSet,
 } from "../chromeStorage";
-import {createNotification, incrementBadgeCount} from "../runtime";
+import {
+  BadgeColor,
+  createNotification,
+  incrementBadgeCount,
+  openSidePanel,
+  setBadgeCount,
+} from "../runtime";
 import {getReverseResolution} from "../resolver/resolver";
 import {getWalletPreferences} from "../wallet/preferences";
-import {XMTP_CONVERSATION_FLAG} from "../../types/wallet/messages";
+import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 
 let xmtpClient: Client = null;
 const xmtpMutex = new Mutex();
@@ -95,8 +101,8 @@ const waitForMessages = async () => {
   // notify the user of their signed in status
   await createNotification(
     "xmtp-chat-initialized",
-    "Unstoppable Messaging",
-    "You're signed in! Connect with friends using Unstoppable Messaging, powered by XMTP. Over 2 million onchain identities use XMTP for secure, private, and portable messaging.",
+    "Unstoppable Domains",
+    "Your inbox is ready to use, powered by XMTP. Click to chat with friends.",
     undefined,
     2,
   );
@@ -161,7 +167,7 @@ const handleMessage = async (decodedMessage: DecodedMessage) => {
   });
 
   // update badge count to indicate new message
-  await incrementBadgeCount("blue");
+  await incrementBadgeCount(BadgeColor.Blue);
 
   // no work required if popup is already active
   const activePopups = await chrome.runtime.getContexts({
@@ -222,35 +228,36 @@ const handleNotificationClick = async (notificationId: string) => {
   // clear the notification
   chrome.notifications.clear(notificationId);
 
+  // retrieve the default popup URL
+  const defaultPopupUrl = chrome.runtime.getURL("/index.html");
+
   try {
     // get the chat ID from notification ID
     const idParts = notificationId.split("-");
     const xmtpChatId = idParts.length > 0 ? idParts[1] : undefined;
 
-    // get the default popup URL
-    const activeTab = await chrome.tabs.getCurrent();
-    const defaultPopupUrl = await chrome.action.getPopup({
-      tabId: activeTab?.id,
-    });
-    if (!defaultPopupUrl) {
-      throw new Error("unable to find active tab ID");
+    // if a conversation ID is specified, open the conversation
+    // in the side panel
+    if (xmtpChatId) {
+      await openSidePanel({
+        address: xmtpChatId,
+        windowId: currentFocussedWindowId,
+      });
+      await setBadgeCount(0, BadgeColor.Blue);
+      return;
     }
 
-    // if a conversation ID is specified, set the popup focus
-    if (xmtpChatId) {
-      await chrome.action.setPopup({
-        popup: `${defaultPopupUrl}?${XMTP_CONVERSATION_FLAG}=${xmtpChatId}`,
-      });
-    }
+    // get the default popup URL
+    const activeTab = await chrome.tabs.getCurrent();
 
     // open the popup
     await chrome.action.openPopup({windowId: activeTab?.windowId});
-
+  } catch (e) {
+    Logger.warn("Error handling notification click", e);
+  } finally {
     // reset the popup URL to default
     await chrome.action.setPopup({
       popup: defaultPopupUrl,
     });
-  } catch (e) {
-    Logger.warn("Error handling notification click", e);
   }
 };

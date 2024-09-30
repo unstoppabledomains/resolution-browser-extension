@@ -4906,9 +4906,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.50-browser-extension.4":
-  version: 0.0.50-browser-extension.4
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.50-browser-extension.4"
+"@unstoppabledomains/ui-components@npm:0.0.50-browser-extension.11":
+  version: 0.0.50-browser-extension.11
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.50-browser-extension.11"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5007,7 +5007,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: ddb232f0022a957d89c798fb90c8dea5d53bced4747a1c2b6f6a63d411a635c93345e513a1fc96bde33ebda5ee169740f7ad2c3c2f87c4a50efcb0bd232f3f58
+  checksum: db53ea85fbfad39de4130ed3193903a266e3369e3bc160521e097ad8388da79ed706b6f13d436ff53bf17bc54286ae2f0dde0266765f276b0f99b26e34bd3e88
   languageName: node
   linkType: hard
 
@@ -15105,6 +15105,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rgb-hex@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "rgb-hex@npm:4.1.0"
+  checksum: 662dcc1e9016852a0cd28250edc68a6bcf5ad07bf0ab92c2419da79b3ad6880cf94cdf93412f035c88662e2b8482d6852171a3c015ed5eec031613740edd791e
+  languageName: node
+  linkType: hard
+
 "rimraf@npm:3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
@@ -16886,7 +16893,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.13
-    "@unstoppabledomains/ui-components": 0.0.50-browser-extension.4
+    "@unstoppabledomains/ui-components": 0.0.50-browser-extension.11
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
@@ -16918,6 +16925,7 @@ __metadata:
     react-dom: ^17.0.0
     react-query: ^3.39.3
     react-router-dom: ^6.23.1
+    rgb-hex: ^4.1.0
     rimraf: ^5.0.7
     stream-browserify: ^3.0.0
     stream-http: ^3.1.0
