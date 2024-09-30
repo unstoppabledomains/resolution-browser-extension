@@ -440,7 +440,7 @@ const WalletComp: React.FC = () => {
   };
 
   const handleMessagePopoutClick = async (address?: string) => {
-    await openSidePanel(address);
+    await openSidePanel({address});
   };
 
   const handleMessagesClicked = async () => {

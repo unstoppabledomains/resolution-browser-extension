@@ -11,10 +11,15 @@ import {
   chromeStorageGet,
   chromeStorageSet,
 } from "../chromeStorage";
-import {BadgeColor, createNotification, incrementBadgeCount} from "../runtime";
+import {
+  BadgeColor,
+  createNotification,
+  incrementBadgeCount,
+  openSidePanel,
+} from "../runtime";
 import {getReverseResolution} from "../resolver/resolver";
 import {getWalletPreferences} from "../wallet/preferences";
-import {XMTP_CONVERSATION_FLAG} from "../../types/wallet/messages";
+import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 
 let xmtpClient: Client = null;
 const xmtpMutex = new Mutex();
@@ -230,11 +235,14 @@ const handleNotificationClick = async (notificationId: string) => {
     const idParts = notificationId.split("-");
     const xmtpChatId = idParts.length > 0 ? idParts[1] : undefined;
 
-    // if a conversation ID is specified, set the popup focus
+    // if a conversation ID is specified, open the conversation
+    // in the side panel
     if (xmtpChatId) {
-      await chrome.action.setPopup({
-        popup: `${defaultPopupUrl}?${XMTP_CONVERSATION_FLAG}=${xmtpChatId}`,
+      await openSidePanel({
+        address: xmtpChatId,
+        windowId: currentFocussedWindowId,
       });
+      return;
     }
 
     // get the default popup URL

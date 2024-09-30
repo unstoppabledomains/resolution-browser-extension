@@ -198,26 +198,33 @@ export const createNotification = async (
   }
 };
 
-export const openSidePanel = async (address?: string) => {
+export const openSidePanel = async (opts?: {
+  address?: string;
+  windowId?: number;
+}) => {
   if (chrome.sidePanel) {
     try {
       // determine the current window ID
-      const currentWindow = await chrome.windows.getCurrent();
-      if (!currentWindow?.id) {
+      const windowId =
+        opts?.windowId || (await chrome.windows.getCurrent())?.id;
+      if (!windowId) {
         return;
       }
 
       // build the URL used to open the side panel
-      const sidePanelUrl = `${chrome.runtime.getURL(`index.html${address ? `?${XMTP_CONVERSATION_FLAG}=${address}` : ""}`)}#messages`;
+      const sidePanelUrl = `${chrome.runtime.getURL(`index.html${opts?.address ? `?${XMTP_CONVERSATION_FLAG}=${opts.address}` : ""}`)}#messages`;
 
-      // open the side panel
-      await chrome.sidePanel.setOptions({enabled: true, path: sidePanelUrl});
-      await chrome.sidePanel.open({windowId: currentWindow.id});
+      // open the side panel and set the URL concurrently, to avoid a timing
+      // bug in the chrome user gesture flag handling
+      await Promise.all([
+        chrome.sidePanel.open({windowId}),
+        chrome.sidePanel.setOptions({enabled: true, path: sidePanelUrl}),
+      ]);
       return true;
     } catch (e) {
       // gracefully handle the error and fallback to opening the chat within
       // the same window instead of side panel
-      Logger.error(e, "Popup", "Unable to open message side panel");
+      Logger.warn(e, "Popup", "Unable to open message side panel");
     }
   }
   return false;
