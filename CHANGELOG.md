@@ -1,7 +1,8 @@
-## 3.1.30
+## 3.1.31
 * Update XMTP version to 12.1.0
 * Enhanced message spam protections
 * Open messages in browser side panel
+* Messages context menu
 
 ## 3.1.28
 * Reduce the set of required extension permissions
