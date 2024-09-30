@@ -1,3 +1,6 @@
+## 3.0.16
+* Add .mumu TLDs support
+
 ## 3.0.15
 * Add .benji TLDs support
 
