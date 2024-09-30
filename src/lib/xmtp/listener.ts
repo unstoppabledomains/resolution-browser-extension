@@ -16,6 +16,7 @@ import {
   createNotification,
   incrementBadgeCount,
   openSidePanel,
+  setBadgeCount,
 } from "../runtime";
 import {getReverseResolution} from "../resolver/resolver";
 import {getWalletPreferences} from "../wallet/preferences";
@@ -242,6 +243,7 @@ const handleNotificationClick = async (notificationId: string) => {
         address: xmtpChatId,
         windowId: currentFocussedWindowId,
       });
+      await setBadgeCount(0, BadgeColor.Blue);
       return;
     }
 
