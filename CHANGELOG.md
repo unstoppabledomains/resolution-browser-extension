@@ -1,3 +1,6 @@
+## 3.0.17
+* Add .propykeys TLDs support
+
 ## 3.0.16
 * Add .mumu TLDs support
 
