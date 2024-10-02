@@ -333,7 +333,9 @@ const injectStyles = () => {
   }
 
   .ud-address {
+    font-family: courier new;
     font-size: 12px;
+    margin-bottom: 8px;
   }
 
   .ud-avatar {
