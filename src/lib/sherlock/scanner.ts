@@ -8,7 +8,7 @@ import {
 } from "@unstoppabledomains/ui-components";
 
 // runtime constants
-const SHERLOCK_ICON = "🌐";
+const SHERLOCK_ICON = "🔍";
 const UD_STYLE_ID = "ud-styles";
 const BASE_Z_INDEX = 10000;
 
