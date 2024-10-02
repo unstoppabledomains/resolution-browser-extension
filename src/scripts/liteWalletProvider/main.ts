@@ -31,6 +31,7 @@ import {Logger} from "../../lib/logger";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {retryAsync, waitUntilAsync} from "ts-retry";
 import {utils as web3utils} from "web3";
+import {ResolutionData} from "../../lib/sherlock/types";
 
 declare global {
   interface Window {
@@ -259,6 +260,46 @@ class LiteWalletProvider extends EventEmitter {
     return await this.withRetry(fetcher);
   }
 
+  async getResolution(
+    addressOrName: string,
+  ): Promise<ResolutionData | undefined> {
+    // allow one resolution at a time
+    return await this.mutex.runExclusive(async () => {
+      // retrieve the resolution data
+      return await new Promise<ResolutionData>((resolve, reject) => {
+        document.dispatchEvent(
+          new ProviderEvent("getResolutionRequest", {detail: [addressOrName]}),
+        );
+        this.addEventListener(
+          "getResolutionResponse",
+          (event: ProviderResponse) => {
+            if (event.detail.error) {
+              reject(
+                new EthereumProviderError(
+                  PROVIDER_CODE_USER_ERROR,
+                  event.detail.error,
+                ),
+              );
+            } else if ("domain" in event.detail) {
+              resolve({
+                address: event.detail.address,
+                domain: event.detail.domain,
+                avatar: event.detail.avatar,
+              });
+            } else {
+              reject(
+                new EthereumProviderError(
+                  PROVIDER_CODE_USER_ERROR,
+                  UnexpectedResponseError,
+                ),
+              );
+            }
+          },
+        );
+      });
+    });
+  }
+
   /******************
    * Internal methods
    ******************/
@@ -364,7 +405,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail);
 
@@ -447,7 +488,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail, ["connect", "accountsChanged"]);
 
@@ -486,7 +527,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail, ["connect", "accountsChanged"]);
 
@@ -539,7 +580,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail, ["chainChanged"]);
 

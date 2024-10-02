@@ -1,3 +1,6 @@
+## 3.1.32
+* Enhancements to Sherlock domain detection
+
 ## 3.1.31
 * Update XMTP version to 12.1.0
 * Enhanced message spam protections
