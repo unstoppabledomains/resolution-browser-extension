@@ -1,3 +1,6 @@
+## 3.0.18
+* Add .bald TLDs support
+
 ## 3.0.17
 * Add .propykeys TLDs support
 
