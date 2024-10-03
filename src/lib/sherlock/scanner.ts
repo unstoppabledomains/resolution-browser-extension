@@ -7,7 +7,7 @@ import {
   BASE_Z_INDEX,
 } from "./types";
 import {isDomainValidForManagement} from "@unstoppabledomains/ui-components";
-import {injectStyles} from "./styles";
+import {initializeForPopup} from "./styles";
 import {createPopup} from "./popup";
 
 // deduplicate multiple requests to scan for addresses
@@ -132,7 +132,7 @@ const scan = async () => {
 
   // inject styles if matches found
   if (resolutionMatches.length > 0) {
-    injectStyles();
+    initializeForPopup();
   }
 
   // process matching addresses

@@ -1,4 +1,9 @@
-import {BASE_Z_INDEX, UD_STYLE_ID} from "./types";
+import {
+  BASE_Z_INDEX,
+  TOOLTIP_WIDTH,
+  UD_PLACEHOLDER_ID,
+  UD_STYLE_ID,
+} from "./types";
 
 // color pallette
 const PRIMARY = "#1976d2";
@@ -7,8 +12,14 @@ const LIGHT_GREY = "#eeeeee";
 const DARK_GREY = "#666666";
 const SUCCESS = "#2e7d32";
 
-export const injectStyles = () => {
-  // get the head and create a style element
+export const initializeForPopup = () => {
+  // get the body element
+  var body = document.body || document.getElementsByTagName("body")[0];
+  if (!body) {
+    return;
+  }
+
+  // get the head element
   var head = document.head || document.getElementsByTagName("head")[0];
   if (!head) {
     return;
@@ -19,6 +30,15 @@ export const injectStyles = () => {
     return;
   }
 
+  // insert a placeholder div
+  body.firstChild.before(
+    createElementFromHtml(`
+      <div class="ud-anchor">
+        <div id=${UD_PLACEHOLDER_ID} class="ud-placeHolder" />
+      </div>
+    `),
+  );
+
   // create style element
   var style = document.createElement("style");
   style.id = UD_STYLE_ID;
@@ -27,13 +47,22 @@ export const injectStyles = () => {
   // create tooltip style definition
   var css = `
     /* styles for Unstoppable Domains extension popup */
+    .ud-anchor {
+      position: relative;
+      z-index: ${BASE_Z_INDEX + 1};
+    }
+
+    .ud-placeHolder {
+      position: absolute; 
+    }
+
     .ud-toolTipTrigger {
       display: inline-block;
       z-index: ${BASE_Z_INDEX};
       position: relative;
     }
     
-    .ud-toolTipTrigger .ud-toolTipContainer {
+    .ud-toolTipContainer {
       display: none;
       background-color: white;
       border: 1px solid ${LIGHT_GREY};
@@ -43,18 +72,15 @@ export const injectStyles = () => {
       justify-content: left;
       padding: 8px;
       border-radius: 6px;
-      position: absolute;
       z-index: ${BASE_Z_INDEX};
+      font-family: sans-serif;
       font-size: 14px;
       font-weight: normal;
+      line-height: 1.5;
       flex-direction: column;
       cursor: default;
-      width: 330px;
+      width: ${TOOLTIP_WIDTH}px;
       white-space: nowrap;
-    }
-    
-    .ud-toolTipTrigger:hover .ud-toolTipContainer {
-      display: flex;
     }
   
     .ud-address {
@@ -80,6 +106,7 @@ export const injectStyles = () => {
       font-size: 11px;
       margin-bottom: 4px;
       white-space: normal;
+      width: 100%;
     }
   
     .ud-contentContainer {
@@ -219,4 +246,10 @@ export const isStyleInjected = () => {
     }
   }
   return false;
+};
+
+export const createElementFromHtml = (html: string) => {
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  return template.content;
 };

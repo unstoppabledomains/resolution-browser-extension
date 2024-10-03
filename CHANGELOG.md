@@ -1,4 +1,4 @@
-## 3.1.32
+## 3.1.33
 * Enhancements to Sherlock domain detection
 
 ## 3.1.31
