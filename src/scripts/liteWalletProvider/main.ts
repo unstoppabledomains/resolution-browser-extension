@@ -68,7 +68,11 @@ class LiteWalletProvider extends EventEmitter {
   };
 
   // internal properties
-  private mutex: Mutex;
+  private mutex: Record<"request" | "resolution" | "profile", Mutex> = {
+    request: new Mutex(),
+    resolution: new Mutex(),
+    profile: new Mutex(),
+  };
   private requestQueue: RequestArgs[];
   private lastCompletedRequest: RequestArgs;
   private lruCache = new LRUCache<string, any>({
@@ -88,7 +92,6 @@ class LiteWalletProvider extends EventEmitter {
   private init() {
     this.isMetaMask = true;
     this.isConnectedStatus = false;
-    this.mutex = new Mutex();
     this.lastCompletedRequest = null;
     this.chainId = null;
     this.networkVersion = null;
@@ -114,7 +117,7 @@ class LiteWalletProvider extends EventEmitter {
     // Serialize operation requests, waiting for completion before moving on
     // to subsequent operations. Keep track of the number of queued requests,
     // which will determine window close behavior.
-    const unlock = await this.mutex.acquire();
+    const unlock = await this.mutex.request.acquire();
 
     // eventual result
     let result: any;
@@ -278,7 +281,7 @@ class LiteWalletProvider extends EventEmitter {
     }
 
     // allow one profile request at a time
-    return await this.mutex.runExclusive(async () => {
+    return await this.mutex.profile.runExclusive(async () => {
       // retrieve the domain profile data
       return await new Promise<SerializedPublicDomainProfileData>(
         (resolve, reject) => {
@@ -324,7 +327,7 @@ class LiteWalletProvider extends EventEmitter {
     }
 
     // allow one resolution at a time
-    return await this.mutex.runExclusive(async () => {
+    return await this.mutex.resolution.runExclusive(async () => {
       // retrieve the resolution data
       return await new Promise<ResolutionData>((resolve, reject) => {
         document.dispatchEvent(
