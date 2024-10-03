@@ -12,11 +12,12 @@ let insertId = 0;
 // createPopup generates a popup to be injected onto a page
 export const createPopup = (r: ResolutionData) => {
   // create the container element
+  const baseId = `ud-${r.domain}-${r.address}-${insertId}`;
   const container = document.createElement("div");
+  container.id = `${baseId}-container`;
   container.className = "ud-toolTipTrigger";
 
   // create the link
-  const baseId = `${r.domain}-${r.address}-${insertId}`;
   const link = document.createElement("a");
   link.id = `${baseId}-link`;
   link.className = "ud-icon";
@@ -121,7 +122,7 @@ export const createPopup = (r: ResolutionData) => {
             .map((w) => w.totalValueUsdAmt || 0)
             .reduce((a, b) => a + b, 0) +
             // domain portfolio value
-            (profileData.portfolio?.account?.valueAmt || 0),
+            (profileData.portfolio?.account?.valueAmt || 0) / 100,
         )
           .format("0.0a")
           .replaceAll(".0", "")}`;

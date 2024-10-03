@@ -33,6 +33,8 @@ import {retryAsync, waitUntilAsync} from "ts-retry";
 import {utils as web3utils} from "web3";
 import {ResolutionData} from "../../lib/sherlock/types";
 import {SerializedPublicDomainProfileData} from "@unstoppabledomains/ui-components";
+import {LRUCache} from "lru-cache";
+import {isEthAddress} from "../../lib/sherlock/matcher";
 
 declare global {
   interface Window {
@@ -69,6 +71,10 @@ class LiteWalletProvider extends EventEmitter {
   private mutex: Mutex;
   private requestQueue: RequestArgs[];
   private lastCompletedRequest: RequestArgs;
+  private lruCache = new LRUCache<string, any>({
+    max: 100,
+    ttl: 60 * 1000 * 30, // 30 minutes
+  });
 
   /*************************
    * Public provider methods
@@ -264,6 +270,13 @@ class LiteWalletProvider extends EventEmitter {
   async getDomainProfile(
     domain: string,
   ): Promise<SerializedPublicDomainProfileData | undefined> {
+    // check from cache
+    const cacheKey = `getDomainProfile-${domain.toLowerCase()}`;
+    const cachedValue = this.lruCache.get(cacheKey);
+    if (cachedValue) {
+      return cachedValue;
+    }
+
     // allow one profile request at a time
     return await this.mutex.runExclusive(async () => {
       // retrieve the domain profile data
@@ -283,6 +296,7 @@ class LiteWalletProvider extends EventEmitter {
                   ),
                 );
               } else if ("profile" in event.detail) {
+                this.lruCache.set(cacheKey, event.detail.profile);
                 resolve(event.detail.profile);
               } else {
                 reject(
@@ -302,6 +316,13 @@ class LiteWalletProvider extends EventEmitter {
   async getResolution(
     addressOrName: string,
   ): Promise<ResolutionData | undefined> {
+    // check from cache
+    const cacheKey = `getResolution-${addressOrName.toLowerCase()}`;
+    const cachedValue = this.lruCache.get(cacheKey);
+    if (cachedValue) {
+      return isEthAddress(cachedValue.address) ? cachedValue : undefined;
+    }
+
     // allow one resolution at a time
     return await this.mutex.runExclusive(async () => {
       // retrieve the resolution data
@@ -320,11 +341,14 @@ class LiteWalletProvider extends EventEmitter {
                 ),
               );
             } else if ("domain" in event.detail) {
-              resolve({
+              // cache value and return
+              const resolution = {
                 address: event.detail.address,
                 domain: event.detail.domain,
                 avatar: event.detail.avatar,
-              });
+              };
+              this.lruCache.set(cacheKey, resolution);
+              resolve(resolution);
             } else {
               reject(
                 new EthereumProviderError(
@@ -874,7 +898,11 @@ class LiteWalletProvider extends EventEmitter {
     eventType: ResponseType,
     listener: (event: ProviderResponse) => void,
   ) {
-    document.addEventListener(eventType, listener);
+    const listenerWrapper = (event: ProviderResponse) => {
+      document.removeEventListener(eventType, listenerWrapper);
+      listener(event);
+    };
+    document.addEventListener(eventType, listenerWrapper);
   }
 }
 

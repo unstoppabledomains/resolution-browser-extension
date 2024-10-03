@@ -12,6 +12,7 @@ import {createPopup} from "./popup";
 
 // deduplicate multiple requests to scan for addresses
 let scanTimer: NodeJS.Timeout = null;
+let isScanning = false;
 
 // scanForResolutions makes a request to scan document for address data
 export const scanForResolutions = () => {
@@ -51,6 +52,16 @@ const resolve = async (
 
 // scan the document for address data
 const scan = async () => {
+  // check for existing scan and ignore if a scan is already
+  // currently in progress
+  if (isScanning) {
+    scanForResolutions();
+    return;
+  }
+
+  // set a flag to indicate scanning is started
+  isScanning = true;
+
   // maintain a list of matching addresses
   const resolutionMatches: ResolutionMatch[] = [];
 
@@ -148,7 +159,9 @@ const scan = async () => {
             .includes(resolvedData.address.toLowerCase()) ||
             parentContainer?.parentNode?.textContent
               .toLowerCase()
-              .includes(resolvedData.address.toLowerCase())))
+              .includes(resolvedData.address.toLowerCase()))) ||
+        // already in a popup
+        isInPopup(r.node.parentElement)
       ) {
         // already handled this injection
         continue;
@@ -194,4 +207,22 @@ const scan = async () => {
       r.node.after(popup);
     }
   }
+
+  // scan complete
+  isScanning = false;
+};
+
+const isInPopup = (e: Element): boolean => {
+  // check class name and ID tags of current node
+  if (e.className.startsWith("ud-") && e.id.startsWith("ud-")) {
+    return true;
+  }
+
+  // check parent if exists
+  if (e?.parentElement) {
+    return isInPopup(e.parentElement);
+  }
+
+  // otherwise not in popup
+  return false;
 };

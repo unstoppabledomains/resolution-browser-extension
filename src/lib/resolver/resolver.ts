@@ -7,7 +7,7 @@ import {isEthAddress} from "../sherlock/matcher";
 
 // temporary cache to hold supported TLDs
 const tldCacheKey = "supportedTlds";
-const tldCache = new LRUCache<string, any>({
+const resolverCache = new LRUCache<string, any>({
   max: 100,
   ttl: 60 * 1000 * 30, // 30 minutes
 });
@@ -15,7 +15,7 @@ const tldCache = new LRUCache<string, any>({
 // getSupportedTlds retrieves all non-ICANN domains supported by Unstoppable Domains
 export const getSupportedTlds = async (): Promise<string[]> => {
   // retrieve from cache if available
-  const cachedValue = tldCache.get(tldCacheKey);
+  const cachedValue = resolverCache.get(tldCacheKey);
   if (cachedValue && Array.isArray(cachedValue)) {
     return cachedValue;
   }
@@ -41,7 +41,7 @@ export const getSupportedTlds = async (): Promise<string[]> => {
           .filter((d) => !icannTlds.has(d));
 
         // cache and return
-        tldCache.set(tldCacheKey, supportedTlds);
+        resolverCache.set(tldCacheKey, supportedTlds);
         return supportedTlds;
       }
     }
@@ -101,7 +101,7 @@ export const getDomainProfile = async <T>(
 
   // get from cache if available
   const cacheKey = `domainProfile-${domain.toLowerCase()}`;
-  const cachedValue = tldCache.get(cacheKey);
+  const cachedValue = resolverCache.get(cacheKey);
   if (cachedValue && Object.keys(cacheKey).length > 0) {
     return cachedValue;
   }
@@ -113,7 +113,7 @@ export const getDomainProfile = async <T>(
   if (profileResponse.ok) {
     const profileData: T = await profileResponse.json();
     if (profileData) {
-      tldCache.set(cacheKey, profileData);
+      resolverCache.set(cacheKey, profileData);
       return profileData;
     }
   }
@@ -134,7 +134,7 @@ export const getResolution = async (
 
   // get from cache
   const cacheKey = `resolution-${addressOrName.toLowerCase()}`;
-  const cachedValue = tldCache.get(cacheKey);
+  const cachedValue = resolverCache.get(cacheKey);
   if (cachedValue?.address && cachedValue?.domain) {
     return isEthAddress(cachedValue.address) ? cachedValue : undefined;
   }
@@ -150,13 +150,13 @@ export const getResolution = async (
         domain: resolutionData.name,
         address: resolutionData.address,
       };
-      tldCache.set(cacheKey, returnData);
+      resolverCache.set(cacheKey, returnData);
       return returnData;
     }
   }
 
   // cache negative response to prevent retry
-  tldCache.set(cacheKey, {
+  resolverCache.set(cacheKey, {
     address: "empty",
     domain: "empty",
   });
