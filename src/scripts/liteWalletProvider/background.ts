@@ -1,7 +1,7 @@
 import config from "../../config";
 import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
-import {getResolution} from "../../lib/resolver/resolver";
+import {getDomainProfile, getResolution} from "../../lib/resolver/resolver";
 import {setBadgeCount, setIcon} from "../../lib/runtime";
 import {
   getConnectedSite,
@@ -65,6 +65,9 @@ export const backgroundEventListener = (
         break;
       case "getResolutionRequest":
         void handleFetchResolution(request, popupResponseHandler);
+        break;
+      case "getDomainProfileRequest":
+        void handleFetchDomainProfile(request, popupResponseHandler);
         break;
       case "queueRequest":
         void handleQueueUpdate(request);
@@ -329,6 +332,20 @@ const handleFetchPreferences = async (
   handleResponse(popupResponseHandler, {
     type: getResponseType("getPreferencesRequest"),
     preferences,
+  });
+};
+
+const handleFetchDomainProfile = async (
+  request: ProviderRequest,
+  popupResponseHandler: (response: ProviderEventResponse) => void,
+) => {
+  if (!request?.params || request.params.length === 0) {
+    return;
+  }
+  const profileData = await getDomainProfile(request.params[0]);
+  handleResponse(popupResponseHandler, {
+    type: getResponseType("getDomainProfileRequest"),
+    profile: profileData,
   });
 };
 

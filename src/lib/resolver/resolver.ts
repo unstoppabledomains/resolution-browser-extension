@@ -8,7 +8,7 @@ import {isEthAddress} from "../sherlock/matcher";
 // temporary cache to hold supported TLDs
 const tldCacheKey = "supportedTlds";
 const tldCache = new LRUCache<string, any>({
-  max: 50,
+  max: 100,
   ttl: 60 * 1000 * 30, // 30 minutes
 });
 
@@ -90,6 +90,38 @@ export const getIcannTlds = async (): Promise<Set<string>> => {
   return new Set<string>();
 };
 
+export const getDomainProfile = async <T>(
+  domain: string,
+): Promise<T | undefined> => {
+  // validate the name format
+  const isValidDomain = await isSupportedDomain(domain);
+  if (!isValidDomain) {
+    return undefined;
+  }
+
+  // get from cache if available
+  const cacheKey = `domainProfile-${domain.toLowerCase()}`;
+  const cachedValue = tldCache.get(cacheKey);
+  if (cachedValue && Object.keys(cacheKey).length > 0) {
+    return cachedValue;
+  }
+
+  // resolve the name
+  const profileResponse = await fetch(
+    `${config.PROFILE.HOST_URL}/public/${domain}?fields=profile,portfolio,records,cryptoVerifications,walletBalances`,
+  );
+  if (profileResponse.ok) {
+    const profileData: T = await profileResponse.json();
+    if (profileData) {
+      tldCache.set(cacheKey, profileData);
+      return profileData;
+    }
+  }
+
+  // no data found
+  return undefined;
+};
+
 // getResolution retrieves resolution data from an address or name
 export const getResolution = async (
   addressOrName: string,
@@ -101,7 +133,8 @@ export const getResolution = async (
   }
 
   // get from cache
-  const cachedValue = tldCache.get(addressOrName.toLowerCase());
+  const cacheKey = `resolution-${addressOrName.toLowerCase()}`;
+  const cachedValue = tldCache.get(cacheKey);
   if (cachedValue?.address && cachedValue?.domain) {
     return isEthAddress(cachedValue.address) ? cachedValue : undefined;
   }
@@ -117,13 +150,13 @@ export const getResolution = async (
         domain: resolutionData.name,
         address: resolutionData.address,
       };
-      tldCache.set(addressOrName.toLowerCase(), returnData);
+      tldCache.set(cacheKey, returnData);
       return returnData;
     }
   }
 
   // cache negative response to prevent retry
-  tldCache.set(addressOrName.toLowerCase(), {
+  tldCache.set(cacheKey, {
     address: "empty",
     domain: "empty",
   });

@@ -64,6 +64,7 @@ export const InternalMessageTypes = [
   "closeWindowRequest",
   "getPreferencesRequest",
   "getResolutionRequest",
+  "getDomainProfileRequest",
   "newTabRequest",
   "queueRequest",
   "signInRequest",
@@ -104,6 +105,7 @@ export type ResponseType =
   | "sendTransactionResponse"
   | "switchChainResponse"
   | "getPreferencesResponse"
+  | "getDomainProfileResponse"
   | "getResolutionResponse";
 export const isResponseType = (v: string): v is ResponseType => {
   return isExternalRequestType(v.replaceAll("Response", "Request"));
@@ -122,7 +124,8 @@ export type ProviderResponseParams =
   | ProviderAccountResponse
   | ProviderOperationResponse
   | ProviderPreferenceResponse
-  | ProviderResolutionResponse;
+  | ProviderResolutionResponse
+  | ProviderDomainProfileResponse;
 
 export interface ProviderAccountResponse {
   address: string;
@@ -145,6 +148,11 @@ export interface ProviderResolutionResponse {
   address: string;
   domain: string;
   avatar?: string;
+  error?: string;
+}
+
+export interface ProviderDomainProfileResponse {
+  profile: any;
   error?: string;
 }
 

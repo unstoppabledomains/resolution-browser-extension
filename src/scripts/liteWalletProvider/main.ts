@@ -32,6 +32,7 @@ import {WalletPreferences} from "../../types/wallet/preferences";
 import {retryAsync, waitUntilAsync} from "ts-retry";
 import {utils as web3utils} from "web3";
 import {ResolutionData} from "../../lib/sherlock/types";
+import {SerializedPublicDomainProfileData} from "@unstoppabledomains/ui-components";
 
 declare global {
   interface Window {
@@ -258,6 +259,44 @@ class LiteWalletProvider extends EventEmitter {
 
     // retrieve preferences with retry support
     return await this.withRetry(fetcher);
+  }
+
+  async getDomainProfile(
+    domain: string,
+  ): Promise<SerializedPublicDomainProfileData | undefined> {
+    // allow one profile request at a time
+    return await this.mutex.runExclusive(async () => {
+      // retrieve the domain profile data
+      return await new Promise<SerializedPublicDomainProfileData>(
+        (resolve, reject) => {
+          document.dispatchEvent(
+            new ProviderEvent("getDomainProfileRequest", {detail: [domain]}),
+          );
+          this.addEventListener(
+            "getDomainProfileResponse",
+            (event: ProviderResponse) => {
+              if (event.detail.error) {
+                reject(
+                  new EthereumProviderError(
+                    PROVIDER_CODE_USER_ERROR,
+                    event.detail.error,
+                  ),
+                );
+              } else if ("profile" in event.detail) {
+                resolve(event.detail.profile);
+              } else {
+                reject(
+                  new EthereumProviderError(
+                    PROVIDER_CODE_USER_ERROR,
+                    UnexpectedResponseError,
+                  ),
+                );
+              }
+            },
+          );
+        },
+      );
+    });
   }
 
   async getResolution(
