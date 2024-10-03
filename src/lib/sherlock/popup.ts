@@ -238,8 +238,14 @@ const patchParentZ = (e: MouseEvent, toolTip: HTMLElement) => {
 
   // calculate adjusted coordinates if not in screen
   const boxSize = toolTip.getBoundingClientRect();
-  const offSetX = Math.min(0, window.innerWidth - (defaultX + boxSize.width));
-  const offSetY = Math.min(0, window.innerHeight - (defaultY + boxSize.height));
+  const offSetX = Math.min(
+    0,
+    window.innerWidth - (e.clientX + 5 + boxSize.width),
+  );
+  const offSetY = Math.min(
+    0,
+    window.innerHeight - (e.clientY + 5 + boxSize.height),
+  );
 
   // apply adjustments to ensure the box is fully visible
   placeHolder.style.left = `${Math.max(0, defaultX + offSetX)}px`;
