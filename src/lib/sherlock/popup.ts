@@ -174,6 +174,7 @@ export const createPopup = (r: ResolutionData) => {
       }
     } catch (e) {
       Logger.warn("unable to load domain profile", e);
+      onchainDiv.textContent = "Error loading onchain data";
     }
   });
 
