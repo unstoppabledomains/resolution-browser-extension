@@ -63,6 +63,8 @@ export const isConnectionRequired = (v: ExternalRequestType): boolean => {
 export const InternalMessageTypes = [
   "closeWindowRequest",
   "getPreferencesRequest",
+  "getResolutionRequest",
+  "getDomainProfileRequest",
   "newTabRequest",
   "queueRequest",
   "signInRequest",
@@ -102,7 +104,9 @@ export type ResponseType =
   | "signTypedMessageResponse"
   | "sendTransactionResponse"
   | "switchChainResponse"
-  | "getPreferencesResponse";
+  | "getPreferencesResponse"
+  | "getDomainProfileResponse"
+  | "getResolutionResponse";
 export const isResponseType = (v: string): v is ResponseType => {
   return isExternalRequestType(v.replaceAll("Response", "Request"));
 };
@@ -119,7 +123,9 @@ export interface ProviderResponse extends Event {
 export type ProviderResponseParams =
   | ProviderAccountResponse
   | ProviderOperationResponse
-  | ProviderPreferenceResponse;
+  | ProviderPreferenceResponse
+  | ProviderResolutionResponse
+  | ProviderDomainProfileResponse;
 
 export interface ProviderAccountResponse {
   address: string;
@@ -135,6 +141,18 @@ export interface ProviderOperationResponse {
 
 export interface ProviderPreferenceResponse {
   preferences: WalletPreferences;
+  error?: string;
+}
+
+export interface ProviderResolutionResponse {
+  address: string;
+  domain: string;
+  avatar?: string;
+  error?: string;
+}
+
+export interface ProviderDomainProfileResponse {
+  profile: any;
   error?: string;
 }
 

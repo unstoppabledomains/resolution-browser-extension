@@ -1,23 +1,21 @@
-import {getStrictReverseResolution} from "@unstoppabledomains/ui-components";
-import config from "@unstoppabledomains/config";
 import {fromPartialAddress, isEthAddress, isPartialAddress} from "./matcher";
 import {Logger} from "../logger";
-import Bluebird from "bluebird";
-import {AUGMENT_ID_PREFIX, AddressMatch} from "./types";
-import {LRUCache} from "lru-cache";
-import truncateMiddle from "truncate-middle";
+import {
+  ResolutionMatch,
+  ResolutionData,
+  SHERLOCK_ICON,
+  BASE_Z_INDEX,
+} from "./types";
+import {isDomainValidForManagement} from "@unstoppabledomains/ui-components";
+import {initializeForPopup} from "./styles";
+import {createPopup} from "./popup";
 
 // deduplicate multiple requests to scan for addresses
 let scanTimer: NodeJS.Timeout = null;
+let isScanning = false;
 
-// remember up to 500 resolution results to avoid duplicating
-// lookups for the same address
-const resolutionCache = new LRUCache<string, string>({
-  max: 500,
-});
-
-// scanForAddresses makes a request to scan document for address data
-export const scanForAddresses = () => {
+// scanForResolutions makes a request to scan document for address data
+export const scanForResolutions = () => {
   // bump timer forward if already set
   if (scanTimer) {
     clearTimeout(scanTimer);
@@ -27,187 +25,250 @@ export const scanForAddresses = () => {
   scanTimer = setTimeout(scan, 500);
 };
 
-// resolveName wraps the call to resolution API and adds caching
-const resolveName = async (address: string): Promise<string | undefined> => {
-  // validate the address
-  if (!address || !isEthAddress(address)) {
+// resolve wraps the call to resolution API and adds caching
+const resolve = async (
+  addressOrName: string,
+): Promise<ResolutionData | undefined> => {
+  // validate the address or name
+  if (
+    !addressOrName &&
+    !isEthAddress(addressOrName) &&
+    !isDomainValidForManagement(addressOrName)
+  ) {
     return;
   }
 
   try {
-    // get from cache if possible
-    const cachedName = resolutionCache.get(address.toLowerCase());
-    if (cachedName) {
-      if (cachedName !== address.toLowerCase()) {
-        return cachedName;
-      }
-      return undefined;
-    }
-
     // resolve the name and return if found
-    const resolvedName = await getStrictReverseResolution(address);
-    if (resolvedName) {
-      resolutionCache.set(address.toLowerCase(), resolvedName);
-      return resolvedName;
+    const resolvedValue = await window.unstoppable.getResolution(addressOrName);
+    if (resolvedValue?.address && resolvedValue?.domain) {
+      return resolvedValue;
     }
-
-    // store the negative result to prevent further lookups
-    resolutionCache.set(address.toLowerCase(), address.toLowerCase());
   } catch (e) {
-    Logger.warn("error resolving address", e, address);
+    Logger.warn("error resolving address", e, addressOrName);
   }
   return undefined;
 };
 
 // scan the document for address data
 const scan = async () => {
-  // maintain a list of matching addresses
-  const addressMatches: AddressMatch[] = [];
+  // check for existing scan and ignore if a scan is already
+  // currently in progress
+  if (isScanning) {
+    scanForResolutions();
+    return;
+  }
 
-  // scan the document for addresses
-  const domElements = document.getElementsByTagName("*");
-  for (var i = 0; i < domElements.length; i++) {
-    const childNodes = domElements[i].childNodes;
+  // set a flag to indicate scanning is started
+  isScanning = true;
+
+  // maintain a list of matching addresses
+  const resolutionMatches: ResolutionMatch[] = [];
+
+  // recursive helper to scan children
+  const scanChildren = (childNodes: NodeListOf<ChildNode>) => {
     for (var j = 0; j < childNodes.length; j++) {
-      if (childNodes[j].nodeType === 3) {
+      // handle text nodes (type 3 in the spec)
+      const node = childNodes[j];
+      if (node.nodeType === 3) {
         // scan each word of the rendered text for matching addresses
-        const renderedText = childNodes[j].nodeValue;
+        const renderedText = node.nodeValue;
         const renderedTextWord = renderedText.split(/[\s]+/);
-        for (const maybeAddress of renderedTextWord) {
+        for (const maybeAddressOrName of renderedTextWord) {
           // check for ETH address exact matches
-          if (isEthAddress(maybeAddress)) {
+          if (isEthAddress(maybeAddressOrName)) {
             // add to the list for processing
-            addressMatches.push({
-              node: childNodes[j],
-              address: maybeAddress,
-              searchTerm: maybeAddress,
+            resolutionMatches.push({
+              node,
+              addressOrName: maybeAddressOrName,
+              searchTerm: maybeAddressOrName,
             });
             break;
           }
           // check for ETH address partial matches
-          else if (isPartialAddress(maybeAddress)) {
+          else if (isPartialAddress(maybeAddressOrName)) {
             // attempt to inspect the document for an expanded form of
             // the partial address match
             const address = fromPartialAddress(
-              maybeAddress,
+              maybeAddressOrName,
               document.body.innerHTML,
             );
             if (address) {
               // add the full address to the list for processing
-              addressMatches.push({
-                node: childNodes[j],
-                address,
-                searchTerm: maybeAddress,
+              resolutionMatches.push({
+                node,
+                addressOrName: address,
+                searchTerm: maybeAddressOrName,
               });
             }
             break;
           }
+          // check for domain-like text that ends in a supported TLD
+          else if (
+            isDomainValidForManagement(maybeAddressOrName.toLowerCase())
+          ) {
+            resolutionMatches.push({
+              node,
+              addressOrName: maybeAddressOrName,
+              searchTerm: maybeAddressOrName,
+            });
+            break;
+          }
+        }
+
+        // search children if present
+        if (node.childNodes && node.childNodes.length > 0) {
+          scanChildren(node.childNodes);
         }
       }
     }
+  };
+
+  // scan the document for addresses
+  const domElements = document.body.getElementsByTagName("*");
+  for (var i = 0; i < domElements.length; i++) {
+    scanChildren(domElements[i].childNodes);
   }
 
-  // process the matching addresses concurrently
-  await Bluebird.map(
-    addressMatches,
-    async (addressMatch) => {
-      // see if node is already processed
-      for (let i = 0; i < addressMatch.node.parentNode.children.length; i++) {
+  // inject styles if matches found
+  if (resolutionMatches.length > 0) {
+    initializeForPopup();
+  }
+
+  // process matching addresses
+  for (const r of resolutionMatches) {
+    // determine whether the address can be resolved to a name
+    const resolvedData = await resolve(r.addressOrName);
+
+    // inject into DOM if resolution found
+    if (resolvedData?.address && resolvedData?.domain) {
+      // check to see whether the current match has already been involved with a
+      // domain and address injection
+      if (
+        // parent already contains the injected icon
+        isMatchingTrigger(r.node.parentNode, resolvedData) ||
+        // grandparent already contains the injected icon
+        isMatchingTrigger(r.node.parentNode?.parentNode, resolvedData) ||
+        // grandparent already contains the expected domain and
+        // formatted address
+        isMatchingContent(r.node.parentNode?.parentNode, resolvedData) ||
+        // already in a popup
+        isInPopup(r.node.parentElement)
+      ) {
+        // already handled this injection
+        continue;
+      }
+
+      // remove any existing sherlock siblings, which is necessary if an existing
+      // sherlock icon is being replaced by a new resolution match. For example, a
+      // react state update may cause a new domain to be displayed in the same DOM
+      // location and the associated popup needs to be changed.
+      removeSherlockSiblings(r.node.parentElement);
+
+      // if the child node contains a block of text, update the text inline
+      // so that the name appears with the address
+      if (
+        !isEthAddress(r.node.textContent) &&
+        !isPartialAddress(r.node.textContent)
+      ) {
+        // split the text on the search parameter
+        const textContentParts = r.node.textContent.split(r.searchTerm);
         if (
-          // contains a link with known ID prefix
-          addressMatch.node.parentNode.children[i].id?.startsWith(
-            AUGMENT_ID_PREFIX,
-          ) ||
-          // contains the search term in parentheses
-          addressMatch.node.parentNode.children[i].textContent
-            ?.toLowerCase()
-            .includes(`(${addressMatch.searchTerm.toLowerCase()})`)
+          // if we find exactly two parts divided by the search parameter
+          textContentParts.length === 2 &&
+          // this approach cannot be used when child nodes are present, and
+          // only works on a single body of text
+          !r.node.hasChildNodes()
         ) {
-          // node has already been processed, no more work required
-          return;
+          // create a new div to wrap all the new text elements
+          const matchContainer = document.createElement("div");
+          matchContainer.style.zIndex = String(BASE_Z_INDEX);
+
+          // create the link for resolved name
+          const popup = createPopup(resolvedData);
+          matchContainer.appendChild(popup);
+
+          // insert the new div just before the matching node
+          r.node.parentNode.insertBefore(matchContainer, r.node);
+
+          // insert the current node into the div
+          popup.before(r.node);
+          continue;
         }
       }
 
-      // determine whether the address can be resolved to a name
-      const resolvedName = await resolveName(addressMatch.address);
-      if (resolvedName) {
-        // if the child node contains a block of text, update the text inline
-        // so that the name appears with the address
-        if (
-          !isEthAddress(addressMatch.node.textContent) &&
-          !isPartialAddress(addressMatch.node.textContent)
-        ) {
-          // split the text on the search parameter
-          const textContentParts = addressMatch.node.textContent.split(
-            addressMatch.searchTerm,
-          );
-          if (
-            // if we find exactly two parts divided by the search parameter
-            textContentParts.length === 2 &&
-            // this approach cannot be used when child nodes are present, and
-            // only works on a single body of text
-            !addressMatch.node.hasChildNodes()
-          ) {
-            // create a new div to wrap all the new text elements
-            const div = document.createElement("div");
+      // if the child contains only the address, insert a new DOM anchor element
+      // that links to the domain profile page
+      const popup = createPopup(resolvedData);
 
-            // create a span to contain text before search term
-            const s1 = document.createElement("span");
-            s1.textContent = `${textContentParts[0]} `;
-            div.appendChild(s1);
+      // update the text content and insert the new link
+      r.node.after(popup);
+    }
+  }
 
-            // create the link for resolved name
-            const link = createLink(resolvedName, addressMatch.address);
-            div.appendChild(link);
+  // scan complete
+  isScanning = false;
+};
 
-            // create a span to contain text after the search term
-            const s2 = document.createElement("span");
-            s2.textContent = ` (${formatAddress(addressMatch.address)}) ${textContentParts[1]}`;
-            div.appendChild(s2);
+const isMatchingTrigger = (
+  node: ParentNode,
+  resolution: ResolutionData,
+): boolean => {
+  // if the sherlock icon is not found there is no match
+  if (!node?.textContent?.toLowerCase().includes(SHERLOCK_ICON)) {
+    return false;
+  }
 
-            // insert the new div just before the matching node, and then remove the
-            // matching node itself to prevent duplication
-            addressMatch.node.parentNode.insertBefore(div, addressMatch.node);
-            addressMatch.node.parentNode.removeChild(addressMatch.node);
-            return;
-          }
+  // check the ID related to the sherlock icon to ensure it matches
+  // the expected resolution
+  for (let i = 0; i < node.children.length; i++) {
+    const childId = node.children[i].id.toLowerCase();
+    if (childId.includes(resolution.address.toLowerCase())) {
+      return true;
+    }
+  }
 
-          // as a fallback, perform a simple inline replace that will not contain a
-          // link to the resolved name
-          addressMatch.node.textContent =
-            addressMatch.node.textContent.replaceAll(
-              addressMatch.searchTerm,
-              `${resolvedName} (${formatAddress(addressMatch.address)})`,
-            );
-          return;
-        }
+  // no matches found
+  return false;
+};
 
-        // if the child contains only the address, insert a new DOM anchor element
-        // that links to the domain profile page
-        const link = createLink(resolvedName, addressMatch.address);
-        link.style.marginRight = "4px";
-
-        // update the text content and insert the new link
-        addressMatch.node.textContent = `(${formatAddress(addressMatch.address)})`;
-        addressMatch.node.parentNode.insertBefore(link, addressMatch.node);
-      }
-    },
-    {concurrency: 3},
+const isMatchingContent = (
+  node: ParentNode,
+  resolution: ResolutionData,
+): boolean => {
+  return (
+    node?.textContent.toLowerCase().includes(resolution.domain.toLowerCase()) &&
+    (node?.textContent
+      .toLowerCase()
+      .includes(resolution.address.toLowerCase()) ||
+      node?.parentNode?.textContent
+        .toLowerCase()
+        .includes(resolution.address.toLowerCase()))
   );
 };
 
-// createLink to the profile of a resolved name
-const createLink = (resolvedName: string, address: string) => {
-  const link = document.createElement("a");
-  link.id = `${AUGMENT_ID_PREFIX}${address.toLowerCase()}`;
-  link.style.fontWeight = "bold";
-  link.textContent = resolvedName;
-  link.href = `${config.UD_ME_BASE_URL}/${resolvedName}`;
-  link.target = "_blank";
-  return link;
+const isInPopup = (e: Element): boolean => {
+  // check class name and ID tags of current node
+  if (e.className.startsWith("ud-") && e.id.startsWith("ud-")) {
+    return true;
+  }
+
+  // check parent if exists
+  if (e?.parentElement) {
+    return isInPopup(e.parentElement);
+  }
+
+  // otherwise not in popup
+  return false;
 };
 
-// formatAddress displays address in truncated form (e.g. 0x1234...5678)
-const formatAddress = (address: string) => {
-  return truncateMiddle(address, 6, 4, "...");
+const removeSherlockSiblings = (node: Element) => {
+  if (node?.children) {
+    for (let i = node.children.length - 1; i >= 0; i--) {
+      const child = node.children[i];
+      if (child.id?.startsWith("ud-")) {
+        child.remove();
+      }
+    }
+  }
 };

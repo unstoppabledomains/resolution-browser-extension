@@ -18,7 +18,7 @@ import {
   openSidePanel,
   setBadgeCount,
 } from "../runtime";
-import {getReverseResolution} from "../resolver/resolver";
+import {getResolution} from "../resolver/resolver";
 import {getWalletPreferences} from "../wallet/preferences";
 import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 
@@ -182,7 +182,7 @@ const handleMessage = async (decodedMessage: DecodedMessage) => {
   }
 
   // attempt to resolve a name for the address
-  const senderName = await getReverseResolution(decodedMessage.senderAddress);
+  const senderName = await getResolution(decodedMessage.senderAddress);
 
   // for unapproved contacts, only show the notification one time
   if (!isApproved) {
@@ -212,7 +212,7 @@ const handleMessage = async (decodedMessage: DecodedMessage) => {
   // notify the user of the message if permission available
   await createNotification(
     `xmtp-${decodedMessage.senderAddress.toLowerCase()}-${decodedMessage.id}`,
-    senderName ||
+    senderName?.domain ||
       `Wallet ${truncateMiddle(decodedMessage.senderAddress, 6, 4, "...")}`,
     isApproved
       ? decodedMessage.contentType.sameAs(ContentTypeText)

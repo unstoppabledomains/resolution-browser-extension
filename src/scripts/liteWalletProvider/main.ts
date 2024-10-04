@@ -31,6 +31,10 @@ import {Logger} from "../../lib/logger";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {retryAsync, waitUntilAsync} from "ts-retry";
 import {utils as web3utils} from "web3";
+import {ResolutionData} from "../../lib/sherlock/types";
+import {SerializedPublicDomainProfileData} from "@unstoppabledomains/ui-components";
+import {LRUCache} from "lru-cache";
+import {isEthAddress} from "../../lib/sherlock/matcher";
 
 declare global {
   interface Window {
@@ -64,9 +68,17 @@ class LiteWalletProvider extends EventEmitter {
   };
 
   // internal properties
-  private mutex: Mutex;
+  private mutex: Record<"request" | "resolution" | "profile", Mutex> = {
+    request: new Mutex(),
+    resolution: new Mutex(),
+    profile: new Mutex(),
+  };
   private requestQueue: RequestArgs[];
   private lastCompletedRequest: RequestArgs;
+  private lruCache = new LRUCache<string, any>({
+    max: 100,
+    ttl: 60 * 1000 * 30, // 30 minutes
+  });
 
   /*************************
    * Public provider methods
@@ -80,7 +92,6 @@ class LiteWalletProvider extends EventEmitter {
   private init() {
     this.isMetaMask = true;
     this.isConnectedStatus = false;
-    this.mutex = new Mutex();
     this.lastCompletedRequest = null;
     this.chainId = null;
     this.networkVersion = null;
@@ -106,7 +117,7 @@ class LiteWalletProvider extends EventEmitter {
     // Serialize operation requests, waiting for completion before moving on
     // to subsequent operations. Keep track of the number of queued requests,
     // which will determine window close behavior.
-    const unlock = await this.mutex.acquire();
+    const unlock = await this.mutex.request.acquire();
 
     // eventual result
     let result: any;
@@ -259,6 +270,102 @@ class LiteWalletProvider extends EventEmitter {
     return await this.withRetry(fetcher);
   }
 
+  async getDomainProfile(
+    domain: string,
+  ): Promise<SerializedPublicDomainProfileData | undefined> {
+    // check from cache
+    const cacheKey = `getDomainProfile-${domain.toLowerCase()}`;
+    const cachedValue = this.lruCache.get(cacheKey);
+    if (cachedValue) {
+      return cachedValue;
+    }
+
+    // allow one profile request at a time
+    return await this.mutex.profile.runExclusive(async () => {
+      // retrieve the domain profile data
+      return await new Promise<SerializedPublicDomainProfileData>(
+        (resolve, reject) => {
+          document.dispatchEvent(
+            new ProviderEvent("getDomainProfileRequest", {detail: [domain]}),
+          );
+          this.addEventListener(
+            "getDomainProfileResponse",
+            (event: ProviderResponse) => {
+              if (event.detail.error) {
+                reject(
+                  new EthereumProviderError(
+                    PROVIDER_CODE_USER_ERROR,
+                    event.detail.error,
+                  ),
+                );
+              } else if ("profile" in event.detail) {
+                this.lruCache.set(cacheKey, event.detail.profile);
+                resolve(event.detail.profile);
+              } else {
+                reject(
+                  new EthereumProviderError(
+                    PROVIDER_CODE_USER_ERROR,
+                    UnexpectedResponseError,
+                  ),
+                );
+              }
+            },
+          );
+        },
+      );
+    });
+  }
+
+  async getResolution(
+    addressOrName: string,
+  ): Promise<ResolutionData | undefined> {
+    // check from cache
+    const cacheKey = `getResolution-${addressOrName.toLowerCase()}`;
+    const cachedValue = this.lruCache.get(cacheKey);
+    if (cachedValue) {
+      return isEthAddress(cachedValue.address) ? cachedValue : undefined;
+    }
+
+    // allow one resolution at a time
+    return await this.mutex.resolution.runExclusive(async () => {
+      // retrieve the resolution data
+      return await new Promise<ResolutionData>((resolve, reject) => {
+        document.dispatchEvent(
+          new ProviderEvent("getResolutionRequest", {detail: [addressOrName]}),
+        );
+        this.addEventListener(
+          "getResolutionResponse",
+          (event: ProviderResponse) => {
+            if (event.detail.error) {
+              reject(
+                new EthereumProviderError(
+                  PROVIDER_CODE_USER_ERROR,
+                  event.detail.error,
+                ),
+              );
+            } else if ("domain" in event.detail) {
+              // cache value and return
+              const resolution = {
+                address: event.detail.address,
+                domain: event.detail.domain,
+                avatar: event.detail.avatar,
+              };
+              this.lruCache.set(cacheKey, resolution);
+              resolve(resolution);
+            } else {
+              reject(
+                new EthereumProviderError(
+                  PROVIDER_CODE_USER_ERROR,
+                  UnexpectedResponseError,
+                ),
+              );
+            }
+          },
+        );
+      });
+    });
+  }
+
   /******************
    * Internal methods
    ******************/
@@ -364,7 +471,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail);
 
@@ -447,7 +554,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail, ["connect", "accountsChanged"]);
 
@@ -486,7 +593,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail, ["connect", "accountsChanged"]);
 
@@ -539,7 +646,7 @@ class LiteWalletProvider extends EventEmitter {
                 event.detail.error,
               ),
             );
-          } else if ("address" in event.detail) {
+          } else if ("chainId" in event.detail) {
             // handle success events
             this.handleConnected(event.detail, ["chainChanged"]);
 
@@ -794,7 +901,11 @@ class LiteWalletProvider extends EventEmitter {
     eventType: ResponseType,
     listener: (event: ProviderResponse) => void,
   ) {
-    document.addEventListener(eventType, listener);
+    const listenerWrapper = (event: ProviderResponse) => {
+      document.removeEventListener(eventType, listenerWrapper);
+      listener(event);
+    };
+    document.addEventListener(eventType, listenerWrapper);
   }
 }
 

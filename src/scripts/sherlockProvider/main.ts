@@ -1,7 +1,8 @@
 import {Logger} from "../../lib/logger";
-import {scanForAddresses} from "../../lib/sherlock/scanner";
+import {scanForResolutions} from "../../lib/sherlock/scanner";
 import {isEthAddress, isPartialAddress} from "../../lib/sherlock/matcher";
 import {ContextMenu} from "../../lib/sherlock/contextMenu";
+import {isDomainValidForManagement} from "@unstoppabledomains/ui-components";
 
 // check preferences to ensure desired behavior
 window.unstoppable?.getPreferences().then((preferences) => {
@@ -25,14 +26,14 @@ window.unstoppable?.getPreferences().then((preferences) => {
 
   // start a resolver to scan page for addresses
   Logger.log("Sherlock Assistant enabled");
-  void scanForAddresses();
+  void scanForResolutions();
 
   // create an observer to watch for future DOM changes
   const observer = new MutationObserver((mutations) => {
-    let isAddressDetected = false;
+    let isAddressOrNameDetected = false;
     mutations.forEach((mutation) => {
-      // address already detected
-      if (isAddressDetected) {
+      // address or name already detected
+      if (isAddressOrNameDetected) {
         return;
       }
 
@@ -40,24 +41,43 @@ window.unstoppable?.getPreferences().then((preferences) => {
       let oldValue = mutation.oldValue;
       let newValue = mutation.target.textContent;
       if (oldValue !== newValue) {
-        // scan each child of the new node
-        mutation.target.childNodes.forEach((newChild) => {
-          // address already detected
-          if (isAddressDetected) {
-            return;
-          }
+        // a recursive helper to scan child node tree. The recursive search stops
+        // as soon as a matching string is found.
+        const scanChildren = (childNodes: NodeListOf<ChildNode>) => {
+          childNodes.forEach((newChild) => {
+            // address already detected
+            if (isAddressOrNameDetected) {
+              return;
+            }
 
-          // check the text content of the child node
-          const newChildValue = newChild.textContent;
-          if (isEthAddress(newChildValue) || isPartialAddress(newChildValue)) {
-            isAddressDetected = true;
-            return;
-          }
-        });
+            // check the text content of the child node
+            const newChildValue = newChild.textContent;
+
+            if (
+              // match full EVM addresses
+              isEthAddress(newChildValue) ||
+              // match partial EVM addresses
+              isPartialAddress(newChildValue) ||
+              // match fully qualified domains
+              isDomainValidForManagement(newChildValue)
+            ) {
+              isAddressOrNameDetected = true;
+              return;
+            }
+
+            // scan any children
+            if (newChild.childNodes && newChild.childNodes.length > 0) {
+              scanChildren(newChild.childNodes);
+            }
+          });
+        };
+
+        // scan the child node tree
+        scanChildren(mutation.target.childNodes);
       }
     });
-    if (isAddressDetected) {
-      void scanForAddresses();
+    if (isAddressOrNameDetected) {
+      void scanForResolutions();
     }
   });
 

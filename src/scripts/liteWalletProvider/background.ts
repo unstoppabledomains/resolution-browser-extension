@@ -1,6 +1,7 @@
 import config from "../../config";
 import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
+import {getDomainProfile, getResolution} from "../../lib/resolver/resolver";
 import {setBadgeCount, setIcon} from "../../lib/runtime";
 import {
   getConnectedSite,
@@ -61,6 +62,12 @@ export const backgroundEventListener = (
     switch (request.type) {
       case "getPreferencesRequest":
         void handleFetchPreferences(popupResponseHandler);
+        break;
+      case "getResolutionRequest":
+        void handleFetchResolution(request, popupResponseHandler);
+        break;
+      case "getDomainProfileRequest":
+        void handleFetchDomainProfile(request, popupResponseHandler);
         break;
       case "queueRequest":
         void handleQueueUpdate(request);
@@ -274,7 +281,7 @@ const listenForPopupResponse = (
     if (isResponseType(response.type)) {
       // ensure the wallet state is persisted as connected to the
       // current host
-      if (response && "address" in response) {
+      if (response && "chainId" in response) {
         const connection: ConnectedSite = {
           accounts: [response.address],
           chainId: response.chainId,
@@ -325,6 +332,40 @@ const handleFetchPreferences = async (
   handleResponse(popupResponseHandler, {
     type: getResponseType("getPreferencesRequest"),
     preferences,
+  });
+};
+
+const handleFetchDomainProfile = async (
+  request: ProviderRequest,
+  popupResponseHandler: (response: ProviderEventResponse) => void,
+) => {
+  if (!request?.params || request.params.length === 0) {
+    return;
+  }
+  const profileData = await getDomainProfile(request.params[0]);
+  handleResponse(popupResponseHandler, {
+    type: getResponseType("getDomainProfileRequest"),
+    profile: profileData,
+  });
+};
+
+const handleFetchResolution = async (
+  request: ProviderRequest,
+  popupResponseHandler: (response: ProviderEventResponse) => void,
+) => {
+  if (!request?.params || request.params.length === 0) {
+    return;
+  }
+  const resolutionData = await getResolution(request.params[0]);
+  handleResponse(popupResponseHandler, {
+    type: getResponseType("getResolutionRequest"),
+    address: resolutionData?.address || "",
+    domain: resolutionData?.domain || "",
+    avatar: chrome.runtime.getURL(
+      resolutionData?.domain?.endsWith(".eth")
+        ? "/icon/ens.png"
+        : "/icon/38.png",
+    ),
   });
 };
 
