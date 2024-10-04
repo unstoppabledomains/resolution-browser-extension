@@ -142,30 +142,28 @@ const scan = async () => {
 
     // inject into DOM if resolution found
     if (resolvedData?.address && resolvedData?.domain) {
-      // parent container to validate content
-      const parentContainer = r.node.parentNode?.parentNode;
-
       // check to see whether the current match has already been involved with a
       // domain and address injection
       if (
-        // already contains the injected icon
-        parentContainer?.textContent?.toLowerCase().includes(SHERLOCK_ICON) ||
-        // already contains the domain and formatted address
-        (parentContainer?.textContent
-          .toLowerCase()
-          .includes(resolvedData.domain.toLowerCase()) &&
-          (parentContainer?.textContent
-            .toLowerCase()
-            .includes(resolvedData.address.toLowerCase()) ||
-            parentContainer?.parentNode?.textContent
-              .toLowerCase()
-              .includes(resolvedData.address.toLowerCase()))) ||
+        // parent already contains the injected icon
+        isMatchingTrigger(r.node.parentNode, resolvedData) ||
+        // grandparent already contains the injected icon
+        isMatchingTrigger(r.node.parentNode?.parentNode, resolvedData) ||
+        // grandparent already contains the expected domain and
+        // formatted address
+        isMatchingContent(r.node.parentNode?.parentNode, resolvedData) ||
         // already in a popup
         isInPopup(r.node.parentElement)
       ) {
         // already handled this injection
         continue;
       }
+
+      // remove any existing sherlock siblings, which is necessary if an existing
+      // sherlock icon is being replaced by a new resolution match. For example, a
+      // react state update may cause a new domain to be displayed in the same DOM
+      // location and the associated popup needs to be changed.
+      removeSherlockSiblings(r.node.parentElement);
 
       // if the child node contains a block of text, update the text inline
       // so that the name appears with the address
@@ -212,6 +210,43 @@ const scan = async () => {
   isScanning = false;
 };
 
+const isMatchingTrigger = (
+  node: ParentNode,
+  resolution: ResolutionData,
+): boolean => {
+  // if the sherlock icon is not found there is no match
+  if (!node?.textContent?.toLowerCase().includes(SHERLOCK_ICON)) {
+    return false;
+  }
+
+  // check the ID related to the sherlock icon to ensure it matches
+  // the expected resolution
+  for (let i = 0; i < node.children.length; i++) {
+    const childId = node.children[i].id.toLowerCase();
+    if (childId.includes(resolution.address.toLowerCase())) {
+      return true;
+    }
+  }
+
+  // no matches found
+  return false;
+};
+
+const isMatchingContent = (
+  node: ParentNode,
+  resolution: ResolutionData,
+): boolean => {
+  return (
+    node?.textContent.toLowerCase().includes(resolution.domain.toLowerCase()) &&
+    (node?.textContent
+      .toLowerCase()
+      .includes(resolution.address.toLowerCase()) ||
+      node?.parentNode?.textContent
+        .toLowerCase()
+        .includes(resolution.address.toLowerCase()))
+  );
+};
+
 const isInPopup = (e: Element): boolean => {
   // check class name and ID tags of current node
   if (e.className.startsWith("ud-") && e.id.startsWith("ud-")) {
@@ -225,4 +260,15 @@ const isInPopup = (e: Element): boolean => {
 
   // otherwise not in popup
   return false;
+};
+
+const removeSherlockSiblings = (node: Element) => {
+  if (node?.children) {
+    for (let i = node.children.length - 1; i >= 0; i--) {
+      const child = node.children[i];
+      if (child.id?.startsWith("ud-")) {
+        child.remove();
+      }
+    }
+  }
 };

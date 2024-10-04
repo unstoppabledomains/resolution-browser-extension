@@ -142,8 +142,8 @@ export const createPopup = (r: ResolutionData) => {
             // domain portfolio value
             (profileData.portfolio?.account?.valueAmt || 0) / 100,
         )
-          .format("0.0a")
-          .replaceAll(".0", "")}`;
+          .format("0.00a")
+          .replaceAll(".00", "")}`;
 
         // update the card with collection data
         const sortedTokens = getSortedTokens(profileData.walletBalances);
@@ -162,7 +162,7 @@ export const createPopup = (r: ResolutionData) => {
           .filter((t) => t?.name && t.balance > 0)
           .map(
             (t) =>
-              `${t.name} (<a class="ud-data-link" href="${t.walletBlockChainLink}" target="_blank">${numeral(t.balance).format("0.0a").replaceAll(".0", "")} ${t.type === TokenType.Nft ? "NFTs" : t.ticker}</a>)`,
+              `${t.name} (<a class="ud-data-link" href="${t.walletBlockChainLink}" target="_blank">${numeral(t.balance).format("0.00a").replaceAll(".00", "")} ${t.type === TokenType.Nft ? "NFTs" : t.ticker}</a>)`,
           )
           .join(", ");
         onchainDiv.appendChild(
