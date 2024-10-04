@@ -103,7 +103,7 @@ export const createPopup = (r: ResolutionData) => {
   linkContainer.appendChild(profileLink);
 
   // add button to copy address
-  const copyAddressLink = document.createElement("a");
+  const copyAddressLink = document.createElement("span");
   copyAddressLink.onclick = () => {
     copyAddressLink.textContent = "Copied";
     copyAddressLink.className = "ud-link ud-link-success";
@@ -115,7 +115,6 @@ export const createPopup = (r: ResolutionData) => {
   };
   copyAddressLink.textContent = `Copy address`;
   copyAddressLink.className = "ud-link";
-  copyAddressLink.href = "#";
   linkContainer.appendChild(copyAddressLink);
 
   // register the tooltip for visibility
