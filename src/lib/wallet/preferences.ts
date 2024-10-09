@@ -1,3 +1,4 @@
+import config from "../../config";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {
   StorageSyncKey,
@@ -5,7 +6,6 @@ import {
   chromeStorageSet,
 } from "../chromeStorage";
 import {Logger} from "../logger";
-import {getManifestVersion} from "../runtime";
 
 export const getWalletPreferences = async (): Promise<WalletPreferences> => {
   const defaultPreferences = getDefaultPreferences();
@@ -42,7 +42,7 @@ export const getDefaultPreferences = (): WalletPreferences => {
     HasExistingWallet: false,
     OverrideMetamask: false,
     DefaultView: "onUpdated",
-    Version: getManifestVersion(),
+    VersionInfo: config.VERSION_DESCRIPTION,
     MessagingEnabled: true,
     Scanning: {
       Enabled: true,

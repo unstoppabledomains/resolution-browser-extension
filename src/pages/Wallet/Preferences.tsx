@@ -137,7 +137,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("extension.sherlockAssistant")}`}
                   control={
                     <Checkbox
-                      checked={preferences.Scanning?.Enabled}
+                      checked={preferences?.Scanning?.Enabled}
                       onChange={handleSherlockAssistant}
                     />
                   }
@@ -151,7 +151,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("push.messages")}`}
                   control={
                     <Checkbox
-                      checked={preferences.MessagingEnabled}
+                      checked={preferences?.MessagingEnabled}
                       onChange={handleMessaging}
                     />
                   }
@@ -165,7 +165,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("extension.compatibilityMode")}`}
                   control={
                     <Checkbox
-                      checked={preferences.OverrideMetamask}
+                      checked={preferences?.OverrideMetamask}
                       onChange={handleCompatibilityMode}
                     />
                   }
@@ -253,7 +253,7 @@ interface PreferenceSectionProps {
   children?: React.ReactNode;
 }
 
-const PreferenceSection: React.FC<PreferenceSectionProps> = ({
+export const PreferenceSection: React.FC<PreferenceSectionProps> = ({
   title,
   description,
   children,

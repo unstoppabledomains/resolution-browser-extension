@@ -9,6 +9,6 @@ export interface WalletPreferences {
     Enabled: boolean;
     IgnoreOrigins: string[];
   };
-  Version: string;
+  VersionInfo: string;
   WalletEnabled: boolean;
 }

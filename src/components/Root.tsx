@@ -21,10 +21,8 @@ import config from "../config";
 import Box from "@mui/material/Box";
 import Connect from "../pages/Wallet/Connect";
 import OnUpdated from "../pages/OnUpdated";
-import {compareVersions} from "compare-versions";
 import usePreferences from "../hooks/usePreferences";
 import ConnectionProvider from "../providers/ConnectionProvider";
-import {getManifestVersion} from "../lib/runtime";
 import {MessageSidePanel} from "../pages/Wallet/MessageSidePanel";
 
 const queryClient = new QueryClient();
@@ -42,12 +40,7 @@ const EntryPoint: React.FC = () => {
 
     // before handling the requested routing rules, check the extension version
     // to determine if a new version UX should be displayed
-    if (
-      compareVersions(
-        getManifestVersion(), // currently installed version
-        preferences.Version, // last observed version
-      )
-    ) {
+    if (config.VERSION_DESCRIPTION !== preferences.VersionInfo) {
       // the user has not yet observed this version, so override the requested
       // page with the new version UX
       navigate("/onUpdated");
