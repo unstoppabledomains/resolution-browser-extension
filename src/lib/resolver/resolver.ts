@@ -108,7 +108,7 @@ export const getDomainProfile = async <T>(
 
   // resolve the name
   const profileResponse = await fetch(
-    `${config.PROFILE.HOST_URL}/public/${domain}?fields=profile,portfolio,records,cryptoVerifications,walletBalances`,
+    `${config.PROFILE.HOST_URL}/public/${domain}?fields=profile,portfolio,records,cryptoVerifications,walletBalances&walletFields=nft,token,native,price`,
   );
   if (profileResponse.ok) {
     const profileData: T = await profileResponse.json();

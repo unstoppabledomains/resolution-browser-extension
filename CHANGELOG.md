@@ -1,3 +1,8 @@
+## 3.1.34
+* Sherlock Assistant magnifying glass
+* Add configuration panel for Sherlock in non-wallet mode
+* Optimize performance
+
 ## 3.1.33
 * Enhancements to Sherlock domain detection
 

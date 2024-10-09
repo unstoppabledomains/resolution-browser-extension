@@ -33,7 +33,7 @@ const OnUpdated: React.FC = () => {
   const handlePreference = async (view: DefaultPageView) => {
     preferences.DefaultView = view;
     preferences.WalletEnabled = view === "wallet";
-    preferences.Version = getManifestVersion();
+    preferences.VersionInfo = config.VERSION_DESCRIPTION;
     await setWalletPreferences(preferences);
     navigate("/");
   };
