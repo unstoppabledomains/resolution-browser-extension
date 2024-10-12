@@ -7,6 +7,7 @@ export type ProviderMethod =
   | "eth_accounts"
   | "eth_sendTransaction"
   | "eth_signTypedData_v4"
+  | "eth_blockNumber"
   | "eth_getTransactionByHash"
   | "personal_sign"
   | "wallet_requestPermissions"
