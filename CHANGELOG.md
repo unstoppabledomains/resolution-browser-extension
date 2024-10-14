@@ -1,6 +1,7 @@
 ## 3.1.35
 * Fix bug related to validation failures during asset selection
-* Do not show NFTs in token list
+* Fix bug displaying gas symbol in transaction list
+* Do not show domain NFTs in token list
 
 ## 3.1.34
 * Sherlock Assistant magnifying glass
