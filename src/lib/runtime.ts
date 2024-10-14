@@ -45,7 +45,8 @@ export const getManifestVersion = () => {
   try {
     return chrome.runtime.getManifest().version;
   } catch (e) {
-    Logger.warn("unable to determine version", e);
+    // ignore error, which can happen if this method is called from
+    // a context where chrome.runtime is not available.
   }
   return undefined;
 };

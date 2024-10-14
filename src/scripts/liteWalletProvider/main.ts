@@ -172,6 +172,7 @@ class LiteWalletProvider extends EventEmitter {
         case "eth_sendTransaction":
           result = await this.handleSendTransaction(clone(request.params));
           break;
+        case "eth_blockNumber":
         case "eth_getTransactionByHash":
           // not implemented, but stubbed out with "not found" to prevent runtime
           // errors on apps that call this method
