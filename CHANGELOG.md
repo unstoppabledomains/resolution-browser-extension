@@ -1,3 +1,7 @@
+## 3.1.36
+* Fix bug when listing NFT tokens
+* Improve UX for popup windows
+
 ## 3.1.35
 * Fix bug related to validation failures during asset selection
 * Fix bug displaying gas symbol in transaction list
