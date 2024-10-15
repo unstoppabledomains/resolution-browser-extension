@@ -1,3 +1,6 @@
+## 3.0.19
+* Add .chomp TLDs support
+
 ## 3.0.18
 * Add .bald TLDs support
 
