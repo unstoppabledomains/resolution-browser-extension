@@ -1,3 +1,6 @@
+## 3.1.37
+* Enroll 2FA from settings menu
+
 ## 3.1.36
 * Fix bug when listing NFT tokens
 * Improve UX for popup windows
