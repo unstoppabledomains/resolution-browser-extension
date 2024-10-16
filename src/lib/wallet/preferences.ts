@@ -25,6 +25,9 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
       if (basePreferences.Scanning === undefined) {
         basePreferences.Scanning = defaultPreferences.Scanning;
       }
+      if (basePreferences.TwoFactorAuth === undefined) {
+        basePreferences.TwoFactorAuth = defaultPreferences.TwoFactorAuth;
+      }
 
       // return normalized preferences
       return basePreferences;
@@ -53,6 +56,9 @@ export const getDefaultPreferences = (): WalletPreferences => {
         "https://ud-staging.com",
         "https://www.ud-staging.com",
       ],
+    },
+    TwoFactorAuth: {
+      Enabled: false,
     },
   };
 };
