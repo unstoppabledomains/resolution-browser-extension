@@ -9,6 +9,9 @@ export interface WalletPreferences {
     Enabled: boolean;
     IgnoreOrigins: string[];
   };
+  TwoFactorAuth: {
+    Enabled: boolean;
+  };
   VersionInfo: string;
   WalletEnabled: boolean;
 }

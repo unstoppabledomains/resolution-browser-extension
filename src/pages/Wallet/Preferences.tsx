@@ -28,6 +28,8 @@ import config from "../../config";
 import {getManifestVersion, setIcon} from "../../lib/runtime";
 import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 import {notifyXmtpServiceWorker} from "../../lib/xmtp/state";
+import {TwoFactorModal} from "./TwoFactorModal";
+import {useFlags} from "launchdarkly-react-client-sdk";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -36,10 +38,12 @@ interface PreferencesProps {
 export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
+  const flags = useFlags();
   const {preferences, setPreferences} = usePreferences();
   const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
   const [account, setAccount] = useState<string>();
+  const [isTwoFactorOpen, setIsTwoFactorOpen] = useState(false);
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -76,6 +80,21 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     preferences.Scanning.Enabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
+  };
+
+  const handleTwoFactorClicked = () => {
+    // initialize scanning preferences if required
+    if (!preferences.TwoFactorAuth) {
+      const defaultPreferences = getDefaultPreferences();
+      preferences.TwoFactorAuth = defaultPreferences.TwoFactorAuth;
+    }
+
+    // open the two-factor modal
+    setIsTwoFactorOpen(true);
+  };
+
+  const handleTwoFactorClose = () => {
+    setIsTwoFactorOpen(false);
   };
 
   const handleMessaging = async (
@@ -129,6 +148,26 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
             </Box>
           ) : (
             <Box className={classes.contentContainer} mb={1} mt={-3}>
+              {flags.extensionEnableTotp && (
+                <PreferenceSection
+                  title="Two-Factor Authentication"
+                  description="Two-factor authentication (2FA) is highly recommended to ensure your wallet is secure. Use any authenticator app, such as Google Authenticator."
+                >
+                  <Button
+                    className={classes.button}
+                    onClick={handleTwoFactorClicked}
+                    variant={
+                      preferences?.TwoFactorAuth?.Enabled
+                        ? "outlined"
+                        : "contained"
+                    }
+                  >
+                    {preferences?.TwoFactorAuth?.Enabled
+                      ? "Disable 2FA"
+                      : "Enable 2FA"}
+                  </Button>
+                </PreferenceSection>
+              )}
               <PreferenceSection
                 title={t("extension.sherlockAssistant")}
                 description={t("extension.sherlockAssistantDescription")}
@@ -139,20 +178,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     <Checkbox
                       checked={preferences?.Scanning?.Enabled}
                       onChange={handleSherlockAssistant}
-                    />
-                  }
-                />
-              </PreferenceSection>
-              <PreferenceSection
-                title={t("push.messages")}
-                description={t("push.description")}
-              >
-                <FormControlLabel
-                  label={`${t("manage.enable")} ${t("push.messages")}`}
-                  control={
-                    <Checkbox
-                      checked={preferences?.MessagingEnabled}
-                      onChange={handleMessaging}
                     />
                   }
                 />
@@ -222,6 +247,20 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 )}
               </PreferenceSection>
               <PreferenceSection
+                title={t("push.messages")}
+                description={t("push.description")}
+              >
+                <FormControlLabel
+                  label={`${t("manage.enable")} ${t("push.messages")}`}
+                  control={
+                    <Checkbox
+                      checked={preferences?.MessagingEnabled}
+                      onChange={handleMessaging}
+                    />
+                  }
+                />
+              </PreferenceSection>
+              <PreferenceSection
                 title={t("extension.decentralizedBrowsing")}
                 description={t("extension.decentralizedBrowsingDescription")}
               >
@@ -243,6 +282,14 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
           )}
         </Box>
       </Modal>
+      {isTwoFactorOpen && (
+        <TwoFactorModal
+          open={isTwoFactorOpen}
+          onClose={handleTwoFactorClose}
+          preferences={preferences}
+          setPreferences={setPreferences}
+        />
+      )}
     </Box>
   );
 };
