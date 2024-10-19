@@ -59,7 +59,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
       // if not enabled, retrieve QR code data
       if (!enabled) {
         const challenge = await getTwoFactorChallenge(accessToken);
-        const encodedChallenge = `otpauth://totp/${emailAddress}?secret=${challenge}`;
+        const encodedChallenge = `otpauth://totp/${encodeURIComponent(emailAddress)}?secret=${challenge}`;
         setQrCodeContent(encodedChallenge);
       }
     };
