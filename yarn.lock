@@ -4878,7 +4878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@latest, @unstoppabledomains/config@npm:0.0.13":
+"@unstoppabledomains/config@npm:0.0.13, @unstoppabledomains/config@npm:latest":
   version: 0.0.13
   resolution: "@unstoppabledomains/config@npm:0.0.13"
   dependencies:
@@ -4906,9 +4906,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.50-browser-extension.17":
-  version: 0.0.50-browser-extension.17
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.50-browser-extension.17"
+"@unstoppabledomains/ui-components@npm:0.0.51":
+  version: 0.0.51
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.51"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5007,7 +5007,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 0abdc7d834499c6c33ef6108454cfa4bc255d289793a7e81deb550dc3ea2c8299b267ba472331f0ac4be4b3dcb8effe3a4e0fc6d8fe3f9130f4dc42f9cceadb5
+  checksum: a4b07d57b2b8a4e09dfa7a1bfa44be8ab6b60b4c91fe2eee454bd439e95fbaac83fb57848a1c94bed3e3e0c431f7d2809e573c3ad99d53191fea0e012fdda22d
   languageName: node
   linkType: hard
 
@@ -5058,6 +5058,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wagmi/connectors@patch:@wagmi/connectors@npm%3A3.1.11#./.yarn/patches/@wagmi-connectors-npm-3.1.11-16ec0f5243.patch::locator=ud-extension%40workspace%3A.":
+  version: 3.1.11
+  resolution: "@wagmi/connectors@patch:@wagmi/connectors@npm%3A3.1.11#./.yarn/patches/@wagmi-connectors-npm-3.1.11-16ec0f5243.patch::version=3.1.11&hash=84fe2f&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@coinbase/wallet-sdk": ^3.6.6
+    "@safe-global/safe-apps-provider": ^0.18.1
+    "@safe-global/safe-apps-sdk": ^8.1.0
+    "@walletconnect/ethereum-provider": 2.11.0
+    "@walletconnect/legacy-provider": ^2.0.0
+    "@walletconnect/modal": 2.6.2
+    "@walletconnect/utils": 2.11.0
+    abitype: 0.8.7
+    eventemitter3: ^4.0.7
+  peerDependencies:
+    typescript: ">=5.0.4"
+    viem: ">=0.3.35"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: fe57d34fabc7fdd6b2ced7700ed78d32cb1021b1783317c803440627b5738ffcb24add2efd1231b90f621d8c7e18a3c9a6e50f09cbca0f75dfa969190c50e79f
+  languageName: node
+  linkType: hard
+
 "@wagmi/core@npm:1.4.13":
   version: 1.4.13
   resolution: "@wagmi/core@npm:1.4.13"
@@ -5073,6 +5096,24 @@ __metadata:
     typescript:
       optional: true
   checksum: e35c5f8ec3ca066cab6affcb551c784e44bcce07742913ebb1285cc58648f5b2cab98d7a014cd6b8cfa1afb2eaa7047523f17d90519982458d2c9b3b6f7e2c9f
+  languageName: node
+  linkType: hard
+
+"@wagmi/core@patch:@wagmi/core@npm%3A1.4.13#./.yarn/patches/@wagmi-core-npm-1.4.13-4b4dc5df85.patch::locator=ud-extension%40workspace%3A.":
+  version: 1.4.13
+  resolution: "@wagmi/core@patch:@wagmi/core@npm%3A1.4.13#./.yarn/patches/@wagmi-core-npm-1.4.13-4b4dc5df85.patch::version=1.4.13&hash=7d44ab&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@wagmi/connectors": 3.1.11
+    abitype: 0.8.7
+    eventemitter3: ^4.0.7
+    zustand: ^4.3.1
+  peerDependencies:
+    typescript: ">=5.0.4"
+    viem: ">=0.3.35"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 9683ce3aea3acfb0840d80390ebae809b75f0d57b20bf37aa8572693e2c8cc19b18df447a16942b282dfaa97d87e5465298db7d35655b568dd16772ef7b870de
   languageName: node
   linkType: hard
 
@@ -5166,6 +5207,24 @@ __metadata:
     "@walletconnect/utils": 2.11.0
     events: ^3.3.0
   checksum: 8b45eb7e6679d340e6d976c6c10b10b4ce0435b959d35b627677d946b9f152f20fc242e581a16e9b6f7ed98c5352748213856e342f55f3dbd4cd9130965d542c
+  languageName: node
+  linkType: hard
+
+"@walletconnect/ethereum-provider@patch:@walletconnect/ethereum-provider@npm%3A2.11.0#./.yarn/patches/@walletconnect-ethereum-provider-npm-2.11.0-f89f9e67ee.patch::locator=ud-extension%40workspace%3A.":
+  version: 2.11.0
+  resolution: "@walletconnect/ethereum-provider@patch:@walletconnect/ethereum-provider@npm%3A2.11.0#./.yarn/patches/@walletconnect-ethereum-provider-npm-2.11.0-f89f9e67ee.patch::version=2.11.0&hash=e25a53&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@walletconnect/jsonrpc-http-connection": ^1.0.7
+    "@walletconnect/jsonrpc-provider": ^1.0.13
+    "@walletconnect/jsonrpc-types": ^1.0.3
+    "@walletconnect/jsonrpc-utils": ^1.0.8
+    "@walletconnect/modal": ^2.6.2
+    "@walletconnect/sign-client": 2.11.0
+    "@walletconnect/types": 2.11.0
+    "@walletconnect/universal-provider": 2.11.0
+    "@walletconnect/utils": 2.11.0
+    events: ^3.3.0
+  checksum: 7cda40d0bfaab73cc6169bae81ebfbec769c02482ca9f511c923282b98c6e52200cc3ce435315bce41ce6ce3fadf52eccb89edfd0ae94da006122fc73abd007b
   languageName: node
   linkType: hard
 
@@ -5384,13 +5443,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/modal@npm:2.6.2, @walletconnect/modal@npm:^2.6.2":
+"@walletconnect/modal@npm:2.6.2":
   version: 2.6.2
   resolution: "@walletconnect/modal@npm:2.6.2"
   dependencies:
     "@walletconnect/modal-core": 2.6.2
     "@walletconnect/modal-ui": 2.6.2
   checksum: 68b354d49960b96d22de0e47a3801df27c01a3e96ec5fbde3ca6df1344ca2b20668b0c4d58fe1803f5670ac7b7b4c6f5b7b405e354f5f9eaff5cca147c13de9c
+  languageName: node
+  linkType: hard
+
+"@walletconnect/modal@patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch::locator=ud-extension%40workspace%3A.":
+  version: 2.6.2
+  resolution: "@walletconnect/modal@patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch::version=2.6.2&hash=0bfdd8&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@walletconnect/modal-core": 2.6.2
+    "@walletconnect/modal-ui": 2.6.2
+  checksum: 9efa9ae364659726d0ddbcccda2328c650c7ced5798468b4cbca304fb0cec7038a514211c9a23082cc838b63ad62cc523a545f82bf7facf640191b87dfd77707
   languageName: node
   linkType: hard
 
@@ -16893,7 +16962,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.13
-    "@unstoppabledomains/ui-components": 0.0.50-browser-extension.17
+    "@unstoppabledomains/ui-components": 0.0.51
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0
@@ -17494,9 +17563,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch::locator=ud-extension%40workspace%3A.":
+"viem@patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch::version=2.7.15&hash=b64194&locator=ud-extension%40workspace%3A.":
   version: 2.7.15
-  resolution: "viem@patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch::version=2.7.15&hash=2372b8&locator=ud-extension%40workspace%3A."
+  resolution: "viem@patch:viem@npm%3A2.7.15#./.yarn/patches/viem-npm-2.7.15-13d124cded.patch::version=2.7.15&hash=b64194&locator=ud-extension%40workspace%3A."
   dependencies:
     "@adraffy/ens-normalize": 1.10.0
     "@noble/curves": 1.2.0
@@ -17511,7 +17580,28 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: d808919eca32a0e4ee130bcc7a91f89c626a84c133d3dfa5820f2a078becd64a1c7777936954548230fcf333ffeaee3673d387314c4be69aaf069cca87d7c866
+  checksum: 301c42e848cf5b3d57f6fa2bd4bc46be09547ce63ea63c598ea188e83625538f74a8011e8d3ea7b96e617c2ca34a2ceb837f5a669467f3cd44530cb87cc8f7d9
+  languageName: node
+  linkType: hard
+
+"viem@patch:viem@patch%3Aviem@npm%253A2.7.15%23./.yarn/patches/viem-npm-2.7.15-13d124cded.patch%3A%3Aversion=2.7.15&hash=b64194&locator=ud-extension%2540workspace%253A.#./.yarn/patches/viem-patch-396c1adec8.patch::locator=ud-extension%40workspace%3A.":
+  version: 2.7.15
+  resolution: "viem@patch:viem@patch%3Aviem@npm%253A2.7.15%23./.yarn/patches/viem-npm-2.7.15-13d124cded.patch%3A%3Aversion=2.7.15&hash=b64194&locator=ud-extension%2540workspace%253A.#./.yarn/patches/viem-patch-396c1adec8.patch::version=2.7.15&hash=4b3fd1&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@adraffy/ens-normalize": 1.10.0
+    "@noble/curves": 1.2.0
+    "@noble/hashes": 1.3.2
+    "@scure/bip32": 1.3.2
+    "@scure/bip39": 1.2.1
+    abitype: 1.0.0
+    isows: 1.0.3
+    ws: 8.13.0
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: c4ffca6ae8d13627bc6bee5ca441a5ea8aecfa6d9134ddb6ff7c8aa980fe00bdfd8c4a8153352c1052a4f8aaff36c989ef76a3130fc3e492221508e5a4748955
   languageName: node
   linkType: hard
 

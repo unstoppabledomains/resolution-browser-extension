@@ -38,6 +38,7 @@ import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/f
 import usePreferences from "../../hooks/usePreferences";
 import useConnections from "../../hooks/useConnections";
 import {getProviderRequest} from "../../lib/wallet/request";
+import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 
 enum ConnectionState {
   ACCOUNT,
@@ -88,6 +89,13 @@ const Connect: React.FC = () => {
       try {
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
+          // check fireblocks state in chrome storage, and wait for a value to
+          // be present if it is found to prevent unnecessary redirect.
+          if (await chromeStorageGet(StorageSyncKey.FireblocksState, "local")) {
+            return;
+          }
+
+          // redirect to wallet sign in page
           navigate("/wallet");
           return;
         }
@@ -130,11 +138,14 @@ const Connect: React.FC = () => {
         }
 
         // determine app connection status
-        const connectedHostname = new URL(connectionSource.url).hostname;
+        const connectedHostname = connectionSource
+          ? new URL(connectionSource.url).hostname
+          : undefined;
         setIsConnected(
-          Object.keys(connections).filter(
-            (c) => c.toLowerCase() === connectedHostname,
-          ).length > 0,
+          connectedHostname &&
+            Object.keys(connections).filter(
+              (c) => c.toLowerCase() === connectedHostname,
+            ).length > 0,
         );
 
         // set web3 dependencies for connected wallet to enable prompts to
@@ -167,7 +178,7 @@ const Connect: React.FC = () => {
       }
     };
     void loadWallet();
-  }, [isMounted, connections, preferences]);
+  }, [isMounted, connections, preferences, walletState]);
 
   useEffect(() => {
     // only register listeners with valid web3deps
@@ -275,6 +286,7 @@ const Connect: React.FC = () => {
           case "queueRequest":
           case "signInRequest":
           case "xmtpReadyRequest":
+          case "prepareXmtpRequest":
             return;
           default:
             // other unsupported method types can be ignored, but we'll show

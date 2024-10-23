@@ -18,6 +18,7 @@ import {
   Link,
   Modal,
   DomainProfileKeys,
+  localStorageWrapper,
 } from "@unstoppabledomains/ui-components";
 import {clearAllConnectedSites} from "../../lib/wallet/evm/connection";
 import MainScreen from "../Legacy/MainScreen";
@@ -107,7 +108,9 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
 
     // sign the user in if enabling
     if (preferences.MessagingEnabled) {
-      const address = localStorage.getItem(DomainProfileKeys.AuthAddress);
+      const address = await localStorageWrapper.getItem(
+        DomainProfileKeys.AuthAddress,
+      );
       if (address) {
         await notifyXmtpServiceWorker(address);
       }

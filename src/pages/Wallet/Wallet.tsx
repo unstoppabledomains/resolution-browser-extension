@@ -14,6 +14,8 @@ import {
   isEthAddress,
   useTranslationContext,
   useUnstoppableMessaging,
+  localStorageWrapper,
+  useFireblocksAccessToken,
 } from "@unstoppabledomains/ui-components";
 import config from "../../config";
 import useIsMounted from "react-is-mounted-hook";
@@ -54,7 +56,10 @@ import {
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
-import {notifyXmtpServiceWorker} from "../../lib/xmtp/state";
+import {
+  notifyXmtpServiceWorker,
+  prepareXmtpInBackground,
+} from "../../lib/xmtp/state";
 import {PermissionCta} from "./PermissionCta";
 
 const enum SnackbarKey {
@@ -67,6 +72,7 @@ const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
   const navigate = useNavigate();
   const [walletState] = useFireblocksState();
+  const getAccessToken = useFireblocksAccessToken();
   const {classes} = useExtensionStyles();
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
@@ -115,12 +121,20 @@ const WalletComp: React.FC = () => {
         const isGranted = await hasOptionalPermissions();
         setIsPermissionGranted(isGranted);
 
+        // retrieve any associated provider request
+        const providerRequest = getProviderRequest();
+
         // retrieve state of logged in wallet (if any)
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
+          // check fireblocks state in chrome storage, and wait for a value to
+          // be present if it is found to prevent sign in CTA flicker.
+          if (await chromeStorageGet(StorageSyncKey.FireblocksState, "local")) {
+            return;
+          }
+
           // show the sign in CTA unless a provider request is present that indicates
           // an sign in has already been initiated by the user
-          const providerRequest = getProviderRequest();
           if (providerRequest?.type === "signInRequest") {
             // set new user status for the sign in request
             setIsNewUser(providerRequest.params[0]);
@@ -153,6 +167,11 @@ const WalletComp: React.FC = () => {
           return;
         }
 
+        // if there is a provider request at this point return
+        if (providerRequest) {
+          return;
+        }
+
         // check whether there are popups that need focus
         if (await handleFocusPopups()) {
           return;
@@ -180,10 +199,21 @@ const WalletComp: React.FC = () => {
           return;
         }
         setAuthAddress(accountEvmAddresses[0].address);
-        localStorage.setItem(
+        await localStorageWrapper.setItem(
           DomainProfileKeys.AuthAddress,
           accountEvmAddresses[0].address,
         );
+
+        // validate the access token can be retrieved using the established
+        // fireblocks saved state
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+          setShowSignInCta(true);
+          return;
+        }
+
+        // clear the sign in CTA
+        setShowSignInCta(false);
 
         // resolve the domain of this address (if available)
         const resolution = await getAddressMetadata(
@@ -191,7 +221,7 @@ const WalletComp: React.FC = () => {
         );
         if (resolution?.name) {
           setAuthDomain(resolution.name);
-          localStorage.setItem(
+          await localStorageWrapper.setItem(
             DomainProfileKeys.AuthDomain,
             resolution.name.toLowerCase(),
           );
@@ -206,7 +236,7 @@ const WalletComp: React.FC = () => {
       }
     };
     void loadWallet();
-  }, [isMounted, authComplete]);
+  }, [isMounted, authComplete, walletState]);
 
   // prompt for permissions if required
   useEffect(() => {
@@ -233,7 +263,21 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
-  // complete page load steps after messaging is ready
+  // ensure XMTP is initialized once the page is finished loading
+  useEffect(() => {
+    if (!authAddress || !isLoaded || isChatReady) {
+      return;
+    }
+
+    // ensure XMTP is prepared if not yet available
+    const prepareXmtp = async () => {
+      const accessToken = await getAccessToken();
+      await prepareXmtpInBackground(accessToken, authAddress);
+    };
+    void prepareXmtp();
+  }, [authAddress, isChatReady, isLoaded]);
+
+  // open XMTP chat panel if requested
   useEffect(() => {
     if (!authAddress || !isChatReady) {
       return;

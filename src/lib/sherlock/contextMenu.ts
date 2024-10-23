@@ -174,7 +174,6 @@ export class ContextMenu {
    * **********************/
 
   async handleMessageMenu() {
-    console.log("AJQ opening", currentFocussedWindowId);
     await openSidePanel({windowId: currentFocussedWindowId});
   }
 

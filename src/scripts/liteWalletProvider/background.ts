@@ -10,6 +10,7 @@ import {
 import {getWalletPreferences} from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
 import {waitForXmtpMessages} from "../../lib/xmtp/listener";
+import {prepareXmtpAccount} from "../../lib/xmtp/prepare";
 import {ConnectedSite} from "../../types/wallet/connection";
 import {
   NotConnectedError,
@@ -75,6 +76,15 @@ export const backgroundEventListener = (
       case "xmtpReadyRequest":
         if (request.params && request.params.length > 0) {
           void waitForXmtpMessages(request.params[0]);
+        }
+        break;
+      case "prepareXmtpRequest":
+        if (request.params && request.params.length > 0) {
+          // parse the parameters and prepare the account
+          const params = JSON.parse(request.params[0]);
+          if (params?.accessToken && params.address) {
+            void prepareXmtpAccount(params.accessToken, params.address);
+          }
         }
         break;
     }
