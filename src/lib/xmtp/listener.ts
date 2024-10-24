@@ -30,6 +30,7 @@ export const waitForXmtpMessages = async (xmtpKey?: string) => {
   await xmtpMutex.runExclusive(async () => {
     // no work to do if client already initialized
     if (xmtpClient) {
+      Logger.log("Already listening for XMTP messages");
       return;
     }
 

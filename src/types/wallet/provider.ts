@@ -108,7 +108,8 @@ export type ResponseType =
   | "switchChainResponse"
   | "getPreferencesResponse"
   | "getDomainProfileResponse"
-  | "getResolutionResponse";
+  | "getResolutionResponse"
+  | "prepareXmtpResponse";
 export const isResponseType = (v: string): v is ResponseType => {
   return isExternalRequestType(v.replaceAll("Response", "Request"));
 };

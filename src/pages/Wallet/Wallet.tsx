@@ -77,7 +77,8 @@ const WalletComp: React.FC = () => {
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
   const {preferences, setPreferences, refreshPreferences} = usePreferences();
-  const {setOpenChat, isChatReady, setIsChatOpen} = useUnstoppableMessaging();
+  const {isChatReady, setIsChatReady, setOpenChat, setIsChatOpen} =
+    useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
@@ -231,6 +232,7 @@ const WalletComp: React.FC = () => {
         }
       } catch (e) {
         Logger.error(e, "Popup", "error loading wallet in extension popup");
+        await handleLogout(false);
       } finally {
         setIsLoaded(true);
       }
@@ -274,7 +276,16 @@ const WalletComp: React.FC = () => {
       const accessToken = await getAccessToken();
       await prepareXmtpInBackground(accessToken, authAddress);
     };
+
+    // prepare XMTP for use
     void prepareXmtp();
+
+    // wait for XMTP to be ready
+    chrome.storage.local.onChanged.addListener((changes) => {
+      if (changes[StorageSyncKey.XmtpKey]) {
+        setIsChatReady(true);
+      }
+    });
   }, [authAddress, isChatReady, isLoaded]);
 
   // open XMTP chat panel if requested
@@ -358,7 +369,7 @@ const WalletComp: React.FC = () => {
     handleClose();
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (close = true) => {
     // clear extension storage
     await chromeStorageClear("local");
     await chromeStorageClear("session");
@@ -389,7 +400,9 @@ const WalletComp: React.FC = () => {
     await setIcon("default");
 
     // close the extension window
-    handleClose();
+    if (close) {
+      handleClose();
+    }
   };
 
   const handleUnexpectedClose = (m: any) => (_e: BeforeUnloadEvent) => {

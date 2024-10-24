@@ -1,7 +1,5 @@
-import {
-  localStorageWrapper,
-  ReactSigner,
-} from "@unstoppabledomains/ui-components";
+import {localStorageWrapper} from "@unstoppabledomains/ui-components/components/Chat/storage";
+import {ReactSigner} from "@unstoppabledomains/ui-components/lib/fireBlocks/reactSigner";
 import {FireblocksStateKey} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 import {signMessage} from "@unstoppabledomains/ui-components/actions/fireBlocksActions";
 import type {Signer} from "ethers";

@@ -73,18 +73,12 @@ export const backgroundEventListener = (
       case "queueRequest":
         void handleQueueUpdate(request);
         break;
+      case "prepareXmtpRequest":
+        void handlePrepareXmtp(request, popupResponseHandler);
+        break;
       case "xmtpReadyRequest":
         if (request.params && request.params.length > 0) {
           void waitForXmtpMessages(request.params[0]);
-        }
-        break;
-      case "prepareXmtpRequest":
-        if (request.params && request.params.length > 0) {
-          // parse the parameters and prepare the account
-          const params = JSON.parse(request.params[0]);
-          if (params?.accessToken && params.address) {
-            void prepareXmtpAccount(params.accessToken, params.address);
-          }
         }
         break;
     }
@@ -357,6 +351,26 @@ const handleFetchDomainProfile = async (
     type: getResponseType("getDomainProfileRequest"),
     profile: profileData,
   });
+};
+
+const handlePrepareXmtp = async (
+  request: ProviderRequest,
+  popupResponseHandler: (response: ProviderEventResponse) => void,
+) => {
+  // validate params are present
+  if (!request?.params || request.params.length === 0) {
+    return;
+  }
+
+  // parse the parameters and prepare the account
+  const params = JSON.parse(request.params[0]);
+  if (params?.accessToken && params.address) {
+    await prepareXmtpAccount(params.accessToken, params.address);
+    handleResponse(popupResponseHandler, {
+      type: getResponseType("prepareXmtpRequest"),
+      address: params.address,
+    });
+  }
 };
 
 const handleFetchResolution = async (

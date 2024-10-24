@@ -1210,6 +1210,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@npm%3A12.5.0-ext.3#./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch::locator=ud-extension%40workspace%3A.":
+  version: 12.5.0-ext.3
+  resolution: "@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@npm%3A12.5.0-ext.3#./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch::version=12.5.0-ext.3&hash=fe0425&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@babel/runtime": ^7.24.5
+    "@fireblocks/ncw-js-infra": 1.0.21-ext.5
+    jwt-decode: ^3.1.2
+    node-forge: ^1.3.1
+  checksum: 258373a3d64864f07609b54000456883260938094759ac2f588f4b5aa40c3c9c7f5d2630ddba9dcdb277359a2baf5bdf8d56a6dc063faef43c56df1dd646689b
+  languageName: node
+  linkType: hard
+
 "@floating-ui/core@npm:^1.6.0":
   version: 1.6.5
   resolution: "@floating-ui/core@npm:1.6.5"
@@ -4906,9 +4918,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.51":
-  version: 0.0.51
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.51"
+"@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.1":
+  version: 0.0.51-browser-extension.1
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.1"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5007,7 +5019,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: a4b07d57b2b8a4e09dfa7a1bfa44be8ab6b60b4c91fe2eee454bd439e95fbaac83fb57848a1c94bed3e3e0c431f7d2809e573c3ad99d53191fea0e012fdda22d
+  checksum: 7a2895b3f5154a752f061d8ccac61d4543c615ed2464bfdcbb357a01a303699f4c07ee8e88e7ec48749dfcbccdd9b8eea0892bbba36a190988378615926790a2
   languageName: node
   linkType: hard
 
@@ -5892,7 +5904,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/content-type-remote-attachment@npm:^1.1.9":
+"@xmtp/content-type-remote-attachment@npm:1.1.9":
   version: 1.1.9
   resolution: "@xmtp/content-type-remote-attachment@npm:1.1.9"
   dependencies:
@@ -5901,6 +5913,18 @@ __metadata:
     "@xmtp/proto": ^3.61.1
     "@xmtp/xmtp-js": ^11.6.3
   checksum: 9b0aba4daaaab5f1552e67c0fbda643f773d8605fea3b3c4adf021007befdc503c5ca00c9ef6003644752269315a8a8fcd8e6334fe996bd357ac2a101d204199
+  languageName: node
+  linkType: hard
+
+"@xmtp/content-type-remote-attachment@patch:@xmtp/content-type-remote-attachment@npm%3A1.1.9#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-1.1.9-0f06635638.patch::locator=ud-extension%40workspace%3A.":
+  version: 1.1.9
+  resolution: "@xmtp/content-type-remote-attachment@patch:@xmtp/content-type-remote-attachment@npm%3A1.1.9#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-1.1.9-0f06635638.patch::version=1.1.9&hash=e213f8&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@noble/secp256k1": ^1.7.1
+    "@xmtp/content-type-primitives": ^1.0.1
+    "@xmtp/proto": ^3.61.1
+    "@xmtp/xmtp-js": ^11.6.3
+  checksum: b19cd2f9124f0f40b212fabd8535e6a7f7a4c87628b0674cb933a469355852f9b91fd92440deb6e7f22276eb1e4f0fe5f6c6b0a84b1cafd9906af001d1634b73
   languageName: node
   linkType: hard
 
@@ -16962,7 +16986,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.13
-    "@unstoppabledomains/ui-components": 0.0.51
+    "@unstoppabledomains/ui-components": 0.0.51-browser-extension.1
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0

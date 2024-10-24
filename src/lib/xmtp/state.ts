@@ -1,4 +1,4 @@
-import {getXmtpLocalKey} from "@unstoppabledomains/ui-components";
+import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
 import {Logger} from "../logger";
 import {fetcher} from "@xmtp/proto";
 import {sendMessageToBackground} from "../wallet/message";
