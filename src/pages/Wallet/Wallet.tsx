@@ -14,6 +14,8 @@ import {
   isEthAddress,
   useTranslationContext,
   useUnstoppableMessaging,
+  localStorageWrapper,
+  useFireblocksAccessToken,
 } from "@unstoppabledomains/ui-components";
 import config from "../../config";
 import useIsMounted from "react-is-mounted-hook";
@@ -54,8 +56,12 @@ import {
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
-import {notifyXmtpServiceWorker} from "../../lib/xmtp/state";
+import {
+  notifyXmtpServiceWorker,
+  prepareXmtpInBackground,
+} from "../../lib/xmtp/state";
 import {PermissionCta} from "./PermissionCta";
+import queryString from "query-string";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -67,11 +73,13 @@ const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
   const navigate = useNavigate();
   const [walletState] = useFireblocksState();
+  const getAccessToken = useFireblocksAccessToken();
   const {classes} = useExtensionStyles();
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
   const {preferences, setPreferences, refreshPreferences} = usePreferences();
-  const {setOpenChat, isChatReady, setIsChatOpen} = useUnstoppableMessaging();
+  const {isChatReady, setIsChatReady, setOpenChat, setIsChatOpen} =
+    useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
@@ -115,12 +123,20 @@ const WalletComp: React.FC = () => {
         const isGranted = await hasOptionalPermissions();
         setIsPermissionGranted(isGranted);
 
+        // retrieve any associated provider request
+        const providerRequest = getProviderRequest();
+
         // retrieve state of logged in wallet (if any)
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
+          // check fireblocks state in chrome storage, and wait for a value to
+          // be present if it is found to prevent sign in CTA flicker.
+          if (await chromeStorageGet(StorageSyncKey.FireblocksState, "local")) {
+            return;
+          }
+
           // show the sign in CTA unless a provider request is present that indicates
           // an sign in has already been initiated by the user
-          const providerRequest = getProviderRequest();
           if (providerRequest?.type === "signInRequest") {
             // set new user status for the sign in request
             setIsNewUser(providerRequest.params[0]);
@@ -153,6 +169,11 @@ const WalletComp: React.FC = () => {
           return;
         }
 
+        // if there is a provider request at this point return
+        if (providerRequest) {
+          return;
+        }
+
         // check whether there are popups that need focus
         if (await handleFocusPopups()) {
           return;
@@ -180,33 +201,30 @@ const WalletComp: React.FC = () => {
           return;
         }
         setAuthAddress(accountEvmAddresses[0].address);
-        localStorage.setItem(
+        await localStorageWrapper.setItem(
           DomainProfileKeys.AuthAddress,
           accountEvmAddresses[0].address,
         );
 
-        // resolve the domain of this address (if available)
-        const resolution = await getAddressMetadata(
-          accountEvmAddresses[0].address,
-        );
-        if (resolution?.name) {
-          setAuthDomain(resolution.name);
-          localStorage.setItem(
-            DomainProfileKeys.AuthDomain,
-            resolution.name.toLowerCase(),
-          );
-          if (resolution?.imageType !== "default") {
-            setAuthAvatar(resolution.avatarUrl);
-          }
+        // validate the access token can be retrieved using the established
+        // fireblocks saved state
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+          setShowSignInCta(true);
+          return;
         }
+
+        // clear the sign in CTA
+        setShowSignInCta(false);
       } catch (e) {
         Logger.error(e, "Popup", "error loading wallet in extension popup");
+        await handleLogout(false);
       } finally {
         setIsLoaded(true);
       }
     };
     void loadWallet();
-  }, [isMounted, authComplete]);
+  }, [isMounted, authComplete, walletState]);
 
   // prompt for permissions if required
   useEffect(() => {
@@ -215,6 +233,29 @@ const WalletComp: React.FC = () => {
     }
     setShowPermissionCta(authAddress && !isPermissionGranted);
   }, [authAddress, isPermissionGranted, showPermissionCta]);
+
+  // resolve the domain for wallet address
+  useEffect(() => {
+    if (!authAddress) {
+      return;
+    }
+
+    const resolveName = async () => {
+      // resolve the domain of this address (if available)
+      const resolution = await getAddressMetadata(authAddress);
+      if (resolution?.name) {
+        setAuthDomain(resolution.name);
+        await localStorageWrapper.setItem(
+          DomainProfileKeys.AuthDomain,
+          resolution.name.toLowerCase(),
+        );
+        if (resolution?.imageType !== "default") {
+          setAuthAvatar(resolution.avatarUrl);
+        }
+      }
+    };
+    void resolveName();
+  }, [authAddress]);
 
   // complete page load steps after sign in confirmed
   useEffect(() => {
@@ -233,7 +274,17 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
-  // complete page load steps after messaging is ready
+  // ensure XMTP is initialized once the page is finished loading
+  useEffect(() => {
+    if (!authAddress || !isLoaded || isChatReady) {
+      return;
+    }
+
+    // prepare XMTP for use
+    void handlePrepareXmtp();
+  }, [authAddress, isChatReady, isLoaded]);
+
+  // open XMTP chat panel if requested
   useEffect(() => {
     if (!authAddress || !isChatReady) {
       return;
@@ -264,19 +315,8 @@ const WalletComp: React.FC = () => {
     const providerRequest = getProviderRequest();
     if (providerRequest) {
       if (providerRequest.type === "signInRequest") {
-        await Promise.all([
-          // clear badge count
-          await setBadgeCount(0),
-
-          // create a notification to indicate sign in was successful
-          await createNotification(
-            `signIn${Date.now()}`,
-            t("wallet.title"),
-            t("wallet.readyToUse"),
-            undefined,
-            2,
-          ),
-        ]);
+        // clear badge count
+        await setBadgeCount(0);
 
         // show the permission CTA and leave the window open if optional
         // permissions are not yet granted
@@ -284,9 +324,6 @@ const WalletComp: React.FC = () => {
           setShowPermissionCta(true);
           return;
         }
-
-        // close the window after successful login
-        handleClose();
         return;
       }
       navigate("/connect");
@@ -310,11 +347,32 @@ const WalletComp: React.FC = () => {
     );
   };
 
-  const handlePermissionGranted = async () => {
-    handleClose();
+  const handlePrepareXmtp = async () => {
+    // wait for XMTP to be ready
+    chrome.storage.local.onChanged.addListener((changes) => {
+      if (changes[StorageSyncKey.XmtpKey]) {
+        setIsChatReady(true);
+        setMessagingEnabled(true);
+      }
+    });
+
+    // request an access token and sign in to XMTP account
+    const accessToken = await getAccessToken();
+    await prepareXmtpInBackground(accessToken, authAddress);
   };
 
-  const handleLogout = async () => {
+  const handlePermissionGranted = async () => {
+    // create a notification to indicate sign in was successful
+    await createNotification(
+      `signIn${Date.now()}`,
+      t("wallet.title"),
+      t("wallet.readyToUse"),
+      undefined,
+      2,
+    );
+  };
+
+  const handleLogout = async (close = true) => {
     // clear extension storage
     await chromeStorageClear("local");
     await chromeStorageClear("session");
@@ -345,7 +403,9 @@ const WalletComp: React.FC = () => {
     await setIcon("default");
 
     // close the extension window
-    handleClose();
+    if (close) {
+      handleClose();
+    }
   };
 
   const handleUnexpectedClose = (m: any) => (_e: BeforeUnloadEvent) => {
@@ -444,8 +504,14 @@ const WalletComp: React.FC = () => {
   };
 
   const handleMessagesClicked = async () => {
+    // determine if a window ID was provided in the query string args
+    const queryStringArgs = queryString.parse(window.location.search);
+    const windowId = queryStringArgs?.parentWindowId
+      ? parseInt(queryStringArgs.parentWindowId as string)
+      : undefined;
+
     // attempt to open a side panel and close the current popup
-    if (await openSidePanel()) {
+    if (await openSidePanel({windowId})) {
       handleClose();
       return;
     }

@@ -26,10 +26,17 @@ let xmtpClient: Client = null;
 const xmtpMutex = new Mutex();
 
 export const waitForXmtpMessages = async (xmtpKey?: string) => {
+  // check XMTP preferences
+  const preferences = await getWalletPreferences();
+  if (!preferences.MessagingEnabled) {
+    return;
+  }
+
   // ensure xmtpClient singleton instance
   await xmtpMutex.runExclusive(async () => {
     // no work to do if client already initialized
     if (xmtpClient) {
+      Logger.log("Already listening for XMTP messages");
       return;
     }
 

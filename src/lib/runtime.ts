@@ -209,7 +209,7 @@ export const openSidePanel = async (opts?: {
       const windowId =
         opts?.windowId || (await chrome.windows.getCurrent())?.id;
       if (!windowId) {
-        return;
+        return false;
       }
 
       // build the URL used to open the side panel

@@ -1,0 +1,33 @@
+diff --git a/dist/chunk-TSH6VVF4.js b/dist/chunk-TSH6VVF4.js
+index 7af5f36cf4aa95922fc1a4a035b7db5136ca5f7c..9e2d911b6faf1ade7d1b7375434febb7d3d75cb5 100644
+--- a/dist/chunk-TSH6VVF4.js
++++ b/dist/chunk-TSH6VVF4.js
+@@ -1,3 +1,4 @@
++import { normalize } from "viem/ens";
+ import {
+   InjectedConnector
+ } from "./chunk-BVC4KGLQ.js";
+@@ -2583,7 +2584,6 @@ async function fetchEnsAddress({
+   chainId,
+   name
+ }) {
+-  const { normalize } = await import("viem/ens");
+   const publicClient = getPublicClient({ chainId });
+   const address = await publicClient.getEnsAddress({
+     name: normalize(name)
+@@ -2602,7 +2602,6 @@ async function fetchEnsAvatar({
+   name,
+   chainId
+ }) {
+-  const { normalize } = await import("viem/ens");
+   const publicClient = getPublicClient({ chainId });
+   const avatar = await publicClient.getEnsAvatar({ name: normalize(name) });
+   return avatar;
+@@ -2625,7 +2624,6 @@ async function fetchEnsResolver({
+   chainId,
+   name
+ }) {
+-  const { normalize } = await import("viem/ens");
+   const publicClient = getPublicClient({ chainId });
+   const resolver = await publicClient.getEnsResolver({ name: normalize(name) });
+   return resolver;

@@ -5,7 +5,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import useIsMounted from "react-is-mounted-hook";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {
-  useTranslationContext,
   useUnstoppableMessaging,
   UnstoppableMessaging,
   getBootstrapState,
@@ -23,7 +22,6 @@ export const MessageSidePanel: React.FC = () => {
     useUnstoppableMessaging();
   const [address, setAddress] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
-  const [t] = useTranslationContext();
 
   useEffect(() => {
     if (!isMounted) {
@@ -64,7 +62,7 @@ export const MessageSidePanel: React.FC = () => {
       }
     };
     void loadWallet();
-  }, [isMounted]);
+  }, [isMounted, walletState]);
 
   useEffect(() => {
     if (!address || !isChatReady) {

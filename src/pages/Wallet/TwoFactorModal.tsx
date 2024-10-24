@@ -2,9 +2,11 @@ import React, {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import {useExtensionStyles} from "../../styles/extension.styles";
-import {Modal} from "@unstoppabledomains/ui-components";
+import {
+  Modal,
+  useFireblocksAccessToken,
+} from "@unstoppabledomains/ui-components";
 import ManageInput from "@unstoppabledomains/ui-components/components/Manage/common/ManageInput";
-import useFireblocksAccessToken from "@unstoppabledomains/ui-components/hooks/useFireblocksAccessToken";
 import {setWalletPreferences} from "../../lib/wallet/preferences";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {

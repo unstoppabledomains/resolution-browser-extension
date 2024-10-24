@@ -18,6 +18,8 @@ import {
   Link,
   Modal,
   DomainProfileKeys,
+  localStorageWrapper,
+  useFireblocksAccessToken,
 } from "@unstoppabledomains/ui-components";
 import {clearAllConnectedSites} from "../../lib/wallet/evm/connection";
 import MainScreen from "../Legacy/MainScreen";
@@ -27,7 +29,7 @@ import {sendMessageToClient} from "../../lib/wallet/message";
 import config from "../../config";
 import {getManifestVersion, setIcon} from "../../lib/runtime";
 import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
-import {notifyXmtpServiceWorker} from "../../lib/xmtp/state";
+import {prepareXmtpInBackground} from "../../lib/xmtp/state";
 import {TwoFactorModal} from "./TwoFactorModal";
 import {useFlags} from "launchdarkly-react-client-sdk";
 
@@ -39,6 +41,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
   const flags = useFlags();
+  const getAccessToken = useFireblocksAccessToken();
   const {preferences, setPreferences} = usePreferences();
   const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
@@ -107,9 +110,12 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
 
     // sign the user in if enabling
     if (preferences.MessagingEnabled) {
-      const address = localStorage.getItem(DomainProfileKeys.AuthAddress);
+      const address = await localStorageWrapper.getItem(
+        DomainProfileKeys.AuthAddress,
+      );
       if (address) {
-        await notifyXmtpServiceWorker(address);
+        const accessToken = await getAccessToken();
+        await prepareXmtpInBackground(accessToken, address);
       }
     }
   };

@@ -23,7 +23,7 @@ export const SignInCta: React.FC = () => {
 
     // determine the popup URL
     const popupUrl = chrome.runtime.getURL(
-      `index.html?request=${encodeURIComponent(JSON.stringify({type: "signInRequest", params: [newUser]}))}#connect`,
+      `index.html?request=${encodeURIComponent(JSON.stringify({type: "signInRequest", params: [newUser]}))}&parentWindowId=${parentWindow.id}#connect`,
     );
 
     // open the popup

@@ -1,0 +1,63 @@
+diff --git a/_cjs/actions/public/call.js b/_cjs/actions/public/call.js
+index bef51de314348d4ce58c47b2d85f684deb0c7938..9ff599ba98b07c849b674ed3cbbd74c303e34657 100644
+--- a/_cjs/actions/public/call.js
++++ b/_cjs/actions/public/call.js
+@@ -1,6 +1,9 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.parseStateOverride = exports.parseAccountStateOverride = exports.parseStateMapping = exports.getRevertErrorData = exports.call = void 0;
++
++const { offchainLookup, offchainLookupSignature } = require('../../utils/ccip.js');
++
+ const parseAccount_js_1 = require("../../accounts/utils/parseAccount.js");
+ const abis_js_1 = require("../../constants/abis.js");
+ const contract_js_1 = require("../../constants/contract.js");
+@@ -69,7 +72,6 @@ async function call(client, args) {
+     }
+     catch (err) {
+         const data = getRevertErrorData(err);
+-        const { offchainLookup, offchainLookupSignature } = await Promise.resolve().then(() => require('../../utils/ccip.js'));
+         if (data?.slice(0, 10) === offchainLookupSignature && to) {
+             return { data: await offchainLookup(client, { data, to }) };
+         }
+diff --git a/_cjs/utils/rpc/webSocket.js b/_cjs/utils/rpc/webSocket.js
+index 1a4e39b84fc7a177aa27189b0af1cf9d3e0b727d..4fee90e1b130eae42d8912ac00d85ca57ca602c0 100644
+--- a/_cjs/utils/rpc/webSocket.js
++++ b/_cjs/utils/rpc/webSocket.js
+@@ -1,12 +1,14 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.getWebSocketRpcClient = void 0;
++
++const { WebSocket } = require('isows');
++
+ const request_js_1 = require("../../errors/request.js");
+ const socket_js_1 = require("./socket.js");
+ async function getWebSocketRpcClient(url) {
+     return (0, socket_js_1.getSocketRpcClient)({
+         async getSocket({ onResponse }) {
+-            const WebSocket = await Promise.resolve().then(() => require('isows')).then((module) => module.WebSocket);
+             const socket = new WebSocket(url);
+             function onClose() {
+                 socket.removeEventListener('close', onClose);
+diff --git a/_cjs/utils/signature/recoverPublicKey.js b/_cjs/utils/signature/recoverPublicKey.js
+index fc48c9f219cb7d0baf03fb080820c2e6f0094c86..7b912d39574f49d8bac94ed3d406c3ea8ad5e27c 100644
+--- a/_cjs/utils/signature/recoverPublicKey.js
++++ b/_cjs/utils/signature/recoverPublicKey.js
+@@ -1,6 +1,8 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.recoverPublicKey = void 0;
++
++const { secp256k1 } = require('@noble/curves/secp256k1');
+ const isHex_js_1 = require("../data/isHex.js");
+ const fromHex_js_1 = require("../encoding/fromHex.js");
+ const toHex_js_1 = require("../encoding/toHex.js");
+@@ -10,7 +12,6 @@ async function recoverPublicKey({ hash, signature, }) {
+     let v = (0, fromHex_js_1.hexToNumber)(`0x${signatureHex.slice(130)}`);
+     if (v === 0 || v === 1)
+         v += 27;
+-    const { secp256k1 } = await Promise.resolve().then(() => require('@noble/curves/secp256k1'));
+     const publicKey = secp256k1.Signature.fromCompact(signatureHex.substring(2, 130))
+         .addRecoveryBit(v - 27)
+         .recoverPublicKey(hashHex.substring(2))
