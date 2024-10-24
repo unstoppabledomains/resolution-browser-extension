@@ -22,14 +22,7 @@ export const prepareXmtpInBackground = async (
   accessToken: string,
   address: string,
 ) => {
-  // retrieve the XMTP key
-  const xmtpKey = await getXmtpLocalKey(address);
-  if (xmtpKey) {
-    Logger.log("XMTP is ready");
-    return false;
-  }
-
-  // provide the key to service worker
+  // send a request to the service worker to prepare XMTP account
   await sendMessageToBackground(
     "prepareXmtpRequest",
     JSON.stringify({accessToken, address}),

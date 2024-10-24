@@ -41,7 +41,7 @@
     "@walletconnect/ethereum-provider@2.11.0": "patch:@walletconnect/ethereum-provider@npm%3A2.11.0#./.yarn/patches/@walletconnect-ethereum-provider-npm-2.11.0-f89f9e67ee.patch",
     "@walletconnect/modal@2.6.2": "patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch",
     "@walletconnect/modal@^2.6.2": "patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch",
-    "@fireblocks/ncw-js-sdk@12.5.0-ext.3": "patch:@fireblocks/ncw-js-sdk@npm%3A12.5.0-ext.3#./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch",
+    "@fireblocks/ncw-js-sdk@12.5.0-ext.3": "patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@npm%253A12.5.0-ext.3%23./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%3A%3Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch",
     "@xmtp/content-type-remote-attachment@^1.1.9": "patch:@xmtp/content-type-remote-attachment@npm%3A1.1.9#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-1.1.9-0f06635638.patch"
   },
   "dependencies": {
@@ -49,7 +49,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@unstoppabledomains/config": "0.0.13",
-    "@unstoppabledomains/ui-components": "0.0.51-browser-extension.1",
+    "@unstoppabledomains/ui-components": "0.0.51-browser-extension.2",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "async-mutex": "^0.5.0",
     "compare-versions": "^6.1.1",

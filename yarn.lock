@@ -1210,7 +1210,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@npm%3A12.5.0-ext.3#./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch::locator=ud-extension%40workspace%3A.":
+"@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@npm%3A12.5.0-ext.3#./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch::version=12.5.0-ext.3&hash=fe0425&locator=ud-extension%40workspace%3A.":
   version: 12.5.0-ext.3
   resolution: "@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@npm%3A12.5.0-ext.3#./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch::version=12.5.0-ext.3&hash=fe0425&locator=ud-extension%40workspace%3A."
   dependencies:
@@ -1219,6 +1219,18 @@ __metadata:
     jwt-decode: ^3.1.2
     node-forge: ^1.3.1
   checksum: 258373a3d64864f07609b54000456883260938094759ac2f588f4b5aa40c3c9c7f5d2630ddba9dcdb277359a2baf5bdf8d56a6dc063faef43c56df1dd646689b
+  languageName: node
+  linkType: hard
+
+"@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@npm%253A12.5.0-ext.3%23./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%3A%3Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch::locator=ud-extension%40workspace%3A.":
+  version: 12.5.0-ext.3
+  resolution: "@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@npm%253A12.5.0-ext.3%23./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%3A%3Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch::version=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@babel/runtime": ^7.24.5
+    "@fireblocks/ncw-js-infra": 1.0.21-ext.5
+    jwt-decode: ^3.1.2
+    node-forge: ^1.3.1
+  checksum: d9463cf07341845d16425ff8d4c4ca401d39e747f9592145127df59ebcb798fa0bf3f1a0ddc52c5acce286949dcf7dfef07f609621d434cb97cb24d2130390de
   languageName: node
   linkType: hard
 
@@ -4918,9 +4930,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.1":
-  version: 0.0.51-browser-extension.1
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.1"
+"@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.2":
+  version: 0.0.51-browser-extension.2
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.2"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -5019,7 +5031,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 7a2895b3f5154a752f061d8ccac61d4543c615ed2464bfdcbb357a01a303699f4c07ee8e88e7ec48749dfcbccdd9b8eea0892bbba36a190988378615926790a2
+  checksum: 2cea49a5ee76e5efa9670b4753db58404d6b10e44bb27b71973bc2570e1592b5b535f3ad7f43f554610d43d885d5e4334d701ee05ca4389960c92136667a2271
   languageName: node
   linkType: hard
 
@@ -16986,7 +16998,7 @@ __metadata:
     "@types/react": ^17.0.0
     "@types/react-dom": ^17.0.0
     "@unstoppabledomains/config": 0.0.13
-    "@unstoppabledomains/ui-components": 0.0.51-browser-extension.1
+    "@unstoppabledomains/ui-components": 0.0.51-browser-extension.2
     "@unstoppabledomains/ui-kit": 0.3.24
     assert: ^2.1.0
     async-mutex: ^0.5.0

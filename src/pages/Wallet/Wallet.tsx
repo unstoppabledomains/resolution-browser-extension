@@ -61,6 +61,7 @@ import {
   prepareXmtpInBackground,
 } from "../../lib/xmtp/state";
 import {PermissionCta} from "./PermissionCta";
+import queryString from "query-string";
 
 const enum SnackbarKey {
   CTA = "cta",
@@ -215,21 +216,6 @@ const WalletComp: React.FC = () => {
 
         // clear the sign in CTA
         setShowSignInCta(false);
-
-        // resolve the domain of this address (if available)
-        const resolution = await getAddressMetadata(
-          accountEvmAddresses[0].address,
-        );
-        if (resolution?.name) {
-          setAuthDomain(resolution.name);
-          await localStorageWrapper.setItem(
-            DomainProfileKeys.AuthDomain,
-            resolution.name.toLowerCase(),
-          );
-          if (resolution?.imageType !== "default") {
-            setAuthAvatar(resolution.avatarUrl);
-          }
-        }
       } catch (e) {
         Logger.error(e, "Popup", "error loading wallet in extension popup");
         await handleLogout(false);
@@ -247,6 +233,29 @@ const WalletComp: React.FC = () => {
     }
     setShowPermissionCta(authAddress && !isPermissionGranted);
   }, [authAddress, isPermissionGranted, showPermissionCta]);
+
+  // resolve the domain for wallet address
+  useEffect(() => {
+    if (!authAddress) {
+      return;
+    }
+
+    const resolveName = async () => {
+      // resolve the domain of this address (if available)
+      const resolution = await getAddressMetadata(authAddress);
+      if (resolution?.name) {
+        setAuthDomain(resolution.name);
+        await localStorageWrapper.setItem(
+          DomainProfileKeys.AuthDomain,
+          resolution.name.toLowerCase(),
+        );
+        if (resolution?.imageType !== "default") {
+          setAuthAvatar(resolution.avatarUrl);
+        }
+      }
+    };
+    void resolveName();
+  }, [authAddress]);
 
   // complete page load steps after sign in confirmed
   useEffect(() => {
@@ -271,21 +280,8 @@ const WalletComp: React.FC = () => {
       return;
     }
 
-    // ensure XMTP is prepared if not yet available
-    const prepareXmtp = async () => {
-      const accessToken = await getAccessToken();
-      await prepareXmtpInBackground(accessToken, authAddress);
-    };
-
     // prepare XMTP for use
-    void prepareXmtp();
-
-    // wait for XMTP to be ready
-    chrome.storage.local.onChanged.addListener((changes) => {
-      if (changes[StorageSyncKey.XmtpKey]) {
-        setIsChatReady(true);
-      }
-    });
+    void handlePrepareXmtp();
   }, [authAddress, isChatReady, isLoaded]);
 
   // open XMTP chat panel if requested
@@ -319,19 +315,8 @@ const WalletComp: React.FC = () => {
     const providerRequest = getProviderRequest();
     if (providerRequest) {
       if (providerRequest.type === "signInRequest") {
-        await Promise.all([
-          // clear badge count
-          await setBadgeCount(0),
-
-          // create a notification to indicate sign in was successful
-          await createNotification(
-            `signIn${Date.now()}`,
-            t("wallet.title"),
-            t("wallet.readyToUse"),
-            undefined,
-            2,
-          ),
-        ]);
+        // clear badge count
+        await setBadgeCount(0);
 
         // show the permission CTA and leave the window open if optional
         // permissions are not yet granted
@@ -339,9 +324,6 @@ const WalletComp: React.FC = () => {
           setShowPermissionCta(true);
           return;
         }
-
-        // close the window after successful login
-        handleClose();
         return;
       }
       navigate("/connect");
@@ -365,8 +347,29 @@ const WalletComp: React.FC = () => {
     );
   };
 
+  const handlePrepareXmtp = async () => {
+    // wait for XMTP to be ready
+    chrome.storage.local.onChanged.addListener((changes) => {
+      if (changes[StorageSyncKey.XmtpKey]) {
+        setIsChatReady(true);
+        setMessagingEnabled(true);
+      }
+    });
+
+    // request an access token and sign in to XMTP account
+    const accessToken = await getAccessToken();
+    await prepareXmtpInBackground(accessToken, authAddress);
+  };
+
   const handlePermissionGranted = async () => {
-    handleClose();
+    // create a notification to indicate sign in was successful
+    await createNotification(
+      `signIn${Date.now()}`,
+      t("wallet.title"),
+      t("wallet.readyToUse"),
+      undefined,
+      2,
+    );
   };
 
   const handleLogout = async (close = true) => {
@@ -501,8 +504,14 @@ const WalletComp: React.FC = () => {
   };
 
   const handleMessagesClicked = async () => {
+    // determine if a window ID was provided in the query string args
+    const queryStringArgs = queryString.parse(window.location.search);
+    const windowId = queryStringArgs?.parentWindowId
+      ? parseInt(queryStringArgs.parentWindowId as string)
+      : undefined;
+
     // attempt to open a side panel and close the current popup
-    if (await openSidePanel()) {
+    if (await openSidePanel({windowId})) {
       handleClose();
       return;
     }
