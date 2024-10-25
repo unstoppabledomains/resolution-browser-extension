@@ -131,7 +131,14 @@ const WalletComp: React.FC = () => {
         if (!signInState) {
           // check fireblocks state in chrome storage, and wait for a value to
           // be present if it is found to prevent sign in CTA flicker.
-          if (await chromeStorageGet(StorageSyncKey.FireblocksState, "local")) {
+          const fireblocksState = await chromeStorageGet<string>(
+            StorageSyncKey.FireblocksState,
+            "local",
+          );
+          if (
+            fireblocksState &&
+            Object.keys(JSON.parse(fireblocksState)).length > 0
+          ) {
             return;
           }
 
@@ -170,13 +177,15 @@ const WalletComp: React.FC = () => {
         }
 
         // if there is a provider request at this point return
-        if (providerRequest) {
-          return;
-        }
+        if (providerRequest?.type !== "signInRequest") {
+          if (providerRequest) {
+            return;
+          }
 
-        // check whether there are popups that need focus
-        if (await handleFocusPopups()) {
-          return;
+          // check whether there are popups that need focus
+          if (await handleFocusPopups()) {
+            return;
+          }
         }
 
         // clear any previously in progress auth state
@@ -205,14 +214,6 @@ const WalletComp: React.FC = () => {
           DomainProfileKeys.AuthAddress,
           accountEvmAddresses[0].address,
         );
-
-        // validate the access token can be retrieved using the established
-        // fireblocks saved state
-        const accessToken = await getAccessToken();
-        if (!accessToken) {
-          setShowSignInCta(true);
-          return;
-        }
 
         // clear the sign in CTA
         setShowSignInCta(false);
@@ -301,6 +302,13 @@ const WalletComp: React.FC = () => {
     void notifyXmtpServiceWorker(authAddress);
   }, [authAddress, isChatReady]);
 
+  useEffect(() => {
+    if (!showSignInCta) {
+      return;
+    }
+    handleLogout(false);
+  }, [showSignInCta]);
+
   const handleAuthComplete = async () => {
     // remember the user email address
     if (authState.emailAddress) {
@@ -327,6 +335,13 @@ const WalletComp: React.FC = () => {
         return;
       }
       navigate("/connect");
+    }
+
+    // validate the access token can be retrieved
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      setShowSignInCta(true);
+      return;
     }
 
     // set the complete flag
