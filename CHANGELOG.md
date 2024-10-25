@@ -1,3 +1,6 @@
+## 3.1.38
+* Support for service worker background signing
+
 ## 3.1.37
 * Enroll 2FA from settings menu
 
