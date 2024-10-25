@@ -36,12 +36,7 @@
     "viem@^1.20.3": "patch:viem@patch%3Aviem@npm%253A2.7.15%23./.yarn/patches/viem-npm-2.7.15-13d124cded.patch%3A%3Aversion=2.7.15&hash=b64194&locator=ud-extension%2540workspace%253A.#./.yarn/patches/viem-patch-396c1adec8.patch",
     "viem@^1.0.0": "patch:viem@patch%3Aviem@npm%253A2.7.15%23./.yarn/patches/viem-npm-2.7.15-13d124cded.patch%3A%3Aversion=2.7.15&hash=b64194&locator=ud-extension%2540workspace%253A.#./.yarn/patches/viem-patch-396c1adec8.patch",
     "viem@^2.1.1": "patch:viem@patch%3Aviem@npm%253A2.7.15%23./.yarn/patches/viem-npm-2.7.15-13d124cded.patch%3A%3Aversion=2.7.15&hash=b64194&locator=ud-extension%2540workspace%253A.#./.yarn/patches/viem-patch-396c1adec8.patch",
-    "@wagmi/core@1.4.13": "patch:@wagmi/core@npm%3A1.4.13#./.yarn/patches/@wagmi-core-npm-1.4.13-4b4dc5df85.patch",
-    "@wagmi/connectors@3.1.11": "patch:@wagmi/connectors@npm%3A3.1.11#./.yarn/patches/@wagmi-connectors-npm-3.1.11-16ec0f5243.patch",
-    "@walletconnect/ethereum-provider@2.11.0": "patch:@walletconnect/ethereum-provider@npm%3A2.11.0#./.yarn/patches/@walletconnect-ethereum-provider-npm-2.11.0-f89f9e67ee.patch",
-    "@walletconnect/modal@2.6.2": "patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch",
-    "@walletconnect/modal@^2.6.2": "patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch",
-    "@fireblocks/ncw-js-sdk@12.5.0-ext.3": "patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@npm%253A12.5.0-ext.3%23./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%3A%3Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch",
+    "@fireblocks/ncw-js-sdk@12.5.0-ext.3": "patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@patch%253A@fireblocks/ncw-js-sdk@npm%25253A12.5.0-ext.3%2523./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%253A%253Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%252540workspace%25253A.%23./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch%3A%3Aversion=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-c4aaba07ee.patch",
     "@xmtp/content-type-remote-attachment@^1.1.9": "patch:@xmtp/content-type-remote-attachment@npm%3A1.1.9#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-1.1.9-0f06635638.patch"
   },
   "dependencies": {

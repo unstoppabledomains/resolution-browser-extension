@@ -1222,7 +1222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@npm%253A12.5.0-ext.3%23./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%3A%3Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch::locator=ud-extension%40workspace%3A.":
+"@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@npm%253A12.5.0-ext.3%23./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%3A%3Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch::version=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%40workspace%3A.":
   version: 12.5.0-ext.3
   resolution: "@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@npm%253A12.5.0-ext.3%23./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%3A%3Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch::version=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%40workspace%3A."
   dependencies:
@@ -1231,6 +1231,18 @@ __metadata:
     jwt-decode: ^3.1.2
     node-forge: ^1.3.1
   checksum: d9463cf07341845d16425ff8d4c4ca401d39e747f9592145127df59ebcb798fa0bf3f1a0ddc52c5acce286949dcf7dfef07f609621d434cb97cb24d2130390de
+  languageName: node
+  linkType: hard
+
+"@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@patch%253A@fireblocks/ncw-js-sdk@npm%25253A12.5.0-ext.3%2523./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%253A%253Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%252540workspace%25253A.%23./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch%3A%3Aversion=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-c4aaba07ee.patch::locator=ud-extension%40workspace%3A.":
+  version: 12.5.0-ext.3
+  resolution: "@fireblocks/ncw-js-sdk@patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@patch%253A@fireblocks/ncw-js-sdk@npm%25253A12.5.0-ext.3%2523./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%253A%253Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%252540workspace%25253A.%23./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch%3A%3Aversion=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-c4aaba07ee.patch::version=12.5.0-ext.3&hash=94327b&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@babel/runtime": ^7.24.5
+    "@fireblocks/ncw-js-infra": 1.0.21-ext.5
+    jwt-decode: ^3.1.2
+    node-forge: ^1.3.1
+  checksum: d637be165783cbfdfe21fd4e37460272da9f26112b0ba695448833e45f96a30d8ef3fbda8fe0f4d29edc68f5502e69e1c2d8c7df8971c2a35a388d55b0581016
   languageName: node
   linkType: hard
 
@@ -5082,29 +5094,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wagmi/connectors@patch:@wagmi/connectors@npm%3A3.1.11#./.yarn/patches/@wagmi-connectors-npm-3.1.11-16ec0f5243.patch::locator=ud-extension%40workspace%3A.":
-  version: 3.1.11
-  resolution: "@wagmi/connectors@patch:@wagmi/connectors@npm%3A3.1.11#./.yarn/patches/@wagmi-connectors-npm-3.1.11-16ec0f5243.patch::version=3.1.11&hash=84fe2f&locator=ud-extension%40workspace%3A."
-  dependencies:
-    "@coinbase/wallet-sdk": ^3.6.6
-    "@safe-global/safe-apps-provider": ^0.18.1
-    "@safe-global/safe-apps-sdk": ^8.1.0
-    "@walletconnect/ethereum-provider": 2.11.0
-    "@walletconnect/legacy-provider": ^2.0.0
-    "@walletconnect/modal": 2.6.2
-    "@walletconnect/utils": 2.11.0
-    abitype: 0.8.7
-    eventemitter3: ^4.0.7
-  peerDependencies:
-    typescript: ">=5.0.4"
-    viem: ">=0.3.35"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: fe57d34fabc7fdd6b2ced7700ed78d32cb1021b1783317c803440627b5738ffcb24add2efd1231b90f621d8c7e18a3c9a6e50f09cbca0f75dfa969190c50e79f
-  languageName: node
-  linkType: hard
-
 "@wagmi/core@npm:1.4.13":
   version: 1.4.13
   resolution: "@wagmi/core@npm:1.4.13"
@@ -5120,24 +5109,6 @@ __metadata:
     typescript:
       optional: true
   checksum: e35c5f8ec3ca066cab6affcb551c784e44bcce07742913ebb1285cc58648f5b2cab98d7a014cd6b8cfa1afb2eaa7047523f17d90519982458d2c9b3b6f7e2c9f
-  languageName: node
-  linkType: hard
-
-"@wagmi/core@patch:@wagmi/core@npm%3A1.4.13#./.yarn/patches/@wagmi-core-npm-1.4.13-4b4dc5df85.patch::locator=ud-extension%40workspace%3A.":
-  version: 1.4.13
-  resolution: "@wagmi/core@patch:@wagmi/core@npm%3A1.4.13#./.yarn/patches/@wagmi-core-npm-1.4.13-4b4dc5df85.patch::version=1.4.13&hash=7d44ab&locator=ud-extension%40workspace%3A."
-  dependencies:
-    "@wagmi/connectors": 3.1.11
-    abitype: 0.8.7
-    eventemitter3: ^4.0.7
-    zustand: ^4.3.1
-  peerDependencies:
-    typescript: ">=5.0.4"
-    viem: ">=0.3.35"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 9683ce3aea3acfb0840d80390ebae809b75f0d57b20bf37aa8572693e2c8cc19b18df447a16942b282dfaa97d87e5465298db7d35655b568dd16772ef7b870de
   languageName: node
   linkType: hard
 
@@ -5231,24 +5202,6 @@ __metadata:
     "@walletconnect/utils": 2.11.0
     events: ^3.3.0
   checksum: 8b45eb7e6679d340e6d976c6c10b10b4ce0435b959d35b627677d946b9f152f20fc242e581a16e9b6f7ed98c5352748213856e342f55f3dbd4cd9130965d542c
-  languageName: node
-  linkType: hard
-
-"@walletconnect/ethereum-provider@patch:@walletconnect/ethereum-provider@npm%3A2.11.0#./.yarn/patches/@walletconnect-ethereum-provider-npm-2.11.0-f89f9e67ee.patch::locator=ud-extension%40workspace%3A.":
-  version: 2.11.0
-  resolution: "@walletconnect/ethereum-provider@patch:@walletconnect/ethereum-provider@npm%3A2.11.0#./.yarn/patches/@walletconnect-ethereum-provider-npm-2.11.0-f89f9e67ee.patch::version=2.11.0&hash=e25a53&locator=ud-extension%40workspace%3A."
-  dependencies:
-    "@walletconnect/jsonrpc-http-connection": ^1.0.7
-    "@walletconnect/jsonrpc-provider": ^1.0.13
-    "@walletconnect/jsonrpc-types": ^1.0.3
-    "@walletconnect/jsonrpc-utils": ^1.0.8
-    "@walletconnect/modal": ^2.6.2
-    "@walletconnect/sign-client": 2.11.0
-    "@walletconnect/types": 2.11.0
-    "@walletconnect/universal-provider": 2.11.0
-    "@walletconnect/utils": 2.11.0
-    events: ^3.3.0
-  checksum: 7cda40d0bfaab73cc6169bae81ebfbec769c02482ca9f511c923282b98c6e52200cc3ce435315bce41ce6ce3fadf52eccb89edfd0ae94da006122fc73abd007b
   languageName: node
   linkType: hard
 
@@ -5455,6 +5408,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@walletconnect/modal-core@npm:2.7.0":
+  version: 2.7.0
+  resolution: "@walletconnect/modal-core@npm:2.7.0"
+  dependencies:
+    valtio: 1.11.2
+  checksum: 2abc4958eed0f65b3f03599f25f7393f06c94602df8ffceb59795e9da6ab3a36242520ee7f1e0733b14278422e9bbba5f850915b0b069f7f0a8f2d48c51365de
+  languageName: node
+  linkType: hard
+
 "@walletconnect/modal-ui@npm:2.6.2":
   version: 2.6.2
   resolution: "@walletconnect/modal-ui@npm:2.6.2"
@@ -5464,6 +5426,18 @@ __metadata:
     motion: 10.16.2
     qrcode: 1.5.3
   checksum: cd1ec0205eb491e529670599d3dd26f6782d7c5a99d5594bf6949a8c760c1c5f4eb6ed72b8662450774fe4e2dd47678f2c05145c8f2494bd7153446ddf4bd7ed
+  languageName: node
+  linkType: hard
+
+"@walletconnect/modal-ui@npm:2.7.0":
+  version: 2.7.0
+  resolution: "@walletconnect/modal-ui@npm:2.7.0"
+  dependencies:
+    "@walletconnect/modal-core": 2.7.0
+    lit: 2.8.0
+    motion: 10.16.2
+    qrcode: 1.5.3
+  checksum: fbea115142df9aeeaa95eeb08581d03d829a5bef1aa145227f3e8c367e4ad990c0b833da37fe82464bf1349744197092a741ca85d3fe9ee255e42ba911f862cc
   languageName: node
   linkType: hard
 
@@ -5477,13 +5451,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/modal@patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch::locator=ud-extension%40workspace%3A.":
-  version: 2.6.2
-  resolution: "@walletconnect/modal@patch:@walletconnect/modal@npm%3A2.6.2#./.yarn/patches/@walletconnect-modal-npm-2.6.2-61d842d28b.patch::version=2.6.2&hash=0bfdd8&locator=ud-extension%40workspace%3A."
+"@walletconnect/modal@npm:^2.6.2":
+  version: 2.7.0
+  resolution: "@walletconnect/modal@npm:2.7.0"
   dependencies:
-    "@walletconnect/modal-core": 2.6.2
-    "@walletconnect/modal-ui": 2.6.2
-  checksum: 9efa9ae364659726d0ddbcccda2328c650c7ced5798468b4cbca304fb0cec7038a514211c9a23082cc838b63ad62cc523a545f82bf7facf640191b87dfd77707
+    "@walletconnect/modal-core": 2.7.0
+    "@walletconnect/modal-ui": 2.7.0
+  checksum: 028e914db306faac24e350510ea286f08c2aec1b6c39857b2ba8740f7d1bfab6a6c4d2acba5ab63fc127fd7da617ec80ab13599083363f13e72e2aff611615bf
   languageName: node
   linkType: hard
 
