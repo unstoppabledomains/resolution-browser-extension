@@ -337,12 +337,8 @@ const WalletComp: React.FC = () => {
       navigate("/connect");
     }
 
-    // validate the access token can be retrieved
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
-      setShowSignInCta(true);
-      return;
-    }
+    // ensure XMTP is ready
+    await handlePrepareXmtp();
 
     // set the complete flag
     setAuthComplete(true);
@@ -371,8 +367,17 @@ const WalletComp: React.FC = () => {
       }
     });
 
-    // request an access token and sign in to XMTP account
+    // wait a few seconds to avoid a sign in race condition
+    await sleep(2000);
+
+    // validate the access token can be retrieved
     const accessToken = await getAccessToken();
+    if (!accessToken) {
+      setShowSignInCta(true);
+      return;
+    }
+
+    // sign into the XMTP account
     await prepareXmtpInBackground(accessToken, authAddress);
   };
 
