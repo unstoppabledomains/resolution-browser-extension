@@ -129,6 +129,24 @@ const WalletComp: React.FC = () => {
         // retrieve state of logged in wallet (if any)
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
+          // check for and validate in progress sign in auth state
+          let inProgressAuthState = await chromeStorageGet<string>(
+            StorageSyncKey.AuthState,
+            "session",
+          );
+          if (inProgressAuthState) {
+            const now = new Date().getTime();
+            const state: AuthState = JSON.parse(inProgressAuthState);
+            if (state.expiration > 0 && now < state.expiration) {
+              // set local auth state
+              setAuthState(state);
+            } else {
+              // clear expired auth state
+              await chromeStorageRemove(StorageSyncKey.AuthState, "session");
+              inProgressAuthState = undefined;
+            }
+          }
+
           // check fireblocks state in chrome storage, and wait for a value to
           // be present if it is found to prevent sign in CTA flicker.
           const fireblocksState = await chromeStorageGet<string>(
@@ -136,6 +154,7 @@ const WalletComp: React.FC = () => {
             "local",
           );
           if (
+            !inProgressAuthState &&
             fireblocksState &&
             Object.keys(JSON.parse(fireblocksState)).length > 0
           ) {
@@ -154,21 +173,6 @@ const WalletComp: React.FC = () => {
             // check whether there are popups that need focus
             await handleFocusPopups();
             return;
-          }
-
-          // attempt to check for in-progress sign in state
-          const inProgressAuthState = await chromeStorageGet<string>(
-            StorageSyncKey.AuthState,
-            "session",
-          );
-          if (inProgressAuthState) {
-            const now = new Date().getTime();
-            const state: AuthState = JSON.parse(inProgressAuthState);
-            if (state.expiration > 0 && now < state.expiration) {
-              setAuthState(state);
-              return;
-            }
-            await chromeStorageRemove(StorageSyncKey.AuthState, "session");
           }
 
           // set empty auth state
@@ -302,19 +306,14 @@ const WalletComp: React.FC = () => {
     void notifyXmtpServiceWorker(authAddress);
   }, [authAddress, isChatReady]);
 
+  // ensure the sign-in email address is recorded in account state
   useEffect(() => {
-    if (!showSignInCta) {
-      return;
+    if (authState?.emailAddress) {
+      void chromeStorageSet(StorageSyncKey.Account, authState.emailAddress);
     }
-    handleLogout(false);
-  }, [showSignInCta]);
+  }, [authState]);
 
   const handleAuthComplete = async () => {
-    // remember the user email address
-    if (authState.emailAddress) {
-      await chromeStorageSet(StorageSyncKey.Account, authState.emailAddress);
-    }
-
     // cleanup state from authentication attempt
     await chromeStorageRemove(StorageSyncKey.AuthState, "session");
 
@@ -373,7 +372,7 @@ const WalletComp: React.FC = () => {
     // validate the access token can be retrieved
     const accessToken = await getAccessToken();
     if (!accessToken) {
-      setShowSignInCta(true);
+      await handleLogout(false);
       return;
     }
 
@@ -382,6 +381,11 @@ const WalletComp: React.FC = () => {
   };
 
   const handlePermissionGranted = async () => {
+    // complete the sign wallet sign in state
+    setIsPermissionGranted(true);
+    setShowPermissionCta(false);
+    setAuthComplete(true);
+
     // create a notification to indicate sign in was successful
     await createNotification(
       `signIn${Date.now()}`,
