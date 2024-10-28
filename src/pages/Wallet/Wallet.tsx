@@ -93,12 +93,16 @@ const WalletComp: React.FC = () => {
   const [showPermissionCta, setShowPermissionCta] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSignInCta, setShowSignInCta] = useState(false);
+  const [showSignOutButton, setShowSignOutButton] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
 
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
   // this method is used to cancel the listener so the handler doesn't fire.
   let removeBeforeUnloadListener: () => void;
+
+  // only show the sign out button after a short delay
+  setTimeout(() => setShowSignOutButton(true), 250);
 
   // load the existing wallet if singed in
   useEffect(() => {
@@ -685,7 +689,7 @@ const WalletComp: React.FC = () => {
   };
 
   return showSignInCta ? (
-    <SignInCta />
+    <SignInCta onSignInClick={() => handleLogout(false)} />
   ) : showPermissionCta ? (
     <PermissionCta onPermissionGranted={handlePermissionGranted} />
   ) : showSettings ? (
@@ -720,7 +724,7 @@ const WalletComp: React.FC = () => {
           display: isLoaded ? "flex" : "none",
         }}
       >
-        {authState && preferences && (
+        {authState && preferences ? (
           <Wallet
             mode={authAddress ? "portfolio" : "basic"}
             address={authAddress}
@@ -747,6 +751,14 @@ const WalletComp: React.FC = () => {
             setButtonComponent={setAuthButton}
             setAuthAddress={setAuthAddress}
           />
+        ) : (
+          showSignOutButton && (
+            <Box className={classes.fullHeightCentered}>
+              <Button variant="text" onClick={() => handleLogout(false)}>
+                {t("header.signOut")}
+              </Button>
+            </Box>
+          )
         )}
         {!authAddress && (
           <Box display="flex" flexDirection="column" width="100%">

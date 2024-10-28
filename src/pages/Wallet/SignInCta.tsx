@@ -13,11 +13,18 @@ import {AppEnv} from "@unstoppabledomains/config";
 import {setBadgeCount} from "../../lib/runtime";
 import {openPopupWindow} from "../../scripts/liteWalletProvider/background";
 
-export const SignInCta: React.FC = () => {
+interface SignInCtaProps {
+  onSignInClick: () => Promise<void>;
+}
+
+export const SignInCta: React.FC<SignInCtaProps> = ({onSignInClick}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
 
   const handleSignIn = async (newUser: boolean) => {
+    // handle the callback before opening the new window
+    await onSignInClick();
+
     // find current window
     const parentWindow = await chrome.windows.getLastFocused();
 
