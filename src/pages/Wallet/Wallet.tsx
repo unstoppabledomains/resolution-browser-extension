@@ -396,20 +396,22 @@ const WalletComp: React.FC = () => {
     );
   };
 
-  const handleLogout = async (close = true) => {
+  const handleLogout = async (close = true, showCta = true) => {
     // clear extension storage
     await chromeStorageClear("local");
     await chromeStorageClear("session");
     await chromeStorageClear("sync");
 
-    // switch back to sign in CTA view
-    setShowSignInCta(true);
+    // switch back to sign in CTA view if requested
+    if (showCta) {
+      setShowSignInCta(true);
+      setAuthState(undefined);
+    }
 
     // reset identity variable state
     setAuthAddress(undefined);
     setAuthDomain(undefined);
     setAuthAvatar(undefined);
-    setAuthState(undefined);
 
     // set basic wallet enablement preferences, since we can assume
     // next time the extension loads that the user enabled the wallet
@@ -734,6 +736,7 @@ const WalletComp: React.FC = () => {
             forceRememberOnDevice={true}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}
+            onError={() => handleLogout(false, false)}
             onDisconnect={isConnected ? handleDisconnect : undefined}
             onSettingsClick={handleShowPreferences}
             onMessagesClick={handleMessagesClicked}
