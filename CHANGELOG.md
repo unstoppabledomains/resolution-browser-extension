@@ -1,5 +1,7 @@
 ## 3.1.38
 * Support for service worker background signing
+* Fix bug validating token decimals before transfer
+* Modify activity panel color palette
 
 ## 3.1.37
 * Enroll 2FA from settings menu
