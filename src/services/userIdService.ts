@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/prefer-optional-chain */
+
+/* eslint-disable no-bitwise */
 import {Logger} from "../lib/logger";
 
 class UserIdService {
@@ -34,9 +37,9 @@ class UserIdService {
     });
   }
 
-  public getUserId(): Promise<string> {
+  getUserId(): Promise<string> {
     return new Promise((resolve, reject) => {
-      chrome.storage.sync.get([UserIdService.USER_ID_KEY], (result) => {
+      chrome.storage.sync.get([UserIdService.USER_ID_KEY], result => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError);
         } else if (result[UserIdService.USER_ID_KEY]) {

@@ -1,11 +1,12 @@
-import React from "react";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
 import HomeIcon from "@mui/icons-material/Home";
 import WalletIcon from "@mui/icons-material/Wallet";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import React from "react";
 import {useNavigate} from "react-router-dom";
+
 import {
   getWalletPreferences,
   setWalletPreferences,
@@ -25,9 +26,7 @@ const styles = {
   },
 };
 
-interface Props {}
-
-const Footer: React.FC<Props> = ({}) => {
+const Footer: React.FC = () => {
   const navigate = useNavigate();
 
   const handleEnableWallet = async () => {

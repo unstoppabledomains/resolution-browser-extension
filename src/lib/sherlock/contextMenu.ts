@@ -1,16 +1,17 @@
-import {WalletPreferences} from "../../types/wallet/preferences";
 import config from "@unstoppabledomains/config";
+
+import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
+import {WalletPreferences} from "../../types/wallet/preferences";
 import {ProviderEvent, ProviderRequest} from "../../types/wallet/provider";
 import {Logger} from "../logger";
+import {openSidePanel, setIcon} from "../runtime";
 import {getConnectedSites, removeConnectedSite} from "../wallet/evm/connection";
+import {sendMessageToClient} from "../wallet/message";
 import {
   getDefaultPreferences,
   getWalletPreferences,
   setWalletPreferences,
 } from "../wallet/preferences";
-import {sendMessageToClient} from "../wallet/message";
-import {openSidePanel, setIcon} from "../runtime";
-import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 
 const ORIGINS: Record<string, boolean> = {};
 
@@ -24,7 +25,7 @@ enum MenuType {
 // messageListener wraps a context menu instance and handles message events
 const messageListener = (ctx: ContextMenu) => {
   return (message: ProviderRequest) => {
-    ctx.handleMessage(message);
+    void ctx.handleMessage(message);
   };
 };
 
@@ -53,7 +54,7 @@ export class ContextMenu {
     });
 
     // add connection menu item if wallet connected
-    this.getConnectionMenuTitle(origin).then((connectionTitle) => {
+    void this.getConnectionMenuTitle(origin).then(connectionTitle => {
       if (connectionTitle) {
         chrome.contextMenus.create({
           id: `${MenuType.Connection}-${origin}`,
@@ -101,7 +102,7 @@ export class ContextMenu {
   }
 
   refreshAll() {
-    Object.keys(ORIGINS).map((origin) => {
+    Object.keys(ORIGINS).map(origin => {
       this.refreshTab(origin);
     });
   }
@@ -171,16 +172,15 @@ export class ContextMenu {
 
   /* **********************
    * Messages menu handling
-   * **********************/
+   * ********************* */
 
   async handleMessageMenu() {
-    console.log("AJQ opening", currentFocussedWindowId);
     await openSidePanel({windowId: currentFocussedWindowId});
   }
 
   /* **********************
    * Sherlock menu handling
-   * **********************/
+   * ********************* */
 
   async handleSherlockMenu(origin: string) {
     // retrieve current preferences and initialize if needed
@@ -197,7 +197,7 @@ export class ContextMenu {
     if (this.isSherlockDisabled(origin)) {
       // enable sherlock
       const ignoreOrigins = this.preferences.Scanning.IgnoreOrigins.filter(
-        (h) => !h.toLowerCase().includes(origin.toLowerCase()),
+        h => !h.toLowerCase().includes(origin.toLowerCase()),
       );
       this.preferences.Scanning.Enabled = true;
       this.preferences.Scanning.IgnoreOrigins = ignoreOrigins;
@@ -213,10 +213,8 @@ export class ContextMenu {
 
   isSherlockDisabled(origin: string) {
     return (
-      !this.preferences ||
-      !this.preferences.Scanning ||
-      !this.preferences.Scanning.Enabled ||
-      this.preferences.Scanning.IgnoreOrigins?.find((h) =>
+      !this.preferences?.Scanning?.Enabled ||
+      this.preferences.Scanning.IgnoreOrigins?.find(h =>
         origin.toLowerCase().includes(h.toLowerCase()),
       )
     );
@@ -230,17 +228,20 @@ export class ContextMenu {
 
   /* *************************
    * Find domain menu handling
-   * *************************/
+   * ************************ */
 
   async handleFindDomainMenu(info: chrome.contextMenus.OnClickData) {
-    chrome.tabs.create({
+    if (!info?.selectionText) {
+      return;
+    }
+    await chrome.tabs.create({
       url: `${config.UNSTOPPABLE_WEBSITE_URL}/search?searchTerm=${encodeURIComponent(info.selectionText)}&searchRef=extension`,
     });
   }
 
   /* ************************
    * Connection menu handling
-   * ************************/
+   * *********************** */
 
   async handleDisconnectMenu(origin: string) {
     // remove connection internally
@@ -271,7 +272,7 @@ export class ContextMenu {
       // wait for the contextMenu permission to be created and
       // try again with the callback
       Logger.log("Waiting for contextMenus permission to be available...");
-      chrome.permissions.onAdded.addListener(async (p) => {
+      chrome.permissions.onAdded.addListener(async p => {
         if (p?.permissions?.includes("contextMenus")) {
           await this.waitForEvents();
         }
@@ -285,7 +286,7 @@ export class ContextMenu {
       return false;
     }
     return (
-      Object.keys(allConnections).filter((connectedHost) => {
+      Object.keys(allConnections).filter(connectedHost => {
         const originHost = new URL(origin.toLowerCase()).hostname;
         Logger.log(
           "Comparing hosts",

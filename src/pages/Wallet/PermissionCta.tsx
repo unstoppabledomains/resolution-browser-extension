@@ -1,14 +1,16 @@
-import React, {useState} from "react";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import AddModeratorOutlinedIcon from "@mui/icons-material/AddModeratorOutlined";
-import Button from "@mui/material/Button";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {useExtensionStyles} from "../../styles/extension.styles";
-import {useTranslationContext} from "@unstoppabledomains/ui-components";
-import {requestOptionalPermissions} from "../../lib/runtime";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import Markdown from "markdown-to-jsx";
+import React, {useState} from "react";
+
+import {useTranslationContext} from "@unstoppabledomains/ui-components";
+
+import {requestOptionalPermissions} from "../../lib/runtime";
+import {useExtensionStyles} from "../../styles/extension.styles";
 
 interface PermissionCtaProps {
   onPermissionGranted: () => Promise<void>;

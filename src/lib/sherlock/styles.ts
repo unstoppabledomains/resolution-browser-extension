@@ -14,13 +14,13 @@ const SUCCESS = "#2e7d32";
 
 export const initializeForPopup = () => {
   // get the body element
-  var body = document.body || document.getElementsByTagName("body")[0];
+  const body = document.body || document.getElementsByTagName("body")[0];
   if (!body) {
     return;
   }
 
   // get the head element
-  var head = document.head || document.getElementsByTagName("head")[0];
+  const head = document.head || document.getElementsByTagName("head")[0];
   if (!head) {
     return;
   }
@@ -31,7 +31,7 @@ export const initializeForPopup = () => {
   }
 
   // insert a placeholder div
-  body.firstChild.before(
+  body.firstChild?.before(
     createElementFromHtml(`
       <div class="ud-anchor">
         <div id=${UD_PLACEHOLDER_ID} class="ud-placeHolder" />
@@ -40,12 +40,12 @@ export const initializeForPopup = () => {
   );
 
   // create style element
-  var style = document.createElement("style");
+  const style = document.createElement("style");
   style.id = UD_STYLE_ID;
   style.type = "text/css";
 
   // create tooltip style definition
-  var css = `
+  const css = `
     /* styles for Unstoppable Domains extension popup */
     .ud-anchor {
       position: relative;
@@ -235,11 +235,12 @@ export const initializeForPopup = () => {
 };
 
 export const isStyleInjected = () => {
-  var head = document.head || document.getElementsByTagName("head")[0];
+  const head = document.head || document.getElementsByTagName("head")[0];
   if (!head) {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < head.children.length; i++) {
     if (head.children[i].id === UD_STYLE_ID) {
       return true;

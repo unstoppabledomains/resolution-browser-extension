@@ -1,10 +1,9 @@
-import React from "react";
-import useUserId from "../hooks/useUserId";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import CopyableLabel from "./CopyableLabel";
+import Typography from "@mui/material/Typography";
+import React from "react";
 
-interface Props {}
+import useUserId from "../hooks/useUserId";
+import CopyableLabel from "./CopyableLabel";
 
 const styles = {
   subtitle: {
@@ -16,7 +15,7 @@ const styles = {
   },
 };
 
-const ShowUserId: React.FC<Props> = () => {
+const ShowUserId: React.FC = () => {
   const {userId, isLoading, error} = useUserId();
 
   if (isLoading) {

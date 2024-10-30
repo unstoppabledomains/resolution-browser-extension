@@ -1,24 +1,33 @@
-import React, {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import useIsMounted from "react-is-mounted-hook";
 import type {Signer} from "ethers";
 import queryString from "query-string";
-
-import {useExtensionStyles} from "../../styles/extension.styles";
-import {
-  getBootstrapState,
-  useFireblocksState,
-  isEthAddress,
-  useWeb3Context,
-  ReactSigner,
-  CreateTransaction,
-  SignForDappHeader,
-  useTranslationContext,
-} from "@unstoppabledomains/ui-components";
+import React, {useEffect, useState} from "react";
+import useIsMounted from "react-is-mounted-hook";
 import {useNavigate} from "react-router-dom";
-import {Alert, Button, Typography} from "@unstoppabledomains/ui-kit";
 import web3 from "web3";
+
+import {
+  CreateTransaction,
+  ReactSigner,
+  SignForDappHeader,
+  getBootstrapState,
+  isEthAddress,
+  useFireblocksState,
+  useTranslationContext,
+  useWeb3Context,
+} from "@unstoppabledomains/ui-components";
+import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
+import {Alert, Button, Typography} from "@unstoppabledomains/ui-kit";
+
+import config from "../../config";
+import useConnections from "../../hooks/useConnections";
+import usePreferences from "../../hooks/usePreferences";
+import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
+import {Logger} from "../../lib/logger";
+import {isAscii} from "../../lib/wallet/isAscii";
+import {getProviderRequest} from "../../lib/wallet/request";
+import {useExtensionStyles} from "../../styles/extension.styles";
 import {
   ChainNotSupportedError,
   InvalidTypedMessageError,
@@ -31,13 +40,6 @@ import {
   isExternalRequestType,
   isPermissionType,
 } from "../../types/wallet/provider";
-import {isAscii} from "../../lib/wallet/isAscii";
-import config from "../../config";
-import {Logger} from "../../lib/logger";
-import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
-import usePreferences from "../../hooks/usePreferences";
-import useConnections from "../../hooks/useConnections";
-import {getProviderRequest} from "../../lib/wallet/request";
 
 enum ConnectionState {
   ACCOUNT,
@@ -88,38 +90,45 @@ const Connect: React.FC = () => {
       try {
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
+          // check fireblocks state in chrome storage, and wait for a value to
+          // be present if it is found to prevent unnecessary redirect.
+          if (await chromeStorageGet(StorageSyncKey.FireblocksState, "local")) {
+            return;
+          }
+
+          // redirect to wallet sign in page
           navigate("/wallet");
           return;
         }
 
-        const accountEvmAddresses = [
+        const evmAddresses = [
           ...new Set(
             signInState.assets
-              ?.map((a) => {
+              ?.map(a => {
                 return {
                   address: a.address,
                   networkId: a.blockchainAsset.blockchain.networkId,
                 };
               })
-              .filter((a) => isEthAddress(a.address)),
+              .filter(a => isEthAddress(a.address)),
           ),
         ];
 
-        if (accountEvmAddresses.length === 0) {
+        if (evmAddresses.length === 0) {
           return;
         }
         setAccountAssets(signInState);
-        setAccountEvmAddresses(accountEvmAddresses);
+        setAccountEvmAddresses(evmAddresses);
 
         // retrieve the source tab information if available, used to show the name
         // and logo of the calling application
-        let connectionSource: chrome.tabs.Tab;
+        let connectionSource: chrome.tabs.Tab | undefined;
         const queryStringArgs = queryString.parse(window.location.search);
         if (queryStringArgs && Object.keys(queryStringArgs).length > 0) {
           if (queryStringArgs.source) {
             try {
               connectionSource = JSON.parse(queryStringArgs.source as string);
-            } catch (e) {
+            } catch (e: any) {
               Logger.error(
                 e,
                 "Popup",
@@ -130,16 +139,19 @@ const Connect: React.FC = () => {
         }
 
         // determine app connection status
-        const connectedHostname = new URL(connectionSource.url).hostname;
+        const connectedHostname = connectionSource?.url
+          ? new URL(connectionSource.url).hostname
+          : undefined;
         setIsConnected(
-          Object.keys(connections).filter(
-            (c) => c.toLowerCase() === connectedHostname,
-          ).length > 0,
+          connectedHostname !== undefined &&
+            Object.keys(connections).filter(
+              c => c.toLowerCase() === connectedHostname,
+            ).length > 0,
         );
 
         // set web3 dependencies for connected wallet to enable prompts to
         // sign messages
-        const defaultAccount = accountEvmAddresses[0];
+        const defaultAccount = evmAddresses[0];
         const signer = new ReactSigner(defaultAccount.address, {
           setMessage: setMessageToSign,
           setTx: setTxToSign,
@@ -148,26 +160,27 @@ const Connect: React.FC = () => {
           signer,
           address: defaultAccount.address,
           unstoppableWallet: {
-            addresses: accountEvmAddresses.map((a) => a.address),
+            addresses: evmAddresses.map(a => a.address),
             promptForSignatures: true,
             fullScreenModal: true,
-            connectedApp: connectionSource
-              ? {
-                  name: connectedHostname,
-                  hostUrl: connectedHostname,
-                  iconUrl: connectionSource.favIconUrl,
-                }
-              : undefined,
+            connectedApp:
+              connectionSource?.favIconUrl && connectedHostname
+                ? {
+                    name: connectedHostname,
+                    hostUrl: connectedHostname,
+                    iconUrl: connectionSource.favIconUrl,
+                  }
+                : undefined,
           },
         });
-      } catch (e) {
+      } catch (e: any) {
         Logger.error(e, "Popup", "error loading wallet in connect popup");
       } finally {
         setIsLoaded(true);
       }
     };
     void loadWallet();
-  }, [isMounted, connections, preferences]);
+  }, [isMounted, connections, preferences, walletState]);
 
   useEffect(() => {
     // only register listeners with valid web3deps
@@ -176,7 +189,7 @@ const Connect: React.FC = () => {
     }
 
     // create and register message listeners
-    const handleMessage = (message: ProviderRequest) => {
+    const handleMessage = async (message: ProviderRequest) => {
       // normalize message parameters
       if (
         message?.params &&
@@ -193,13 +206,13 @@ const Connect: React.FC = () => {
 
         // normalize the chain name
         const normalizedChainName = accountAssets?.assets
-          ?.map((a) => {
+          ?.map(a => {
             return {
               name: a.blockchainAsset.blockchain.name,
               networkId: a.blockchainAsset.blockchain.networkId,
             };
           })
-          .find((a) => a.networkId === normalizedChainId)?.name;
+          .find(a => a.networkId === normalizedChainId)?.name;
 
         // set normalized values
         message.params[0].chainId = String(normalizedChainId);
@@ -231,7 +244,7 @@ const Connect: React.FC = () => {
           case "accountRequest":
             setConnectionStateMessage(message);
             setConnectionState(ConnectionState.CHAINID);
-            handleGetAccount();
+            await handleGetAccount();
             break;
           case "chainIdRequest":
             setConnectionStateMessage(message);
@@ -249,17 +262,17 @@ const Connect: React.FC = () => {
           case "signMessageRequest":
             setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SIGN);
-            handleSignMessage(message.params[0]);
+            await handleSignMessage(message.params[0]);
             break;
           case "signTypedMessageRequest":
             setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SIGN);
-            handleSignTypedMessage(message.params);
+            await handleSignTypedMessage(message.params);
             break;
           case "sendTransactionRequest":
             setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SIGN);
-            handleSendTransaction(message.params[0]);
+            await handleSendTransaction(message.params[0]);
             break;
           case "switchChainRequest":
             setConnectionStateMessage(message);
@@ -275,6 +288,7 @@ const Connect: React.FC = () => {
           case "queueRequest":
           case "signInRequest":
           case "xmtpReadyRequest":
+          case "prepareXmtpRequest":
             return;
           default:
             // other unsupported method types can be ignored, but we'll show
@@ -289,9 +303,9 @@ const Connect: React.FC = () => {
         window.addEventListener("beforeunload", beforeUnloadHandler);
         removeBeforeUnloadListener = () =>
           window.removeEventListener("beforeunload", beforeUnloadHandler);
-      } catch (e) {
+      } catch (e: any) {
         // handle the error
-        handleError(getResponseType(message.type), e);
+        await handleError(getResponseType(message.type), e);
       }
     };
     chrome.runtime.onMessage.addListener(handleMessage);
@@ -300,7 +314,7 @@ const Connect: React.FC = () => {
     // popup, since the event listener did not yet exist
     const providerRequest = getProviderRequest();
     if (providerRequest) {
-      handleMessage(providerRequest);
+      void handleMessage(providerRequest);
     }
 
     // cleanup listeners
@@ -311,7 +325,7 @@ const Connect: React.FC = () => {
 
   const getAccount = (chainId: number = config.DEFAULT_CHAIN) => {
     const matchingAccount = accountEvmAddresses.find(
-      (a) => chainId === a.networkId,
+      a => chainId === a.networkId,
     );
     return matchingAccount?.address ? matchingAccount : accountEvmAddresses[0];
   };
@@ -320,34 +334,34 @@ const Connect: React.FC = () => {
     // retrieve the default account
     const defaultAccount = getAccount();
     if (!defaultAccount) {
-      handleError("chainIdResponse", new Error(NotConnectedError));
+      void handleError("chainIdResponse", new Error(NotConnectedError));
       return;
     }
 
     // return the connected account
-    chrome.runtime.sendMessage({
+    void chrome.runtime.sendMessage({
       type: "chainIdResponse",
       chainId: defaultAccount.networkId,
     });
   };
 
-  const handleGetAccount = () => {
+  const handleGetAccount = async () => {
     // retrieve the default account
     const defaultAccount = getAccount();
     if (!defaultAccount) {
-      handleError("accountResponse", new Error(NotConnectedError));
+      await handleError("accountResponse", new Error(NotConnectedError));
       return;
     }
 
     // return the connected account
-    chrome.runtime.sendMessage({
+    void chrome.runtime.sendMessage({
       type: "accountResponse",
       address: defaultAccount.address,
       chainId: defaultAccount.networkId,
     });
   };
 
-  const handleConnectAccount = () => {
+  const handleConnectAccount = async () => {
     // determine if a specific account is requested, defaulting to the
     // first available entry if none specified
     const defaultAccount = getAccount();
@@ -359,14 +373,14 @@ const Connect: React.FC = () => {
     ) {
       networkId =
         typeof connectionStateMessage.params[0].chainId === "string"
-          ? parseInt(connectionStateMessage.params[0].chainId)
+          ? parseInt(connectionStateMessage.params[0].chainId, 10)
           : connectionStateMessage.params[0].chainId;
     }
 
     // find the requested chain
     const account = getAccount(networkId);
     if (account?.networkId !== networkId) {
-      handleError(
+      await handleError(
         getResponseType(connectionStateMessage.type),
         new Error(ChainNotSupportedError),
       );
@@ -374,14 +388,14 @@ const Connect: React.FC = () => {
     }
 
     // return the connected account
-    chrome.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: getResponseType(connectionStateMessage.type),
       address: account.address,
       chainId: account.networkId,
     });
   };
 
-  const handleRequestPermissions = () => {
+  const handleRequestPermissions = async () => {
     try {
       // generate the accepted permissions list
       const account = getAccount();
@@ -401,7 +415,7 @@ const Connect: React.FC = () => {
         })
         // handle requested permissions
         .map((permissions: Record<string, Record<string, string>>) => {
-          Object.keys(permissions).map((permission) => {
+          Object.keys(permissions).map(permission => {
             // validate the requested permission is supported
             if (!isPermissionType(permission)) {
               throw new Error(`${UnsupportedPermissionError}: ${permission}`);
@@ -428,14 +442,14 @@ const Connect: React.FC = () => {
         });
 
       // return the accepted permissions
-      chrome.runtime.sendMessage({
+      await chrome.runtime.sendMessage({
         type: "requestPermissionsResponse",
         address: account.address,
         chainId: account.networkId,
         permissions: acceptedPermissions,
       });
-    } catch (e) {
-      handleError(getResponseType("requestPermissionsRequest"), e);
+    } catch (e: any) {
+      await handleError(getResponseType("requestPermissionsRequest"), e);
     }
   };
 
@@ -450,18 +464,18 @@ const Connect: React.FC = () => {
         : hexEncodedMessage;
 
       // request the signature
-      const signature = await web3Deps.signer.signMessage(message);
+      const signature = await web3Deps?.signer.signMessage(message);
 
       // check for a valid response
       if (signature) {
         // return successful signature result
-        chrome.runtime.sendMessage({
+        await chrome.runtime.sendMessage({
           type: "signMessageResponse",
           response: signature,
         });
         return;
       }
-    } catch (e) {
+    } catch (e: any) {
       // handle signing error and cancel the operation
       Logger.error(
         e,
@@ -472,7 +486,7 @@ const Connect: React.FC = () => {
     }
 
     // the message was not signed, return an error to caller
-    handleError(
+    await handleError(
       getResponseType("signMessageRequest"),
       new Error("personal message not signed"),
     );
@@ -482,7 +496,7 @@ const Connect: React.FC = () => {
     try {
       // validate there are at least two available parameter args
       if (params.length < 2) {
-        handleError(
+        await handleError(
           "signTypedMessageResponse",
           new Error(InvalidTypedMessageError),
         );
@@ -491,21 +505,21 @@ const Connect: React.FC = () => {
 
       // the second request argument contains an encoded typed message, which
       // must be submitted for a signature request
-      const signature = await web3Deps.signer.signMessage(params[1]);
+      const signature = await web3Deps?.signer.signMessage(params[1]);
       if (signature) {
-        chrome.runtime.sendMessage({
+        await chrome.runtime.sendMessage({
           type: "signTypedMessageResponse",
           response: signature,
         });
         return;
       }
-    } catch (e) {
+    } catch (e: any) {
       // handle signing error and cancel the operation
       Logger.error(e, "Signature", "error signing typed message", params);
     }
 
     // the message was not signed, return an error to caller
-    handleError(
+    await handleError(
       getResponseType("signTypedMessageRequest"),
       new Error("typed message not signed"),
     );
@@ -515,7 +529,7 @@ const Connect: React.FC = () => {
     try {
       // prepare a transaction to be signed
       const txRequest: CreateTransaction = {
-        chainId: parseInt(txParams.chainId),
+        chainId: parseInt(txParams.chainId, 10),
         to: txParams.to,
         data: txParams.data,
         value: txParams.value || "0",
@@ -523,29 +537,29 @@ const Connect: React.FC = () => {
 
       // sign the transaction and return the hash, so the user
       // can be prompted to approve the transaction
-      const txHash = await web3Deps.signer.signTransaction(txRequest);
-      chrome.runtime.sendMessage({
+      const txHash = await web3Deps?.signer.signTransaction(txRequest);
+      await chrome.runtime.sendMessage({
         type: "sendTransactionResponse",
         response: txHash,
       });
-    } catch (e) {
+    } catch (e: any) {
       // handle signing error and cancel the operation
-      handleError("sendTransactionResponse", e);
+      await handleError("sendTransactionResponse", e);
     }
   };
 
-  const handleError = (type: ResponseType, e: Error) => {
+  const handleError = async (type: ResponseType, e: Error) => {
     // handle provider error and cancel the operation
     Logger.error(e, "Popup", "handled provider error", type);
-    chrome.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type,
       error: String(e),
     });
     handleClose();
   };
 
-  const handleCancel = () => {
-    chrome.runtime.sendMessage({
+  const handleCancel = async () => {
+    await chrome.runtime.sendMessage({
       type: connectionStateMessage.type.replace("Request", "Response"),
       error: "wallet request canceled",
     });
@@ -565,7 +579,7 @@ const Connect: React.FC = () => {
     // called when the user manually closes the connection window, without
     // interacting with any of the buttons
     if (message) {
-      handleError(
+      void handleError(
         getResponseType(message.type),
         new Error("user closed wallet"),
       );
@@ -581,6 +595,7 @@ const Connect: React.FC = () => {
         </Box>
       );
     } else if (
+      connectionState &&
       [ConnectionState.ACCOUNT, ConnectionState.SWITCH_CHAIN].includes(
         connectionState,
       )
@@ -613,42 +628,44 @@ const Connect: React.FC = () => {
   return (
     <Paper className={classes.container}>
       <Box className={cx(classes.walletContainer, classes.contentContainer)}>
-        {[
-          ConnectionState.ACCOUNT,
-          ConnectionState.PERMISSIONS,
-          ConnectionState.SWITCH_CHAIN,
-        ].includes(connectionState) && (
-          <Box className={classes.contentContainer}>
-            <Typography variant="h4">{t("wallet.signMessage")}</Typography>
-            {web3Deps?.unstoppableWallet?.connectedApp && (
-              <SignForDappHeader
-                name={web3Deps.unstoppableWallet.connectedApp.name}
-                iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
-                hostUrl={web3Deps.unstoppableWallet.connectedApp.hostUrl}
-                actionText={
-                  connectionState === ConnectionState.PERMISSIONS
-                    ? t("extension.connectRequest")
-                    : connectionState === ConnectionState.SWITCH_CHAIN
-                      ? t("extension.connectToChain", {
-                          chainName: connectionStateMessage.params[0].chainName,
-                        })
-                      : t("extension.connect")
-                }
-              />
-            )}
-            <Typography variant="body1" mt={3}>
-              {t("auth.walletAddress")}:
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: "bold",
-              }}
-            >
-              {getAccount()?.address}
-            </Typography>
-          </Box>
-        )}
+        {connectionState &&
+          [
+            ConnectionState.ACCOUNT,
+            ConnectionState.PERMISSIONS,
+            ConnectionState.SWITCH_CHAIN,
+          ].includes(connectionState) && (
+            <Box className={classes.contentContainer}>
+              <Typography variant="h4">{t("wallet.signMessage")}</Typography>
+              {web3Deps?.unstoppableWallet?.connectedApp && (
+                <SignForDappHeader
+                  name={web3Deps.unstoppableWallet.connectedApp.name}
+                  iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
+                  hostUrl={web3Deps.unstoppableWallet.connectedApp.hostUrl}
+                  actionText={
+                    connectionState === ConnectionState.PERMISSIONS
+                      ? t("extension.connectRequest")
+                      : connectionState === ConnectionState.SWITCH_CHAIN
+                        ? t("extension.connectToChain", {
+                            chainName:
+                              connectionStateMessage.params[0].chainName,
+                          })
+                        : t("extension.connect")
+                  }
+                />
+              )}
+              <Typography variant="body1" mt={3}>
+                {t("auth.walletAddress")}:
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
+                {getAccount()?.address}
+              </Typography>
+            </Box>
+          )}
         <Box className={classes.contentContainer}>
           {renderButton()}
           <Box mt={1} className={classes.contentContainer}>

@@ -1,0 +1,54 @@
+name: PR CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.event_name }}-pr
+  cancel-in-progress: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  pr_ci:
+    name: PR CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Run Tests
+        run: yarn test:ci
+        env:
+          NODE_OPTIONS: --max_old_space_size=3072
+
+      - name: Build browser extension packages
+        run: yarn dist
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: |
+            :tada: All your tests were successful!
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload test results to GitHub
+        uses: actions/upload-artifact@v3
+        continue-on-error: true
+        with:
+          name: ${{ github.sha }}
+          path: |
+            coverage/**/lcov.info
+            coverage/**/coverage-final.json
+          retention-days: 1

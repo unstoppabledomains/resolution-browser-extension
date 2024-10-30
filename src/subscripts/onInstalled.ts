@@ -1,5 +1,5 @@
-import {initializeBrowserSettings} from "../lib/resolver/settings";
 import {Logger} from "../lib/logger";
+import {initializeBrowserSettings} from "../lib/resolver/settings";
 
 Logger.log("Background Script Started!");
 

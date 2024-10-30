@@ -6,7 +6,7 @@ export const isEthAddress = (v: string): boolean => {
 // isPartialAddress matches truncated EVM wallet addresses
 export const isPartialAddress = (v: string): boolean => {
   const partialAddress = v.match(/^0x[a-zA-Z0-9]+[…\.]+[a-zA-Z0-9]+$/);
-  return partialAddress && partialAddress.length > 0;
+  return partialAddress !== null && partialAddress.length > 0;
 };
 
 // fromPartialAddress searches for the expanded form of a partial address from

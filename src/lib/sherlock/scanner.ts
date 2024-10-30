@@ -1,17 +1,18 @@
-import {fromPartialAddress, isEthAddress, isPartialAddress} from "./matcher";
-import {Logger} from "../logger";
-import {
-  ResolutionMatch,
-  ResolutionData,
-  SHERLOCK_ICON,
-  BASE_Z_INDEX,
-} from "./types";
 import {isDomainValidForManagement} from "@unstoppabledomains/ui-components";
-import {initializeForPopup} from "./styles";
+
+import {Logger} from "../logger";
+import {fromPartialAddress, isEthAddress, isPartialAddress} from "./matcher";
 import {createPopup} from "./popup";
+import {initializeForPopup} from "./styles";
+import {
+  BASE_Z_INDEX,
+  ResolutionData,
+  ResolutionMatch,
+  SHERLOCK_ICON,
+} from "./types";
 
 // deduplicate multiple requests to scan for addresses
-let scanTimer: NodeJS.Timeout = null;
+let scanTimer: NodeJS.Timeout | null = null;
 let isScanning = false;
 
 // scanForResolutions makes a request to scan document for address data
@@ -67,12 +68,13 @@ const scan = async () => {
 
   // recursive helper to scan children
   const scanChildren = (childNodes: NodeListOf<ChildNode>) => {
-    for (var j = 0; j < childNodes.length; j++) {
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let j = 0; j < childNodes.length; j++) {
       // handle text nodes (type 3 in the spec)
       const node = childNodes[j];
       if (node.nodeType === 3) {
         // scan each word of the rendered text for matching addresses
-        const renderedText = node.nodeValue;
+        const renderedText = node.nodeValue || "";
         const renderedTextWord = renderedText.split(/[\s]+/);
         for (const maybeAddressOrName of renderedTextWord) {
           // check for ETH address exact matches
@@ -126,7 +128,8 @@ const scan = async () => {
 
   // scan the document for addresses
   const domElements = document.body.getElementsByTagName("*");
-  for (var i = 0; i < domElements.length; i++) {
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
+  for (let i = 0; i < domElements.length; i++) {
     scanChildren(domElements[i].childNodes);
   }
 
@@ -168,13 +171,14 @@ const scan = async () => {
       // if the child node contains a block of text, update the text inline
       // so that the name appears with the address
       if (
-        !isEthAddress(r.node.textContent) &&
-        !isPartialAddress(r.node.textContent)
+        !isEthAddress(r.node.textContent || "") &&
+        !isPartialAddress(r.node.textContent || "")
       ) {
         // split the text on the search parameter
-        const textContentParts = r.node.textContent.split(r.searchTerm);
+        const textContentParts = r.node.textContent?.split(r.searchTerm);
         if (
           // if we find exactly two parts divided by the search parameter
+          textContentParts &&
           textContentParts.length === 2 &&
           // this approach cannot be used when child nodes are present, and
           // only works on a single body of text
@@ -186,13 +190,15 @@ const scan = async () => {
 
           // create the link for resolved name
           const popup = createPopup(resolvedData);
-          matchContainer.appendChild(popup);
+          if (popup && r.node.parentNode) {
+            matchContainer.appendChild(popup);
 
-          // insert the new div just before the matching node
-          r.node.parentNode.insertBefore(matchContainer, r.node);
+            // insert the new div just before the matching node
+            r.node.parentNode.insertBefore(matchContainer, r.node);
 
-          // insert the current node into the div
-          popup.before(r.node);
+            // insert the current node into the div
+            popup.before(r.node);
+          }
           continue;
         }
       }
@@ -200,9 +206,10 @@ const scan = async () => {
       // if the child contains only the address, insert a new DOM anchor element
       // that links to the domain profile page
       const popup = createPopup(resolvedData);
-
-      // update the text content and insert the new link
-      r.node.after(popup);
+      if (popup) {
+        // update the text content and insert the new link
+        r.node.after(popup);
+      }
     }
   }
 
@@ -211,7 +218,7 @@ const scan = async () => {
 };
 
 const isMatchingTrigger = (
-  node: ParentNode,
+  node: ParentNode | null | undefined,
   resolution: ResolutionData,
 ): boolean => {
   // if the sherlock icon is not found there is no match
@@ -221,6 +228,7 @@ const isMatchingTrigger = (
 
   // check the ID related to the sherlock icon to ensure it matches
   // the expected resolution
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < node.children.length; i++) {
     const childId = node.children[i].id.toLowerCase();
     if (childId.includes(resolution.address.toLowerCase())) {
@@ -233,23 +241,25 @@ const isMatchingTrigger = (
 };
 
 const isMatchingContent = (
-  node: ParentNode,
+  node: ParentNode | null | undefined,
   resolution: ResolutionData,
 ): boolean => {
-  return (
-    node?.textContent.toLowerCase().includes(resolution.domain.toLowerCase()) &&
+  const isMatching =
+    node?.textContent
+      ?.toLowerCase()
+      .includes(resolution.domain.toLowerCase()) &&
     (node?.textContent
       .toLowerCase()
       .includes(resolution.address.toLowerCase()) ||
       node?.parentNode?.textContent
-        .toLowerCase()
-        .includes(resolution.address.toLowerCase()))
-  );
+        ?.toLowerCase()
+        .includes(resolution.address.toLowerCase()));
+  return isMatching || false;
 };
 
-const isInPopup = (e: Element): boolean => {
+const isInPopup = (e: Element | null): boolean => {
   // check class name and ID tags of current node
-  if (e.className.startsWith("ud-") && e.id.startsWith("ud-")) {
+  if (e?.className.startsWith("ud-") && e.id.startsWith("ud-")) {
     return true;
   }
 
@@ -262,7 +272,7 @@ const isInPopup = (e: Element): boolean => {
   return false;
 };
 
-const removeSherlockSiblings = (node: Element) => {
+const removeSherlockSiblings = (node: Element | null) => {
   if (node?.children) {
     for (let i = node.children.length - 1; i >= 0; i--) {
       const child = node.children[i];

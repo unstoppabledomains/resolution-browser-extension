@@ -1,0 +1,37 @@
+name: Push CI
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.event_name }}-pr
+  cancel-in-progress: true
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  pr_ci:
+    name: Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Run Tests
+        run: yarn test:ci
+        env:
+          NODE_OPTIONS: --max_old_space_size=3072
+
+      - name: Build browser extension packages
+        run: yarn dist

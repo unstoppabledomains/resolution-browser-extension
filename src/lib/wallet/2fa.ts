@@ -1,5 +1,5 @@
-import {fetchApi, notifyEvent} from "@unstoppabledomains/ui-components";
 import config from "@unstoppabledomains/config";
+import {fetchApi, notifyEvent} from "@unstoppabledomains/ui-components";
 
 export const getTwoFactorStatus = async (
   accessToken: string,

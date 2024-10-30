@@ -15,6 +15,22 @@ index 8639174e892a8101367d56e1626feaa55198bd1f..907a0c60cb55d78bc880512e88b14736
          if (data?.slice(0, 10) === offchainLookupSignature && to) {
              return { data: await offchainLookup(client, { data, to }) };
          }
+diff --git a/_esm/utils/rpc/webSocket.js b/_esm/utils/rpc/webSocket.js
+index 0795e4b2ddb08e8ddad0f7a0b917aaef1df7ac8a..03c5784717bec955acaa7b51d3f00b5b3f0527b6 100644
+--- a/_esm/utils/rpc/webSocket.js
++++ b/_esm/utils/rpc/webSocket.js
+@@ -1,9 +1,10 @@
+ import { WebSocketRequestError } from '../../errors/request.js';
+ import { getSocketRpcClient, } from './socket.js';
++import { WebSocket } from 'isows';
++
+ export async function getWebSocketRpcClient(url) {
+     return getSocketRpcClient({
+         async getSocket({ onResponse }) {
+-            const WebSocket = await import('isows').then((module) => module.WebSocket);
+             const socket = new WebSocket(url);
+             function onClose() {
+                 socket.removeEventListener('close', onClose);
 diff --git a/_esm/utils/signature/recoverPublicKey.js b/_esm/utils/signature/recoverPublicKey.js
 index 76f72cfe7599f5b920c0ddad9f8a445c08b9fcee..e9104c3a3d8082d7509ea817b117df96225dd784 100644
 --- a/_esm/utils/signature/recoverPublicKey.js
@@ -36,3 +52,57 @@ index 76f72cfe7599f5b920c0ddad9f8a445c08b9fcee..e9104c3a3d8082d7509ea817b117df96
      const publicKey = secp256k1.Signature.fromCompact(signatureHex.substring(2, 130))
          .addRecoveryBit(v - 27)
          .recoverPublicKey(hashHex.substring(2))
+diff --git a/actions/public/call.ts b/actions/public/call.ts
+index 952f15d39f5819a6f07aa11608492a8e926f6620..8a68f117c16b265bed86b951eacca4357b75eeea 100644
+--- a/actions/public/call.ts
++++ b/actions/public/call.ts
+@@ -1,3 +1,4 @@
++import { offchainLookup, offchainLookupSignature } from '../../utils/ccip.js'; 
+ import type { Address } from 'abitype'
+ 
+ import type { Account } from '../../accounts/types.js'
+@@ -222,9 +223,6 @@ export async function call<TChain extends Chain | undefined>(
+     return { data: response }
+   } catch (err) {
+     const data = getRevertErrorData(err)
+-    const { offchainLookup, offchainLookupSignature } = await import(
+-      '../../utils/ccip.js'
+-    )
+     if (data?.slice(0, 10) === offchainLookupSignature && to) {
+       return { data: await offchainLookup(client, { data, to }) }
+     }
+diff --git a/utils/rpc/webSocket.ts b/utils/rpc/webSocket.ts
+index 82a729bf9522984af7bac255df8c0459bb02fe6a..2da842a4b9946bf9f4be19bdfc489b8f9e3a330f 100644
+--- a/utils/rpc/webSocket.ts
++++ b/utils/rpc/webSocket.ts
+@@ -1,3 +1,5 @@
++import { WebSocket } from 'isows'
++
+ import type { MessageEvent } from 'isows'
+ 
+ import { WebSocketRequestError } from '../../errors/request.js'
+@@ -12,7 +14,6 @@ export async function getWebSocketRpcClient(
+ ): Promise<SocketRpcClient<WebSocket>> {
+   return getSocketRpcClient({
+     async getSocket({ onResponse }) {
+-      const WebSocket = await import('isows').then((module) => module.WebSocket)
+       const socket = new WebSocket(url)
+ 
+       function onClose() {
+diff --git a/utils/signature/recoverPublicKey.ts b/utils/signature/recoverPublicKey.ts
+index bcce21524c15901f923d7927c49086b8a1796169..0f77d11596fdb5705eb80065d4f8181dd67cb32b 100644
+--- a/utils/signature/recoverPublicKey.ts
++++ b/utils/signature/recoverPublicKey.ts
+@@ -1,3 +1,4 @@
++import { secp256k1 } from '@noble/curves/secp256k1'
+ import type { ErrorType } from '../../errors/utils.js'
+ import type { ByteArray, Hex } from '../../types/misc.js'
+ import { type IsHexErrorType, isHex } from '../data/isHex.js'
+@@ -28,7 +29,6 @@ export async function recoverPublicKey({
+   let v = hexToNumber(`0x${signatureHex.slice(130)}`)
+   if (v === 0 || v === 1) v += 27
+ 
+-  const { secp256k1 } = await import('@noble/curves/secp256k1')
+   const publicKey = secp256k1.Signature.fromCompact(
+     signatureHex.substring(2, 130),
+   )

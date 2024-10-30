@@ -1,0 +1,8 @@
+diff --git a/dist/index.js b/dist/index.js
+index e96fd4d341341f5751c44f021858a258daa6a46c..56a0c083f8f65cb71d9135eb3e1e745315e9a837 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1,2 +1,2 @@
+-import{ModalCtrl as t,ThemeCtrl as o,ConfigCtrl as i,OptionsCtrl as n}from"@walletconnect/modal-core";class d{constructor(e){this.openModal=t.open,this.closeModal=t.close,this.subscribeModal=t.subscribe,this.setTheme=o.setThemeConfig,o.setThemeConfig(e),i.setConfig(e),this.initUi()}async initUi(){if(typeof window<"u"){await import("@walletconnect/modal-ui");const e=document.createElement("wcm-modal");document.body.insertAdjacentElement("beforeend",e),n.setIsUiLoaded(!0)}}}export{d as WalletConnectModal};
++import * as modalUI from "@walletconnect/modal-ui";import{ModalCtrl as t,ThemeCtrl as o,ConfigCtrl as i,OptionsCtrl as n}from"@walletconnect/modal-core";class d{constructor(e){this.openModal=t.open,this.closeModal=t.close,this.subscribeModal=t.subscribe,this.setTheme=o.setThemeConfig,o.setThemeConfig(e),i.setConfig(e),this.initUi()}async initUi(){if(typeof window<"u"){const e=document.createElement("wcm-modal");document.body.insertAdjacentElement("beforeend",e),n.setIsUiLoaded(!0)}}}export{d as WalletConnectModal};
+ //# sourceMappingURL=index.js.map

@@ -1,40 +1,43 @@
-import {
-  ProviderResponse,
-  UnexpectedResponseError,
-  ProviderMethod,
-  ProviderEvent,
-  ResponseType,
-  InvalidSwitchChainError,
-  ProviderAccountResponse,
-  Eip1193Event,
-  InvalidTxError,
-  NotConnectedError,
-  InvalidSignatureError,
-  PROVIDER_CODE_USER_ERROR,
-  PROVIDER_CODE_NOT_IMPLEMENTED,
-  UnsupportedMethodError,
-  InvalidTypedMessageError,
-  ClientSideMessageTypes,
-  isClientSideRequestType,
-  ProviderMethodsWithPrompt,
-} from "../../types/wallet/provider";
-import {clone} from "lodash";
-import config, {WINDOW_PROPERTY_NAME, LOGO_BASE_64} from "../../config";
-import {EthereumProviderError} from "eth-rpc-errors";
+/* eslint-disable @typescript-eslint/prefer-optional-chain */
 import {ExternalProvider} from "@ethersproject/providers";
-import {Mutex} from "async-mutex";
-import {EventEmitter} from "events";
-import {announceProvider} from "../../lib/wallet/evm/eip6963";
 import {MetaMaskInpageProvider, shimWeb3} from "@metamask/providers";
-import {EIP_712_KEY, TypedMessage} from "../../types/wallet/eip712";
-import {Logger} from "../../lib/logger";
-import {WalletPreferences} from "../../types/wallet/preferences";
+import {Mutex} from "async-mutex";
+import {EthereumProviderError} from "eth-rpc-errors";
+import {EventEmitter} from "events";
+import {clone} from "lodash";
+import {LRUCache} from "lru-cache";
 import {retryAsync, waitUntilAsync} from "ts-retry";
 import {utils as web3utils} from "web3";
-import {ResolutionData} from "../../lib/sherlock/types";
+
 import {SerializedPublicDomainProfileData} from "@unstoppabledomains/ui-components";
-import {LRUCache} from "lru-cache";
+
+import config, {LOGO_BASE_64, WINDOW_PROPERTY_NAME} from "../../config";
+import {Logger} from "../../lib/logger";
 import {isEthAddress} from "../../lib/sherlock/matcher";
+import {ResolutionData} from "../../lib/sherlock/types";
+import {announceProvider} from "../../lib/wallet/evm/eip6963";
+import {EIP_712_KEY, TypedMessage} from "../../types/wallet/eip712";
+import {WalletPreferences} from "../../types/wallet/preferences";
+import {
+  ClientSideMessageTypes,
+  Eip1193Event,
+  InvalidSignatureError,
+  InvalidSwitchChainError,
+  InvalidTxError,
+  InvalidTypedMessageError,
+  NotConnectedError,
+  PROVIDER_CODE_NOT_IMPLEMENTED,
+  PROVIDER_CODE_USER_ERROR,
+  ProviderAccountResponse,
+  ProviderEvent,
+  ProviderMethod,
+  ProviderMethodsWithPrompt,
+  ProviderResponse,
+  ResponseType,
+  UnexpectedResponseError,
+  UnsupportedMethodError,
+  isClientSideRequestType,
+} from "../../types/wallet/provider";
 
 declare global {
   interface Window {
@@ -51,17 +54,17 @@ interface RequestArgs {
 
 class LiteWalletProvider extends EventEmitter {
   // web3 provider properties
-  isMetaMask: boolean;
-  isConnectedStatus: boolean;
-  chainId: string | null;
-  networkVersion: string | null;
-  selectedAddress: string | null;
+  isMetaMask: boolean = true;
+  isConnectedStatus: boolean = false;
+  chainId: string | null = null;
+  networkVersion: string | null = null;
+  selectedAddress: string | null = null;
 
   // unused properties, but required to be present in order to properly
   // emulate MetaMask in the case the user wants maximum compatibility
   _metamask = {
     isUnlocked: (): Promise<boolean> => {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         resolve(true);
       });
     },
@@ -73,16 +76,16 @@ class LiteWalletProvider extends EventEmitter {
     resolution: new Mutex(),
     profile: new Mutex(),
   };
-  private requestQueue: RequestArgs[];
-  private lastCompletedRequest: RequestArgs;
+  private requestQueue: RequestArgs[] = [];
+  private lastCompletedRequest: RequestArgs | null = null;
   private lruCache = new LRUCache<string, any>({
     max: 100,
     ttl: 60 * 1000 * 30, // 30 minutes
   });
 
-  /*************************
+  /** ***********************
    * Public provider methods
-   *************************/
+   ************************ */
 
   constructor() {
     super();
@@ -129,9 +132,9 @@ class LiteWalletProvider extends EventEmitter {
       if (this.isDuplicateRequest(request)) {
         Logger.warn(
           "Request duplicate detected",
-          JSON.stringify({request, result: this.lastCompletedRequest.result}),
+          JSON.stringify({request, result: this.lastCompletedRequest?.result}),
         );
-        result = this.lastCompletedRequest.result;
+        result = this.lastCompletedRequest?.result;
         return result;
       }
 
@@ -191,7 +194,7 @@ class LiteWalletProvider extends EventEmitter {
         JSON.stringify({method: request.method, result}),
       );
       return result;
-    } catch (e) {
+    } catch (e: any) {
       // result is failure
       Logger.error(e, "Popup", "Request failed", JSON.stringify(request));
       throw e;
@@ -235,9 +238,9 @@ class LiteWalletProvider extends EventEmitter {
     Logger.log("Disconnected from app");
   }
 
-  /*************************
+  /** ***********************
    * Public custom methods
-   *************************/
+   ************************ */
 
   async getPreferences(): Promise<WalletPreferences> {
     const fetcher = () =>
@@ -367,9 +370,9 @@ class LiteWalletProvider extends EventEmitter {
     });
   }
 
-  /******************
+  /** ****************
    * Internal methods
-   ******************/
+   ***************** */
 
   private emitEvent(type: Eip1193Event, data: unknown) {
     this.emit(type, data);
@@ -407,14 +410,14 @@ class LiteWalletProvider extends EventEmitter {
   private async isAddressInAccount(address: string) {
     const allAddresses = await this.handleGetConnectedAccounts();
     return (
-      allAddresses.find((a) => a.toLowerCase() === address.toLowerCase()) !==
+      allAddresses.find(a => a.toLowerCase() === address.toLowerCase()) !==
       undefined
     );
   }
 
   private uniqueRequestCount(filter?: ProviderMethod[]) {
     return this.requestQueue.filter(
-      (r) =>
+      r =>
         !this.isDuplicateRequest(r) && (!filter || filter.includes(r.method)),
     ).length;
   }
@@ -440,7 +443,7 @@ class LiteWalletProvider extends EventEmitter {
     this.isConnectedStatus = true;
 
     // handle any requested events
-    emitEvents?.map((event) => {
+    emitEvents?.map(event => {
       switch (event) {
         case "accountsChanged":
           this.emitEvent("accountsChanged", [this.selectedAddress]);
@@ -498,7 +501,8 @@ class LiteWalletProvider extends EventEmitter {
 
   private async handleGetConnectedChainIds() {
     if (this.networkVersion) {
-      return this.networkVersion;
+      // return hex formatted network version
+      return web3utils.numberToHex(parseInt(this.networkVersion, 10));
     }
 
     // a method to retrieve chain ID data
@@ -533,8 +537,8 @@ class LiteWalletProvider extends EventEmitter {
     // wait for chain ID
     const chainId = await this.withRetry(fetcher);
 
-    // return the chain ID
-    return String(chainId);
+    // return the hex formatted chain ID
+    return web3utils.numberToHex(chainId);
   }
 
   private async handleRequestAccounts() {
@@ -842,7 +846,7 @@ class LiteWalletProvider extends EventEmitter {
   }
 
   private async handleSendTransaction(params: any[]) {
-    //validate an account is connected
+    // validate an account is connected
     if (!this.selectedAddress || !this.networkVersion) {
       throw new EthereumProviderError(
         PROVIDER_CODE_USER_ERROR,
@@ -902,7 +906,7 @@ class LiteWalletProvider extends EventEmitter {
     eventType: ResponseType,
     listener: (event: ProviderResponse) => void,
   ) {
-    const listenerWrapper = (event: ProviderResponse) => {
+    const listenerWrapper = (event: any) => {
       document.removeEventListener(eventType, listenerWrapper);
       listener(event);
     };
@@ -922,7 +926,7 @@ announceProvider({
     icon: `data:image/png;base64,${LOGO_BASE_64}`,
     ...config.extension,
   },
-  provider: proxyProvider,
+  provider: proxyProvider as ExternalProvider,
 });
 Logger.log("Announced Ethereum provider");
 
@@ -935,9 +939,9 @@ Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
 // provider is created with the metamask flag. Initializing the
 // extension in this way can interfere with other extensions and
 // make the inaccessible to the user.
-provider.getPreferences().then((walletPreferences) => {
+void provider.getPreferences().then(walletPreferences => {
   if (walletPreferences.OverrideMetamask) {
-    window.ethereum = proxyProvider;
+    window.ethereum = proxyProvider as ExternalProvider;
     Logger.log("Injected Ethereum provider", "window.ethereum");
   }
   window.dispatchEvent(new Event("ethereum#initialized"));
@@ -947,7 +951,7 @@ provider.getPreferences().then((walletPreferences) => {
 shimWeb3(proxyProvider as unknown as MetaMaskInpageProvider);
 
 // listen for events that should be handled by the provider
-ClientSideMessageTypes.map((messageType) => {
+ClientSideMessageTypes.map(messageType => {
   document.addEventListener(messageType, () => {
     if (isClientSideRequestType(messageType)) {
       switch (messageType) {

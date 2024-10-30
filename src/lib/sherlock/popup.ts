@@ -1,9 +1,11 @@
-import {Logger} from "../logger";
-import config from "@unstoppabledomains/config";
-import {ResolutionData, SHERLOCK_ICON, UD_PLACEHOLDER_ID} from "./types";
-import {TokenType, getSortedTokens} from "@unstoppabledomains/ui-components";
 import numeral from "numeral";
+
+import config from "@unstoppabledomains/config";
+import {TokenType, getSortedTokens} from "@unstoppabledomains/ui-components";
+
+import {Logger} from "../logger";
 import {createElementFromHtml, isStyleInjected} from "./styles";
+import {ResolutionData, SHERLOCK_ICON, UD_PLACEHOLDER_ID} from "./types";
 
 // working state variables
 const zQueue: Record<string, any>[] = [];
@@ -67,7 +69,7 @@ export const createPopup = (r: ResolutionData) => {
   // add domain avatar
   const nameAvatar = document.createElement("img");
   nameAvatar.className = "ud-avatar";
-  nameAvatar.src = r.avatar;
+  nameAvatar.src = r.avatar || "";
   nameContainer.appendChild(nameAvatar);
 
   // add domain name
@@ -107,7 +109,7 @@ export const createPopup = (r: ResolutionData) => {
   copyAddressLink.onclick = () => {
     copyAddressLink.textContent = "Copied";
     copyAddressLink.className = "ud-link ud-link-success";
-    copyToClipboard(r.address);
+    void copyToClipboard(r.address);
     setTimeout(() => {
       copyAddressLink.textContent = `Copy address`;
       copyAddressLink.className = "ud-link";
@@ -118,7 +120,7 @@ export const createPopup = (r: ResolutionData) => {
   linkContainer.appendChild(copyAddressLink);
 
   // register the tooltip for visibility
-  onVisible(nameContainer, async () => {
+  void onVisible(nameContainer, async () => {
     try {
       // load the domain profile data when card is shown
       const profileData = await window.unstoppable.getDomainProfile(r.domain);
@@ -136,7 +138,7 @@ export const createPopup = (r: ResolutionData) => {
         const valueUsd = `$${numeral(
           profileData.walletBalances
             // crypto portfolio value
-            .map((w) => w.totalValueUsdAmt || 0)
+            .map(w => w.totalValueUsdAmt || 0)
             .reduce((a, b) => a + b, 0) +
             // domain portfolio value
             (profileData.portfolio?.account?.valueAmt || 0) / 100,
@@ -152,15 +154,15 @@ export const createPopup = (r: ResolutionData) => {
         onchainDiv.appendChild(
           createElementFromHtml(`
             <div class="ud-contentContainer">
-                Portfolio:&nbsp;<a class="ud-data-link" href="${sortedTokens.find((t) => t.symbol === (isEns ? "ETH" : "MATIC"))?.walletBlockChainLink}" target="_blank">${valueUsd}</a>
+                Portfolio:&nbsp;<a class="ud-data-link" href="${sortedTokens.find(t => t.symbol === (isEns ? "ETH" : "MATIC"))?.walletBlockChainLink}" target="_blank">${valueUsd}</a>
             </div>`),
         );
 
         const tokenInfo = sortedTokens
           .slice(0, 5)
-          .filter((t) => t?.name && t.balance > 0)
+          .filter(t => t?.name && t.balance > 0)
           .map(
-            (t) =>
+            t =>
               `${t.name} (<a class="ud-data-link" href="${t.walletBlockChainLink}" target="_blank">${numeral(t.balance).format("0.00a").replaceAll(".00", "")} ${t.type === TokenType.Nft ? "NFTs" : t.ticker}</a>)`,
           )
           .join(", ");
@@ -186,7 +188,7 @@ const copyToClipboard = async (v: string) => {
   try {
     await navigator.clipboard.writeText(v);
   } catch (e) {
-    console.warn("error copying to clipboard: ", e);
+    Logger.warn("error copying to clipboard: ", e);
   }
 };
 
@@ -207,14 +209,17 @@ const onVisible = (
   callback: (e: HTMLElement) => void,
 ) => {
   new IntersectionObserver((entries, observer) => {
-    entries.forEach((entry) => {
+    entries.forEach(entry => {
       if (entry.intersectionRatio > 0) {
         callback(element);
         observer.disconnect();
       }
     });
   }).observe(element);
-  if (!callback) return new Promise((r) => (callback = r));
+  if (!callback) {
+    return new Promise(r => (callback = r));
+  }
+  return;
 };
 
 const patchParentZ = (e: MouseEvent, toolTip: HTMLElement) => {

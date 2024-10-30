@@ -1,16 +1,19 @@
-import {Client, DecodedMessage, StaticKeystoreProvider} from "@xmtp/xmtp-js";
-import {Logger} from "../logger";
-import {Mutex} from "async-mutex";
-import {fetcher} from "@xmtp/proto";
 import {ContentTypeText} from "@xmtp/content-type-text";
-import config from "@unstoppabledomains/config";
+import {fetcher} from "@xmtp/proto";
+import {Client, DecodedMessage, StaticKeystoreProvider} from "@xmtp/xmtp-js";
+import {Mutex} from "async-mutex";
 import truncateMiddle from "truncate-middle";
 
+import config from "@unstoppabledomains/config";
+
+import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 import {
   StorageSyncKey,
   chromeStorageGet,
   chromeStorageSet,
 } from "../chromeStorage";
+import {Logger} from "../logger";
+import {getResolution} from "../resolver/resolver";
 import {
   BadgeColor,
   createNotification,
@@ -18,18 +21,23 @@ import {
   openSidePanel,
   setBadgeCount,
 } from "../runtime";
-import {getResolution} from "../resolver/resolver";
 import {getWalletPreferences} from "../wallet/preferences";
-import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 
-let xmtpClient: Client = null;
+let xmtpClient: Client | null = null;
 const xmtpMutex = new Mutex();
 
 export const waitForXmtpMessages = async (xmtpKey?: string) => {
+  // check XMTP preferences
+  const preferences = await getWalletPreferences();
+  if (!preferences.MessagingEnabled) {
+    return;
+  }
+
   // ensure xmtpClient singleton instance
   await xmtpMutex.runExclusive(async () => {
     // no work to do if client already initialized
     if (xmtpClient) {
+      Logger.log("Already listening for XMTP messages");
       return;
     }
 
@@ -43,7 +51,7 @@ export const waitForXmtpMessages = async (xmtpKey?: string) => {
     } else {
       // register for permission updates and try again when available
       Logger.log("Waiting for notifications permission to be available...");
-      chrome.permissions.onAdded.addListener(async (p) => {
+      chrome.permissions.onAdded.addListener(async p => {
         if (p?.permissions?.includes("notifications")) {
           await waitForXmtpMessages(xmtpKey);
         }
@@ -155,10 +163,10 @@ const assertMessagingEnabled = async () => {
 
 const handleMessage = async (decodedMessage: DecodedMessage) => {
   // refresh the local consent list
-  await xmtpClient.contacts.loadConsentList();
+  await xmtpClient?.contacts.loadConsentList();
 
   // determine if sender has been accepted
-  const isApproved = xmtpClient.contacts.isAllowed(
+  const isApproved = xmtpClient?.contacts.isAllowed(
     decodedMessage.senderAddress,
   );
   Logger.log("Got XMTP message", {

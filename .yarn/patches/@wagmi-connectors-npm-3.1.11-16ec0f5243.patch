@@ -1,0 +1,51 @@
+diff --git a/dist/coinbaseWallet.js b/dist/coinbaseWallet.js
+index 89cc3b5416e5fc9d758e5b13462445620ac113a4..21df8140729a77612fa5d87e6ef8a4544b470cf0 100644
+--- a/dist/coinbaseWallet.js
++++ b/dist/coinbaseWallet.js
+@@ -1,3 +1,4 @@
++import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
+ import {
+   ChainNotConfiguredForConnectorError
+ } from "./chunk-UGBGYVBH.js";
+@@ -102,7 +103,6 @@ var CoinbaseWalletConnector = class extends Connector {
+   }
+   async getProvider() {
+     if (!__privateGet(this, _provider)) {
+-      let CoinbaseWalletSDK = (await import("@coinbase/wallet-sdk")).default;
+       if (typeof CoinbaseWalletSDK !== "function" && typeof CoinbaseWalletSDK.default === "function")
+         CoinbaseWalletSDK = CoinbaseWalletSDK.default;
+       __privateSet(this, _client, new CoinbaseWalletSDK(this.options));
+diff --git a/dist/walletConnect.js b/dist/walletConnect.js
+index b895a76c4759bffd3e68d2d6ee2955217d3b8db3..d28123a165bc4ae8f345de941b96e2671bffa8c7 100644
+--- a/dist/walletConnect.js
++++ b/dist/walletConnect.js
+@@ -1,3 +1,4 @@
++import { EthereumProvider } from "@walletconnect/ethereum-provider";
+ import {
+   Connector,
+   __privateAdd,
+@@ -221,7 +222,6 @@ createProvider_fn = async function() {
+ };
+ _initProvider = new WeakSet();
+ initProvider_fn = async function() {
+-  const { EthereumProvider } = await import("@walletconnect/ethereum-provider");
+   const optionalChains = this.chains.map(({ id }) => id);
+   if (optionalChains.length) {
+     const {
+diff --git a/dist/walletConnectLegacy.js b/dist/walletConnectLegacy.js
+index d3a1c1de2b9bd3b16c01b3f3033d575e77c71b06..be06ff7f808d4578ea6acf4b6b944ef6ff49964e 100644
+--- a/dist/walletConnectLegacy.js
++++ b/dist/walletConnectLegacy.js
+@@ -1,3 +1,4 @@
++import WalletConnectProvider from "@walletconnect/legacy-provider"
+ import {
+   normalizeChainId
+ } from "./chunk-OQILYQDO.js";
+@@ -107,7 +108,6 @@ var WalletConnectLegacyConnector = class extends Connector {
+         }),
+         {}
+       ) : {};
+-      const WalletConnectProvider = (await import("@walletconnect/legacy-provider")).default;
+       __privateSet(this, _provider, new WalletConnectProvider({
+         ...this.options,
+         chainId,

@@ -12,6 +12,7 @@ export enum StorageSyncKey {
   WindowId = "windowId",
   XmtpKey = "XmtpKey",
   XmtpNotifications = "XmtpNotifications",
+  FireblocksState = "fireblocks-state",
 }
 
 type StorageType = "local" | "session" | "sync";

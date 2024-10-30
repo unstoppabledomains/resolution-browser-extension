@@ -1,6 +1,7 @@
-import {useState, useEffect} from "react";
-import UserIdService from "../services/userIdService";
+import {useEffect, useState} from "react";
+
 import {Logger} from "../lib/logger";
+import UserIdService from "../services/userIdService";
 
 const userIdService = new UserIdService();
 
@@ -12,11 +13,11 @@ function useUserId() {
   useEffect(() => {
     userIdService
       .getUserId()
-      .then((id) => {
+      .then(id => {
         Logger.log(`Fetched user ID: ${id}`);
         setUserId(id);
       })
-      .catch((err) => {
+      .catch(err => {
         Logger.error(err, "Popup", "Failed to retrieve user ID");
         setError(err);
       })

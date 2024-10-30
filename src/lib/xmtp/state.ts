@@ -1,11 +1,13 @@
-import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
-import {Logger} from "../logger";
 import {fetcher} from "@xmtp/proto";
+
+import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
+
+import {Logger} from "../logger";
 import {sendMessageToBackground} from "../wallet/message";
 
 export const notifyXmtpServiceWorker = async (address: string) => {
   // retrieve the XMTP key
-  const xmtpKey = getXmtpLocalKey(address);
+  const xmtpKey = await getXmtpLocalKey(address);
   if (!xmtpKey) {
     Logger.warn("XMTP key not available");
     return false;
@@ -16,4 +18,16 @@ export const notifyXmtpServiceWorker = async (address: string) => {
 
   // provide the key to service worker
   await sendMessageToBackground("xmtpReadyRequest", xmtpKeyEncoded);
+  return true;
+};
+
+export const prepareXmtpInBackground = async (
+  accessToken: string,
+  address: string,
+) => {
+  // send a request to the service worker to prepare XMTP account
+  await sendMessageToBackground(
+    "prepareXmtpRequest",
+    JSON.stringify({accessToken, address}),
+  );
 };

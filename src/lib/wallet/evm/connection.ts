@@ -61,6 +61,9 @@ export const setConnectedSite = async (
   const normalizedConnection = existingConnection
     ? {...existingConnection, ...connection}
     : connection;
+  if (!normalizedConnection) {
+    return;
+  }
 
   // update site connections with the new value
   connectedSites[host.toLowerCase()] = normalizedConnection;

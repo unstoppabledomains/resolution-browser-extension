@@ -1,4 +1,5 @@
-import {useEffect, useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
+
 import {
   getConnectedSites,
   removeConnectedSite,
@@ -33,11 +34,11 @@ const useConnections = () => {
         active: true,
         currentWindow: true,
       });
-      if (activeTab && activeTab.length > 0) {
+      if (activeTab && activeTab.length > 0 && activeTab[0].url) {
         const activeHostname = new URL(activeTab[0].url).hostname.toLowerCase();
         setIsConnected(
           Object.keys(connections).filter(
-            (c) => c.toLowerCase() === activeHostname,
+            c => c.toLowerCase() === activeHostname,
           ).length > 0,
         );
         setCurrentHost(activeHostname);

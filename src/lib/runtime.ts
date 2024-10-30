@@ -1,8 +1,9 @@
-import {Logger} from "./logger";
 import Bluebird from "bluebird";
+import rgbHex from "rgb-hex";
+
 import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
 import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
-import rgbHex from "rgb-hex";
+import {Logger} from "./logger";
 import {sleep} from "./wallet/sleep";
 
 export enum BadgeColor {
@@ -66,7 +67,7 @@ export const setIcon = async (
         if (!tab.id) {
           continue;
         }
-        setIcon(variant, tab.id);
+        await setIcon(variant, tab.id);
       }
     }
     return;
@@ -99,7 +100,7 @@ export const getBadgeCount = async (color: BadgeColor) => {
     currentCount = "0";
   }
   try {
-    return parseInt(currentCount);
+    return parseInt(currentCount, 10);
   } catch (e) {
     // ignore error
   }
@@ -130,7 +131,7 @@ export const focusExtensionWindows = async (
     const extensionBaseUrl = chrome.runtime.getURL("");
 
     // focus for side panels
-    await Bluebird.map(allOpenWindows, async (tab) => {
+    await Bluebird.map(allOpenWindows, async tab => {
       if (tab.url?.includes(extensionBaseUrl)) {
         await chrome.windows.update(tab.windowId, {focused: true});
         focussedCount++;
@@ -209,7 +210,7 @@ export const openSidePanel = async (opts?: {
       const windowId =
         opts?.windowId || (await chrome.windows.getCurrent())?.id;
       if (!windowId) {
-        return;
+        return false;
       }
 
       // build the URL used to open the side panel
@@ -222,7 +223,7 @@ export const openSidePanel = async (opts?: {
         chrome.sidePanel.setOptions({enabled: true, path: sidePanelUrl}),
       ]);
       return true;
-    } catch (e) {
+    } catch (e: any) {
       // gracefully handle the error and fallback to opening the chat within
       // the same window instead of side panel
       Logger.warn(e, "Popup", "Unable to open message side panel");
