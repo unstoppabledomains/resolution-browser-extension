@@ -1,9 +1,10 @@
-import {useState, useEffect} from "react";
-import {WalletPreferences} from "../types/wallet/preferences";
+import {useEffect, useState} from "react";
+
 import {
   getWalletPreferences,
   setWalletPreferences,
 } from "../lib/wallet/preferences";
+import {WalletPreferences} from "../types/wallet/preferences";
 
 function usePreferences() {
   const [preferences, setPreferences] = useState<WalletPreferences>();

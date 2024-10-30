@@ -1,8 +1,9 @@
+import type {Signer} from "ethers";
+
+import {signMessage} from "@unstoppabledomains/ui-components/actions/fireBlocksActions";
 import {localStorageWrapper} from "@unstoppabledomains/ui-components/components/Chat/storage";
 import {ReactSigner} from "@unstoppabledomains/ui-components/lib/fireBlocks/reactSigner";
 import {FireblocksStateKey} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
-import {signMessage} from "@unstoppabledomains/ui-components/actions/fireBlocksActions";
-import type {Signer} from "ethers";
 
 export const getSigner = async (
   address: string,
@@ -24,13 +25,13 @@ export const getSigner = async (
   const signer = new ReactSigner(address, {
     signMessageWithFireblocks: async (
       message: string,
-      address?: string,
+      signingAddress?: string,
       chainId?: number,
     ) => {
       return await signMessage(
         message,
         {accessToken, state, saveState},
-        {address, chainId},
+        {address: signingAddress, chainId},
       );
     },
   });

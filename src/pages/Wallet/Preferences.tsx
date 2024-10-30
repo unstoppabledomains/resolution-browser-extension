@@ -1,37 +1,39 @@
-import React, {useEffect, useState} from "react";
-import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
-import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
+import Typography from "@mui/material/Typography";
+import {useFlags} from "launchdarkly-react-client-sdk";
 import Markdown from "markdown-to-jsx";
-import {useExtensionStyles} from "../../styles/extension.styles";
+import React, {useEffect, useState} from "react";
+
+import {
+  DomainProfileKeys,
+  Link,
+  Modal,
+  localStorageWrapper,
+  useFireblocksAccessToken,
+  useTranslationContext,
+} from "@unstoppabledomains/ui-components";
+
+import config from "../../config";
+import useConnections from "../../hooks/useConnections";
+import usePreferences from "../../hooks/usePreferences";
+import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
+import {getManifestVersion, setIcon} from "../../lib/runtime";
+import {clearAllConnectedSites} from "../../lib/wallet/evm/connection";
+import {sendMessageToClient} from "../../lib/wallet/message";
 import {
   getDefaultPreferences,
   setWalletPreferences,
 } from "../../lib/wallet/preferences";
-import {
-  useTranslationContext,
-  Link,
-  Modal,
-  DomainProfileKeys,
-  localStorageWrapper,
-  useFireblocksAccessToken,
-} from "@unstoppabledomains/ui-components";
-import {clearAllConnectedSites} from "../../lib/wallet/evm/connection";
-import MainScreen from "../Legacy/MainScreen";
-import usePreferences from "../../hooks/usePreferences";
-import useConnections from "../../hooks/useConnections";
-import {sendMessageToClient} from "../../lib/wallet/message";
-import config from "../../config";
-import {getManifestVersion, setIcon} from "../../lib/runtime";
-import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 import {prepareXmtpInBackground} from "../../lib/xmtp/state";
+import {useExtensionStyles} from "../../styles/extension.styles";
+import MainScreen from "../Legacy/MainScreen";
 import {TwoFactorModal} from "./TwoFactorModal";
-import {useFlags} from "launchdarkly-react-client-sdk";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -58,6 +60,10 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const handleCompatibilityMode = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    if (!preferences) {
+      return;
+    }
+
     // set the compatibility mode preference
     preferences.OverrideMetamask = event.target.checked;
     setPreferences({...preferences});
@@ -73,6 +79,10 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const handleSherlockAssistant = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    if (!preferences) {
+      return;
+    }
+
     // initialize scanning preferences if required
     if (!preferences.Scanning) {
       const defaultPreferences = getDefaultPreferences();
@@ -86,6 +96,10 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   };
 
   const handleTwoFactorClicked = () => {
+    if (!preferences) {
+      return;
+    }
+
     // initialize scanning preferences if required
     if (!preferences.TwoFactorAuth) {
       const defaultPreferences = getDefaultPreferences();
@@ -103,6 +117,10 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const handleMessaging = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    if (!preferences) {
+      return;
+    }
+
     // store messaging preference
     preferences.MessagingEnabled = event.target.checked;
     setPreferences({...preferences});
@@ -126,7 +144,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     setConnections({});
 
     // remove the connected icon
-    setIcon("default");
+    await setIcon("default");
 
     // send disconnect event to client
     await sendMessageToClient("disconnectRequest");
@@ -139,12 +157,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
 
   return (
     <Box className={classes.container}>
-      <Modal
-        open={true}
-        fullScreen={true}
-        title={t("push.settings")}
-        onClose={onClose}
-      >
+      <Modal open fullScreen title={t("push.settings")} onClose={onClose}>
         <Box className={classes.preferenceContainer}>
           {!preferences ? (
             <Box
@@ -233,7 +246,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 {connections &&
                   Object.keys(connections)
                     .sort((a, b) => a.localeCompare(b))
-                    .map((site) => (
+                    .map(site => (
                       <Link href={`https://${site}`} target="_blank">
                         <Typography variant="caption">{site}</Typography>
                       </Link>
@@ -271,7 +284,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 description={t("extension.decentralizedBrowsingDescription")}
               >
                 <Box display="flex" width="100%" mt={1}>
-                  <MainScreen hideUserId={true} />
+                  <MainScreen hideUserId />
                 </Box>
               </PreferenceSection>
               {account && (
@@ -288,7 +301,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
           )}
         </Box>
       </Modal>
-      {isTwoFactorOpen && (
+      {isTwoFactorOpen && preferences && (
         <TwoFactorModal
           open={isTwoFactorOpen}
           onClose={handleTwoFactorClose}

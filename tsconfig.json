@@ -1,14 +1,32 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": true,
     "lib": ["DOM", "esnext"],
     "jsx": "react",
+    "downlevelIteration": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "ignoreDeprecations": "5.0",
+    "importHelpers": true,
+    "incremental": true,
+    "isolatedModules": false,
+    "module": "CommonJS",
     "moduleResolution": "node",
-    "module": "esnext",
-    "typeRoots": ["./node_modules/@types", "./typings"],
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "declarationMap": false,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "ESNext"
   },
-  "include": [
-    "src", 
-  ],
+  "exclude": ["node_modules", "**/node_modules", "test", "**/test"],
+  "include": ["**/*.d.ts", "**/*.ts", "**/*.tsx"]
 }

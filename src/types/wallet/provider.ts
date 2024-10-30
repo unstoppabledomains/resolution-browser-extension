@@ -91,6 +91,7 @@ export const isClientSideRequestType = (
 
 // define a provider request interface
 export type ProviderRequestParams = any[];
+
 export interface ProviderRequest {
   type: ExternalRequestType | InternalRequestType;
   params: ProviderRequestParams;

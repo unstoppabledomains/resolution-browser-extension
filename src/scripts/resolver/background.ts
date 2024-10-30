@@ -18,7 +18,7 @@ export const waitForSupportedDomains = async () => {
   await refreshRules();
 
   // schedule a timer to check for updates periodically
-  chrome.alarms.create("refreshRules", {
+  await chrome.alarms.create("refreshRules", {
     delayInMinutes: SUPPORTED_DOMAIN_REFRESH_MINUTES,
     periodInMinutes: SUPPORTED_DOMAIN_REFRESH_MINUTES,
   });
@@ -47,7 +47,7 @@ const getDomainRule = (domain: string) => {
 
 const deleteAllRules = async () => {
   const rules = await getRules();
-  const ruleIds = rules.map((rule) => rule.id);
+  const ruleIds = rules.map(rule => rule.id);
   if (ruleIds.length > 0) {
     await chrome.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: ruleIds,
@@ -63,9 +63,9 @@ const updateDomainRules = async (domains: string[]): Promise<string[]> => {
   Logger.log("Checking HTTP rules...");
   const newDomains: string[] = [];
   const existingRules = await getRules();
-  domains.map((d) => {
+  domains.map(d => {
     if (
-      !existingRules.find((r) => r.condition.regexFilter === getDomainRule(d))
+      !existingRules.find(r => r.condition.regexFilter === getDomainRule(d))
     ) {
       newDomains.push(d);
     }
@@ -79,10 +79,11 @@ const updateDomainRules = async (domains: string[]): Promise<string[]> => {
 
   // add the HTTP redirect rules
   Logger.log("Adding HTTP rules...", {domains: newDomains});
-  newDomains.map((d, i) => {
+  for (let i = 0; i < newDomains.length; i++) {
+    const d = newDomains[i];
     const urlRegex = getDomainRule(d);
     const id = i + existingRules.length + 1001;
-    chrome.declarativeNetRequest.updateDynamicRules({
+    await chrome.declarativeNetRequest.updateDynamicRules({
       addRules: [
         {
           id,
@@ -102,14 +103,15 @@ const updateDomainRules = async (domains: string[]): Promise<string[]> => {
       ],
       removeRuleIds: [id],
     });
-  });
+  }
 
   // add search engine rules
   Logger.log("Adding search engines rules...", {domains: newDomains});
-  newDomains.map((d, i) => {
+  for (let i = 0; i < newDomains.length; i++) {
+    const d = newDomains[i];
     const urlRegex = `https?://.*[?&]q=([^&]*?\\b\\.${d})(&|$)`;
     const id = i + existingRules.length + 2001;
-    chrome.declarativeNetRequest.updateDynamicRules({
+    await chrome.declarativeNetRequest.updateDynamicRules({
       addRules: [
         {
           id,
@@ -139,7 +141,7 @@ const updateDomainRules = async (domains: string[]): Promise<string[]> => {
       ],
       removeRuleIds: [id],
     });
-  });
+  }
 
   // return the updated domains
   return newDomains;

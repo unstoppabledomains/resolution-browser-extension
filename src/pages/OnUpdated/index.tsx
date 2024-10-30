@@ -1,20 +1,22 @@
-import React from "react";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import {useExtensionStyles} from "../../styles/extension.styles";
-import {setWalletPreferences} from "../../lib/wallet/preferences";
-import {useNavigate} from "react-router-dom";
-import {DefaultPageView} from "../../types/wallet/preferences";
-import Animation from "react-canvas-confetti/dist/presets/fireworks";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import Markdown from "markdown-to-jsx";
+import React from "react";
+import Animation from "react-canvas-confetti/dist/presets/fireworks";
+import {useNavigate} from "react-router-dom";
+
+import {AppEnv} from "@unstoppabledomains/config";
+import {useTranslationContext} from "@unstoppabledomains/ui-components";
+
 import config from "../../config";
 import usePreferences from "../../hooks/usePreferences";
 import {getManifestVersion} from "../../lib/runtime";
-import {useTranslationContext} from "@unstoppabledomains/ui-components";
-import {AppEnv} from "@unstoppabledomains/config";
+import {setWalletPreferences} from "../../lib/wallet/preferences";
+import {useExtensionStyles} from "../../styles/extension.styles";
+import {DefaultPageView} from "../../types/wallet/preferences";
 
 const OnUpdated: React.FC = () => {
   const {classes, cx} = useExtensionStyles();
@@ -31,6 +33,10 @@ const OnUpdated: React.FC = () => {
   };
 
   const handlePreference = async (view: DefaultPageView) => {
+    if (!preferences) {
+      return;
+    }
+
     preferences.DefaultView = view;
     preferences.WalletEnabled = view === "wallet";
     preferences.VersionInfo = config.VERSION_DESCRIPTION;
@@ -47,7 +53,9 @@ const OnUpdated: React.FC = () => {
         >
           <img src={chrome.runtime.getURL("/icon/browser.svg")} />
           <Typography variant="h4" mt={1}>
-            {t("extension.welcomeToVersion", {version: getManifestVersion()})}
+            {t("extension.welcomeToVersion", {
+              version: getManifestVersion() || "dev",
+            })}
           </Typography>
           <Paper variant="outlined" className={classes.updatedContentContainer}>
             <Typography variant="body1">

@@ -1,9 +1,11 @@
-import config from "@unstoppabledomains/config";
-import {RESOLUTION_URL} from "./types";
-import {Logger} from "../logger";
-import {ResolutionData} from "../sherlock/types";
 import {LRUCache} from "lru-cache";
+
+import config from "@unstoppabledomains/config";
+
+import {Logger} from "../logger";
 import {isEthAddress} from "../sherlock/matcher";
+import {ResolutionData} from "../sherlock/types";
+import {RESOLUTION_URL} from "./types";
 
 // temporary cache to hold supported TLDs
 const tldCacheKey = "supportedTlds";
@@ -37,8 +39,8 @@ export const getSupportedTlds = async (): Promise<string[]> => {
       if (tlds && Array.isArray(tlds)) {
         // filter to only non-ICANN names
         const supportedTlds = tlds
-          .map((d) => d.toLowerCase())
-          .filter((d) => !icannTlds.has(d));
+          .map(d => d.toLowerCase())
+          .filter(d => !icannTlds.has(d));
 
         // cache and return
         resolverCache.set(tldCacheKey, supportedTlds);
@@ -80,7 +82,7 @@ export const getIcannTlds = async (): Promise<Set<string>> => {
       const icannData = await icannResponse.text();
       const tlds = icannData.split(/\n/);
       if (tlds.length > 1) {
-        return new Set(tlds.slice(1).map((d) => d.toLowerCase()));
+        return new Set(tlds.slice(1).map(d => d.toLowerCase()));
       }
     }
   } catch (e) {

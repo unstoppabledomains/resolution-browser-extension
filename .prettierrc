@@ -1,7 +1,17 @@
 {
-  "bracketSpacing": false,
-  "semi": true,
   "singleQuote": false,
   "printWidth": 80,
-  "trailingComma": "all"
+  "proseWrap": "always",
+  "arrowParens": "avoid",
+  "bracketSpacing": false,
+  "semi": true,
+  "trailingComma": "all",
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^@unstoppabledomains/", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "organizeImportsSkipDestructiveCodeActions": false,
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "@trivago/prettier-plugin-sort-imports"
+  ]
 }

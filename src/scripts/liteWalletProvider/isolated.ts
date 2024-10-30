@@ -1,18 +1,19 @@
 import {
-  InternalMessageTypes,
   ExternalMessageTypes,
+  InternalMessageTypes,
   ProviderEvent,
   ProviderResponseParams,
   getResponseType,
+  isClientSideRequestType,
   isExternalRequestType,
   isInternalRequestType,
-  isClientSideRequestType,
 } from "../../types/wallet/provider";
 
 // register event listeners for all supported internal and external
 // messages types
-[...ExternalMessageTypes, ...InternalMessageTypes].map((messageType) => {
-  document.addEventListener(messageType, (event: ProviderEvent) => {
+[...ExternalMessageTypes, ...InternalMessageTypes].map(messageType => {
+  document.addEventListener(messageType, (e: any) => {
+    const event = e as ProviderEvent;
     chrome.runtime.sendMessage(
       {
         type: messageType,

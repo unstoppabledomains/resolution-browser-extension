@@ -1,18 +1,20 @@
-import React, {useEffect, useState} from "react";
-import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import React, {useEffect, useState} from "react";
 import useIsMounted from "react-is-mounted-hook";
-import {useExtensionStyles} from "../../styles/extension.styles";
+
 import {
-  useUnstoppableMessaging,
   UnstoppableMessaging,
   getBootstrapState,
-  useFireblocksState,
   isEthAddress,
+  useFireblocksState,
+  useUnstoppableMessaging,
 } from "@unstoppabledomains/ui-components";
+
 import {Logger} from "../../lib/logger";
 import {getXmtpChatAddress} from "../../lib/wallet/request";
+import {useExtensionStyles} from "../../styles/extension.styles";
 
 export const MessageSidePanel: React.FC = () => {
   const {classes, cx} = useExtensionStyles();
@@ -40,13 +42,13 @@ export const MessageSidePanel: React.FC = () => {
         const accountEvmAddresses = [
           ...new Set(
             signInState.assets
-              ?.map((a) => {
+              ?.map(a => {
                 return {
                   address: a.address,
                   networkId: a.blockchainAsset.blockchain.networkId,
                 };
               })
-              .filter((a) => isEthAddress(a.address)),
+              .filter(a => isEthAddress(a.address)),
           ),
         ];
 
@@ -98,8 +100,8 @@ export const MessageSidePanel: React.FC = () => {
         )}
         <UnstoppableMessaging
           address={address}
-          silentOnboard={true}
-          hideIcon={true}
+          silentOnboard
+          hideIcon
           disableSupportBubble
           inheritStyle
         />

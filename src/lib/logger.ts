@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 import {BugsnagErrorClasses, notifyBugsnag} from "@unstoppabledomains/config";
+
 import config from "../config";
 import {getManifestVersion} from "./runtime";
 
@@ -25,6 +27,12 @@ export class Logger {
     // print error to console
     console.error(`[${PREFIX}] ${String(e)}`, message, ...optionalParams);
 
+    // determine the app version for bugsnag
+    const app_version = getManifestVersion();
+    if (!app_version) {
+      return;
+    }
+
     // collect error data with bugsnag for problem determination
     notifyBugsnag(
       {
@@ -39,7 +47,7 @@ export class Logger {
       },
       {
         api_key: config.BUGSNAG_API_KEY,
-        app_version: getManifestVersion(),
+        app_version,
         app_env: config.NODE_ENV,
       },
     );

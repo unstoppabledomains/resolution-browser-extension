@@ -1,6 +1,8 @@
-import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
-import {Logger} from "../logger";
 import {fetcher} from "@xmtp/proto";
+
+import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
+
+import {Logger} from "../logger";
 import {sendMessageToBackground} from "../wallet/message";
 
 export const notifyXmtpServiceWorker = async (address: string) => {
@@ -16,6 +18,7 @@ export const notifyXmtpServiceWorker = async (address: string) => {
 
   // provide the key to service worker
   await sendMessageToBackground("xmtpReadyRequest", xmtpKeyEncoded);
+  return true;
 };
 
 export const prepareXmtpInBackground = async (

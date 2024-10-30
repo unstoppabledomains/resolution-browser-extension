@@ -1,11 +1,12 @@
-import {Logger} from "../../lib/logger";
-import {scanForResolutions} from "../../lib/sherlock/scanner";
-import {isEthAddress, isPartialAddress} from "../../lib/sherlock/matcher";
-import {ContextMenu} from "../../lib/sherlock/contextMenu";
 import {isDomainValidForManagement} from "@unstoppabledomains/ui-components";
 
+import {Logger} from "../../lib/logger";
+import {ContextMenu} from "../../lib/sherlock/contextMenu";
+import {isEthAddress, isPartialAddress} from "../../lib/sherlock/matcher";
+import {scanForResolutions} from "../../lib/sherlock/scanner";
+
 // check preferences to ensure desired behavior
-window.unstoppable?.getPreferences().then((preferences) => {
+void window.unstoppable?.getPreferences().then(preferences => {
   // broadcast an event indicating this tab needs context menu update
   const contextMenu = new ContextMenu(preferences);
   contextMenu.broadcastTab();
@@ -29,22 +30,22 @@ window.unstoppable?.getPreferences().then((preferences) => {
   void scanForResolutions();
 
   // create an observer to watch for future DOM changes
-  const observer = new MutationObserver((mutations) => {
+  const observer = new MutationObserver(mutations => {
     let isAddressOrNameDetected = false;
-    mutations.forEach((mutation) => {
+    mutations.forEach(mutation => {
       // address or name already detected
       if (isAddressOrNameDetected) {
         return;
       }
 
       // check for potential new addresses
-      let oldValue = mutation.oldValue;
-      let newValue = mutation.target.textContent;
+      const oldValue = mutation.oldValue;
+      const newValue = mutation.target.textContent;
       if (oldValue !== newValue) {
         // a recursive helper to scan child node tree. The recursive search stops
         // as soon as a matching string is found.
         const scanChildren = (childNodes: NodeListOf<ChildNode>) => {
-          childNodes.forEach((newChild) => {
+          childNodes.forEach(newChild => {
             // address already detected
             if (isAddressOrNameDetected) {
               return;
@@ -55,11 +56,11 @@ window.unstoppable?.getPreferences().then((preferences) => {
 
             if (
               // match full EVM addresses
-              isEthAddress(newChildValue) ||
+              isEthAddress(newChildValue || "") ||
               // match partial EVM addresses
-              isPartialAddress(newChildValue) ||
+              isPartialAddress(newChildValue || "") ||
               // match fully qualified domains
-              isDomainValidForManagement(newChildValue)
+              isDomainValidForManagement(newChildValue || "")
             ) {
               isAddressOrNameDetected = true;
               return;

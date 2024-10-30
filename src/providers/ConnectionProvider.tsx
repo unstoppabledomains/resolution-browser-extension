@@ -1,4 +1,8 @@
+/* eslint-disable react/function-component-definition */
+
+/* eslint-disable react/jsx-no-constructed-context-values */
 import React, {useState} from "react";
+
 import {ConnectedSites} from "../types/wallet/connection";
 
 type Props = {

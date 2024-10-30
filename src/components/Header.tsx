@@ -1,7 +1,8 @@
-import React from "react";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import React from "react";
+
 import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
 import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 

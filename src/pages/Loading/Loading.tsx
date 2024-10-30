@@ -1,7 +1,8 @@
-import React from "react";
-import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import React from "react";
+
 import {useExtensionStyles} from "../../styles/extension.styles";
 
 const styles = {
@@ -18,9 +19,7 @@ const styles = {
   },
 };
 
-interface Props {}
-
-const Loading: React.FC<Props> = () => {
+const Loading: React.FC = () => {
   const {classes} = useExtensionStyles();
   return (
     <Paper className={classes.container}>

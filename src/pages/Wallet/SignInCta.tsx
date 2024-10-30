@@ -1,17 +1,19 @@
-import React from "react";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import {useExtensionStyles} from "../../styles/extension.styles";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import React from "react";
+
+import {AppEnv} from "@unstoppabledomains/config";
 import {useTranslationContext} from "@unstoppabledomains/ui-components";
 import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
 import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
+
 import config from "../../config";
-import {AppEnv} from "@unstoppabledomains/config";
 import {setBadgeCount} from "../../lib/runtime";
 import {openPopupWindow} from "../../scripts/liteWalletProvider/background";
+import {useExtensionStyles} from "../../styles/extension.styles";
 
 interface SignInCtaProps {
   onSignInClick: () => Promise<void>;
@@ -27,6 +29,9 @@ export const SignInCta: React.FC<SignInCtaProps> = ({onSignInClick}) => {
 
     // find current window
     const parentWindow = await chrome.windows.getLastFocused();
+    if (!parentWindow?.id) {
+      return;
+    }
 
     // determine the popup URL
     const popupUrl = chrome.runtime.getURL(
@@ -40,7 +45,7 @@ export const SignInCta: React.FC<SignInCtaProps> = ({onSignInClick}) => {
     await setBadgeCount(1);
 
     // close the existing extension popup
-    chrome.extension.getViews({type: "popup"}).map((w) => w.close());
+    chrome.extension.getViews({type: "popup"}).map(w => w.close());
   };
 
   return (

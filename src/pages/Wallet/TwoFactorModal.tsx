@@ -1,24 +1,26 @@
-import React, {useEffect, useState} from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import {useExtensionStyles} from "../../styles/extension.styles";
+import CircularProgress from "@mui/material/CircularProgress";
+import React, {useEffect, useState} from "react";
+import {QRCode} from "react-qrcode-logo";
+
 import {
   Modal,
   useFireblocksAccessToken,
 } from "@unstoppabledomains/ui-components";
 import ManageInput from "@unstoppabledomains/ui-components/components/Manage/common/ManageInput";
-import {setWalletPreferences} from "../../lib/wallet/preferences";
-import {WalletPreferences} from "../../types/wallet/preferences";
+
+import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 import {
   disableTwoFactor,
   getTwoFactorChallenge,
   getTwoFactorStatus,
   verifyTwoFactorChallenge,
 } from "../../lib/wallet/2fa";
-import CircularProgress from "@mui/material/CircularProgress";
-import {QRCode} from "react-qrcode-logo";
+import {setWalletPreferences} from "../../lib/wallet/preferences";
+import {useExtensionStyles} from "../../styles/extension.styles";
+import {WalletPreferences} from "../../types/wallet/preferences";
 import {PreferenceSection} from "./Preferences";
-import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 
 interface TwoFactorModalProps {
   open?: boolean;
@@ -56,7 +58,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
     const loadStatus = async () => {
       // retrieve status
       const enabled = await getTwoFactorStatus(accessToken);
-      updateStatus(enabled);
+      await updateStatus(enabled);
 
       // if not enabled, retrieve QR code data
       if (!enabled) {
@@ -69,6 +71,11 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   }, [accessToken, emailAddress]);
 
   const handleClick = async () => {
+    // validate OTP is set
+    if (!otp) {
+      return;
+    }
+
     // enable or disable the configuration
     const operationFn = preferences.TwoFactorAuth.Enabled
       ? disableTwoFactor
@@ -95,7 +102,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
     setOtp(value);
   };
 
-  const handleKeyDown: React.KeyboardEventHandler = (event) => {
+  const handleKeyDown: React.KeyboardEventHandler = event => {
     if (event.key === "Enter") {
       void handleClick();
     }
@@ -108,7 +115,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose} noModalHeader={true}>
+    <Modal open={open || false} onClose={onClose} noModalHeader>
       <Box mt={-3} width="100%">
         <PreferenceSection
           title={
@@ -130,8 +137,8 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
                 <QRCode
                   value={qrCodeContent}
                   size={200}
-                  qrStyle={"dots"}
-                  ecLevel={"L"}
+                  qrStyle="dots"
+                  ecLevel="L"
                 />
               ) : (
                 <CircularProgress className={classes.loadingSpinner} />
@@ -144,7 +151,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
                 placeholder="Enter code from authenticator app"
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
-                error={errorMessage && errorMessage.length > 0}
+                error={errorMessage !== undefined && errorMessage.length > 0}
                 errorText={errorMessage}
               />
             </Box>

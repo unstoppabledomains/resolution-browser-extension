@@ -1,24 +1,25 @@
-import React, {useEffect, useState, useCallback} from "react";
-import {
-  chromeStorageGet,
-  chromeStorageSet,
-  StorageSyncKey,
-} from "../../lib/chromeStorage";
-import {
-  ExtensionOptions,
-  ExtensionLabel,
-  ExtensionURIMap,
-} from "../../types/redirect";
-import OAURL from "../../lib/OsAgnosticURL";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
-import ShowUserId from "../../components/ShowUserId";
+import Typography from "@mui/material/Typography";
 import {useFlags} from "launchdarkly-react-client-sdk";
+import React, {useCallback, useEffect, useState} from "react";
+
+import ShowUserId from "../../components/ShowUserId";
+import OAURL from "../../lib/OsAgnosticURL";
+import {
+  StorageSyncKey,
+  chromeStorageGet,
+  chromeStorageSet,
+} from "../../lib/chromeStorage";
+import {
+  ExtensionLabel,
+  ExtensionOptions,
+  ExtensionURIMap,
+} from "../../types/redirect";
 
 const styles = {
   main: {
@@ -89,14 +90,14 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
   );
 
   useEffect(() => {
-    chromeStorageGet<string>(StorageSyncKey.GatewayOption).then((option) => {
+    void chromeStorageGet<string>(StorageSyncKey.GatewayOption).then(option => {
       if (option === ExtensionOptions.InfuraAPI) setShowTextField(true);
       setGateWayOption(option);
     });
   }, []);
 
   useEffect(() => {
-    chromeStorageGet<string>(StorageSyncKey.GatewayBaseURL).then((url) => {
+    void chromeStorageGet<string>(StorageSyncKey.GatewayBaseURL).then(url => {
       setGatewayBaseURL(url);
     });
   }, []);
@@ -107,19 +108,21 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
     }
 
     try {
+      // eslint-disable-next-line no-new
       new OAURL(gatewayBaseURL.trim());
       setOkGatewayBaseURL(true);
-    } catch (error) {
+    } catch (e1) {
       try {
+        // eslint-disable-next-line no-new
         new OAURL("http://" + gatewayBaseURL.trim());
         setOkGatewayBaseURL(true);
-      } catch (error) {
+      } catch (e2) {
         setOkGatewayBaseURL(false);
       }
     }
 
     if (okGatewayBaseURL) {
-      chromeStorageSet(
+      void chromeStorageSet(
         StorageSyncKey.GatewayBaseURL,
         gatewayBaseURL.includes("://")
           ? gatewayBaseURL.trim()
@@ -130,12 +133,12 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
 
   useEffect(() => {
     const uri = ExtensionURIMap[gatewayOption];
-    if (uri) chromeStorageSet(StorageSyncKey.GatewayBaseURL, uri);
-    chromeStorageSet(StorageSyncKey.GatewayOption, gatewayOption);
+    if (uri) void chromeStorageSet(StorageSyncKey.GatewayBaseURL, uri);
+    void chromeStorageSet(StorageSyncKey.GatewayOption, gatewayOption);
   }, [gatewayOption]);
 
   const handleChangeGatewayBaseURL: React.ChangeEventHandler<HTMLInputElement> =
-    useCallback((e) => setGatewayBaseURL(e.target.value), []);
+    useCallback(e => setGatewayBaseURL(e.target.value), []);
 
   const handleChange = (event: SelectChangeEvent<ExtensionOptions>) => {
     const chosen = event.target.value;
@@ -145,8 +148,9 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
 
   const renderOptions = () => {
     const items: JSX.Element[] = [];
+
     for (const key in ExtensionOptions) {
-      const value = ExtensionOptions[key];
+      const value = ExtensionOptions[key as keyof typeof ExtensionOptions];
       items.push(
         <MenuItem key={key} value={value}>
           {" "}
@@ -168,7 +172,7 @@ const MainScreen: React.FC<Props> = ({hideUserId}) => {
             labelId="demo-simple-select-filled-label"
             id="demo-simple-select-filled"
             placeholder="Enter your own gateway"
-            value={gatewayOption}
+            value={gatewayOption as any}
             onChange={handleChange}
           >
             {renderOptions()}

@@ -1,20 +1,21 @@
-import React from "react";
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
-import MainScreen from "./MainScreen";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
-
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Box from "@mui/material/Box";
-import {useExtensionStyles} from "../../styles/extension.styles";
-import {PreferenceSection} from "../Wallet/Preferences";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Paper from "@mui/material/Paper";
+import React from "react";
+
+import {useTranslationContext} from "@unstoppabledomains/ui-components";
+
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
 import usePreferences from "../../hooks/usePreferences";
 import {
   getDefaultPreferences,
   setWalletPreferences,
 } from "../../lib/wallet/preferences";
-import {useTranslationContext} from "@unstoppabledomains/ui-components";
+import {useExtensionStyles} from "../../styles/extension.styles";
+import {PreferenceSection} from "../Wallet/Preferences";
+import MainScreen from "./MainScreen";
 
 const styles = {
   topLayout: {
@@ -30,9 +31,7 @@ const styles = {
   },
 };
 
-interface Props {}
-
-const Extension: React.FC<Props> = () => {
+const Extension: React.FC = () => {
   const [t] = useTranslationContext();
   const {classes} = useExtensionStyles();
   const {preferences, setPreferences} = usePreferences();
@@ -40,6 +39,10 @@ const Extension: React.FC<Props> = () => {
   const handleSherlockAssistant = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    if (!preferences) {
+      return;
+    }
+
     // initialize scanning preferences if required
     if (!preferences.Scanning) {
       const defaultPreferences = getDefaultPreferences();
@@ -83,7 +86,7 @@ const Extension: React.FC<Props> = () => {
                 title={t("extension.decentralizedBrowsing")}
                 description=""
               >
-                <MainScreen hideUserId={true} />
+                <MainScreen hideUserId />
               </PreferenceSection>
             </Box>
           </Box>

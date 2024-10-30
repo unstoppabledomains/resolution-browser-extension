@@ -1,12 +1,14 @@
+import {fetcher} from "@xmtp/proto";
+import {Mutex} from "async-mutex";
+
+import {getAccounts} from "@unstoppabledomains/ui-components/actions/fireBlocksActions";
 import {initXmtpAccount} from "@unstoppabledomains/ui-components/components/Chat/protocol/xmtp";
 import {getXmtpLocalKey} from "@unstoppabledomains/ui-components/components/Chat/storage";
+
 import {Logger} from "../logger";
+import {getWalletPreferences} from "../wallet/preferences";
 import {getSigner} from "../wallet/signer";
 import {waitForXmtpMessages} from "./listener";
-import {fetcher} from "@xmtp/proto";
-import {getAccounts} from "@unstoppabledomains/ui-components/actions/fireBlocksActions";
-import {getWalletPreferences} from "../wallet/preferences";
-import {Mutex} from "async-mutex";
 
 // ensure a single XMTP account is requested at a time
 const xmtpMutex = new Mutex();

@@ -1,29 +1,31 @@
+import Box from "@mui/material/Box";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {LDProvider} from "launchdarkly-react-client-sdk";
 import React, {useEffect} from "react";
 import {
   RouterProvider,
   createMemoryRouter,
   useNavigate,
 } from "react-router-dom";
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+
 import {
   BaseProvider,
-  UnstoppableMessagingProvider,
   DomainConfigProvider,
+  UnstoppableMessagingProvider,
 } from "@unstoppabledomains/ui-components";
 import {lightTheme} from "@unstoppabledomains/ui-kit/styles";
-import Extension from "../pages/Legacy/Extension";
-import Wallet from "../pages/Wallet/Wallet";
-import Loading from "../pages/Loading/Loading";
-import SomethingWentWrong from "../pages/Errors/SomethingWentWrong";
-import useUserId from "../hooks/useUserId";
-import {LDProvider} from "launchdarkly-react-client-sdk";
+
 import config from "../config";
-import Box from "@mui/material/Box";
-import Connect from "../pages/Wallet/Connect";
-import OnUpdated from "../pages/OnUpdated";
 import usePreferences from "../hooks/usePreferences";
-import ConnectionProvider from "../providers/ConnectionProvider";
+import useUserId from "../hooks/useUserId";
+import SomethingWentWrong from "../pages/Errors/SomethingWentWrong";
+import Extension from "../pages/Legacy/Extension";
+import Loading from "../pages/Loading/Loading";
+import OnUpdated from "../pages/OnUpdated";
+import Connect from "../pages/Wallet/Connect";
 import {MessageSidePanel} from "../pages/Wallet/MessageSidePanel";
+import Wallet from "../pages/Wallet/Wallet";
+import ConnectionProvider from "../providers/ConnectionProvider";
 
 const queryClient = new QueryClient();
 
@@ -138,11 +140,11 @@ const Root: React.FC = () => (
   </React.StrictMode>
 );
 
-const RootApp = () => {
+function RootApp() {
   const {userId} = useUserId();
 
   if (!userId) {
-    return <div></div>;
+    return <div />;
   }
 
   return (
@@ -175,6 +177,6 @@ const RootApp = () => {
       </BaseProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default RootApp;

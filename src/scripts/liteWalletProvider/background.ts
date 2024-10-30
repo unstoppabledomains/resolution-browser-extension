@@ -1,3 +1,4 @@
+/* eslint-disable promise/prefer-await-to-then */
 import config from "../../config";
 import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
@@ -23,10 +24,10 @@ import {
 } from "../../types/wallet/provider";
 
 // keep track of the most recently focussed window ID
-export let currentFocussedWindowId: number = null;
+export let currentFocussedWindowId: number | undefined;
 
 // keep track of the wallet extension popup window ID
-let extensionPopupWindowId: number = null;
+let extensionPopupWindowId: number | undefined;
 
 // tabChangeEventListener listens for tab switches
 export const tabChangeEventListener = async (
@@ -91,18 +92,18 @@ export const backgroundEventListener = (
   // handle external request types
   if (isExternalRequestType(request.type)) {
     // find the active tab that requested the wallet extension popup
-    chrome.tabs
+    void chrome.tabs
       .query({
         active: true,
       })
-      .then((activeTabs) => {
+      .then(activeTabs => {
         // retrieve the hostname parameter from the request params, which can safely be
         // popped from the list since no other callers expect it
         const requestHost = request.params.pop();
 
         // scan the active tabs for the expected hostname of the calling application. This
         // data is used for context in the wallet extension popup window
-        const requestSource = activeTabs.find((t) =>
+        const requestSource = activeTabs.find(t =>
           t.url?.toLowerCase().includes(requestHost.toLowerCase()),
         );
 
@@ -114,7 +115,7 @@ export const backgroundEventListener = (
         );
 
         // retrieve wallet connection data for this site
-        getConnectedSite(requestHost).then((walletConnection) => {
+        void getConnectedSite(requestHost).then(walletConnection => {
           // some request types should be processed without a popup, based on the
           // results from existing wallet connection state
           switch (request.type) {
@@ -188,18 +189,18 @@ export const backgroundEventListener = (
           if (extensionPopupWindowId) {
             // brief wait to avoid a race where the window is currently closing while
             // also attempting to query existence
-            sleep(250).then(() => {
+            void sleep(250).then(() => {
               // if a popup window is already open, use it
               chrome.tabs.query(
                 {windowId: extensionPopupWindowId},
-                (extensionPopupWindow) => {
+                extensionPopupWindow => {
                   if (extensionPopupWindow.length === 0) {
                     // the previous window ID has been closed, so a new extension popup
                     // needs to be opened
-                    extensionPopupWindowId = null;
-                    openPopupWindow(
+                    extensionPopupWindowId = undefined;
+                    void openPopupWindow(
                       requestUrl,
-                      requestSource.windowId,
+                      requestSource?.windowId || 0,
                       requestHost,
                       popupResponseHandler,
                     );
@@ -212,9 +213,9 @@ export const backgroundEventListener = (
             });
           } else {
             // open a new wallet extension popup
-            openPopupWindow(
+            void openPopupWindow(
               requestUrl,
-              requestSource.windowId,
+              requestSource?.windowId || 0,
               requestHost,
               popupResponseHandler,
             );
@@ -225,6 +226,9 @@ export const backgroundEventListener = (
     // successfully handled request to open wallet extension popup
     return true;
   }
+
+  // request was not handled
+  return false;
 };
 
 // openPopupWindow creates a new wallet extension popup window
@@ -244,7 +248,7 @@ export const openPopupWindow = async (
   // determine location of popup based on parent window
   const popupTop = parentWindow?.top;
   const popupLeft =
-    parentWindow?.left && parentWindow?.top
+    parentWindow?.left && parentWindow?.top && parentWindow.width
       ? parentWindow.left + parentWindow.width - popupWidth
       : undefined;
 
@@ -323,10 +327,10 @@ const handleTabStatus = async (tab: chrome.tabs.Tab) => {
   // determine if tab is connected
   const hostname = new URL(tab.url).hostname;
   if (await getConnectedSite(hostname)) {
-    setIcon("connected", tab.id);
+    await setIcon("connected", tab.id);
     return;
   }
-  setIcon("default", tab.id);
+  await setIcon("default", tab.id);
 };
 
 const handleFetchPreferences = async (
@@ -398,7 +402,7 @@ const handleQueueUpdate = async (request: ProviderRequest) => {
     return;
   }
   try {
-    const count = parseInt(request.params[0]);
+    const count = parseInt(request.params[0], 10);
     await setBadgeCount(count);
   } catch (e) {
     // ignore errors
