@@ -2,7 +2,7 @@ name: Push CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 concurrency:
   group: ${{ github.ref }}-${{ github.event_name }}-pr
