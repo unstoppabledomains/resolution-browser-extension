@@ -19,6 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Create CI config file
+        uses: canastro/copy-file-action@master
+        with:
+          source: ".env.template"
+          target: ".env.staging"
+
       - name: Setup
         uses: ./.github/actions/setup
 
