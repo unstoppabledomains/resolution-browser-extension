@@ -1,4 +1,6 @@
 ## 3.1.38
+* Support for ERC-20 token management
+* Support additional RPC methods to enable Uniswap transactions
 * Support for service worker background signing
 * Fix bug validating token decimals before transfer
 * Modify activity panel color palette
