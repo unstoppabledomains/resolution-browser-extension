@@ -16,6 +16,7 @@ import {Logger} from "../../lib/logger";
 import {isEthAddress} from "../../lib/sherlock/matcher";
 import {ResolutionData} from "../../lib/sherlock/types";
 import {announceProvider} from "../../lib/wallet/evm/eip6963";
+import {getWeb3Provider} from "../../lib/wallet/evm/provider";
 import {EIP_712_KEY, TypedMessage} from "../../types/wallet/eip712";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {
@@ -172,14 +173,25 @@ class LiteWalletProvider extends EventEmitter {
           result = await this.handleTypedSign(clone(request.params));
           break;
         // Transaction methods
+        case "eth_blockNumber":
+          result = await this.handleGetBlockNumber();
+          break;
+        case "eth_call":
+          result = await this.handleReadOnlyCall(clone(request.params));
+          break;
+        case "eth_estimateGas":
+          result = await this.handleEstimateGas(clone(request.params));
+          break;
+        case "eth_getTransactionByHash":
+          result = await this.handleGetTransactionByHash(clone(request.params));
+          break;
+        case "eth_getTransactionReceipt":
+          result = await this.handleGetTransactionReceipt(
+            clone(request.params),
+          );
+          break;
         case "eth_sendTransaction":
           result = await this.handleSendTransaction(clone(request.params));
-          break;
-        case "eth_blockNumber":
-        case "eth_getTransactionByHash":
-          // not implemented, but stubbed out with "not found" to prevent runtime
-          // errors on apps that call this method
-          result = null;
           break;
         default:
           throw new EthereumProviderError(
@@ -189,10 +201,15 @@ class LiteWalletProvider extends EventEmitter {
       }
 
       // result is successful
-      Logger.log(
-        "Request successful",
-        JSON.stringify({method: request.method, result}),
-      );
+      try {
+        Logger.log(
+          "Request successful",
+          JSON.stringify({method: request.method, result}),
+        );
+      } catch (e2: any) {
+        Logger.log("Request successful", request.method);
+      }
+
       return result;
     } catch (e: any) {
       // result is failure
@@ -497,6 +514,77 @@ class LiteWalletProvider extends EventEmitter {
 
     // return list of accounts
     return [address];
+  }
+
+  private async handleGetBlockNumber() {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
+
+    // query the block number
+    const block = await web3.eth.getBlockNumber();
+    return web3utils.numberToHex(block);
+  }
+
+  private async handleEstimateGas(params: any[]) {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
+
+    // validate any Tx parameters have been passed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
+    }
+
+    // query the estimated gas
+    return web3utils.numberToHex(await web3.eth.estimateGas(params[0]));
+  }
+
+  private async handleGetTransactionByHash(params: any[]) {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
+
+    // validate any Tx parameters have been passed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
+    }
+
+    // query the requested transaction
+    return await web3.eth.getTransaction(params[0]);
+  }
+
+  private async handleGetTransactionReceipt(params: any[]) {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
+
+    // validate any Tx parameters have been passed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
+    }
+
+    // query the requested transaction
+    return await web3.eth.getTransactionReceipt(params[0]);
+  }
+
+  private async handleReadOnlyCall(params: any[]) {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
+
+    // validate any Tx parameters have been passed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
+    }
+
+    // query the requested transaction
+    return await web3.eth.call(
+      // call parameters
+      params[0],
+      // optional block number
+      params.length > 1 ? params[1] : undefined,
+    );
   }
 
   private async handleGetConnectedChainIds() {
