@@ -5,7 +5,10 @@ import {getProviderUrl} from "@unstoppabledomains/ui-components/lib/wallet/evm/p
 
 export const getWeb3Provider = (chainId: number) => {
   const chainSymbol = Object.keys(config.BLOCKCHAINS).find(k => {
-    return config.BLOCKCHAINS[k].CHAIN_ID === chainId;
+    return (
+      config.BLOCKCHAINS[k as keyof typeof config.BLOCKCHAINS].CHAIN_ID ===
+      chainId
+    );
   });
   if (!chainSymbol) {
     throw new Error(`Configuration not found for chainId: ${chainId}`);
