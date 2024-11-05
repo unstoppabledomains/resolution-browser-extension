@@ -1,4 +1,6 @@
 /* eslint-disable promise/prefer-await-to-then */
+import {utils as web3utils} from "web3";
+
 import config from "../../config";
 import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
@@ -8,6 +10,7 @@ import {
   getConnectedSite,
   setConnectedSite,
 } from "../../lib/wallet/evm/connection";
+import {getWeb3Provider} from "../../lib/wallet/evm/provider";
 import {getWalletPreferences} from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
 import {waitForXmtpMessages} from "../../lib/xmtp/listener";
@@ -17,6 +20,7 @@ import {
   NotConnectedError,
   ProviderEventResponse,
   ProviderRequest,
+  RpcRequest,
   getResponseType,
   isExternalRequestType,
   isInternalRequestType,
@@ -81,6 +85,9 @@ export const backgroundEventListener = (
         if (request.params && request.params.length > 0) {
           void waitForXmtpMessages(request.params[0]);
         }
+        break;
+      case "rpcRequest":
+        void handleRpcRequest(request, popupResponseHandler);
         break;
     }
     return true;
@@ -311,9 +318,18 @@ const handleResponse = (
   popupResponseHandler: (response: ProviderEventResponse) => void,
   response: ProviderEventResponse,
 ) => {
-  // log the incoming event
-  Logger.log("Handling event complete", JSON.stringify(response));
-  popupResponseHandler(response);
+  // make the response bigint safe
+  const normalizedResponse = JSON.parse(
+    JSON.stringify(response, (key, value) =>
+      typeof value === "bigint" ? web3utils.numberToHex(value) : value,
+    ),
+  );
+
+  // log the event response
+  Logger.log("Handling event complete", JSON.stringify(normalizedResponse));
+
+  // call the response callback with result
+  popupResponseHandler(normalizedResponse);
 };
 
 const handleTabStatus = async (tab: chrome.tabs.Tab) => {
@@ -373,6 +389,69 @@ const handlePrepareXmtp = async (
     handleResponse(popupResponseHandler, {
       type: getResponseType("prepareXmtpRequest"),
       address: params.address,
+    });
+  }
+};
+
+const handleRpcRequest = async (
+  request: ProviderRequest,
+  popupResponseHandler: (response: ProviderEventResponse) => void,
+) => {
+  try {
+    // requires at least two parameters
+    if (!request?.params || request.params.length < 2) {
+      throw new Error("invalid parameters");
+    }
+
+    // parse the RPC parameters
+    const chainId = request.params[0] as number;
+    const rpcMethod = request.params[1] as RpcRequest;
+    const rpcParams = request.params.length > 2 ? request.params.slice(2) : [];
+
+    // get web3 object
+    const web3 = getWeb3Provider(chainId);
+
+    // call the web3 provider method
+    let result: any | undefined;
+    switch (rpcMethod) {
+      case "getBlockNumber":
+        result = web3utils.numberToHex(await web3.eth.getBlockNumber());
+        break;
+      case "estimateGas":
+        result = web3utils.numberToHex(
+          await web3.eth.estimateGas(rpcParams[0]),
+        );
+        break;
+      case "getTransaction":
+        result = await web3.eth.getTransaction(rpcParams[0]);
+        break;
+      case "getTransactionReceipt":
+        result = await web3.eth.getTransactionReceipt(rpcParams[0]);
+        break;
+      case "call":
+        result = await web3.eth.call(
+          rpcParams[0],
+          rpcParams.length > 1 ? rpcParams[1] : undefined,
+        );
+        break;
+      default:
+        throw new Error(`RPC method not supported: ${rpcMethod}`);
+    }
+
+    // parse the parameters and prepare the account
+    handleResponse(popupResponseHandler, {
+      type: getResponseType("rpcRequest"),
+      response: result,
+    });
+  } catch (e) {
+    // provide an error response
+    Logger.warn(
+      "error handling RPC request",
+      JSON.stringify({request, error: String(e)}),
+    );
+    handleResponse(popupResponseHandler, {
+      type: getResponseType("rpcRequest"),
+      error: String(e),
     });
   }
 };

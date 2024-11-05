@@ -16,7 +16,6 @@ import {Logger} from "../../lib/logger";
 import {isEthAddress} from "../../lib/sherlock/matcher";
 import {ResolutionData} from "../../lib/sherlock/types";
 import {announceProvider} from "../../lib/wallet/evm/eip6963";
-import {getWeb3Provider} from "../../lib/wallet/evm/provider";
 import {EIP_712_KEY, TypedMessage} from "../../types/wallet/eip712";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {
@@ -35,6 +34,7 @@ import {
   ProviderMethodsWithPrompt,
   ProviderResponse,
   ResponseType,
+  RpcRequest,
   UnexpectedResponseError,
   UnsupportedMethodError,
   isClientSideRequestType,
@@ -174,19 +174,19 @@ class LiteWalletProvider extends EventEmitter {
           break;
         // Transaction methods
         case "eth_blockNumber":
-          result = await this.handleGetBlockNumber();
+          result = await this.handleRpcGetBlockNumber();
           break;
         case "eth_call":
-          result = await this.handleReadOnlyCall(clone(request.params));
+          result = await this.handleRpcCall(clone(request.params));
           break;
         case "eth_estimateGas":
-          result = await this.handleEstimateGas(clone(request.params));
+          result = await this.handleRpcEstimateGas(clone(request.params));
           break;
         case "eth_getTransactionByHash":
-          result = await this.handleGetTransactionByHash(clone(request.params));
+          result = await this.handleRpcGetTransaction(clone(request.params));
           break;
         case "eth_getTransactionReceipt":
-          result = await this.handleGetTransactionReceipt(
+          result = await this.handleRpcGetTransactionReceipt(
             clone(request.params),
           );
           break;
@@ -516,75 +516,69 @@ class LiteWalletProvider extends EventEmitter {
     return [address];
   }
 
-  private async handleGetBlockNumber() {
-    // retrieve the web3 provider for connected chain
+  private async handleRpcGetBlockNumber() {
     const chainIdHex = await this.handleGetConnectedChainIds();
-    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
-
-    // query the block number
-    const block = await web3.eth.getBlockNumber();
-    return web3utils.numberToHex(block);
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "getBlockNumber", []);
   }
 
-  private async handleEstimateGas(params: any[]) {
+  private async handleRpcEstimateGas(params: any[]) {
     // retrieve the web3 provider for connected chain
     const chainIdHex = await this.handleGetConnectedChainIds();
-    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
-
-    // validate any Tx parameters have been passed
-    if (!params || params.length === 0) {
-      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
-    }
-
-    // query the estimated gas
-    return web3utils.numberToHex(await web3.eth.estimateGas(params[0]));
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "estimateGas", params);
   }
 
-  private async handleGetTransactionByHash(params: any[]) {
-    // retrieve the web3 provider for connected chain
+  private async handleRpcGetTransaction(params: any[]) {
     const chainIdHex = await this.handleGetConnectedChainIds();
-    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
-
-    // validate any Tx parameters have been passed
-    if (!params || params.length === 0) {
-      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
-    }
-
-    // query the requested transaction
-    return await web3.eth.getTransaction(params[0]);
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "getTransaction", params);
   }
 
-  private async handleGetTransactionReceipt(params: any[]) {
-    // retrieve the web3 provider for connected chain
+  private async handleRpcGetTransactionReceipt(params: any[]) {
     const chainIdHex = await this.handleGetConnectedChainIds();
-    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
-
-    // validate any Tx parameters have been passed
-    if (!params || params.length === 0) {
-      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
-    }
-
-    // query the requested transaction
-    return await web3.eth.getTransactionReceipt(params[0]);
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "getTransactionReceipt", params);
   }
 
-  private async handleReadOnlyCall(params: any[]) {
-    // retrieve the web3 provider for connected chain
+  private async handleRpcCall(params: any[]) {
     const chainIdHex = await this.handleGetConnectedChainIds();
-    const web3 = getWeb3Provider(web3utils.hexToNumber(chainIdHex) as number);
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "call", params);
+  }
 
-    // validate any Tx parameters have been passed
-    if (!params || params.length === 0) {
-      throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
-    }
+  private async handleRpcMethod(
+    chainId: number,
+    method: RpcRequest,
+    params: any[],
+  ) {
+    const rpcResponse = new Promise((resolve, reject) => {
+      document.dispatchEvent(
+        new ProviderEvent("rpcRequest", {detail: [chainId, method, ...params]}),
+      );
+      this.addEventListener("rpcResponse", (event: ProviderResponse) => {
+        if (event.detail.error) {
+          reject(
+            new EthereumProviderError(
+              PROVIDER_CODE_USER_ERROR,
+              event.detail.error,
+            ),
+          );
+        } else if ("response" in event.detail) {
+          resolve(event.detail.response);
+        } else {
+          reject(
+            new EthereumProviderError(
+              PROVIDER_CODE_USER_ERROR,
+              UnexpectedResponseError,
+            ),
+          );
+        }
+      });
+    });
 
-    // query the requested transaction
-    return await web3.eth.call(
-      // call parameters
-      params[0],
-      // optional block number
-      params.length > 1 ? params[1] : undefined,
-    );
+    // return list of accounts
+    return await rpcResponse;
   }
 
   private async handleGetConnectedChainIds() {

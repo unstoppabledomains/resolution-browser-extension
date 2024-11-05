@@ -25,6 +25,13 @@ export const ProviderMethodsWithPrompt: ProviderMethod[] = [
   "eth_sendTransaction",
 ];
 
+export type RpcRequest =
+  | "call"
+  | "estimateGas"
+  | "getBlockNumber"
+  | "getTransaction"
+  | "getTransactionReceipt";
+
 // define required EIP-1193 events
 export type Eip1193Event =
   | "accountsChanged"
@@ -74,6 +81,7 @@ export const InternalMessageTypes = [
   "signInRequest",
   "xmtpReadyRequest",
   "prepareXmtpRequest",
+  "rpcRequest",
 ] as const;
 export type InternalRequestType = (typeof InternalMessageTypes)[number];
 export const isInternalRequestType = (v: string): v is InternalRequestType => {
@@ -113,7 +121,8 @@ export type ResponseType =
   | "getPreferencesResponse"
   | "getDomainProfileResponse"
   | "getResolutionResponse"
-  | "prepareXmtpResponse";
+  | "prepareXmtpResponse"
+  | "rpcResponse";
 export const isResponseType = (v: string): v is ResponseType => {
   return isExternalRequestType(v.replaceAll("Response", "Request"));
 };
