@@ -2,6 +2,7 @@
 * Support for ERC-20 token management
 * Support additional RPC methods to enable Uniswap transactions
 * Support for service worker background signing
+* Remove clutter from drop down menu
 * Fix bug validating token decimals before transfer
 * Modify activity panel color palette
 
