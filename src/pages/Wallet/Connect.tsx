@@ -76,7 +76,7 @@ const Connect: React.FC = () => {
 
   useEffect(() => {
     // wait for required fields to be loaded
-    if (!isMounted() || !preferences || !connections) {
+    if (!isMounted() || !preferences || !connections || isLoaded) {
       return;
     }
 
