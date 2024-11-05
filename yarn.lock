@@ -6271,9 +6271,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@npm:0.0.16, @unstoppabledomains/config@npm:latest":
-  version: 0.0.16
-  resolution: "@unstoppabledomains/config@npm:0.0.16"
+"@unstoppabledomains/config@npm:0.0.17, @unstoppabledomains/config@npm:latest":
+  version: 0.0.17
+  resolution: "@unstoppabledomains/config@npm:0.0.17"
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -6282,7 +6282,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: 5d3ffc9068b1e62578a7bb97a119f1c95b6ff61df7e226952d3ce1bf648334f0dbc5f60fb80c4ae62080179af5a546c1f2cb13303d3116c9517d5a307802bb24
+  checksum: 0b20b5e6b3ccad71b6ee0ed83efc696e9a4444c945ca63b0ba3f2636758a8de9c009652d859bbc488325c3f19bc74a6b10641ff3775b2d15b52e0a0e233c7b78
   languageName: node
   linkType: hard
 
@@ -6299,9 +6299,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.8":
-  version: 0.0.51-browser-extension.8
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.8"
+"@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.9":
+  version: 0.0.51-browser-extension.9
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.9"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6401,7 +6401,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 81ed0c170b3b7b22a74f8b12718e2fde7b10484689e739e420ea3acfa98f561d632822e22bf97adbaedf749a2165929ed9fc2e8d302c976e5d1929c32acdbc48
+  checksum: 9be156acf2b1a2b78ff8744381668a63c2a00bac1367037c0321a93d6f80f0852adfe0f6a7387f54d32afd681656478147eeb8154154997940e703551f5c6c02
   languageName: node
   linkType: hard
 
@@ -22264,8 +22264,8 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
-    "@unstoppabledomains/config": 0.0.16
-    "@unstoppabledomains/ui-components": 0.0.51-browser-extension.8
+    "@unstoppabledomains/config": 0.0.17
+    "@unstoppabledomains/ui-components": 0.0.51-browser-extension.9
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
