@@ -6271,9 +6271,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@npm:0.0.17, @unstoppabledomains/config@npm:latest":
-  version: 0.0.17
-  resolution: "@unstoppabledomains/config@npm:0.0.17"
+"@unstoppabledomains/config@npm:0.0.18, @unstoppabledomains/config@npm:latest":
+  version: 0.0.18
+  resolution: "@unstoppabledomains/config@npm:0.0.18"
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -6282,7 +6282,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: 0b20b5e6b3ccad71b6ee0ed83efc696e9a4444c945ca63b0ba3f2636758a8de9c009652d859bbc488325c3f19bc74a6b10641ff3775b2d15b52e0a0e233c7b78
+  checksum: b0cb0a36ba5cbb36cb739565b9a78dc7c49df041294dbabe8f2f8a7dc21605edd3d9b65db0c9a58c25f04e27404c3e63691faf2d52cc30a784519b11ecdb71d9
   languageName: node
   linkType: hard
 
@@ -6299,9 +6299,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.10":
-  version: 0.0.51-browser-extension.10
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.51-browser-extension.10"
+"@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.1":
+  version: 0.0.52-browser-extension.1
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.1"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6370,6 +6370,7 @@ __metadata:
     qs: ^6.11.2
     ramda: ^0.27.1
     react: ^17.0.0
+    react-canvas-confetti: ^2.0.7
     react-chartjs-2: ^5.2.0
     react-cookies: ^0.1.1
     react-dom: ^17.0.0
@@ -6401,7 +6402,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 942daaa58b454b844d217096378b4c6ad8f9dc5abca48c3acda479cd98f0125e576c165eabc422fbe4fc0a840d85ad58c3641a7d77d2e8c7fc8910f3e3b88368
+  checksum: 9bf291558c9da0c00639cb8017057fd187a85bb44edb46e59b76418d1a69c3033d58a00546d238164ea3ea8fc5a92b92403029392967afb54ce69948f46c93b9
   languageName: node
   linkType: hard
 
@@ -22264,8 +22265,8 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
-    "@unstoppabledomains/config": 0.0.17
-    "@unstoppabledomains/ui-components": 0.0.51-browser-extension.10
+    "@unstoppabledomains/config": 0.0.18
+    "@unstoppabledomains/ui-components": 0.0.52-browser-extension.1
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
