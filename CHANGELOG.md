@@ -1,3 +1,8 @@
+## 3.1.40
+* Cross chain token swap support
+* Performance improvements
+* User experience improvements
+
 ## 3.1.38
 * Support for ERC-20 token management
 * Support additional RPC methods to enable Uniswap transactions
