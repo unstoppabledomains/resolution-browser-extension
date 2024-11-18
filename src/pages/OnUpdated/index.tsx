@@ -4,12 +4,14 @@ import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Markdown from "markdown-to-jsx";
-import React from "react";
-import Animation from "react-canvas-confetti/dist/presets/fireworks";
+import React, {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 
 import {AppEnv} from "@unstoppabledomains/config";
-import {useTranslationContext} from "@unstoppabledomains/ui-components";
+import {
+  useDomainConfig,
+  useTranslationContext,
+} from "@unstoppabledomains/ui-components";
 
 import config from "../../config";
 import usePreferences from "../../hooks/usePreferences";
@@ -20,9 +22,14 @@ import {DefaultPageView} from "../../types/wallet/preferences";
 
 const OnUpdated: React.FC = () => {
   const {classes, cx} = useExtensionStyles();
+  const {setShowSuccessAnimation} = useDomainConfig();
   const {preferences} = usePreferences();
   const [t] = useTranslationContext();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setShowSuccessAnimation(true);
+  }, []);
 
   const handleOptOut = async () => {
     await handlePreference("legacy");
@@ -46,7 +53,6 @@ const OnUpdated: React.FC = () => {
 
   return (
     <Paper className={classes.container}>
-      <Animation autorun={{speed: 3, duration: 1}} />
       <Box className={cx(classes.walletContainer, classes.contentContainer)}>
         <Box
           className={cx(classes.contentContainer, classes.fullHeightCentered)}
