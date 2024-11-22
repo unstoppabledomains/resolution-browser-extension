@@ -1,3 +1,6 @@
+## 3.1.41
+* Fix app connection bug
+
 ## 3.1.40
 * Cross chain token swap support
 * Performance improvements

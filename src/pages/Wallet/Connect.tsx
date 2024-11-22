@@ -42,7 +42,7 @@ import {
 } from "../../types/wallet/provider";
 
 enum ConnectionState {
-  ACCOUNT,
+  ACCOUNT = 1,
   CHAINID,
   PERMISSIONS,
   SIGN,
