@@ -945,10 +945,13 @@ class LiteWalletProvider extends EventEmitter {
     // the currently connected chain ID. This will be needed by
     // the extension popup to complete the signature.
     const normalizedParams = params[0];
-    if (!normalizedParams.data || !normalizedParams.to) {
+    if (!normalizedParams.to) {
       throw new EthereumProviderError(PROVIDER_CODE_USER_ERROR, InvalidTxError);
     }
     normalizedParams.chainId = this.networkVersion;
+    if (!normalizedParams.data) {
+      normalizedParams.data = "0x";
+    }
 
     return await new Promise((resolve, reject) => {
       // send the prepared transaction signing event

@@ -1,3 +1,7 @@
+## 3.1.42
+* Update transaction validation logic
+* Update connect confirmation with transfer details
+
 ## 3.1.41
 * Fix app connection bug
 
