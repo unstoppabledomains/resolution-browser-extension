@@ -5369,6 +5369,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bs58@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "@types/bs58@npm:4.0.4"
+  dependencies:
+    "@types/node": "*"
+    base-x: ^3.0.6
+  checksum: 9cac5a00343756f887ad906c10c71464620d352af40ff61373dcede434880a769be8b78380b890e9b13506851af4611ab59e7d4b7159af04f445e1fd5c34e3d0
+  languageName: node
+  linkType: hard
+
 "@types/cacheable-request@npm:^6.0.1, @types/cacheable-request@npm:^6.0.2":
   version: 6.0.3
   resolution: "@types/cacheable-request@npm:6.0.3"
@@ -8235,7 +8245,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base-x@npm:^3.0.2, base-x@npm:^3.0.8":
+"base-x@npm:^3.0.2, base-x@npm:^3.0.6, base-x@npm:^3.0.8":
   version: 3.0.10
   resolution: "base-x@npm:3.0.10"
   dependencies:
@@ -22258,6 +22268,7 @@ __metadata:
     "@parcel/resolver-default": ^2.12.0
     "@parcel/transformer-svg-react": ^2.12.0
     "@trivago/prettier-plugin-sort-imports": 3.2.0
+    "@types/bs58": ^4.0.4
     "@types/chrome": ^0.0.268
     "@types/jest": ^29.5.5
     "@types/node": ^20.14.6
