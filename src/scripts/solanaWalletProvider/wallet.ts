@@ -141,8 +141,9 @@ export class SolanaWallet implements Wallet {
   }
 
   #on: StandardEventsOnMethod = (event, listener) => {
-    this.#listeners[event]?.push(listener) ||
-      (this.#listeners[event] = [listener]);
+    if (!this.#listeners[event]?.push(listener)) {
+      this.#listeners[event] = [listener];
+    }
     return (): void => this.#off(event, listener);
   };
 
@@ -276,7 +277,7 @@ export class SolanaWallet implements Wallet {
 
       outputs.push({signedTransaction: serializedTransaction});
     } else if (inputs.length > 1) {
-      let chain: SolanaChain | undefined = undefined;
+      let chain: SolanaChain | undefined;
       for (const input of inputs) {
         if (input.account !== this.#account) throw new Error("invalid account");
         if (input.chain) {

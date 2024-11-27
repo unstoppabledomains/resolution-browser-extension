@@ -7,6 +7,8 @@ import type {
   WindowRegisterWalletEventCallback,
 } from "@wallet-standard/base";
 
+import {Logger} from "../../lib/logger";
+
 export function registerWallet(wallet: Wallet): void {
   const callback: WindowRegisterWalletEventCallback = ({register}) =>
     register(wallet);
@@ -15,9 +17,10 @@ export function registerWallet(wallet: Wallet): void {
       new RegisterWalletEvent(callback),
     );
   } catch (error) {
-    console.error(
+    Logger.error(
+      error as Error,
+      "Popup",
       "wallet-standard:register-wallet event could not be dispatched\n",
-      error,
     );
   }
   try {
@@ -26,9 +29,10 @@ export function registerWallet(wallet: Wallet): void {
       ({detail: api}) => callback(api),
     );
   } catch (error) {
-    console.error(
+    Logger.error(
+      error as Error,
+      "Popup",
       "wallet-standard:app-ready event listener could not be added\n",
-      error,
     );
   }
 }
@@ -77,6 +81,10 @@ export function DEPRECATED_registerWallet(wallet: Wallet): void {
       ({register}) => register(wallet),
     );
   } catch (error) {
-    console.error("window.navigator.wallets could not be pushed\n", error);
+    Logger.error(
+      error as Error,
+      "Popup",
+      "window.navigator.wallets could not be pushed\n",
+    );
   }
 }

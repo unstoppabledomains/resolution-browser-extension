@@ -562,7 +562,7 @@ const Connect: React.FC = () => {
     const encodedMsg = fetcher.b64Decode(connectionStateMessage.params[0]);
 
     // TODO - send the message to backend API to be signed
-    var decodedMsg = new TextDecoder().decode(encodedMsg);
+    const decodedMsg = new TextDecoder().decode(encodedMsg);
     Logger.log(
       "Signing message",
       JSON.stringify({decodedMsg, encodedMsg}, undefined, 2),
