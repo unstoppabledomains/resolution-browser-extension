@@ -1,7 +1,8 @@
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import {PublicKey} from "@solana/web3.js";
+import {PublicKey, VersionedTransaction} from "@solana/web3.js";
 import {fetcher} from "@xmtp/proto";
+import bs58 from "bs58";
 import type {Signer} from "ethers";
 import Markdown from "markdown-to-jsx";
 import queryString from "query-string";
@@ -336,6 +337,10 @@ const Connect: React.FC = () => {
             setConnectionStateMessage(message);
             setConnectionState(ConnectionState.SOLANA_SIGN_MESSAGE);
             break;
+          case "signSolanaTransactionRequest":
+            setConnectionStateMessage(message);
+            setConnectionState(ConnectionState.SOLANA_SIGN_TX);
+            break;
           // the following messages types can silently be ignored, as they
           // are not relevant in the connect window
           case "getPreferencesRequest":
@@ -576,6 +581,23 @@ const Connect: React.FC = () => {
     });
   };
 
+  const handleSignSolanaTx = async () => {
+    // retrieve encoded transaction
+    const tx = VersionedTransaction.deserialize(
+      bs58.decode(connectionStateMessage.params[0]),
+    );
+
+    // TODO - send the tx to backend API to be signed
+    Logger.log("Signing transaction", JSON.stringify(tx, undefined, 2));
+
+    // TODO - return actual signed tx once backend is available
+    const signedTx = connectionStateMessage.params[0];
+    await chrome.runtime.sendMessage({
+      type: "signSolanaTransactionResponse",
+      response: signedTx,
+    });
+  };
+
   const handleSignTypedMessage = async (params: any[]) => {
     try {
       // validate there are at least two available parameter args
@@ -698,9 +720,11 @@ const Connect: React.FC = () => {
             ? handleConnectAccount
             : connectionState === ConnectionState.SOLANA_SIGN_MESSAGE
               ? handleSignSolanaMessage
-              : connectionState === ConnectionState.PERMISSIONS
-                ? handleRequestPermissions
-                : undefined
+              : connectionState === ConnectionState.SOLANA_SIGN_TX
+                ? handleSignSolanaTx
+                : connectionState === ConnectionState.PERMISSIONS
+                  ? handleRequestPermissions
+                  : undefined
         }
       >
         {CONNECT_ACCOUNT_STATES.includes(connectionState)
@@ -731,7 +755,9 @@ const Connect: React.FC = () => {
                         })
                       : connectionState === ConnectionState.SOLANA_SIGN_MESSAGE
                         ? t("wallet.signMessageAction")
-                        : t("extension.connect")
+                        : connectionState === ConnectionState.SOLANA_SIGN_TX
+                          ? t("wallet.signTxAction")
+                          : t("extension.connect")
                 }
               />
             )}

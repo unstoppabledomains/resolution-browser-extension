@@ -9,10 +9,12 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import {fetcher} from "@xmtp/proto";
+import bs58 from "bs58";
 import {EventEmitter} from "events";
 
 import {Logger} from "../../lib/logger";
 import {SolanaWalletAccount} from "../../types/solana/account";
+import {isVersionedTransaction} from "../../types/solana/chains";
 import {SolanaConnectResult, SolanaProvider} from "../../types/solana/provider";
 import {RequestArgs} from "../../types/wallet/provider";
 
@@ -70,18 +72,15 @@ export class SolanaWalletProvider
       params: [fetcher.b64Encode(message, 0, message.length)],
     });
 
-    // return the result
-    if (signatureResult) {
-      return {
-        signature: fetcher.b64Decode(signatureResult),
-      };
+    // validate the result
+    if (!signatureResult) {
+      throw new Error("Message not signed");
     }
 
-    Logger.log(
-      "Unstoppable .signMessage() method not implemented",
-      JSON.stringify(message),
-    );
-    throw new Error("message not signed");
+    // decode and return the message signature
+    return {
+      signature: fetcher.b64Decode(signatureResult),
+    };
   }
 
   async signIn(input?: SolanaSignInInput): Promise<SolanaSignInOutput> {
@@ -112,6 +111,41 @@ export class SolanaWalletProvider
     };
   }
 
+  async signTransaction<T extends Transaction | VersionedTransaction>(
+    tx: T,
+  ): Promise<T> {
+    // serialize the transaction
+    const txToSign = bs58.encode(
+      isVersionedTransaction(tx) ? tx.serialize() : tx.serializeMessage(),
+    );
+
+    // request to sign the transaction
+    const txSigned = await this.request({
+      method: "solana_signTransaction",
+      params: [txToSign],
+    });
+    if (!txSigned) {
+      throw new Error("Error signing transaction");
+    }
+
+    // decode and return the signature response
+    const txSignedDecoded = bs58.decode(txSigned);
+    const txResult = isVersionedTransaction(tx)
+      ? VersionedTransaction.deserialize(txSignedDecoded)
+      : Transaction.from(txSignedDecoded);
+    return txResult as T;
+  }
+
+  async signAllTransactions<T extends Transaction | VersionedTransaction>(
+    transactions: T[],
+  ): Promise<T[]> {
+    const signedTxns: T[] = [];
+    for (const tx of transactions) {
+      signedTxns.push(await this.signTransaction(tx));
+    }
+    return signedTxns;
+  }
+
   async signAndSendTransaction<T extends Transaction | VersionedTransaction>(
     transaction: T,
     opts?: SendOptions,
@@ -119,26 +153,6 @@ export class SolanaWalletProvider
     Logger.log(
       "Unstoppable .signAndSendTransaction() method not implemented",
       JSON.stringify({transaction, opts}),
-    );
-    throw new Error("Method not yet implemented");
-  }
-
-  async signTransaction<T extends Transaction | VersionedTransaction>(
-    transaction: T,
-  ): Promise<T> {
-    Logger.log(
-      "Unstoppable .signTransaction() method not implemented",
-      JSON.stringify(transaction),
-    );
-    throw new Error("Method not yet implemented");
-  }
-
-  async signAllTransactions<T extends Transaction | VersionedTransaction>(
-    transactions: T[],
-  ): Promise<T[]> {
-    Logger.log(
-      "Unstoppable .signAllTransactions() method not implemented",
-      JSON.stringify(transactions),
     );
     throw new Error("Method not yet implemented");
   }

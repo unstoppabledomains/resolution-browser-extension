@@ -195,6 +195,11 @@ class LiteWalletProvider extends EventEmitter {
         case "solana_signMessage":
           result = await this.handleSolanaSignMessage(clone(request.params));
           break;
+        case "solana_signTransaction":
+          result = await this.handleSolanaSignTransaction(
+            clone(request.params),
+          );
+          break;
         default:
           throw new EthereumProviderError(
             PROVIDER_CODE_NOT_IMPLEMENTED,
@@ -1009,6 +1014,48 @@ class LiteWalletProvider extends EventEmitter {
       );
       this.addEventListener(
         "signSolanaMessageResponse",
+        (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
+          } else if ("response" in event.detail) {
+            resolve(event.detail.response);
+          } else {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
+          }
+        },
+      );
+    });
+  }
+
+  private async handleSolanaSignTransaction(params: any[]) {
+    // validate the provided parameters include a string that can be signed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidSignatureError,
+      );
+    }
+    const txToSign = params[0];
+
+    return await new Promise((resolve, reject) => {
+      // send the transaction event
+      document.dispatchEvent(
+        new ProviderEvent("signSolanaTransactionRequest", {
+          detail: [txToSign],
+        }),
+      );
+      this.addEventListener(
+        "signSolanaTransactionResponse",
         (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(
