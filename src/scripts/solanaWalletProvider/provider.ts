@@ -113,6 +113,9 @@ export class SolanaWalletProvider
 
   async signTransaction<T extends Transaction | VersionedTransaction>(
     tx: T,
+    opts: {
+      send?: boolean;
+    } = {send: false},
   ): Promise<T> {
     // serialize the transaction
     const txToSign = bs58.encode(
@@ -122,7 +125,7 @@ export class SolanaWalletProvider
     // request to sign the transaction
     const txSigned = await this.request({
       method: "solana_signTransaction",
-      params: [txToSign],
+      params: [txToSign, opts.send],
     });
     if (!txSigned) {
       throw new Error("Error signing transaction");
@@ -147,13 +150,23 @@ export class SolanaWalletProvider
   }
 
   async signAndSendTransaction<T extends Transaction | VersionedTransaction>(
-    transaction: T,
+    tx: T,
     opts?: SendOptions,
   ): Promise<{signature: string}> {
-    Logger.log(
-      "Unstoppable .signAndSendTransaction() method not implemented",
-      JSON.stringify({transaction, opts}),
-    );
-    throw new Error("Method not yet implemented");
+    // sign and send the transactions
+    const txResult = await this.signTransaction(tx, {send: true});
+
+    // extract and validate the resulting signature
+    const signature = isVersionedTransaction(txResult)
+      ? bs58.encode(txResult.signatures[0])
+      : txResult.signature && bs58.encode(txResult.signature);
+    if (!signature) {
+      throw new Error("Error signing and sending transaction");
+    }
+
+    // return the signature
+    return {
+      signature,
+    };
   }
 }

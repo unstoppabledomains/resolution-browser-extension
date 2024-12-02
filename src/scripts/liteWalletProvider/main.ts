@@ -1039,19 +1039,20 @@ class LiteWalletProvider extends EventEmitter {
 
   private async handleSolanaSignTransaction(params: any[]) {
     // validate the provided parameters include a string that can be signed
-    if (!params || params.length === 0) {
+    if (!params || params.length < 2) {
       throw new EthereumProviderError(
         PROVIDER_CODE_USER_ERROR,
         InvalidSignatureError,
       );
     }
     const txToSign = params[0];
+    const txSendOption = params[1];
 
     return await new Promise((resolve, reject) => {
       // send the transaction event
       document.dispatchEvent(
         new ProviderEvent("signSolanaTransactionRequest", {
-          detail: [txToSign],
+          detail: [txToSign, txSendOption],
         }),
       );
       this.addEventListener(

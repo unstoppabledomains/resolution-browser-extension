@@ -587,8 +587,15 @@ const Connect: React.FC = () => {
       bs58.decode(connectionStateMessage.params[0]),
     );
 
+    // Optional parameter determines whether transaction should also be transmitted
+    // to the blockchain. If false, sign the transaction but do not submit.
+    const sendTx = connectionStateMessage.params[1] as boolean;
+
     // TODO - send the tx to backend API to be signed
-    Logger.log("Signing transaction", JSON.stringify(tx, undefined, 2));
+    Logger.log(
+      "Signing transaction",
+      JSON.stringify({sendTx, tx}, undefined, 2),
+    );
 
     // TODO - return actual signed tx once backend is available
     const signedTx = connectionStateMessage.params[0];
