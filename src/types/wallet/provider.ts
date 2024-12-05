@@ -1,7 +1,14 @@
 import {WalletPreferences} from "./preferences";
 
+export interface RequestArgs {
+  method: ProviderMethod;
+  params: any[];
+  result?: any;
+}
+
 // define provider method names
 export type ProviderMethod =
+  // EVM provider methods
   | "eth_requestAccounts"
   | "eth_chainId"
   | "eth_accounts"
@@ -14,7 +21,11 @@ export type ProviderMethod =
   | "eth_getTransactionByHash"
   | "personal_sign"
   | "wallet_requestPermissions"
-  | "wallet_switchEthereumChain";
+  | "wallet_switchEthereumChain"
+
+  // Solana provider methods
+  | "solana_signMessage"
+  | "solana_signTransaction";
 
 export const ProviderMethodsWithPrompt: ProviderMethod[] = [
   "eth_requestAccounts",
@@ -40,7 +51,7 @@ export type Eip1193Event =
   | "disconnect";
 
 // define supported provider permissions
-export const ProviderPermissions = ["eth_accounts"] as const;
+export const ProviderPermissions = ["eth_accounts", "solana_accounts"] as const;
 export type PermissionType = (typeof ProviderPermissions)[number];
 export const isPermissionType = (v: string): v is PermissionType => {
   return ProviderPermissions.indexOf(v as PermissionType) !== -1;
@@ -48,6 +59,7 @@ export const isPermissionType = (v: string): v is PermissionType => {
 
 // define external message types
 export const ExternalMessageTypes = [
+  // EVM events
   "accountRequest",
   "chainIdRequest",
   "requestPermissionsRequest",
@@ -56,6 +68,10 @@ export const ExternalMessageTypes = [
   "signTypedMessageRequest",
   "sendTransactionRequest",
   "switchChainRequest",
+
+  // Solana events
+  "signSolanaMessageRequest",
+  "signSolanaTransactionRequest",
 ] as const;
 export type ExternalRequestType = (typeof ExternalMessageTypes)[number];
 export const isExternalRequestType = (v: string): v is ExternalRequestType => {
@@ -110,6 +126,7 @@ export interface ProviderRequest {
 
 // define response types
 export type ResponseType =
+  // EVM types
   | "accountResponse"
   | "chainIdResponse"
   | "requestPermissionsResponse"
@@ -122,7 +139,11 @@ export type ResponseType =
   | "getDomainProfileResponse"
   | "getResolutionResponse"
   | "prepareXmtpResponse"
-  | "rpcResponse";
+  | "rpcResponse"
+
+  // Solana types
+  | "signSolanaMessageResponse"
+  | "signSolanaTransactionResponse";
 export const isResponseType = (v: string): v is ResponseType => {
   return isExternalRequestType(v.replaceAll("Response", "Request"));
 };

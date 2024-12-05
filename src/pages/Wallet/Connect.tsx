@@ -1,6 +1,10 @@
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+import {PublicKey, VersionedTransaction} from "@solana/web3.js";
+import {fetcher} from "@xmtp/proto";
+import bs58 from "bs58";
 import type {Signer} from "ethers";
+import Markdown from "markdown-to-jsx";
 import queryString from "query-string";
 import React, {useEffect, useState} from "react";
 import useIsMounted from "react-is-mounted-hook";
@@ -41,12 +45,35 @@ import {
   isPermissionType,
 } from "../../types/wallet/provider";
 
+// define connection popup states
 enum ConnectionState {
   ACCOUNT = 1,
   CHAINID,
   PERMISSIONS,
   SIGN,
   SWITCH_CHAIN,
+  SOLANA_SIGN_MESSAGE,
+  SOLANA_SIGN_TX,
+}
+
+// define groups of connection popup states
+const SOLANA_STATES = [
+  ConnectionState.SOLANA_SIGN_MESSAGE,
+  ConnectionState.SOLANA_SIGN_TX,
+];
+const CONNECT_ACCOUNT_STATES = [
+  ConnectionState.ACCOUNT,
+  ConnectionState.SWITCH_CHAIN,
+];
+const RENDER_CONTENT_STATES = [
+  ConnectionState.PERMISSIONS,
+  ...CONNECT_ACCOUNT_STATES,
+  ...SOLANA_STATES,
+];
+
+interface connectedAccount {
+  address: string;
+  networkId?: number | string;
 }
 
 const Connect: React.FC = () => {
@@ -59,7 +86,9 @@ const Connect: React.FC = () => {
   const {connections} = useConnections();
   const [isConnected, setIsConnected] = useState<boolean>();
   const [accountAssets, setAccountAssets] = useState<BootstrapState>();
-  const [accountEvmAddresses, setAccountEvmAddresses] = useState<any[]>([]);
+  const [accountAddresses, setAccountAddresses] = useState<connectedAccount[]>(
+    [],
+  );
   const [errorMessage, setErrorMessage] = useState<string>();
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
@@ -101,6 +130,7 @@ const Connect: React.FC = () => {
           return;
         }
 
+        // build list of EVM addresses
         const evmAddresses = [
           ...new Set(
             signInState.assets
@@ -114,11 +144,31 @@ const Connect: React.FC = () => {
           ),
         ];
 
-        if (evmAddresses.length === 0) {
+        // build list of Solana addresses
+        const solanaAddresses = [
+          ...new Set(
+            signInState.assets
+              ?.map(a => {
+                return {
+                  address: a.address,
+                  networkId: "solana",
+                };
+              })
+              .filter(a => {
+                try {
+                  return PublicKey.isOnCurve(a.address);
+                } catch (e) {
+                  return false;
+                }
+              }),
+          ),
+        ];
+
+        if (evmAddresses.length === 0 && solanaAddresses.length === 0) {
           return;
         }
         setAccountAssets(signInState);
-        setAccountEvmAddresses(evmAddresses);
+        setAccountAddresses([...evmAddresses, ...solanaAddresses]);
 
         // retrieve the source tab information if available, used to show the name
         // and logo of the calling application
@@ -241,6 +291,7 @@ const Connect: React.FC = () => {
 
         // handle the message
         switch (message.type) {
+          // EVM handlers
           case "accountRequest":
             setConnectionStateMessage(message);
             setConnectionState(ConnectionState.CHAINID);
@@ -280,6 +331,15 @@ const Connect: React.FC = () => {
             break;
           case "closeWindowRequest":
             handleClose();
+            break;
+          // Solana handlers
+          case "signSolanaMessageRequest":
+            setConnectionStateMessage(message);
+            setConnectionState(ConnectionState.SOLANA_SIGN_MESSAGE);
+            break;
+          case "signSolanaTransactionRequest":
+            setConnectionStateMessage(message);
+            setConnectionState(ConnectionState.SOLANA_SIGN_TX);
             break;
           // the following messages types can silently be ignored, as they
           // are not relevant in the connect window
@@ -323,11 +383,20 @@ const Connect: React.FC = () => {
     };
   }, [web3Deps]);
 
-  const getAccount = (chainId: number = config.DEFAULT_CHAIN) => {
-    const matchingAccount = accountEvmAddresses.find(
-      a => chainId === a.networkId,
-    );
-    return matchingAccount?.address ? matchingAccount : accountEvmAddresses[0];
+  const getAccount = (chainId?: number | string) => {
+    // if chainID is not specified, determine the default
+    if (!chainId) {
+      // determine type of permission request
+      const isSolana =
+        (connectionState && SOLANA_STATES.includes(connectionState)) ||
+        (connectionStateMessage?.params &&
+          connectionStateMessage.params.length > 0 &&
+          !!connectionStateMessage.params[0].solana_accounts);
+      chainId = isSolana ? "solana" : config.DEFAULT_CHAIN;
+    }
+
+    const matchingAccount = accountAddresses.find(a => chainId === a.networkId);
+    return matchingAccount?.address ? matchingAccount : accountAddresses[0];
   };
 
   const handleGetChainId = () => {
@@ -423,6 +492,7 @@ const Connect: React.FC = () => {
 
             // add permission to accepted permission list
             acceptedPermissions.push({
+              account,
               parentCapability: permission,
               date: new Date().getTime(),
               caveats: [
@@ -490,6 +560,49 @@ const Connect: React.FC = () => {
       getResponseType("signMessageRequest"),
       new Error("personal message not signed"),
     );
+  };
+
+  const handleSignSolanaMessage = async () => {
+    // retrieve encoded message
+    const encodedMsg = fetcher.b64Decode(connectionStateMessage.params[0]);
+
+    // TODO - send the message to backend API to be signed
+    const decodedMsg = new TextDecoder().decode(encodedMsg);
+    Logger.log(
+      "Signing message",
+      JSON.stringify({decodedMsg, encodedMsg}, undefined, 2),
+    );
+
+    // TODO - return actual signature once backend is available
+    const signature = connectionStateMessage.params[0];
+    await chrome.runtime.sendMessage({
+      type: "signSolanaMessageResponse",
+      response: signature,
+    });
+  };
+
+  const handleSignSolanaTx = async () => {
+    // retrieve encoded transaction
+    const tx = VersionedTransaction.deserialize(
+      bs58.decode(connectionStateMessage.params[0]),
+    );
+
+    // Optional parameter determines whether transaction should also be transmitted
+    // to the blockchain. If false, sign the transaction but do not submit.
+    const sendTx = connectionStateMessage.params[1] as boolean;
+
+    // TODO - send the tx to backend API to be signed
+    Logger.log(
+      "Signing transaction",
+      JSON.stringify({sendTx, tx}, undefined, 2),
+    );
+
+    // TODO - return actual signed tx once backend is available
+    const signedTx = connectionStateMessage.params[0];
+    await chrome.runtime.sendMessage({
+      type: "signSolanaTransactionResponse",
+      response: signedTx,
+    });
   };
 
   const handleSignTypedMessage = async (params: any[]) => {
@@ -588,84 +701,100 @@ const Connect: React.FC = () => {
   };
 
   const renderButton = () => {
+    // no work to do until a connection state is set
+    if (!connectionState) {
+      return;
+    }
+
+    // show error message if present
     if (errorMessage) {
       return (
         <Box mb={5}>
           <Alert severity="error">{errorMessage}</Alert>
         </Box>
       );
-    } else if (
-      connectionState &&
-      [ConnectionState.ACCOUNT, ConnectionState.SWITCH_CHAIN].includes(
-        connectionState,
-      )
-    ) {
-      return (
-        <Button
-          onClick={handleConnectAccount}
-          disabled={!isLoaded || errorMessage !== undefined}
-          fullWidth
-          variant="contained"
-        >
-          {t("common.connect")}
-        </Button>
-      );
-    } else {
-      return (
-        <Button
-          onClick={handleRequestPermissions}
-          disabled={!isLoaded || errorMessage !== undefined}
-          fullWidth
-          variant="contained"
-        >
-          {t("wallet.approve")}
-        </Button>
-      );
     }
+
+    // render a confirmation button with different behavior depending on the
+    // connection popup state
+    return (
+      <Button
+        fullWidth
+        variant="contained"
+        disabled={!isLoaded || errorMessage !== undefined}
+        onClick={
+          CONNECT_ACCOUNT_STATES.includes(connectionState)
+            ? handleConnectAccount
+            : connectionState === ConnectionState.SOLANA_SIGN_MESSAGE
+              ? handleSignSolanaMessage
+              : connectionState === ConnectionState.SOLANA_SIGN_TX
+                ? handleSignSolanaTx
+                : connectionState === ConnectionState.PERMISSIONS
+                  ? handleRequestPermissions
+                  : undefined
+        }
+      >
+        {CONNECT_ACCOUNT_STATES.includes(connectionState)
+          ? t("common.connect")
+          : t("wallet.approve")}
+      </Button>
+    );
   };
 
   // show wallet connect information
   return (
     <Paper className={classes.container}>
       <Box className={cx(classes.walletContainer, classes.contentContainer)}>
-        {connectionState &&
-          [
-            ConnectionState.ACCOUNT,
-            ConnectionState.PERMISSIONS,
-            ConnectionState.SWITCH_CHAIN,
-          ].includes(connectionState) && (
-            <Box className={classes.contentContainer}>
-              <Typography variant="h4">{t("wallet.signMessage")}</Typography>
-              {web3Deps?.unstoppableWallet?.connectedApp && (
-                <SignForDappHeader
-                  name={web3Deps.unstoppableWallet.connectedApp.name}
-                  iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
-                  hostUrl={web3Deps.unstoppableWallet.connectedApp.hostUrl}
-                  actionText={
-                    connectionState === ConnectionState.PERMISSIONS
-                      ? t("extension.connectRequest")
-                      : connectionState === ConnectionState.SWITCH_CHAIN
-                        ? t("extension.connectToChain", {
-                            chainName:
-                              connectionStateMessage.params[0].chainName,
-                          })
-                        : t("extension.connect")
-                  }
-                />
-              )}
-              <Typography variant="body1" mt={3}>
-                {t("auth.walletAddress")}:
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: "bold",
-                }}
-              >
-                {getAccount()?.address}
-              </Typography>
-            </Box>
-          )}
+        {connectionState && RENDER_CONTENT_STATES.includes(connectionState) && (
+          <Box className={classes.contentContainer}>
+            <Typography variant="h4">{t("wallet.signMessage")}</Typography>
+            {web3Deps?.unstoppableWallet?.connectedApp && (
+              <SignForDappHeader
+                name={web3Deps.unstoppableWallet.connectedApp.name}
+                iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
+                hostUrl={web3Deps.unstoppableWallet.connectedApp.hostUrl}
+                actionText={
+                  connectionState === ConnectionState.PERMISSIONS
+                    ? t("extension.connectRequest")
+                    : connectionState === ConnectionState.SWITCH_CHAIN
+                      ? t("extension.connectToChain", {
+                          chainName: connectionStateMessage.params[0].chainName,
+                        })
+                      : connectionState === ConnectionState.SOLANA_SIGN_MESSAGE
+                        ? t("wallet.signMessageAction")
+                        : connectionState === ConnectionState.SOLANA_SIGN_TX
+                          ? t("wallet.signTxAction")
+                          : t("extension.connect")
+                }
+              />
+            )}
+            <Typography variant="body1" mt={3}>
+              {t("auth.walletAddress")}:
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
+              {getAccount()?.address}
+            </Typography>
+            {connectionState === ConnectionState.SOLANA_SIGN_MESSAGE && (
+              <>
+                <Typography mt={3} variant="body1">
+                  {t("wallet.signMessageSubtitle")}:
+                </Typography>
+                <Box className={classes.messageContainer}>
+                  <Markdown>
+                    {new TextDecoder().decode(
+                      fetcher.b64Decode(connectionStateMessage.params[0]),
+                    )}
+                  </Markdown>
+                </Box>
+              </>
+            )}
+          </Box>
+        )}
         <Box className={classes.contentContainer}>
           {renderButton()}
           <Box mt={1} className={classes.contentContainer}>

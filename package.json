@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@metamask/providers": "^17.1.2",
+    "@types/bs58": "^4.0.4",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@unstoppabledomains/config": "0.0.19",

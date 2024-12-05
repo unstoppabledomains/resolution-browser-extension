@@ -33,24 +33,21 @@ import {
   ProviderMethod,
   ProviderMethodsWithPrompt,
   ProviderResponse,
+  RequestArgs,
   ResponseType,
   RpcRequest,
   UnexpectedResponseError,
   UnsupportedMethodError,
   isClientSideRequestType,
 } from "../../types/wallet/provider";
+import {initialize} from "../solanaWalletProvider/initialize";
+import {SolanaWalletProvider} from "../solanaWalletProvider/provider";
 
 declare global {
   interface Window {
     [WINDOW_PROPERTY_NAME]: LiteWalletProvider;
     ethereum?: ExternalProvider;
   }
-}
-
-interface RequestArgs {
-  method: ProviderMethod;
-  params: any[];
-  result?: any;
 }
 
 class LiteWalletProvider extends EventEmitter {
@@ -94,6 +91,7 @@ class LiteWalletProvider extends EventEmitter {
   }
 
   private init() {
+    // EVM provider initialization
     this.isMetaMask = true;
     this.isConnectedStatus = false;
     this.lastCompletedRequest = null;
@@ -192,6 +190,15 @@ class LiteWalletProvider extends EventEmitter {
           break;
         case "eth_sendTransaction":
           result = await this.handleSendTransaction(clone(request.params));
+          break;
+        // Solana messages
+        case "solana_signMessage":
+          result = await this.handleSolanaSignMessage(clone(request.params));
+          break;
+        case "solana_signTransaction":
+          result = await this.handleSolanaSignTransaction(
+            clone(request.params),
+          );
           break;
         default:
           throw new EthereumProviderError(
@@ -987,6 +994,92 @@ class LiteWalletProvider extends EventEmitter {
     });
   }
 
+  private async handleSolanaSignMessage(params: any[]) {
+    // validate the provided parameters include a string in hex format
+    // that can be signed
+    if (!params || params.length === 0) {
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidSignatureError,
+      );
+    }
+    const messageToSign = params[0];
+
+    return await new Promise((resolve, reject) => {
+      // send the message signing event
+      document.dispatchEvent(
+        new ProviderEvent("signSolanaMessageRequest", {
+          detail: [messageToSign],
+        }),
+      );
+      this.addEventListener(
+        "signSolanaMessageResponse",
+        (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
+          } else if ("response" in event.detail) {
+            resolve(event.detail.response);
+          } else {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
+          }
+        },
+      );
+    });
+  }
+
+  private async handleSolanaSignTransaction(params: any[]) {
+    // validate the provided parameters include a string that can be signed
+    if (!params || params.length < 2) {
+      throw new EthereumProviderError(
+        PROVIDER_CODE_USER_ERROR,
+        InvalidSignatureError,
+      );
+    }
+    const txToSign = params[0];
+    const txSendOption = params[1];
+
+    return await new Promise((resolve, reject) => {
+      // send the transaction event
+      document.dispatchEvent(
+        new ProviderEvent("signSolanaTransactionRequest", {
+          detail: [txToSign, txSendOption],
+        }),
+      );
+      this.addEventListener(
+        "signSolanaTransactionResponse",
+        (event: ProviderResponse) => {
+          if (event.detail.error) {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                event.detail.error,
+              ),
+            );
+          } else if ("response" in event.detail) {
+            resolve(event.detail.response);
+          } else {
+            reject(
+              new EthereumProviderError(
+                PROVIDER_CODE_USER_ERROR,
+                UnexpectedResponseError,
+              ),
+            );
+          }
+        },
+      );
+    });
+  }
+
   private addEventListener(
     eventType: ResponseType,
     listener: (event: ProviderResponse) => void,
@@ -999,13 +1092,29 @@ class LiteWalletProvider extends EventEmitter {
   }
 }
 
-// create a wallet provider object
-const provider = new LiteWalletProvider();
-const proxyProvider = new Proxy(provider, {
+// create an EVM wallet provider object
+const evmWalletProvider = new LiteWalletProvider();
+const proxyProvider = new Proxy(evmWalletProvider, {
   deleteProperty: () => true,
 });
 
-// EIP-6963: announce the provider
+// temporary configuration flag for Solana enablement
+if (config.SOLANA_ENABLED === "true") {
+  // create a Solana wallet provider object, which is a standardized wrapper
+  // around the existing EVM wallet request mechanism used internally to the
+  // Unstoppable Domains browser extension.
+  const solanaWalletProvider = new SolanaWalletProvider(
+    async (r: RequestArgs) => {
+      return await proxyProvider.request(r);
+    },
+  );
+
+  // register the Solana provider using the Wallet Standard (https://github.com/wallet-standard/wallet-standard)
+  initialize(solanaWalletProvider);
+  Logger.log("Registered Solana provider");
+}
+
+// EIP-6963: announce the EVM provider
 announceProvider({
   info: {
     icon: `data:image/png;base64,${LOGO_BASE_64}`,
@@ -1015,7 +1124,7 @@ announceProvider({
 });
 Logger.log("Announced Ethereum provider");
 
-// EIP-1193: attach the provider to global window object
+// EIP-1193: attach the EVM provider to global window object
 // as window.unstoppable by default
 window[WINDOW_PROPERTY_NAME] = proxyProvider;
 Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
@@ -1024,7 +1133,7 @@ Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
 // provider is created with the metamask flag. Initializing the
 // extension in this way can interfere with other extensions and
 // make the inaccessible to the user.
-void provider.getPreferences().then(walletPreferences => {
+void evmWalletProvider.getPreferences().then(walletPreferences => {
   if (walletPreferences.OverrideMetamask) {
     window.ethereum = proxyProvider as ExternalProvider;
     Logger.log("Injected Ethereum provider", "window.ethereum");
