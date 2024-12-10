@@ -1,8 +1,10 @@
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import {PublicKey, VersionedTransaction} from "@solana/web3.js";
+import {PublicKey} from "@solana/web3.js";
+import {Connection} from "@solana/web3.js";
 import {fetcher} from "@xmtp/proto";
 import bs58 from "bs58";
+import {utils} from "ethers";
 import type {Signer} from "ethers";
 import Markdown from "markdown-to-jsx";
 import queryString from "query-string";
@@ -21,6 +23,7 @@ import {
   useTranslationContext,
   useWeb3Context,
 } from "@unstoppabledomains/ui-components";
+import useFireblocksMessageSigner from "@unstoppabledomains/ui-components/hooks/useFireblocksMessageSigner";
 import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 import {Alert, Button, Typography} from "@unstoppabledomains/ui-kit";
 
@@ -32,6 +35,7 @@ import {Logger} from "../../lib/logger";
 import {isAscii} from "../../lib/wallet/isAscii";
 import {getProviderRequest} from "../../lib/wallet/request";
 import {useExtensionStyles} from "../../styles/extension.styles";
+import {deserializeTx, isVersionedTransaction} from "../../types/solana/chains";
 import {
   ChainNotSupportedError,
   InvalidTypedMessageError,
@@ -82,6 +86,7 @@ const Connect: React.FC = () => {
   const [t] = useTranslationContext();
   const {web3Deps, setWeb3Deps, setMessageToSign, setTxToSign} =
     useWeb3Context();
+  const fireblocksMessageSigner = useFireblocksMessageSigner();
   const {preferences} = usePreferences();
   const {connections} = useConnections();
   const [isConnected, setIsConnected] = useState<boolean>();
@@ -563,42 +568,97 @@ const Connect: React.FC = () => {
   };
 
   const handleSignSolanaMessage = async () => {
-    // retrieve encoded message
+    // retrieve account address and encoded message
+    const account = getAccount();
     const encodedMsg = fetcher.b64Decode(connectionStateMessage.params[0]);
 
-    // TODO - send the message to backend API to be signed
+    // validate account
+    if (!account) {
+      return;
+    }
+
+    // decode the message that is to be signed
     const decodedMsg = new TextDecoder().decode(encodedMsg);
     Logger.log(
       "Signing message",
       JSON.stringify({decodedMsg, encodedMsg}, undefined, 2),
     );
 
-    // TODO - return actual signature once backend is available
-    const signature = connectionStateMessage.params[0];
+    // sign the message using the wallet's solana address
+    const signatureResult = await fireblocksMessageSigner(
+      decodedMsg,
+      account.address,
+    );
+
+    // encode the resulting signature as a buffer
+    const signatureBuffer = Buffer.from(
+      utils.isHexString(signatureResult)
+        ? signatureResult
+        : `0x${signatureResult}`,
+      "hex",
+    );
+
+    // return the signature result as a hex string
+    const signatureHex = fetcher.b64Encode(
+      signatureBuffer,
+      0,
+      signatureBuffer.length,
+    );
     await chrome.runtime.sendMessage({
       type: "signSolanaMessageResponse",
-      response: signature,
+      response: signatureHex,
     });
   };
 
   const handleSignSolanaTx = async () => {
-    // retrieve encoded transaction
-    const tx = VersionedTransaction.deserialize(
-      bs58.decode(connectionStateMessage.params[0]),
-    );
+    // retrieve the encoded transaction
+    const account = getAccount();
+    const tx = deserializeTx(connectionStateMessage.params[0]);
 
     // Optional parameter determines whether transaction should also be transmitted
     // to the blockchain. If false, sign the transaction but do not submit.
-    const sendTx = connectionStateMessage.params[1] as boolean;
+    const broadcastTx = connectionStateMessage.params[1] as boolean;
 
-    // TODO - send the tx to backend API to be signed
-    Logger.log(
-      "Signing transaction",
-      JSON.stringify({sendTx, tx}, undefined, 2),
+    // validate account
+    if (!account) {
+      return;
+    }
+
+    // retrieve the tx message that must be signed depending on the format
+    const txMessage = utils.hexlify(
+      isVersionedTransaction(tx)
+        ? tx.message.serialize()
+        : tx.serializeMessage(),
     );
 
-    // TODO - return actual signed tx once backend is available
-    const signedTx = connectionStateMessage.params[0];
+    // sign the required message
+    Logger.log(
+      "Signing transaction",
+      JSON.stringify({broadcastTx, txMessage, tx}, undefined, 2),
+    );
+    const signature = await fireblocksMessageSigner(txMessage, account.address);
+
+    // append the signature to the transaction
+    Logger.log("Signing complete", JSON.stringify(signature));
+    tx.addSignature(
+      new PublicKey(account.address),
+      Buffer.from(
+        utils.isHexString(signature) ? signature : `0x${signature}`,
+        "hex",
+      ),
+    );
+
+    // serialize the signed transaction
+    const signedTx = bs58.encode(tx.serialize());
+
+    // broadcast the tx if requested
+    if (broadcastTx) {
+      Logger.log("Broadcasting transaction", JSON.stringify(signedTx));
+      const rpcConnection = new Connection(config.SOLANA_RPC_HOST);
+      await rpcConnection.sendRawTransaction(tx.serialize());
+    }
+
+    // return serialized transaction with appended signatures
     await chrome.runtime.sendMessage({
       type: "signSolanaTransactionResponse",
       response: signedTx,
