@@ -74,7 +74,7 @@ export const getTokenMetadata = async (
   const metadataAccountInfo = await connection.getAccountInfo(metadataAccount);
 
   if (metadataAccountInfo) {
-    const token = await metaplex.nfts().findByMint({mintAddress: mintAddress});
+    const token = await metaplex.nfts().findByMint({mintAddress});
     return {
       tokenName: token.name,
       tokenSymbol: token.symbol,
@@ -83,7 +83,6 @@ export const getTokenMetadata = async (
   } else {
     const provider = await new TokenListProvider().resolve();
     const tokenList = provider.filterByChainId(ENV.MainnetBeta).getList();
-    console.log(tokenList);
     const tokenMap = tokenList.reduce((map, item) => {
       map.set(item.address, item);
       return map;
@@ -127,7 +126,7 @@ export const simulateTransaction = async (
     : await rpcProvider.simulateTransaction(tx);
 
   // ensure the before and after accounts match
-  if (initialAccountState.length != txSimulated.value.accounts?.length) {
+  if (initialAccountState.length !== txSimulated.value.accounts?.length) {
     Logger.log("simulation pre and post state mismatch");
     return undefined;
   }
