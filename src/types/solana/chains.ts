@@ -33,12 +33,6 @@ export function isSolanaChain(chain: IdentifierString): chain is SolanaChain {
   return SOLANA_CHAINS.includes(chain as SolanaChain);
 }
 
-export const isVersionedTransaction = (
-  transaction: Transaction | VersionedTransaction,
-): transaction is VersionedTransaction => {
-  return "version" in transaction;
-};
-
 export const deserializeTx = (
   b58SerializedTx: string,
 ): Transaction | VersionedTransaction => {

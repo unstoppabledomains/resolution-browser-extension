@@ -1,9 +1,8 @@
 import LoadingButton from "@mui/lab/LoadingButton";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import {ParsedAccountData, PublicKey} from "@solana/web3.js";
+import {PublicKey} from "@solana/web3.js";
 import {fetcher} from "@xmtp/proto";
-import bluebird from "bluebird";
 import bs58 from "bs58";
 import type {Signer} from "ethers";
 import Markdown from "markdown-to-jsx";
@@ -25,11 +24,7 @@ import {
 } from "@unstoppabledomains/ui-components";
 import useFireblocksMessageSigner from "@unstoppabledomains/ui-components/hooks/useFireblocksMessageSigner";
 import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
-import {getSolanaProvider} from "@unstoppabledomains/ui-components/lib/wallet/solana/provider";
-import {
-  isVersionedTransaction,
-  signTransaction,
-} from "@unstoppabledomains/ui-components/lib/wallet/solana/transaction";
+import {signTransaction} from "@unstoppabledomains/ui-components/lib/wallet/solana/transaction";
 import {Alert, Button, Typography} from "@unstoppabledomains/ui-kit";
 
 import config from "../../config";
@@ -39,6 +34,7 @@ import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
 import {isAscii} from "../../lib/wallet/isAscii";
 import {getProviderRequest} from "../../lib/wallet/request";
+import {simulateTransaction} from "../../lib/wallet/solana/simulation";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {deserializeTx} from "../../types/solana/chains";
 import {
@@ -649,25 +645,6 @@ const Connect: React.FC = () => {
     });
   };
 
-  const getRelevantAccounts = async (owner: string, addresses: string[]) => {
-    const rpcConnection = getSolanaProvider();
-    return bluebird.filter(
-      addresses,
-      async a => {
-        // always include self
-        if (a.toLowerCase() === owner.toLowerCase()) {
-          return true;
-        }
-
-        // include child addresses
-        const info = await rpcConnection.getParsedAccountInfo(new PublicKey(a));
-        const result = (info?.value?.data as ParsedAccountData)?.parsed?.info;
-        return result?.owner?.toLowerCase() === owner.toLowerCase();
-      },
-      {concurrency: 1},
-    );
-  };
-
   const handleSimulateSolanaTx = async () => {
     try {
       const account = getAccount();
@@ -678,158 +655,7 @@ const Connect: React.FC = () => {
         return;
       }
 
-      // retrieve simulation addresses
-      const addresses = await getRelevantAccounts(
-        account.address,
-        isVersionedTransaction(tx)
-          ? tx.message.staticAccountKeys.map(a => a.toBase58())
-          : [account.address],
-      );
-
-      // send to RPC simulation endpoint
-      const rpcProvider = getSolanaProvider();
-      const txSimulated = isVersionedTransaction(tx)
-        ? await rpcProvider.simulateTransaction(tx, {
-            accounts: {encoding: "jsonParsed" as "base64", addresses},
-            commitment: "finalized",
-            replaceRecentBlockhash: false,
-            sigVerify: false,
-          })
-        : await rpcProvider.simulateTransaction(tx);
-
-      // print the simulation results
-      Logger.log(
-        "simulation results",
-        JSON.stringify(txSimulated, undefined, 2),
-      );
-      /*
-      {
-        "jsonrpc": "2.0",
-        "result": {
-            "context": {
-                "apiVersion": "2.0.18",
-                "slot": 307106226
-            },
-            "value": {
-                "accounts": [
-                    {
-                        "data": [
-                            "",
-                            "base64"
-                        ],
-                        "executable": false,
-                        "lamports": 40784699,
-                        "owner": "11111111111111111111111111111111",
-                        "rentEpoch": 18446744073709551615,
-                        "space": 0
-                    },
-                    {
-                        "data": {
-                            "parsed": {
-                                "info": {
-                                    "isNative": false,
-                                    "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-                                    "owner": "7Na9VWPbS25mmkHh6jRfVVRP2kvRPQCxq8uDk6bGwc6",
-                                    "state": "initialized",
-                                    "tokenAmount": {
-                                        "amount": "4263090",
-                                        "decimals": 6,
-                                        "uiAmount": 4.26309,
-                                        "uiAmountString": "4.26309"
-                                    }
-                                },
-                                "type": "account"
-                            },
-                            "program": "spl-token",
-                            "space": 165
-                        },
-                        "executable": false,
-                        "lamports": 2039280,
-                        "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-                        "rentEpoch": 18446744073709551615,
-                        "space": 165
-                    }
-                ],
-                "err": null,
-                "innerInstructions": null,
-                "logs": [
-                    "Program ComputeBudget111111111111111111111111111111 invoke [1]",
-                    "Program ComputeBudget111111111111111111111111111111 success",
-                    "Program ComputeBudget111111111111111111111111111111 invoke [1]",
-                    "Program ComputeBudget111111111111111111111111111111 success",
-                    "Program 11111111111111111111111111111111 invoke [1]",
-                    "Program 11111111111111111111111111111111 success",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]",
-                    "Program 11111111111111111111111111111111 invoke [2]",
-                    "Program 11111111111111111111111111111111 success",
-                    "Program 11111111111111111111111111111111 invoke [2]",
-                    "Program 11111111111111111111111111111111 success",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
-                    "Program log: Instruction: InitializeAccount3",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 3158 of 228086 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 consumed 11005 of 235770 compute units",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]",
-                    "Program log: Instruction: SharedAccountsRoute",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
-                    "Program log: Instruction: Transfer",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 4736 of 208929 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-                    "Program whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc invoke [2]",
-                    "Program log: Instruction: SwapV2",
-                    "Program log: fee_growth: 26417073786",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
-                    "Program log: Instruction: TransferChecked",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6238 of 153184 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
-                    "Program log: Instruction: TransferChecked",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6173 of 142984 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-                    "Program whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc consumed 60726 of 194683 compute units",
-                    "Program whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc success",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [2]",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 consumed 471 of 131567 compute units",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success",
-                    "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo invoke [2]",
-                    "Program log: Instruction: Swap",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
-                    "Program log: Instruction: TransferChecked",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6173 of 84914 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
-                    "Program log: Instruction: TransferChecked",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6200 of 75308 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-                    "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo invoke [3]",
-                    "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo consumed 2134 of 65677 compute units",
-                    "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo success",
-                    "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo consumed 59311 of 121286 compute units",
-                    "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo success",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [2]",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 consumed 471 of 59530 compute units",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
-                    "Program log: Instruction: Transfer",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 4645 of 55252 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 consumed 175395 of 224765 compute units",
-                    "Program return: JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 Qq8iAAAAAAA=",
-                    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [1]",
-                    "Program log: Instruction: CloseAccount",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 2915 of 49370 compute units",
-                    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success"
-                ],
-                "replacementBlockhash": null,
-                "returnData": null,
-                "unitsConsumed": 189765
-            }
-        },
-        "id": "77acb0ed-6bf7-4b42-915d-37283f384b16"
-    }
-      */
+      await simulateTransaction(account.address, tx);
     } catch (e) {
       Logger.warn("error simulating transaction", e);
     }

@@ -12,9 +12,9 @@ import {fetcher} from "@xmtp/proto";
 import bs58 from "bs58";
 import {EventEmitter} from "events";
 
-import {Logger} from "../../lib/logger";
+import {isVersionedTransaction} from "@unstoppabledomains/ui-components/lib/wallet/solana/transaction";
+
 import {SolanaWalletAccount} from "../../types/solana/account";
-import {isVersionedTransaction} from "../../types/solana/chains";
 import {SolanaConnectResult, SolanaProvider} from "../../types/solana/provider";
 import {RequestArgs} from "../../types/wallet/provider";
 
