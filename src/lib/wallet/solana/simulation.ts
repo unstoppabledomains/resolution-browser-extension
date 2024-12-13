@@ -14,21 +14,12 @@ import bluebird from "bluebird";
 import {getSolanaProvider} from "@unstoppabledomains/ui-components/lib/wallet/solana/provider";
 import {isVersionedTransaction} from "@unstoppabledomains/ui-components/lib/wallet/solana/transaction";
 
+import {
+  SimulationEntry,
+  SimulationResults,
+  TokenMetadataEntry,
+} from "../../../types/solana/simulation";
 import {Logger} from "../../logger";
-
-interface TokenMetadataEntry {
-  tokenName: string;
-  tokenSymbol: string;
-  tokenLogo?: string;
-}
-
-interface SimulationEntry {
-  decimals?: number;
-  pre: number;
-  post: number;
-  delta: number;
-  metadata?: TokenMetadataEntry;
-}
 
 export const getRelevantAccounts = async (
   ownerAddress: string,
@@ -101,7 +92,7 @@ export const getTokenMetadata = async (
 export const simulateTransaction = async (
   ownerAddress: string,
   tx: Transaction | VersionedTransaction,
-) => {
+): Promise<SimulationResults> => {
   // retrieve simulation addresses
   const startTime = Date.now();
   const initialAccountState = await getRelevantAccounts(
@@ -120,7 +111,7 @@ export const simulateTransaction = async (
           addresses: initialAccountState.map(a => a.address),
         },
         commitment: "finalized",
-        replaceRecentBlockhash: false,
+        replaceRecentBlockhash: true,
         sigVerify: false,
       })
     : await rpcProvider.simulateTransaction(tx);
@@ -128,10 +119,15 @@ export const simulateTransaction = async (
   // ensure the before and after accounts match
   if (initialAccountState.length !== txSimulated.value.accounts?.length) {
     Logger.log("simulation pre and post state mismatch");
-    return undefined;
+    return {
+      success: false,
+      results: [],
+      logs: txSimulated.value.logs || [],
+      errorMessage: "cannot determine post transaction state",
+    };
   }
 
-  // add up the SOL before and after
+  // compare SOL balances pre and post transaction
   const preTxAmount = initialAccountState
     .map(a => a.accountInfo.lamports)
     .reduce((a, b) => a + b, 0);
@@ -153,7 +149,7 @@ export const simulateTransaction = async (
     },
   };
 
-  // add up token accounts before and after
+  // compare token account balances pre and post transaction
   initialAccountState.map(a => {
     if (
       !a.accountInfo.data?.parsed?.info?.tokenAmount?.decimals ||
@@ -196,6 +192,9 @@ export const simulateTransaction = async (
     if (tokenEntry.metadata) {
       return;
     }
+    if (tokenEntry.delta === 0) {
+      return;
+    }
     tokenEntry.metadata = await getTokenMetadata(key);
     if (tokenEntry.metadata?.tokenSymbol && !tokenEntry.metadata.tokenLogo) {
       tokenEntry.metadata.tokenLogo = `https://storage.googleapis.com/unstoppable-client-assets/images/icons/${tokenEntry.metadata.tokenSymbol}/icon.svg`;
@@ -203,9 +202,15 @@ export const simulateTransaction = async (
   });
 
   // normalize and return the simulation results
-  const results = Object.keys(tokenAccountMap)
-    .map(k => tokenAccountMap[k])
-    .sort((a, b) => a.delta - b.delta);
+  const results = {
+    success: txSimulated.value.err === null,
+    logs: txSimulated.value.logs || [],
+    results: Object.keys(tokenAccountMap)
+      .map(k => tokenAccountMap[k])
+      .filter(r => r.delta !== 0)
+      .sort((a, b) => b.delta - a.delta),
+    errorMessage: txSimulated.value.err || undefined,
+  };
   Logger.log(
     "simulation results",
     JSON.stringify({elapsed: Date.now() - startTime, results}, undefined, 2),
