@@ -24,6 +24,7 @@ import {
   SignForDappHeader,
   getBootstrapState,
   isEthAddress,
+  useFireblocksAccessToken,
   useFireblocksState,
   useTranslationContext,
   useWeb3Context,
@@ -94,6 +95,7 @@ const Connect: React.FC = () => {
   const navigate = useNavigate();
   const isMounted = useIsMounted();
   const {classes, cx} = useExtensionStyles();
+  const getAccessToken = useFireblocksAccessToken();
   const [t] = useTranslationContext();
 
   // wallet state
@@ -671,7 +673,10 @@ const Connect: React.FC = () => {
         return;
       }
 
-      setSimulationResult(await simulateTransaction(account.address, tx));
+      const accessToken = await getAccessToken();
+      setSimulationResult(
+        await simulateTransaction(accessToken, account.address, tx),
+      );
     } catch (e) {
       Logger.error(e as Error, "Transaction", "error simulating transaction");
     } finally {

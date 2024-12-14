@@ -45,8 +45,6 @@
   },
   "dependencies": {
     "@metamask/providers": "^17.1.2",
-    "@metaplex-foundation/js": "^0.20.1",
-    "@solana/spl-token-registry": "^0.2.4574",
     "@types/bs58": "^4.0.4",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
