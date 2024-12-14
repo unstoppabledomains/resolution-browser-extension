@@ -104,17 +104,20 @@ export const simulateTransaction = async (
 
   // send to RPC simulation endpoint
   const rpcProvider = getSolanaProvider();
-  const txSimulated = isVersionedTransaction(tx)
-    ? await rpcProvider.simulateTransaction(tx, {
-        accounts: {
-          encoding: "base64",
-          addresses: initialAccountState.map(a => a.address),
-        },
-        commitment: "finalized",
-        replaceRecentBlockhash: true,
-        sigVerify: false,
-      })
-    : await rpcProvider.simulateTransaction(tx);
+  const txSimulated = await rpcProvider.simulateTransaction(
+    isVersionedTransaction(tx)
+      ? tx
+      : new VersionedTransaction(tx.compileMessage()),
+    {
+      accounts: {
+        encoding: "base64",
+        addresses: initialAccountState.map(a => a.address),
+      },
+      commitment: "confirmed",
+      replaceRecentBlockhash: true,
+      sigVerify: false,
+    },
+  );
 
   // ensure the before and after accounts match
   if (initialAccountState.length !== txSimulated.value.accounts?.length) {

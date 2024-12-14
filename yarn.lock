@@ -7028,9 +7028,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.7":
-  version: 0.0.52-browser-extension.7
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.7"
+"@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.9":
+  version: 0.0.52-browser-extension.9
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.9"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -7132,7 +7132,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 8ba29592cd68eead8360ac960150b76f6f368c0bd41df7a17549b68ee9451146a7955dab1eb896f3072c3ad592bd25288375b5130795ed01da2b371f4713b2f3
+  checksum: 59b2ceb5d2ba9b182ad4dbb452bcdd33c670fc3e57f05cf17fec1bf3b3e77c445578215f74fee42ea691d9c79d66601d5ffcb37e356dfdd2ab6eead335dad0a2
   languageName: node
   linkType: hard
 
@@ -23621,7 +23621,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
     "@unstoppabledomains/config": 0.0.20
-    "@unstoppabledomains/ui-components": 0.0.52-browser-extension.7
+    "@unstoppabledomains/ui-components": 0.0.52-browser-extension.9
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
