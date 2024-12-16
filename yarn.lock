@@ -6409,9 +6409,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@npm:0.0.20, @unstoppabledomains/config@npm:latest":
-  version: 0.0.20
-  resolution: "@unstoppabledomains/config@npm:0.0.20"
+"@unstoppabledomains/config@npm:0.0.21, @unstoppabledomains/config@npm:latest":
+  version: 0.0.21
+  resolution: "@unstoppabledomains/config@npm:0.0.21"
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -6420,7 +6420,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: ad64f9526f41e3c7c1af02eb212f07a9fca4ba43b05195281567dcc54f664cc27b13c08af078cb162ebe3b1e1b36f17595fe2dd6fe83c27536b32be60224bb2d
+  checksum: c1acb981d605d8ce0a1af15cd220481048c4de9271ff09baa201b6778a1e18391620a488f6d54a1429c4cb6daba67770fcdc62fc6e7b36a0cd4cd450456eea8e
   languageName: node
   linkType: hard
 
@@ -21252,7 +21252,7 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
-    "@unstoppabledomains/config": 0.0.20
+    "@unstoppabledomains/config": 0.0.21
     "@unstoppabledomains/ui-components": 0.0.52-browser-extension.11
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
