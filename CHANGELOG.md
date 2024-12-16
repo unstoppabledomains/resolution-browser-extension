@@ -1,3 +1,7 @@
+## 3.1.43
+* Support Solana browser extension provider methods
+* Enable Solana SPL token management
+
 ## 3.1.42
 * Update transaction validation logic
 * Update connect confirmation with transfer details
