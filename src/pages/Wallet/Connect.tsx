@@ -645,10 +645,12 @@ const Connect: React.FC = () => {
       return;
     }
 
+    const accessToken = await getAccessToken();
     const signedTx = await signTransaction(
       tx,
       account.address,
       fireblocksMessageSigner,
+      accessToken,
       broadcastTx,
     );
 
