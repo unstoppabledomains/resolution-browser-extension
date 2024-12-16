@@ -1,6 +1,10 @@
 /* eslint-disable promise/prefer-await-to-then */
 import {utils as web3utils} from "web3";
 
+import {localStorageWrapper} from "@unstoppabledomains/ui-components/components/Chat/storage";
+import {getBlockchainSymbolFromChainId} from "@unstoppabledomains/ui-components/components/Manage/common/verification/types";
+import {getWeb3} from "@unstoppabledomains/ui-components/lib/wallet/evm/web3";
+
 import config from "../../config";
 import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
@@ -8,9 +12,9 @@ import {getDomainProfile, getResolution} from "../../lib/resolver/resolver";
 import {setBadgeCount, setIcon} from "../../lib/runtime";
 import {
   getConnectedSite,
+  getConnectedSites,
   setConnectedSite,
 } from "../../lib/wallet/evm/connection";
-import {getWeb3Provider} from "../../lib/wallet/evm/provider";
 import {getWalletPreferences} from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
 import {waitForXmtpMessages} from "../../lib/xmtp/listener";
@@ -408,8 +412,34 @@ const handleRpcRequest = async (
     const rpcMethod = request.params[1] as RpcRequest;
     const rpcParams = request.params.length > 2 ? request.params.slice(2) : [];
 
-    // get web3 object
-    const web3 = getWeb3Provider(chainId);
+    // get locally available access token from session
+    const accessToken = await localStorageWrapper.getItem("localAccessToken");
+    if (!accessToken) {
+      throw new Error("invalid access token");
+    }
+
+    // get chain symbol
+    const chainSymbol = getBlockchainSymbolFromChainId(chainId);
+    if (!chainSymbol) {
+      throw new Error("invalid chain ID");
+    }
+
+    // get associated owner address
+    const connectedSites = await getConnectedSites();
+    const ownerAddress = Object.keys(connectedSites)
+      .map(host => connectedSites[host])
+      .find(c => c.chainId === chainId)
+      ?.accounts.find(a => a);
+    if (!ownerAddress) {
+      throw new Error("invalid connected account");
+    }
+
+    // get web3 object to proxy RPC requests
+    const web3 = getWeb3({
+      accessToken,
+      chainSymbol,
+      ownerAddress,
+    });
 
     // call the web3 provider method
     let result: any | undefined;

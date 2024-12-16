@@ -1,6 +1,12 @@
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LoadingButton from "@mui/lab/LoadingButton";
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import {PublicKey, VersionedTransaction} from "@solana/web3.js";
+import Skeleton from "@mui/material/Skeleton";
+import Tooltip from "@mui/material/Tooltip";
+import {PublicKey} from "@solana/web3.js";
 import {fetcher} from "@xmtp/proto";
 import bs58 from "bs58";
 import type {Signer} from "ethers";
@@ -9,6 +15,7 @@ import queryString from "query-string";
 import React, {useEffect, useState} from "react";
 import useIsMounted from "react-is-mounted-hook";
 import {useNavigate} from "react-router-dom";
+import useAsyncEffect from "use-async-effect";
 import web3 from "web3";
 
 import {
@@ -17,11 +24,14 @@ import {
   SignForDappHeader,
   getBootstrapState,
   isEthAddress,
+  useFireblocksAccessToken,
   useFireblocksState,
   useTranslationContext,
   useWeb3Context,
 } from "@unstoppabledomains/ui-components";
+import useFireblocksMessageSigner from "@unstoppabledomains/ui-components/hooks/useFireblocksMessageSigner";
 import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
+import {signTransaction} from "@unstoppabledomains/ui-components/lib/wallet/solana/transaction";
 import {Alert, Button, Typography} from "@unstoppabledomains/ui-kit";
 
 import config from "../../config";
@@ -29,9 +39,13 @@ import useConnections from "../../hooks/useConnections";
 import usePreferences from "../../hooks/usePreferences";
 import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
+import {truncateAddress} from "../../lib/wallet/address";
 import {isAscii} from "../../lib/wallet/isAscii";
 import {getProviderRequest} from "../../lib/wallet/request";
+import {simulateTransaction} from "../../lib/wallet/solana/simulation";
 import {useExtensionStyles} from "../../styles/extension.styles";
+import {deserializeTx} from "../../types/solana/chains";
+import {SimulationResults} from "../../types/solana/simulation";
 import {
   ChainNotSupportedError,
   InvalidTypedMessageError,
@@ -77,24 +91,34 @@ interface connectedAccount {
 }
 
 const Connect: React.FC = () => {
+  // page state
+  const navigate = useNavigate();
+  const isMounted = useIsMounted();
   const {classes, cx} = useExtensionStyles();
-  const [walletState] = useFireblocksState();
+  const getAccessToken = useFireblocksAccessToken();
   const [t] = useTranslationContext();
+
+  // wallet state
+  const [walletState] = useFireblocksState();
   const {web3Deps, setWeb3Deps, setMessageToSign, setTxToSign} =
     useWeb3Context();
+  const fireblocksMessageSigner = useFireblocksMessageSigner();
   const {preferences} = usePreferences();
-  const {connections} = useConnections();
-  const [isConnected, setIsConnected] = useState<boolean>();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
   const [accountAssets, setAccountAssets] = useState<BootstrapState>();
   const [accountAddresses, setAccountAddresses] = useState<connectedAccount[]>(
     [],
   );
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const navigate = useNavigate();
-  const isMounted = useIsMounted();
 
-  // connection state management
+  // simulation state
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationResult, setSimulationResult] = useState<SimulationResults>();
+
+  // connection state
+  const [isConnected, setIsConnected] = useState<boolean>();
+  const {connections} = useConnections();
   const [connectionStateMessage, setConnectionStateMessage] = useState<any>();
   const [connectionState, setConnectionState] = useState<ConnectionState>();
 
@@ -383,6 +407,12 @@ const Connect: React.FC = () => {
     };
   }, [web3Deps]);
 
+  useAsyncEffect(async () => {
+    if (connectionStateMessage?.type === "signSolanaTransactionRequest") {
+      await handleSimulateSolanaTx();
+    }
+  }, [connectionStateMessage]);
+
   const getAccount = (chainId?: number | string) => {
     // if chainID is not specified, determine the default
     if (!chainId) {
@@ -563,46 +593,97 @@ const Connect: React.FC = () => {
   };
 
   const handleSignSolanaMessage = async () => {
-    // retrieve encoded message
+    // retrieve account address and encoded message
+    setIsSigning(true);
+    const account = getAccount();
     const encodedMsg = fetcher.b64Decode(connectionStateMessage.params[0]);
 
-    // TODO - send the message to backend API to be signed
+    // validate account
+    if (!account) {
+      return;
+    }
+
+    // decode the message that is to be signed
     const decodedMsg = new TextDecoder().decode(encodedMsg);
-    Logger.log(
-      "Signing message",
-      JSON.stringify({decodedMsg, encodedMsg}, undefined, 2),
+
+    // sign the message using the wallet's solana address
+    const signatureResult = await fireblocksMessageSigner(
+      decodedMsg,
+      account.address,
     );
 
-    // TODO - return actual signature once backend is available
-    const signature = connectionStateMessage.params[0];
+    // encode the resulting signature as a buffer
+    const signatureBuffer = Buffer.from(
+      signatureResult.replaceAll("0x", ""),
+      "hex",
+    );
+
+    // return the signature result as a base64 encoded string
+    const signatureHex = fetcher.b64Encode(
+      signatureBuffer,
+      0,
+      signatureBuffer.length,
+    );
     await chrome.runtime.sendMessage({
       type: "signSolanaMessageResponse",
-      response: signature,
+      response: signatureHex,
     });
   };
 
   const handleSignSolanaTx = async () => {
-    // retrieve encoded transaction
-    const tx = VersionedTransaction.deserialize(
-      bs58.decode(connectionStateMessage.params[0]),
-    );
+    // retrieve the encoded transaction
+    setIsSigning(true);
+    const account = getAccount();
+    const tx = deserializeTx(connectionStateMessage.params[0]);
 
     // Optional parameter determines whether transaction should also be transmitted
     // to the blockchain. If false, sign the transaction but do not submit.
-    const sendTx = connectionStateMessage.params[1] as boolean;
+    const broadcastTx = connectionStateMessage.params[1] as boolean;
 
-    // TODO - send the tx to backend API to be signed
-    Logger.log(
-      "Signing transaction",
-      JSON.stringify({sendTx, tx}, undefined, 2),
+    // validate account
+    if (!account) {
+      return;
+    }
+
+    const accessToken = await getAccessToken();
+    const signedTx = await signTransaction(
+      tx,
+      account.address,
+      fireblocksMessageSigner,
+      accessToken,
+      broadcastTx,
     );
 
-    // TODO - return actual signed tx once backend is available
-    const signedTx = connectionStateMessage.params[0];
+    // serialize the signed transaction
+    const signedTxEncoded = bs58.encode(signedTx.serialize());
+
+    // return serialized transaction with appended signatures
     await chrome.runtime.sendMessage({
       type: "signSolanaTransactionResponse",
-      response: signedTx,
+      response: signedTxEncoded,
     });
+  };
+
+  const handleSimulateSolanaTx = async () => {
+    try {
+      setIsSimulating(true);
+      const account = getAccount();
+      const tx = deserializeTx(connectionStateMessage.params[0]);
+
+      // validate account
+      if (!account) {
+        return;
+      }
+
+      const accessToken = await getAccessToken();
+      setSimulationResult(
+        await simulateTransaction(accessToken, account.address, tx),
+      );
+    } catch (e) {
+      Logger.error(e as Error, "Transaction", "error simulating transaction");
+    } finally {
+      setIsSimulating(false);
+    }
   };
 
   const handleSignTypedMessage = async (params: any[]) => {
@@ -718,10 +799,11 @@ const Connect: React.FC = () => {
     // render a confirmation button with different behavior depending on the
     // connection popup state
     return (
-      <Button
+      <LoadingButton
         fullWidth
         variant="contained"
-        disabled={!isLoaded || errorMessage !== undefined}
+        disabled={!isLoaded || isSimulating || errorMessage !== undefined}
+        loading={isSigning}
         onClick={
           CONNECT_ACCOUNT_STATES.includes(connectionState)
             ? handleConnectAccount
@@ -737,7 +819,7 @@ const Connect: React.FC = () => {
         {CONNECT_ACCOUNT_STATES.includes(connectionState)
           ? t("common.connect")
           : t("wallet.approve")}
-      </Button>
+      </LoadingButton>
     );
   };
 
@@ -752,7 +834,6 @@ const Connect: React.FC = () => {
               <SignForDappHeader
                 name={web3Deps.unstoppableWallet.connectedApp.name}
                 iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
-                hostUrl={web3Deps.unstoppableWallet.connectedApp.hostUrl}
                 actionText={
                   connectionState === ConnectionState.PERMISSIONS
                     ? t("extension.connectRequest")
@@ -768,17 +849,86 @@ const Connect: React.FC = () => {
                 }
               />
             )}
-            <Typography variant="body1" mt={3}>
-              {t("auth.walletAddress")}:
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: "bold",
-              }}
-            >
-              {getAccount()?.address}
-            </Typography>
+            <Grid container className={classes.connectContainer} mt={3}>
+              {web3Deps?.unstoppableWallet?.connectedApp && (
+                <>
+                  <Grid item xs={6}>
+                    <Typography className={classes.connectContainerTitle}>
+                      {t("manage.website")}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography className={classes.connectContainerValue}>
+                      {web3Deps.unstoppableWallet.connectedApp.hostUrl}
+                    </Typography>
+                  </Grid>
+                </>
+              )}
+              <Grid item xs={6}>
+                <Typography className={classes.connectContainerTitle}>
+                  {t("auth.walletAddress")}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography className={classes.connectContainerValue}>
+                  {truncateAddress(getAccount()?.address)}
+                </Typography>
+              </Grid>
+            </Grid>
+            {(isSimulating || simulationResult) && (
+              <Box display="flex" alignItems="center">
+                <Typography margin={1} variant="subtitle1">
+                  {t("wallet.simulationTitle")}
+                </Typography>
+                <Tooltip title={t("wallet.simulationDescription")}>
+                  <InfoOutlinedIcon color="info" fontSize="small" />
+                </Tooltip>
+              </Box>
+            )}
+            {isSimulating && (
+              <Skeleton
+                height="50px"
+                variant="rectangular"
+                className={classes.connectContainer}
+              />
+            )}
+            {simulationResult && (
+              <Grid container className={classes.connectContainer}>
+                {simulationResult.errorMessage ||
+                simulationResult.results.length === 0 ? (
+                  <Grid item xs={12}>
+                    <Typography mb={1}>
+                      {t("wallet.simulationError")}
+                    </Typography>
+                  </Grid>
+                ) : (
+                  simulationResult.results.map((r, i) => (
+                    <Grid container key={`simulation-result-${i}`}>
+                      <Grid item xs={6}>
+                        <Typography className={classes.connectContainerTitle}>
+                          <Box display="flex" alignItems="center">
+                            <Avatar
+                              className={classes.connectContainerIcon}
+                              src={r.metadata?.tokenLogo}
+                            />
+                            <Typography>{r.metadata?.tokenName}</Typography>
+                          </Box>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography
+                          color={r.delta > 0 ? "green" : "red"}
+                          className={classes.connectContainerValue}
+                        >
+                          {r.delta > 0 ? "+" : ""}
+                          {r.delta}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  ))
+                )}
+              </Grid>
+            )}
             {connectionState === ConnectionState.SOLANA_SIGN_MESSAGE && (
               <>
                 <Typography mt={3} variant="body1">
@@ -800,7 +950,7 @@ const Connect: React.FC = () => {
           <Box mt={1} className={classes.contentContainer}>
             <Button
               onClick={handleCancel}
-              disabled={!isLoaded}
+              disabled={!isLoaded || isSigning || isSimulating}
               fullWidth
               variant={errorMessage ? "contained" : "outlined"}
             >

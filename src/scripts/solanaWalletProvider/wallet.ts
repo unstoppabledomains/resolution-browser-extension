@@ -33,13 +33,11 @@ import {
 } from "@wallet-standard/features";
 import bs58 from "bs58";
 
+import {isVersionedTransaction} from "@unstoppabledomains/ui-components/lib/wallet/solana/transaction";
+
 import config, {LOGO_BASE_64} from "../../config";
 import {SolanaWalletAccount} from "../../types/solana/account";
-import {
-  SolanaChain,
-  isSolanaChain,
-  isVersionedTransaction,
-} from "../../types/solana/chains";
+import {SolanaChain, isSolanaChain} from "../../types/solana/chains";
 import {
   SolanaFeature,
   SolanaNamespace,

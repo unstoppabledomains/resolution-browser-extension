@@ -52,6 +52,29 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
       overflow: "auto",
     },
   },
+  connectContainer: {
+    backgroundColor: theme.palette.neutralShades[100],
+    borderRadius: theme.shape.borderRadius,
+    marginBottom: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    paddingTop: theme.spacing(1),
+    width: "100%",
+  },
+  connectContainerTitle: {
+    textAlign: "left",
+    marginBottom: theme.spacing(1),
+  },
+  connectContainerValue: {
+    textAlign: "right",
+    fontWeight: "bold",
+    marginBottom: theme.spacing(1),
+  },
+  connectContainerIcon: {
+    width: "20px",
+    height: "20px",
+    marginRight: theme.spacing(1),
+  },
   fullHeightCentered: {
     display: "flex",
     flexDirection: "column",
