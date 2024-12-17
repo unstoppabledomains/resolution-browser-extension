@@ -1,3 +1,6 @@
+## 3.1.44
+* Enable Solana wallet provider in the browser
+
 ## 3.1.43
 * Support Solana browser extension provider methods
 * Enable Solana SPL token management
