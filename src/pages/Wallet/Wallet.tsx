@@ -84,6 +84,7 @@ const WalletComp: React.FC = () => {
     useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
+  const [loginClicked, setLoginClicked] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
   const [authDomain, setAuthDomain] = useState<string>("");
   const [authAvatar, setAuthAvatar] = useState<string>();
@@ -238,13 +239,19 @@ const WalletComp: React.FC = () => {
     void loadWallet();
   }, [isMounted, authComplete, walletState]);
 
-  // prompt for permissions if required
+  // prompt for permissions once the user has take custody of the wallet. When
+  // in custody mode we do not need additional permission.
   useEffect(() => {
+    // skip if the CTA is already shown
     if (showPermissionCta) {
       return;
     }
+    // skip if XMTP not yet setup
+    if (!isChatReady) {
+      return;
+    }
     setShowPermissionCta(authAddress !== "" && !isPermissionGranted);
-  }, [authAddress, isPermissionGranted, showPermissionCta]);
+  }, [authAddress, isPermissionGranted, showPermissionCta, isChatReady]);
 
   // resolve the domain for wallet address
   useEffect(() => {
@@ -401,6 +408,35 @@ const WalletComp: React.FC = () => {
       undefined,
       2,
     );
+  };
+
+  const handleCreateWallet = async () => {
+    // ensure user is signed out
+    await handleLogout(false, false);
+
+    // set state to start creating a wallet
+    setIsNewUser(true);
+    setLoginClicked(true);
+    setShowSignInCta(false);
+  };
+
+  const handleSignIn = async () => {
+    // ensure user is signed out
+    await handleLogout(false, false);
+
+    // set state to prompt user for username and password
+    setIsNewUser(false);
+    setShowSignInCta(false);
+  };
+
+  const handleClaimComplete = async (
+    _emailAddress: string,
+    _password: string,
+  ) => {
+    // TODO: Update here to use auth V2 to automatically sign the user in once
+    // the feature is available. For now, just sign the user out so they can
+    // be prompted to sign in again using the normal flow.
+    await handleLogout();
   };
 
   const handleLogout = async (close = true, showCta = true) => {
@@ -571,6 +607,11 @@ const WalletComp: React.FC = () => {
       return;
     }
 
+    // do not prompt for this mode until XMTP has been setup
+    if (!isChatReady) {
+      return;
+    }
+
     // ask the user about compatibility mode if there is already another
     // wallet extension installed on this browser
     if (window.ethereum || config.ALWAYS_PROMPT_COMPATIBILITY_MODE === "true") {
@@ -699,7 +740,10 @@ const WalletComp: React.FC = () => {
   };
 
   return showSignInCta ? (
-    <SignInCta onSignInClick={() => handleLogout(false)} />
+    <SignInCta
+      onCreateWalletClicked={handleCreateWallet}
+      onSignInClicked={handleSignIn}
+    />
   ) : showPermissionCta ? (
     <PermissionCta onPermissionGranted={handlePermissionGranted} />
   ) : showSettings ? (
@@ -728,26 +772,23 @@ const WalletComp: React.FC = () => {
           />
         </Box>
       )}
-      <Box
-        className={classes.walletContainer}
-        sx={{
-          display: isLoaded ? "flex" : "none",
-        }}
-      >
-        {authState && preferences ? (
+      {isLoaded && (
+        <Box className={classes.walletContainer}>
           <Wallet
             mode={authAddress ? "portfolio" : "basic"}
             address={authAddress}
             domain={authDomain}
-            emailAddress={authState.emailAddress}
-            recoveryPhrase={authState.password}
+            emailAddress={authState?.emailAddress}
+            recoveryPhrase={authState?.password}
             avatarUrl={authAvatar}
             showMessages={messagingEnabled}
             isNewUser={isNewUser}
+            loginClicked={loginClicked}
             disableInlineEducation
             disableBasicHeader
             fullScreenModals
             forceRememberOnDevice
+            onClaimComplete={handleClaimComplete}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}
             onError={() => handleLogout(false, false)}
@@ -761,21 +802,13 @@ const WalletComp: React.FC = () => {
             setButtonComponent={setAuthButton}
             setAuthAddress={setAuthAddress}
           />
-        ) : (
-          showSignOutButton && (
-            <Box className={classes.fullHeightCentered}>
-              <Button variant="text" onClick={() => handleLogout(false)}>
-                {t("header.signOut")}
-              </Button>
+          {!authAddress && (
+            <Box display="flex" flexDirection="column" width="100%">
+              {authButton}
             </Box>
-          )
-        )}
-        {!authAddress && (
-          <Box display="flex" flexDirection="column" width="100%">
-            {authButton}
-          </Box>
-        )}
-      </Box>
+          )}
+        </Box>
+      )}
     </Paper>
   );
 };

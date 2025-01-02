@@ -31,10 +31,6 @@ const OnUpdated: React.FC = () => {
     setShowSuccessAnimation(true);
   }, []);
 
-  const handleOptOut = async () => {
-    await handlePreference("legacy");
-  };
-
   const handleUseWallet = async () => {
     await handlePreference("wallet");
   };
@@ -80,22 +76,9 @@ const OnUpdated: React.FC = () => {
           )}
         </Box>
         <Box className={classes.contentContainer}>
-          {preferences?.WalletEnabled ? (
-            <Button variant="contained" onClick={handleUseWallet} fullWidth>
-              {t("common.continue")}
-            </Button>
-          ) : (
-            <>
-              <Button variant="contained" onClick={handleUseWallet} fullWidth>
-                {t("extension.enableWallet")}
-              </Button>
-              <Box className={classes.contentContainer} mt={1}>
-                <Button variant="text" onClick={handleOptOut} size="small">
-                  {t("extension.continueWithoutWallet")}
-                </Button>
-              </Box>
-            </>
-          )}
+          <Button variant="contained" onClick={handleUseWallet} fullWidth>
+            {t("common.continue")}
+          </Button>
         </Box>
       </Box>
     </Paper>

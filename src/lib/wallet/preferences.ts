@@ -44,7 +44,7 @@ export const getDefaultPreferences = (): WalletPreferences => {
     WalletEnabled: false,
     HasExistingWallet: false,
     OverrideMetamask: false,
-    DefaultView: "onUpdated",
+    DefaultView: "wallet",
     VersionInfo: config.VERSION_DESCRIPTION,
     MessagingEnabled: true,
     Scanning: {

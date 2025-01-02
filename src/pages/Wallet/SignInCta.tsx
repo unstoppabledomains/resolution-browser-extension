@@ -11,42 +11,19 @@ import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
 import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 
 import config from "../../config";
-import {setBadgeCount} from "../../lib/runtime";
-import {openPopupWindow} from "../../scripts/liteWalletProvider/background";
 import {useExtensionStyles} from "../../styles/extension.styles";
 
 interface SignInCtaProps {
-  onSignInClick: () => Promise<void>;
+  onCreateWalletClicked: () => void;
+  onSignInClicked: () => void;
 }
 
-export const SignInCta: React.FC<SignInCtaProps> = ({onSignInClick}) => {
+export const SignInCta: React.FC<SignInCtaProps> = ({
+  onCreateWalletClicked,
+  onSignInClicked,
+}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
-
-  const handleSignIn = async (newUser: boolean) => {
-    // handle the callback before opening the new window
-    await onSignInClick();
-
-    // find current window
-    const parentWindow = await chrome.windows.getLastFocused();
-    if (!parentWindow?.id) {
-      return;
-    }
-
-    // determine the popup URL
-    const popupUrl = chrome.runtime.getURL(
-      `index.html?request=${encodeURIComponent(JSON.stringify({type: "signInRequest", params: [newUser]}))}&parentWindowId=${parentWindow.id}#connect`,
-    );
-
-    // open the popup
-    await openPopupWindow(popupUrl, parentWindow.id);
-
-    // set a badge
-    await setBadgeCount(1);
-
-    // close the existing extension popup
-    chrome.extension.getViews({type: "popup"}).map(w => w.close());
-  };
 
   return (
     <Paper className={classes.container}>
@@ -77,17 +54,18 @@ export const SignInCta: React.FC<SignInCtaProps> = ({onSignInClick}) => {
             variant="contained"
             fullWidth
             className={classes.button}
-            onClick={() => handleSignIn(false)}
-          >
-            {t("wallet.beginSetup")}
-          </Button>
-          <Button
-            variant="outlined"
-            fullWidth
-            className={classes.button}
-            onClick={() => handleSignIn(true)}
+            onClick={onCreateWalletClicked}
           >
             {t("wallet.createWallet")}
+          </Button>
+          <Button
+            variant="text"
+            fullWidth
+            size="small"
+            className={classes.button}
+            onClick={onSignInClicked}
+          >
+            {t("wallet.alreadyHaveWallet")}
           </Button>
         </Box>
       </Box>

@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.45",
+  "version": "3.1.46",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -48,8 +48,8 @@
     "@types/bs58": "^4.0.4",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@unstoppabledomains/config": "0.0.21",
-    "@unstoppabledomains/ui-components": "0.0.52-browser-extension.13",
+    "@unstoppabledomains/config": "/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src",
+    "@unstoppabledomains/ui-components": "/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "abitype": "^1.0.6",
     "async-mutex": "^0.5.0",

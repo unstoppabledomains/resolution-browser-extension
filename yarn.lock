@@ -6409,9 +6409,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@npm:0.0.21, @unstoppabledomains/config@npm:latest":
-  version: 0.0.21
-  resolution: "@unstoppabledomains/config@npm:0.0.21"
+"@unstoppabledomains/config@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src::locator=ud-extension%40workspace%3A., @unstoppabledomains/config@npm:latest":
+  version: 0.0.22
+  resolution: "@unstoppabledomains/config@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src::hash=7122ed&locator=ud-extension%40workspace%3A."
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -6420,7 +6420,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: c1acb981d605d8ce0a1af15cd220481048c4de9271ff09baa201b6778a1e18391620a488f6d54a1429c4cb6daba67770fcdc62fc6e7b36a0cd4cd450456eea8e
+  checksum: 646c13e36581e972c0e25368e92396caca3bb5fa7a2e71d114b6a6aa64df0053f8371cbfe3e42cd71081cbd48580c40a4867c50abd4f550dea75946bd03c9b29
   languageName: node
   linkType: hard
 
@@ -6437,9 +6437,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.13":
-  version: 0.0.52-browser-extension.13
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.52-browser-extension.13"
+"@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::locator=ud-extension%40workspace%3A.":
+  version: 0.0.52-browser-extension.14
+  resolution: "@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::hash=13b14d&locator=ud-extension%40workspace%3A."
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6532,7 +6532,7 @@ __metadata:
     ts-retry: ^5.0.1
     tss-react: ^4.0.0
     typescript: 5.0.4
-    uns: "git+https://github.com/unstoppabledomains/uns.git#v0.8.35"
+    uns: "https://github.com/unstoppabledomains/uns#v0.8.35"
     usehooks-ts: ^2.9.1
     wagmi: ^1.4.12
     web3: ^4.11.1
@@ -6541,7 +6541,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 95113e165d32ad1ac02a0bf0d0fbed7180419518ce9ed20926b5512155c396f04b6b5c021c79f8535c602c7d9873456e914545396151a525170769a6cd99541b
+  checksum: d7a0422faac93e62951ed90b196d5747e2e7bcbd75054b8275f7658dc74066da6a1a9b366d5e2bd009887a8bd191ca14adb4c0209483a570b0f335ac130576d8
   languageName: node
   linkType: hard
 
@@ -21252,8 +21252,8 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
-    "@unstoppabledomains/config": 0.0.21
-    "@unstoppabledomains/ui-components": 0.0.52-browser-extension.13
+    "@unstoppabledomains/config": /Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src
+    "@unstoppabledomains/ui-components": /Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
@@ -21624,7 +21624,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uns@git+https://github.com/unstoppabledomains/uns.git#v0.8.35":
+"uns@https://github.com/unstoppabledomains/uns#v0.8.35":
   version: 0.8.35
   resolution: "uns@https://github.com/unstoppabledomains/uns.git#commit=b066dafdacfc783d7027ae9c0d80ae8e37fc3e5c"
   dependencies:
