@@ -95,6 +95,7 @@ const WalletComp: React.FC = () => {
   const [authButton, setAuthButton] = useState<React.ReactNode>();
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPermissionGranted, setIsPermissionGranted] = useState(false);
+  const [isBasicDisabled, setIsBasicDisabled] = useState(false);
   const [showPermissionCta, setShowPermissionCta] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSignInCta, setShowSignInCta] = useState(false);
@@ -102,7 +103,7 @@ const WalletComp: React.FC = () => {
 
   // indicates that the display mode is basic (or portfolio)
   const showFooter = !authAddress || !authComplete;
-  const isBasicMode = showFooter && !loginClicked;
+  const isBasicMode = showFooter && !loginClicked && !isBasicDisabled;
 
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
@@ -212,6 +213,9 @@ const WalletComp: React.FC = () => {
             return;
           }
         }
+
+        // ensure we don't show basic mode to prevent flicker
+        setIsBasicDisabled(true);
 
         // clear auth state if necessary
         if (authState?.emailAddress) {
@@ -460,13 +464,14 @@ const WalletComp: React.FC = () => {
     await chromeStorageClear("session");
     await chromeStorageClear("sync");
 
-    // switch back to sign in CTA view if requested
+    // clear auth state when showing sign in CTA
     if (showCta) {
-      setShowSignInCta(true);
       setAuthState(undefined);
+      setShowSignInCta(true);
     }
 
     // reset identity variable state
+    setIsBasicDisabled(!showCta);
     setAuthAddress("");
     setAuthDomain("");
     setAuthAvatar(undefined);
@@ -763,7 +768,7 @@ const WalletComp: React.FC = () => {
     <PermissionCta onPermissionGranted={handlePermissionGranted} />
   ) : showSettings ? (
     <Preferences onClose={handleClosePreferences} />
-  ) : (
+  ) : isLoaded ? (
     <Paper className={classes.container}>
       {isBasicMode && (
         <Header
@@ -787,43 +792,43 @@ const WalletComp: React.FC = () => {
           />
         </Box>
       )}
-      {isLoaded && (
-        <Box className={classes.walletContainer}>
-          <Wallet
-            mode={isBasicMode ? "basic" : "portfolio"}
-            address={authAddress}
-            domain={authDomain}
-            emailAddress={authState?.emailAddress}
-            recoveryPhrase={authState?.password}
-            avatarUrl={authAvatar}
-            showMessages={messagingEnabled}
-            isNewUser={isNewUser}
-            loginClicked={loginClicked}
-            loginState={authState?.loginState}
-            disableBasicHeader
-            fullScreenModals
-            forceRememberOnDevice
-            onLoginInitiated={handleAuthStart}
-            onLogout={() => handleLogout(true, false)}
-            onError={() => handleLogout(false, false)}
-            onDisconnect={isConnected ? handleDisconnect : undefined}
-            onSettingsClick={handleShowPreferences}
-            onMessagesClick={handleMessagesClicked}
-            onMessagePopoutClick={handleMessagePopoutClick}
-            onUpdate={async (_t: DomainProfileTabType) => {
-              await handleAuthComplete();
-            }}
-            setButtonComponent={setAuthButton}
-            setAuthAddress={setAuthAddress}
-          />
-          {showFooter && (
-            <Box display="flex" flexDirection="column" width="100%">
-              {authButton}
-            </Box>
-          )}
-        </Box>
-      )}
+      <Box className={classes.walletContainer}>
+        <Wallet
+          mode={isBasicMode ? "basic" : "portfolio"}
+          address={authAddress}
+          domain={authDomain}
+          emailAddress={authState?.emailAddress}
+          recoveryPhrase={authState?.password}
+          avatarUrl={authAvatar}
+          showMessages={messagingEnabled}
+          isNewUser={isNewUser}
+          loginClicked={loginClicked}
+          loginState={authState?.loginState}
+          disableBasicHeader
+          fullScreenModals
+          forceRememberOnDevice
+          onLoginInitiated={handleAuthStart}
+          onLogout={() => handleLogout(true, false)}
+          onError={() => handleLogout(false, false)}
+          onDisconnect={isConnected ? handleDisconnect : undefined}
+          onSettingsClick={handleShowPreferences}
+          onMessagesClick={handleMessagesClicked}
+          onMessagePopoutClick={handleMessagePopoutClick}
+          onUpdate={async (_t: DomainProfileTabType) => {
+            await handleAuthComplete();
+          }}
+          setButtonComponent={setAuthButton}
+          setAuthAddress={setAuthAddress}
+        />
+        {showFooter && (
+          <Box display="flex" flexDirection="column" width="100%">
+            {authButton}
+          </Box>
+        )}
+      </Box>
     </Paper>
+  ) : (
+    <Paper className={classes.container} />
   );
 };
 
