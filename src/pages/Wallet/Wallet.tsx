@@ -11,6 +11,7 @@ import {useNavigate} from "react-router-dom";
 
 import {AppEnv} from "@unstoppabledomains/config";
 import {
+  CustodyState,
   DomainProfileKeys,
   DomainProfileTabType,
   Wallet,
@@ -100,7 +101,8 @@ const WalletComp: React.FC = () => {
   const [messagingEnabled, setMessagingEnabled] = useState(false);
 
   // indicates that the display mode is basic (or portfolio)
-  const isBasicMode = !authAddress && !loginClicked;
+  const showFooter = !authAddress || !authComplete;
+  const isBasicMode = showFooter && !loginClicked;
 
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
@@ -194,6 +196,11 @@ const WalletComp: React.FC = () => {
           return;
         }
 
+        // if there is a claim in progress return at this point
+        if (signInState.custodyState.state === CustodyState.CLAIMING) {
+          return;
+        }
+
         // if there is a provider request at this point return
         if (providerRequest?.type !== "signInRequest") {
           if (providerRequest) {
@@ -206,35 +213,42 @@ const WalletComp: React.FC = () => {
           }
         }
 
-        // clear any previously in progress auth state
-        setAuthState({emailAddress: "", password: ""});
-
-        // query addresses belonging to accounts
-        const accountEvmAddresses = [
-          ...new Set(
-            signInState.assets
-              ?.map(a => {
-                return {
-                  address: a.address,
-                  networkId: a.blockchainAsset.blockchain.networkId,
-                };
-              })
-              .filter(a => isEthAddress(a.address)),
-          ),
-        ];
-
-        // ensure an EVM address is available
-        if (accountEvmAddresses.length === 0) {
-          return;
+        // clear auth state if necessary
+        if (authState?.emailAddress) {
+          setAuthState({emailAddress: "", password: ""});
         }
-        setAuthAddress(accountEvmAddresses[0].address);
-        await localStorageWrapper.setItem(
-          DomainProfileKeys.AuthAddress,
-          accountEvmAddresses[0].address,
-        );
 
-        // clear the sign in CTA
-        setShowSignInCta(false);
+        // set auth address if necessary
+        if (!authAddress) {
+          // query addresses belonging to accounts
+          const accountEvmAddresses = [
+            ...new Set(
+              signInState.assets
+                ?.map(a => {
+                  return {
+                    address: a.address,
+                    networkId: a.blockchainAsset.blockchain.networkId,
+                  };
+                })
+                .filter(a => isEthAddress(a.address)),
+            ),
+          ];
+
+          // ensure an EVM address is available
+          if (accountEvmAddresses.length === 0) {
+            return;
+          }
+          setAuthAddress(accountEvmAddresses[0].address);
+          await localStorageWrapper.setItem(
+            DomainProfileKeys.AuthAddress,
+            accountEvmAddresses[0].address,
+          );
+        }
+
+        // clear the sign in CTA if necessary
+        if (showSignInCta) {
+          setShowSignInCta(false);
+        }
       } catch (e: any) {
         Logger.error(e, "Popup", "error loading wallet in extension popup");
         await handleLogout(false);
@@ -334,6 +348,9 @@ const WalletComp: React.FC = () => {
   }, [authState]);
 
   const handleAuthComplete = async () => {
+    // set the complete flag
+    setAuthComplete(true);
+
     // cleanup state from authentication attempt
     await chromeStorageRemove(StorageSyncKey.AuthState, "session");
 
@@ -358,9 +375,6 @@ const WalletComp: React.FC = () => {
 
     // ensure XMTP is ready
     await handlePrepareXmtp();
-
-    // set the complete flag
-    setAuthComplete(true);
   };
 
   const handleAuthStart = async (
@@ -438,16 +452,6 @@ const WalletComp: React.FC = () => {
     // set state to prompt user for username and password
     setIsNewUser(false);
     setShowSignInCta(false);
-  };
-
-  const handleClaimComplete = async (
-    _emailAddress: string,
-    _password: string,
-  ) => {
-    // TODO: Update here to use auth V2 to automatically sign the user in once
-    // the feature is available. For now, just sign the user out so they can
-    // be prompted to sign in again using the normal flow.
-    await handleLogout();
   };
 
   const handleLogout = async (close = true, showCta = true) => {
@@ -800,7 +804,7 @@ const WalletComp: React.FC = () => {
             fullScreenModals
             forceRememberOnDevice
             onLoginInitiated={handleAuthStart}
-            onLogout={handleLogout}
+            onLogout={() => handleLogout(true, false)}
             onError={() => handleLogout(false, false)}
             onDisconnect={isConnected ? handleDisconnect : undefined}
             onSettingsClick={handleShowPreferences}
@@ -812,7 +816,7 @@ const WalletComp: React.FC = () => {
             setButtonComponent={setAuthButton}
             setAuthAddress={setAuthAddress}
           />
-          {isBasicMode && (
+          {showFooter && (
             <Box display="flex" flexDirection="column" width="100%">
               {authButton}
             </Box>

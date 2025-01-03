@@ -57,7 +57,7 @@
   "web_accessible_resources": [
     {
       "matches": ["<all_urls>"],
-      "resources": ["js/wasm/cosigner.esm.wasm", "./scripts/contentIsolated.ts", "index.html", "icon/*"]
+      "resources": ["./scripts/contentIsolated.ts", "index.html", "icon/*"]
     }
   ],
   "host_permissions": ["<all_urls>"],
