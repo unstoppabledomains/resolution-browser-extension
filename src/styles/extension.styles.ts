@@ -14,6 +14,7 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     background:
       "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(242,242,242,1) 100%)",
     borderRadius: 0,
+    overflow: "hidden",
   },
   preferenceContainer: {
     height: "500px",
