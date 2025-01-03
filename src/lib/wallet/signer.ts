@@ -2,8 +2,8 @@ import type {Signer} from "ethers";
 
 import {signMessage} from "@unstoppabledomains/ui-components/actions/fireBlocksActions";
 import {localStorageWrapper} from "@unstoppabledomains/ui-components/components/Chat/storage";
-import {ReactSigner} from "@unstoppabledomains/ui-components/lib/fireBlocks/reactSigner";
 import {FireblocksStateKey} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
+import {ReactSigner} from "@unstoppabledomains/ui-components/lib/wallet/reactSigner";
 
 export const getSigner = async (
   address: string,

@@ -5,6 +5,7 @@ import Paper from "@mui/material/Paper";
 import React from "react";
 
 import {useTranslationContext} from "@unstoppabledomains/ui-components";
+import {WalletPreference} from "@unstoppabledomains/ui-components/components/Wallet/WalletPreference";
 
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
@@ -14,7 +15,6 @@ import {
   setWalletPreferences,
 } from "../../lib/wallet/preferences";
 import {useExtensionStyles} from "../../styles/extension.styles";
-import {PreferenceSection} from "../Wallet/Preferences";
 import MainScreen from "./MainScreen";
 
 const styles = {
@@ -67,7 +67,7 @@ const Extension: React.FC = () => {
           <Box className={classes.mainScreenContainer}>
             <Box display="flex" flexDirection="column" height="100%">
               <Box mt={-4}>
-                <PreferenceSection
+                <WalletPreference
                   title={t("extension.sherlockAssistant")}
                   description={t("extension.sherlockAssistantDescription")}
                 >
@@ -80,14 +80,14 @@ const Extension: React.FC = () => {
                       />
                     }
                   />
-                </PreferenceSection>
+                </WalletPreference>
               </Box>
-              <PreferenceSection
+              <WalletPreference
                 title={t("extension.decentralizedBrowsing")}
                 description=""
               >
                 <MainScreen hideUserId />
-              </PreferenceSection>
+              </WalletPreference>
             </Box>
           </Box>
         </Box>

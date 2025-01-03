@@ -23,6 +23,7 @@ import {
   useTranslationContext,
   useUnstoppableMessaging,
 } from "@unstoppabledomains/ui-components";
+import {TokenRefreshResponse} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 
 import Header from "../../components/Header";
 import config from "../../config";
@@ -96,16 +97,15 @@ const WalletComp: React.FC = () => {
   const [showPermissionCta, setShowPermissionCta] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSignInCta, setShowSignInCta] = useState(false);
-  const [showSignOutButton, setShowSignOutButton] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
+
+  // indicates that the display mode is basic (or portfolio)
+  const isBasicMode = !authAddress && !loginClicked;
 
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
   // this method is used to cancel the listener so the handler doesn't fire.
   let removeBeforeUnloadListener: () => void;
-
-  // only show the sign out button after a short delay
-  setTimeout(() => setShowSignOutButton(true), 250);
 
   // load the existing wallet if singed in
   useEffect(() => {
@@ -171,11 +171,17 @@ const WalletComp: React.FC = () => {
 
           // show the sign in CTA unless a provider request is present that indicates
           // an sign in has already been initiated by the user
-          if (providerRequest?.type === "signInRequest") {
+          if (inProgressAuthState) {
+            // continue an in progress authentication UX if the state has been
+            // retrieved from the session.
+            setIsNewUser(false);
+            return;
+          } else if (providerRequest?.type === "signInRequest") {
             // set new user status for the sign in request
             setIsNewUser(providerRequest.params[0]);
           } else if (!providerRequest) {
-            // show sign in CTA since no provider request
+            // show sign in CTA since no provider request is detected and there
+            // is not an in progress authentication.
             setShowSignInCta(true);
 
             // check whether there are popups that need focus
@@ -357,10 +363,15 @@ const WalletComp: React.FC = () => {
     setAuthComplete(true);
   };
 
-  const handleAuthStart = async (emailAddress: string, password: string) => {
+  const handleAuthStart = async (
+    emailAddress: string,
+    password: string,
+    loginState: TokenRefreshResponse,
+  ) => {
     const s: AuthState = {
       emailAddress,
       password,
+      loginState,
       expiration: new Date().getTime() + FIVE_MINUTES,
     };
     setAuthState(s);
@@ -750,7 +761,7 @@ const WalletComp: React.FC = () => {
     <Preferences onClose={handleClosePreferences} />
   ) : (
     <Paper className={classes.container}>
-      {!authAddress && (
+      {isBasicMode && (
         <Header
           title={t("wallet.title")}
           subTitle={t("manage.cryptoWalletDescriptionShort")}
@@ -759,7 +770,7 @@ const WalletComp: React.FC = () => {
       {(config.NODE_ENV as AppEnv) !== "production" && (
         <Box
           className={
-            authAddress
+            !isBasicMode
               ? classes.testNetContainerLeft
               : classes.testNetContainerRight
           }
@@ -775,7 +786,7 @@ const WalletComp: React.FC = () => {
       {isLoaded && (
         <Box className={classes.walletContainer}>
           <Wallet
-            mode={authAddress ? "portfolio" : "basic"}
+            mode={isBasicMode ? "basic" : "portfolio"}
             address={authAddress}
             domain={authDomain}
             emailAddress={authState?.emailAddress}
@@ -784,11 +795,10 @@ const WalletComp: React.FC = () => {
             showMessages={messagingEnabled}
             isNewUser={isNewUser}
             loginClicked={loginClicked}
-            disableInlineEducation
+            loginState={authState?.loginState}
             disableBasicHeader
             fullScreenModals
             forceRememberOnDevice
-            onClaimComplete={handleClaimComplete}
             onLoginInitiated={handleAuthStart}
             onLogout={handleLogout}
             onError={() => handleLogout(false, false)}
@@ -802,7 +812,7 @@ const WalletComp: React.FC = () => {
             setButtonComponent={setAuthButton}
             setAuthAddress={setAuthAddress}
           />
-          {!authAddress && (
+          {isBasicMode && (
             <Box display="flex" flexDirection="column" width="100%">
               {authButton}
             </Box>

@@ -5,7 +5,7 @@ export const getTwoFactorStatus = async (
   accessToken: string,
 ): Promise<boolean> => {
   try {
-    const otpStatus = await fetchApi<{otpEnabled: boolean}>(`/otp`, {
+    const otpStatus = await fetchApi<{otpEnabled: boolean}>(`/v1/otp`, {
       method: "GET",
       mode: "cors",
       headers: {
@@ -26,7 +26,7 @@ export const getTwoFactorChallenge = async (
   accessToken: string,
 ): Promise<string | undefined> => {
   try {
-    const otpStatus = await fetchApi<{secret: string}>(`/otp`, {
+    const otpStatus = await fetchApi<{secret: string}>(`/v1/otp`, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -49,7 +49,7 @@ export const verifyTwoFactorChallenge = async (
 ): Promise<boolean> => {
   try {
     const verificationResult = await fetch(
-      `${config.WALLETS.HOST_URL}/otp/verification`,
+      `${config.WALLETS.HOST_URL}/v1/otp/verification`,
       {
         method: "POST",
         mode: "cors",
@@ -77,7 +77,7 @@ export const disableTwoFactor = async (
   code: string,
 ): Promise<boolean> => {
   try {
-    const disableResult = await fetch(`${config.WALLETS.HOST_URL}/otp`, {
+    const disableResult = await fetch(`${config.WALLETS.HOST_URL}/v1/otp`, {
       method: "DELETE",
       mode: "cors",
       headers: {
