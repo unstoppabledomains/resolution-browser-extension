@@ -15,6 +15,9 @@ export type ProviderMethod =
   | "eth_sendTransaction"
   | "eth_signTypedData_v4"
   | "eth_blockNumber"
+  | "eth_getBalance"
+  | "eth_getCode"
+  | "eth_gasPrice"
   | "eth_getTransactionReceipt"
   | "eth_call"
   | "eth_estimateGas"
@@ -39,6 +42,9 @@ export const ProviderMethodsWithPrompt: ProviderMethod[] = [
 export type RpcRequest =
   | "call"
   | "estimateGas"
+  | "gasPrice"
+  | "getCode"
+  | "getBalance"
   | "getBlockNumber"
   | "getTransaction"
   | "getTransactionReceipt";

@@ -180,6 +180,15 @@ class LiteWalletProvider extends EventEmitter {
         case "eth_estimateGas":
           result = await this.handleRpcEstimateGas(clone(request.params));
           break;
+        case "eth_gasPrice":
+          result = await this.handleRpcGasPrice();
+          break;
+        case "eth_getBalance":
+          result = await this.handleRpcGetBalance(clone(request.params));
+          break;
+        case "eth_getCode":
+          result = await this.handleRpcGetCode(clone(request.params));
+          break;
         case "eth_getTransactionByHash":
           result = await this.handleRpcGetTransaction(clone(request.params));
           break;
@@ -534,6 +543,27 @@ class LiteWalletProvider extends EventEmitter {
     const chainIdHex = await this.handleGetConnectedChainIds();
     const chainId = web3utils.hexToNumber(chainIdHex) as number;
     return await this.handleRpcMethod(chainId, "estimateGas", params);
+  }
+
+  private async handleRpcGasPrice() {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "gasPrice", []);
+  }
+
+  private async handleRpcGetBalance(params: any[]) {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "getBalance", params);
+  }
+
+  private async handleRpcGetCode(params: any[]) {
+    // retrieve the web3 provider for connected chain
+    const chainIdHex = await this.handleGetConnectedChainIds();
+    const chainId = web3utils.hexToNumber(chainIdHex) as number;
+    return await this.handleRpcMethod(chainId, "getCode", params);
   }
 
   private async handleRpcGetTransaction(params: any[]) {
