@@ -452,6 +452,24 @@ const handleRpcRequest = async (
           await web3.eth.estimateGas(rpcParams[0]),
         );
         break;
+      case "gasPrice":
+        result = web3utils.numberToHex(await web3.eth.getGasPrice());
+        break;
+      case "getBalance":
+        result = await web3.eth.getBalance(
+          rpcParams[0],
+          rpcParams.length > 1 ? rpcParams[1] : undefined,
+        );
+        if (typeof result !== "string" || !result.startsWith("0x")) {
+          result = web3utils.numberToHex(result);
+        }
+        break;
+      case "getCode":
+        result = web3.eth.getCode(
+          rpcParams[0],
+          rpcParams.length > 1 ? rpcParams[1] : undefined,
+        );
+        break;
       case "getTransaction":
         result = await web3.eth.getTransaction(rpcParams[0]);
         break;

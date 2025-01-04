@@ -1,3 +1,9 @@
+## 3.1.46
+* Add Ethereum RPC methods: eth_getBalance, eth_getCode, eth_gasPrice
+
+## 3.1.45
+* Bug fixes
+
 ## 3.1.44
 * Enable Solana wallet provider in the browser
 
