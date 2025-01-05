@@ -6375,7 +6375,7 @@ __metadata:
 
 "@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::locator=ud-extension%40workspace%3A.":
   version: 0.0.53-browser-extension.1
-  resolution: "@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::hash=0db25b&locator=ud-extension%40workspace%3A."
+  resolution: "@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::hash=851f92&locator=ud-extension%40workspace%3A."
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6476,7 +6476,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 270b8418cd76988972e241978dd5c9bf5dc15c6c1d180c5ded04f93c22bd6530042f57c145812f2003c4544772c03d452f41f537bc303c4ecce4e8d41c63a96a
+  checksum: 6475373c3d3d83571934ca97c06b3e42a0d5d3dbb2949f77720099078bbc07644eb5ed029c859b02e3440cf0ab01384185a268b6d4bc86686150208d9824c7ed
   languageName: node
   linkType: hard
 
