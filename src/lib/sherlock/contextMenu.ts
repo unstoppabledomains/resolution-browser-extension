@@ -226,9 +226,13 @@ export class ContextMenu {
         origin.toLowerCase().includes(h.toLowerCase()),
       ) ||
       // host not on the allow list
-      !this.preferences.Scanning.AllowOrigins?.find(h =>
-        origin.toLowerCase().includes(h.toLowerCase()),
-      )
+      !this.preferences.Scanning.AllowOrigins?.find(h => {
+        if (origin.toLowerCase().includes(h.toLowerCase())) {
+          return true;
+        }
+        const rH = new RegExp(h);
+        return rH.test(origin.toLowerCase());
+      })
     );
   }
 

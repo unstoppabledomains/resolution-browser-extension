@@ -56,12 +56,16 @@ export const getDefaultPreferences = (): WalletPreferences => {
       AllowOrigins: [
         // enable X by default
         "https://x.com",
+        // enable any block scanner website by default
+        "https://.*scan.*\\..+",
       ],
       IgnoreOrigins: [
         // disable Unstoppable Domains websites by default
         "https://ud.me",
+        "https://up.io",
         "https://unstoppabledomains.com",
         "https://staging.ud.me",
+        "https://staging.up.io",
         "https://ud-staging.com",
         "https://www.ud-staging.com",
       ],
