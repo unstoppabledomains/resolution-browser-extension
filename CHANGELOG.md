@@ -1,3 +1,7 @@
+## 3.1.47
+* Performance optimization
+* Bug fixes
+
 ## 3.1.46
 * Add Ethereum RPC methods: eth_getBalance, eth_getCode, eth_gasPrice
 

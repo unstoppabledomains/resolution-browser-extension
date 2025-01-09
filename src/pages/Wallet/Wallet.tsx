@@ -317,6 +317,16 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
+  // determine whether to show the sign in cta
+  useEffect(() => {
+    if (!showSignInCta || !preferences) {
+      return;
+    }
+    if (preferences.HasExistingWallet) {
+      void handleSignIn();
+    }
+  }, [showSignInCta, preferences]);
+
   // ensure XMTP is initialized once the page is finished loading
   useEffect(() => {
     if (!authAddress || !isLoaded || isChatReady) {
@@ -760,10 +770,14 @@ const WalletComp: React.FC = () => {
   };
 
   return showSignInCta ? (
-    <SignInCta
-      onCreateWalletClicked={handleCreateWallet}
-      onSignInClicked={handleSignIn}
-    />
+    preferences?.HasExistingWallet ? (
+      <Paper className={classes.container} />
+    ) : (
+      <SignInCta
+        onCreateWalletClicked={handleCreateWallet}
+        onSignInClicked={handleSignIn}
+      />
+    )
   ) : showPermissionCta ? (
     <PermissionCta onPermissionGranted={handlePermissionGranted} />
   ) : showSettings ? (

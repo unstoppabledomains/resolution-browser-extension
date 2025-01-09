@@ -2,7 +2,11 @@ import Bluebird from "bluebird";
 import rgbHex from "rgb-hex";
 
 import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
-import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
+import {
+  StorageSyncKey,
+  chromeStorageClear,
+  chromeStorageGet,
+} from "./chromeStorage";
 import {Logger} from "./logger";
 import {sleep} from "./wallet/sleep";
 
@@ -84,6 +88,12 @@ export const setIcon = async (
     },
     tabId,
   });
+};
+
+export const signOut = async () => {
+  await chromeStorageClear("local");
+  await chromeStorageClear("session");
+  await chromeStorageClear("sync");
 };
 
 export const getBadgeCount = async (color: BadgeColor) => {
