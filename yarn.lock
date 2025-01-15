@@ -6347,7 +6347,7 @@ __metadata:
 
 "@unstoppabledomains/config@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src::locator=ud-extension%40workspace%3A., @unstoppabledomains/config@npm:latest":
   version: 0.0.23
-  resolution: "@unstoppabledomains/config@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src::hash=160033&locator=ud-extension%40workspace%3A."
+  resolution: "@unstoppabledomains/config@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/config/build/src::hash=25da35&locator=ud-extension%40workspace%3A."
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -6356,7 +6356,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: 911c344ce4274be4140447750e6867969cd11b5084eabdb82828efa000a5c6a0756610fd2b4ff317e0c827626a3df54100def816fc1442cf32101a6facb5788a
+  checksum: e5c28fd41167ae6e0f1cbefdf6c96cd637325d764fab08f34a65a20ea66165b12e5e841a858ffdead5481c0840297e22c1603b85f1ade14a83391a346a483bee
   languageName: node
   linkType: hard
 
@@ -6375,7 +6375,7 @@ __metadata:
 
 "@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::locator=ud-extension%40workspace%3A.":
   version: 0.0.53-browser-extension.1
-  resolution: "@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::hash=62687b&locator=ud-extension%40workspace%3A."
+  resolution: "@unstoppabledomains/ui-components@file:/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src#/Users/ajquirk/Projects/Unstoppable/domain-profiles/packages/ui-components/build/src::hash=9590cb&locator=ud-extension%40workspace%3A."
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6476,7 +6476,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 4856890ec59061943b37144dbe53e05bbbe07f381942e9a952c18baff88948988e411a8e21c3ba2de3bc959581ab126ddbb215ee2cdacfdb007da069b051ec41
+  checksum: 1b7d0e1edbc06542ab6f0344e747f1c3868e776990c615655e5d357b707b93375f187e44193aa932839e94cfcbad90e5cc3ce5d495ce410e2f29bdfb0a9306a1
   languageName: node
   linkType: hard
 

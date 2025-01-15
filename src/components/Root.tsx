@@ -12,8 +12,8 @@ import {
   BaseProvider,
   DomainConfigProvider,
   UnstoppableMessagingProvider,
+  getTheme,
 } from "@unstoppabledomains/ui-components";
-import {lightTheme} from "@unstoppabledomains/ui-kit/styles";
 
 import config from "../config";
 import usePreferences from "../hooks/usePreferences";
@@ -147,9 +147,11 @@ function RootApp() {
     return <div />;
   }
 
+  const theme = getTheme();
+
   return (
     <QueryClientProvider client={queryClient}>
-      <BaseProvider theme={lightTheme}>
+      <BaseProvider theme={theme}>
         <UnstoppableMessagingProvider>
           <DomainConfigProvider>
             <LDProvider
