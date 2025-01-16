@@ -152,6 +152,7 @@ const WalletComp: React.FC = () => {
               now < state.expiration
             ) {
               // set local auth state
+              setLoginClicked(true);
               setAuthState(state);
             } else {
               // clear expired auth state
