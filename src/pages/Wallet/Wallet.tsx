@@ -787,10 +787,7 @@ const WalletComp: React.FC = () => {
   ) : isLoaded ? (
     <Paper className={classes.container}>
       {isBasicMode && (
-        <Header
-          title={theme.wallet.title}
-          subTitle={t("manage.cryptoWalletDescriptionMobile")}
-        />
+        <Header title={theme.wallet.title} subTitle={theme.wallet.subTitle} />
       )}
       {(config.NODE_ENV as AppEnv) !== "production" && (
         <Box

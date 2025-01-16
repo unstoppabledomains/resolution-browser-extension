@@ -42,7 +42,7 @@ export const SignInCta: React.FC<SignInCtaProps> = ({
             {theme.wallet.title}
           </Typography>
           <Typography variant="body1" mt={1} mb={2}>
-            {t("manage.cryptoWalletDescriptionShort")}
+            {theme.wallet.subTitle}
           </Typography>
           {(config.NODE_ENV as AppEnv) !== "production" && (
             <Chip
