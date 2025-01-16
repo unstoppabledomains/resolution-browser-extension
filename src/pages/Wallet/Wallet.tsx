@@ -19,6 +19,7 @@ import {
   getBootstrapState,
   isEthAddress,
   localStorageWrapper,
+  useCustomTheme,
   useFireblocksAccessToken,
   useFireblocksState,
   useTranslationContext,
@@ -76,6 +77,7 @@ const enum SnackbarKey {
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
   const navigate = useNavigate();
+  const theme = useCustomTheme();
   const [walletState] = useFireblocksState();
   const getAccessToken = useFireblocksAccessToken();
   const {classes} = useExtensionStyles();
@@ -442,7 +444,7 @@ const WalletComp: React.FC = () => {
     // create a notification to indicate sign in was successful
     await createNotification(
       `signIn${Date.now()}`,
-      t("wallet.title"),
+      theme.wallet.title,
       t("wallet.readyToUse"),
       undefined,
       2,
@@ -786,8 +788,8 @@ const WalletComp: React.FC = () => {
     <Paper className={classes.container}>
       {isBasicMode && (
         <Header
-          title={t("wallet.title")}
-          subTitle={t("manage.cryptoWalletDescriptionShort")}
+          title={theme.wallet.title}
+          subTitle={t("manage.cryptoWalletDescriptionMobile")}
         />
       )}
       {(config.NODE_ENV as AppEnv) !== "production" && (

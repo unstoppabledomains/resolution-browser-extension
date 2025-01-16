@@ -6,7 +6,10 @@ import Typography from "@mui/material/Typography";
 import React from "react";
 
 import {AppEnv} from "@unstoppabledomains/config";
-import {useTranslationContext} from "@unstoppabledomains/ui-components";
+import {
+  useCustomTheme,
+  useTranslationContext,
+} from "@unstoppabledomains/ui-components";
 import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
 import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 
@@ -24,6 +27,7 @@ export const SignInCta: React.FC<SignInCtaProps> = ({
 }) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
+  const theme = useCustomTheme();
 
   return (
     <Paper className={classes.container}>
@@ -35,7 +39,7 @@ export const SignInCta: React.FC<SignInCtaProps> = ({
             <UnstoppableWalletIcon />
           </IconPlate>
           <Typography variant="h4" mt={3}>
-            {t("wallet.title")}
+            {theme.wallet.title}
           </Typography>
           <Typography variant="body1" mt={1} mb={2}>
             {t("manage.cryptoWalletDescriptionShort")}
