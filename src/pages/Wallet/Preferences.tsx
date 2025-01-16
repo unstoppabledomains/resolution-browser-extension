@@ -3,18 +3,18 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
-import {useFlags} from "launchdarkly-react-client-sdk";
 import Markdown from "markdown-to-jsx";
 import React, {useEffect, useState} from "react";
 
 import {
   DomainProfileKeys,
+  LightDarkToggle,
   Link,
   Modal,
   localStorageWrapper,
+  useCustomTheme,
   useFireblocksAccessToken,
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
@@ -42,12 +42,12 @@ interface PreferencesProps {
 export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
-  const flags = useFlags();
   const getAccessToken = useFireblocksAccessToken();
   const {preferences, setPreferences} = usePreferences();
   const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
   const [account, setAccount] = useState<string>();
+  const theme = useCustomTheme();
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -155,6 +155,9 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("extension.sherlockAssistant")}`}
                   control={
                     <Checkbox
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       checked={preferences?.Scanning?.Enabled}
                       onChange={handleSherlockAssistant}
                     />
@@ -169,6 +172,9 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("extension.compatibilityMode")}`}
                   control={
                     <Checkbox
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       checked={preferences?.OverrideMetamask}
                       onChange={handleCompatibilityMode}
                     />
@@ -184,6 +190,11 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                       </Typography>
                       <Box display="flex" justifyContent="right">
                         <Button
+                          color={
+                            theme.palette.mode === "light"
+                              ? "primary"
+                              : "secondary"
+                          }
                           variant="text"
                           onClick={handleRefreshParent}
                           className={classes.actionButton}
@@ -207,13 +218,20 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   Object.keys(connections)
                     .sort((a, b) => a.localeCompare(b))
                     .map(site => (
-                      <Link href={`https://${site}`} target="_blank">
+                      <Link
+                        className={classes.link}
+                        href={`https://${site}`}
+                        target="_blank"
+                      >
                         <Typography variant="caption">{site}</Typography>
                       </Link>
                     ))}
                 {connections && Object.keys(connections).length > 0 && (
                   <Box display="flex" width="100%" mt={1} mb={2}>
                     <Button
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       variant="outlined"
                       onClick={handleDisconnectAll}
                       className={classes.button}
@@ -226,6 +244,12 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                 )}
               </WalletPreference>
               <WalletPreference
+                title={t("extension.displayMode")}
+                description={t("extension.displayModeDescription")}
+              >
+                <LightDarkToggle />
+              </WalletPreference>
+              <WalletPreference
                 title={t("push.messages")}
                 description={t("push.description")}
               >
@@ -233,6 +257,9 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("push.messages")}`}
                   control={
                     <Checkbox
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       checked={preferences?.MessagingEnabled}
                       onChange={handleMessaging}
                     />

@@ -1,7 +1,8 @@
 import Box from "@mui/material/Box";
+import type {Theme} from "@mui/material/styles";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {LDProvider} from "launchdarkly-react-client-sdk";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {
   RouterProvider,
   createMemoryRouter,
@@ -14,6 +15,10 @@ import {
   UnstoppableMessagingProvider,
   getTheme,
 } from "@unstoppabledomains/ui-components";
+import {
+  ThemeMode,
+  WalletType,
+} from "@unstoppabledomains/ui-components/styles/theme";
 
 import config from "../config";
 import usePreferences from "../hooks/usePreferences";
@@ -142,16 +147,42 @@ const Root: React.FC = () => (
 
 function RootApp() {
   const {userId} = useUserId();
+  const [themeName, setThemeName] = useState<WalletType>();
+  const [themeMode, setThemeMode] = useState<ThemeMode>();
+  const [theme, setTheme] = useState<Theme>();
+  const themeModeKey = "themeMode";
+
+  // set theme state
+  useEffect(() => {
+    // initialize the theme name
+    const name = "udme";
+    setThemeName(name);
+
+    // initialize the theme mode
+    const mode =
+      localStorage.getItem(themeModeKey) === "dark" ? "dark" : "light";
+    setThemeMode(mode);
+
+    // set initial theme
+    setTheme(getTheme(name, mode));
+  }, []);
+
+  // dynamically set the page theme
+  useEffect(() => {
+    if (!themeName || !themeMode) {
+      return;
+    }
+    localStorage.setItem(themeModeKey, themeMode);
+    setTheme(getTheme(themeName, themeMode));
+  }, [themeName, themeMode]);
 
   if (!userId) {
     return <div />;
   }
 
-  const theme = getTheme();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <BaseProvider theme={theme}>
+      <BaseProvider theme={theme} mode={themeMode} setMode={setThemeMode}>
         <UnstoppableMessagingProvider>
           <DomainConfigProvider>
             <LDProvider
