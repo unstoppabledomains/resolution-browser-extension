@@ -1,5 +1,7 @@
 ## 3.1.47
 * Performance optimization
+* Light mode / dark mode support
+* Solana transaction history
 * Bug fixes
 
 ## 3.1.46

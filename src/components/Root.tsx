@@ -19,6 +19,7 @@ import {
   ThemeMode,
   WalletType,
 } from "@unstoppabledomains/ui-components/styles/theme";
+import {useMediaQuery} from "@unstoppabledomains/ui-kit";
 
 import config from "../config";
 import usePreferences from "../hooks/usePreferences";
@@ -147,6 +148,7 @@ const Root: React.FC = () => (
 
 function RootApp() {
   const {userId} = useUserId();
+  const isDarkModeSystemDefault = useMediaQuery("(prefers-color-scheme: dark)");
   const [themeName, setThemeName] = useState<WalletType>();
   const [themeMode, setThemeMode] = useState<ThemeMode>();
   const [theme, setTheme] = useState<Theme>();
@@ -159,13 +161,19 @@ function RootApp() {
     setThemeName(name);
 
     // initialize the theme mode
-    const mode =
-      localStorage.getItem(themeModeKey) === "dark" ? "dark" : "light";
+    const userDefinedMode = localStorage.getItem(themeModeKey);
+    const mode = userDefinedMode
+      ? userDefinedMode === "dark"
+        ? "dark"
+        : "light"
+      : isDarkModeSystemDefault
+        ? "dark"
+        : "light";
     setThemeMode(mode);
 
     // set initial theme
     setTheme(getTheme(name, mode));
-  }, []);
+  }, [isDarkModeSystemDefault]);
 
   // dynamically set the page theme
   useEffect(() => {
