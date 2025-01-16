@@ -1,5 +1,6 @@
 import Box from "@mui/material/Box";
 import type {Theme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {LDProvider} from "launchdarkly-react-client-sdk";
 import React, {useEffect, useState} from "react";
@@ -19,7 +20,6 @@ import {
   ThemeMode,
   WalletType,
 } from "@unstoppabledomains/ui-components/styles/theme";
-import {useMediaQuery} from "@unstoppabledomains/ui-kit";
 
 import config from "../config";
 import usePreferences from "../hooks/usePreferences";
