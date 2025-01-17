@@ -1,3 +1,6 @@
+## 3.1.48
+* Minor UX improvements
+
 ## 3.1.47
 * Performance optimization
 * Light mode / dark mode support
