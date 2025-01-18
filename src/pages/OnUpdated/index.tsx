@@ -11,13 +11,13 @@ import useAsyncEffect from "use-async-effect";
 
 import {AppEnv} from "@unstoppabledomains/config";
 import {
+  WalletIcon,
   getBootstrapState,
   useDomainConfig,
   useFireblocksState,
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
 import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
-import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 
 import config from "../../config";
 import usePreferences from "../../hooks/usePreferences";
@@ -77,7 +77,7 @@ const OnUpdated: React.FC = () => {
           className={cx(classes.contentContainer, classes.fullHeightCentered)}
         >
           <IconPlate size={85} variant="info">
-            <UnstoppableWalletIcon />
+            <WalletIcon />
           </IconPlate>
           <Typography variant="h4" mt={2}>
             {t("extension.welcomeToVersion", {

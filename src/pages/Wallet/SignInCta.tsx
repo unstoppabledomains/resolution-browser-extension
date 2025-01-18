@@ -7,11 +7,11 @@ import React from "react";
 
 import {AppEnv} from "@unstoppabledomains/config";
 import {
+  WalletIcon,
   useCustomTheme,
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
 import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
-import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 
 import config from "../../config";
 import {useExtensionStyles} from "../../styles/extension.styles";
@@ -36,7 +36,7 @@ export const SignInCta: React.FC<SignInCtaProps> = ({
           className={cx(classes.contentContainer, classes.fullHeightCentered)}
         >
           <IconPlate size={100} variant="info">
-            <UnstoppableWalletIcon />
+            <WalletIcon />
           </IconPlate>
           <Typography variant="h4" mt={3}>
             {theme.wallet.title}

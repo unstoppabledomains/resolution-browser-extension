@@ -4,8 +4,8 @@ import Typography from "@mui/material/Typography";
 import type {Theme} from "@mui/material/styles";
 import React from "react";
 
+import {WalletIcon} from "@unstoppabledomains/ui-components";
 import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
-import UnstoppableWalletIcon from "@unstoppabledomains/ui-kit/icons/UnstoppableWalletIcon";
 import {makeStyles} from "@unstoppabledomains/ui-kit/styles";
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -72,7 +72,7 @@ const Header: React.FC<Props> = ({
             />
           ) : (
             <IconPlate size={50} variant="info">
-              <UnstoppableWalletIcon />
+              <WalletIcon />
             </IconPlate>
           )}
         </Box>
