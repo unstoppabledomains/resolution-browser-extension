@@ -157,7 +157,7 @@ function RootApp() {
   // set theme state
   useEffect(() => {
     // initialize the theme name
-    const name = "udme";
+    const name = config.THEME ? config.THEME : "udme";
     setThemeName(name);
 
     // initialize the theme mode
