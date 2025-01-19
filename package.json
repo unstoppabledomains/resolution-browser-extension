@@ -8,7 +8,8 @@
   },
   "homepage": "https://unstoppabledomains.com/extension",
   "scripts": {
-    "clean": "rm -rf ./dist; rm -rf ./releases; rm -rf .parcel-cache",
+    "clean": "clean:dist; rm -rf ./releases",
+    "clean:dist": "rm -rf ./dist; rm -rf .parcel-cache",
     "postinstall": "NODE_ENV=staging; node scripts/create-env.mjs && node ./scripts/create_manifest.js",
     "prettier": "prettier --write --log-level warn \"src/**/*.{js,jsx,json,ts,tsx,css,scss,md}\"",
     "predev": "yarn clean && yarn prettier",
@@ -18,7 +19,7 @@
     "dist:all": "yarn clean; yarn dist:udme; yarn dist:upio",
     "dist:udme": "THEME=udme; yarn dist",
     "dist:upio": "THEME=upio; yarn dist",
-    "build:all": "yarn build:chrome:archives",
+    "build:all": "yarn clean:dist; yarn build:chrome:archives",
     "build:extension": "parcel build src/manifest.json --no-cache --no-source-maps --no-scope-hoist",
     "build:chrome": "yarn build:chrome:manifest && yarn build:extension",
     "build:chrome:manifest": "node scripts/create-env.mjs && node ./scripts/create_manifest.js chrome",
