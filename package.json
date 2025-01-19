@@ -8,7 +8,7 @@
   },
   "homepage": "https://unstoppabledomains.com/extension",
   "scripts": {
-    "clean": "clean:dist; rm -rf ./releases",
+    "clean": "yarn clean:dist; rm -rf ./releases",
     "clean:dist": "rm -rf ./dist; rm -rf .parcel-cache",
     "postinstall": "NODE_ENV=staging; node scripts/create-env.mjs && node ./scripts/create_manifest.js",
     "prettier": "prettier --write --log-level warn \"src/**/*.{js,jsx,json,ts,tsx,css,scss,md}\"",
