@@ -34,4 +34,4 @@ jobs:
           NODE_OPTIONS: --max_old_space_size=3072
 
       - name: Build browser extension packages
-        run: yarn dist
+        run: yarn dist:all
