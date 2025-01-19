@@ -34,7 +34,16 @@ jobs:
           NODE_OPTIONS: --max_old_space_size=3072
 
       - name: Build browser extension packages
-        run: yarn dist
+        run: yarn dist:all
+
+      - name: Upload build archives to GitHub
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: build_${{ github.sha }}
+          path: |
+            releases/*
+          retention-days: 1
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v1
@@ -47,7 +56,7 @@ jobs:
         uses: actions/upload-artifact@v4
         continue-on-error: true
         with:
-          name: ${{ github.sha }}
+          name: test_results_${{ github.sha }}
           path: |
             coverage/**/lcov.info
             coverage/**/coverage-final.json
