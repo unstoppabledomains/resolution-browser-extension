@@ -1,8 +1,13 @@
 import Bluebird from "bluebird";
 import rgbHex from "rgb-hex";
 
+import config from "../config";
 import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
-import {StorageSyncKey, chromeStorageGet} from "./chromeStorage";
+import {
+  StorageSyncKey,
+  chromeStorageClear,
+  chromeStorageGet,
+} from "./chromeStorage";
 import {Logger} from "./logger";
 import {sleep} from "./wallet/sleep";
 
@@ -74,16 +79,30 @@ export const setIcon = async (
   }
 
   // update the requested tab
+  const theme = getThemeName();
   const suffix = variant === "default" ? "" : `-${variant}`;
   await chrome.action.setIcon({
     path: {
-      16: `icon/16${suffix}.png`,
-      38: `icon/38${suffix}.png`,
-      48: `icon/48${suffix}.png`,
-      128: `icon/128${suffix}.png`,
+      16: `icon/${theme}/16${suffix}.png`,
+      38: `icon/${theme}/38${suffix}.png`,
+      48: `icon/${theme}/48${suffix}.png`,
+      128: `icon/${theme}/128${suffix}.png`,
     },
     tabId,
   });
+};
+
+export const getThemeName = () => {
+  if (config.THEME) {
+    return config.THEME;
+  }
+  return "udme";
+};
+
+export const signOut = async () => {
+  await chromeStorageClear("local");
+  await chromeStorageClear("session");
+  await chromeStorageClear("sync");
 };
 
 export const getBadgeCount = async (color: BadgeColor) => {
@@ -184,7 +203,7 @@ export const createNotification = async (
       {
         type: "basic",
         title,
-        iconUrl: chrome.runtime.getURL("/icon/128.png"),
+        iconUrl: chrome.runtime.getURL(`/icon/${getThemeName()}/128.png`),
         message,
         isClickable: true,
         contextMessage,

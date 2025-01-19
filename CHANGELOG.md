@@ -1,3 +1,12 @@
+## 3.1.48
+* Minor UX improvements
+
+## 3.1.47
+* Performance optimization
+* Light mode / dark mode support
+* Solana transaction history
+* Bug fixes
+
 ## 3.1.46
 * Add Ethereum RPC methods: eth_getBalance, eth_getCode, eth_gasPrice
 

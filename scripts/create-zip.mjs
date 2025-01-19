@@ -10,7 +10,8 @@ if (!fs.pathExistsSync(DIST_DIR)) throw new Error("Dist dir does not exist");
 
 const {name, version} = fs.readJsonSync("./package.json");
 const args = process.argv.slice(2);
-const tag = `-${args[0]}-${process.env.NODE_ENV}`;
+const theme = process.env.THEME ? process.env.THEME : "udme";
+const tag = `-${args[0]}-${theme}-${process.env.NODE_ENV}`;
 
 const extName = filenamify(name, {replacement: "_"});
 const zipName = `${extName}-v${version}${tag}.zip`;

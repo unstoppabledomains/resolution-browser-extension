@@ -1,4 +1,5 @@
 import type {Theme} from "@mui/material/styles";
+import {alpha} from "@mui/system/colorManipulator";
 
 import {makeStyles} from "@unstoppabledomains/ui-kit/styles";
 
@@ -10,10 +11,10 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    backgroundColor: theme.palette.common.white,
-    background:
-      "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(242,242,242,1) 100%)",
+    backgroundColor: theme.palette.background.paper,
+    background: `linear-gradient(180deg, ${alpha(theme.palette.background.paper, 1)} 0%, ${alpha(theme.palette.background.default, 1)} 100%)`,
     borderRadius: 0,
+    overflow: "hidden",
   },
   preferenceContainer: {
     height: "500px",
@@ -30,8 +31,8 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     marginBottom: theme.spacing(-2),
   },
   messageContainer: {
-    backgroundColor: theme.palette.neutralShades[100],
-    border: `1px solid ${theme.palette.neutralShades[400]}`,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.neutralShades[theme.palette.mode === "light" ? 400 : 800]}`,
     borderRadius: theme.shape.borderRadius,
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
@@ -53,7 +54,7 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     },
   },
   connectContainer: {
-    backgroundColor: theme.palette.neutralShades[100],
+    backgroundColor: theme.palette.background.default,
     borderRadius: theme.shape.borderRadius,
     marginBottom: theme.spacing(1),
     paddingRight: theme.spacing(1),
@@ -101,7 +102,7 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
   walletIcon: {
     width: "75px",
     height: "75px",
-    color: theme.palette.common.black,
+    color: theme.palette.getContrastText(theme.palette.background.paper),
   },
   updatedContentContainer: {
     display: "flex",
@@ -120,7 +121,7 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     marginTop: theme.spacing(1),
   },
   actionButton: {
-    color: "white",
+    color: theme.palette.common.white,
     marginLeft: theme.spacing(1),
   },
   testNetContainerLeft: {
@@ -132,5 +133,11 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     position: "absolute",
     top: theme.spacing(2),
     right: theme.spacing(2),
+  },
+  link: {
+    color:
+      theme.palette.mode === "light"
+        ? theme.palette.primary.main
+        : theme.palette.secondary.main,
   },
 }));

@@ -1,27 +1,27 @@
 {
   "manifest_version": 3,
-  "name": "Unstoppable Domains",
-  "short_name": "Unstoppable Domains",
+  "name": "<name>",
+  "short_name": "<short_name>",
   "version": "<injected from package.json using create_manifest.js>",
-  "description": "A crypto wallet for domainers: easily interact with onchain identities, assets and apps.",
+  "description": "<description>",
   "minimum_chrome_version": "114",
   "icons": {
-    "16": "icon/16.png",
-    "38": "icon/38.png",
-    "48": "icon/48.png",
-    "96": "icon/96.png",
-    "128": "icon/128.png"
+    "16": "icon/<theme>/16.png",
+    "38": "icon/<theme>/38.png",
+    "48": "icon/<theme>/48.png",
+    "96": "icon/<theme>/96.png",
+    "128": "icon/<theme>/128.png"
   },
-  "homepage_url": "http://unstoppabledomains.com",
-  "author": "Unstoppable Domains <support@unstoppabledomains.com>",
+  "homepage_url": "http://<website>",
+  "author": "<name> <support@<website>>",
   "action": {
     "default_popup": "index.html",
     "default_icon": {
-      "16": "icon/16.png",
-      "38": "icon/38.png",
-      "48": "icon/48.png",
-      "96": "icon/96.png",
-      "128": "icon/128.png"
+      "16": "icon/<theme>/16.png",
+      "38": "icon/<theme>/38.png",
+      "48": "icon/<theme>/48.png",
+      "96": "icon/<theme>/96.png",
+      "128": "icon/<theme>/128.png"
     }
   },
   "side_panel": {
@@ -57,7 +57,7 @@
   "web_accessible_resources": [
     {
       "matches": ["<all_urls>"],
-      "resources": ["js/wasm/cosigner.esm.wasm", "./scripts/contentIsolated.ts", "index.html", "icon/*"]
+      "resources": ["./scripts/contentIsolated.ts", "index.html", "icon/*", "icon/udme/*", "icon/upio/*"]
     }
   ],
   "host_permissions": ["<all_urls>"],

@@ -44,7 +44,7 @@ import {isAscii} from "../../lib/wallet/isAscii";
 import {getProviderRequest} from "../../lib/wallet/request";
 import {simulateTransaction} from "../../lib/wallet/solana/simulation";
 import {useExtensionStyles} from "../../styles/extension.styles";
-import {deserializeTx} from "../../types/solana/chains";
+import {deserializeTxB58} from "../../types/solana/chains";
 import {SimulationResults} from "../../types/solana/simulation";
 import {
   ChainNotSupportedError,
@@ -634,7 +634,7 @@ const Connect: React.FC = () => {
     // retrieve the encoded transaction
     setIsSigning(true);
     const account = getAccount();
-    const tx = deserializeTx(connectionStateMessage.params[0]);
+    const tx = deserializeTxB58(connectionStateMessage.params[0]);
 
     // Optional parameter determines whether transaction should also be transmitted
     // to the blockchain. If false, sign the transaction but do not submit.
@@ -668,7 +668,7 @@ const Connect: React.FC = () => {
     try {
       setIsSimulating(true);
       const account = getAccount();
-      const tx = deserializeTx(connectionStateMessage.params[0]);
+      const tx = deserializeTxB58(connectionStateMessage.params[0]);
 
       // validate account
       if (!account) {

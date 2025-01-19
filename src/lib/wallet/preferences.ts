@@ -25,6 +25,10 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
       if (basePreferences.Scanning === undefined) {
         basePreferences.Scanning = defaultPreferences.Scanning;
       }
+      if (basePreferences.Scanning.AllowOrigins === undefined) {
+        basePreferences.Scanning.AllowOrigins =
+          defaultPreferences.Scanning.AllowOrigins;
+      }
       if (basePreferences.TwoFactorAuth === undefined) {
         basePreferences.TwoFactorAuth = defaultPreferences.TwoFactorAuth;
       }
@@ -44,15 +48,24 @@ export const getDefaultPreferences = (): WalletPreferences => {
     WalletEnabled: false,
     HasExistingWallet: false,
     OverrideMetamask: false,
-    DefaultView: "onUpdated",
+    DefaultView: "wallet",
     VersionInfo: config.VERSION_DESCRIPTION,
     MessagingEnabled: true,
     Scanning: {
       Enabled: true,
+      AllowOrigins: [
+        // enable X by default
+        "https://x.com",
+        // enable any block scanner website by default
+        "https://.*scan.*\\..+",
+      ],
       IgnoreOrigins: [
+        // disable Unstoppable Domains websites by default
         "https://ud.me",
+        "https://up.io",
         "https://unstoppabledomains.com",
         "https://staging.ud.me",
+        "https://staging.up.io",
         "https://ud-staging.com",
         "https://www.ud-staging.com",
       ],

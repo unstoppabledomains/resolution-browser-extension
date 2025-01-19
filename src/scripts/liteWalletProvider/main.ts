@@ -1128,21 +1128,18 @@ const proxyProvider = new Proxy(evmWalletProvider, {
   deleteProperty: () => true,
 });
 
-// temporary configuration flag for Solana enablement
-if (config.SOLANA_ENABLED === "true") {
-  // create a Solana wallet provider object, which is a standardized wrapper
-  // around the existing EVM wallet request mechanism used internally to the
-  // Unstoppable Domains browser extension.
-  const solanaWalletProvider = new SolanaWalletProvider(
-    async (r: RequestArgs) => {
-      return await proxyProvider.request(r);
-    },
-  );
+// create a Solana wallet provider object, which is a standardized wrapper
+// around the existing EVM wallet request mechanism used internally to the
+// Unstoppable Domains browser extension.
+const solanaWalletProvider = new SolanaWalletProvider(
+  async (r: RequestArgs) => {
+    return await proxyProvider.request(r);
+  },
+);
 
-  // register the Solana provider using the Wallet Standard (https://github.com/wallet-standard/wallet-standard)
-  initialize(solanaWalletProvider);
-  Logger.log("Registered Solana provider");
-}
+// register the Solana provider using the Wallet Standard (https://github.com/wallet-standard/wallet-standard)
+initialize(solanaWalletProvider);
+Logger.log("Registered Solana provider");
 
 // EIP-6963: announce the EVM provider
 announceProvider({

@@ -22,6 +22,10 @@ const populateEnv = () => {
     process.exit(1);
   }
 
+  // Append the theme to the file
+  const theme = process.env.THEME ? process.env.THEME : "udme"; 
+  fs.appendFileSync(".env", `\nTHEME=${theme}`);
+
   // Load environment variables from .env file
   const result = config();
   if (result.error) {

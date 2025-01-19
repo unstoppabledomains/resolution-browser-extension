@@ -519,7 +519,7 @@ const handleFetchResolution = async (
     avatar: chrome.runtime.getURL(
       resolutionData?.domain?.endsWith(".eth")
         ? "/icon/ens.png"
-        : "/icon/38.png",
+        : `/icon/udme/38.png`,
     ),
   });
 };

@@ -33,12 +33,24 @@ export function isSolanaChain(chain: IdentifierString): chain is SolanaChain {
   return SOLANA_CHAINS.includes(chain as SolanaChain);
 }
 
-export const deserializeTx = (
+export const deserializeTxB58 = (
   b58SerializedTx: string,
 ): Transaction | VersionedTransaction => {
   try {
     return VersionedTransaction.deserialize(bs58.decode(b58SerializedTx));
   } catch (e) {
     return Transaction.from(bs58.decode(b58SerializedTx));
+  }
+};
+
+export const deserializeTxHex = (
+  hexSerializedTx: string,
+): Transaction | VersionedTransaction => {
+  try {
+    return VersionedTransaction.deserialize(
+      Buffer.from(hexSerializedTx, "hex"),
+    );
+  } catch (e) {
+    return Transaction.from(Buffer.from(hexSerializedTx, "hex"));
   }
 };

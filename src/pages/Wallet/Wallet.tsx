@@ -11,6 +11,7 @@ import {useNavigate} from "react-router-dom";
 
 import {AppEnv} from "@unstoppabledomains/config";
 import {
+  CustodyState,
   DomainProfileKeys,
   DomainProfileTabType,
   Wallet,
@@ -18,11 +19,13 @@ import {
   getBootstrapState,
   isEthAddress,
   localStorageWrapper,
+  useCustomTheme,
   useFireblocksAccessToken,
   useFireblocksState,
   useTranslationContext,
   useUnstoppableMessaging,
 } from "@unstoppabledomains/ui-components";
+import {TokenRefreshResponse} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 
 import Header from "../../components/Header";
 import config from "../../config";
@@ -74,6 +77,7 @@ const enum SnackbarKey {
 const WalletComp: React.FC = () => {
   const isMounted = useIsMounted();
   const navigate = useNavigate();
+  const theme = useCustomTheme();
   const [walletState] = useFireblocksState();
   const getAccessToken = useFireblocksAccessToken();
   const {classes} = useExtensionStyles();
@@ -84,6 +88,7 @@ const WalletComp: React.FC = () => {
     useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
+  const [loginClicked, setLoginClicked] = useState<boolean>();
   const [authAddress, setAuthAddress] = useState<string>("");
   const [authDomain, setAuthDomain] = useState<string>("");
   const [authAvatar, setAuthAvatar] = useState<string>();
@@ -92,19 +97,20 @@ const WalletComp: React.FC = () => {
   const [authButton, setAuthButton] = useState<React.ReactNode>();
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPermissionGranted, setIsPermissionGranted] = useState(false);
+  const [isBasicDisabled, setIsBasicDisabled] = useState(false);
   const [showPermissionCta, setShowPermissionCta] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSignInCta, setShowSignInCta] = useState(false);
-  const [showSignOutButton, setShowSignOutButton] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
+
+  // indicates that the display mode is basic (or portfolio)
+  const showFooter = !authAddress || !authComplete;
+  const isBasicMode = showFooter && !loginClicked && !isBasicDisabled;
 
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
   // this method is used to cancel the listener so the handler doesn't fire.
   let removeBeforeUnloadListener: () => void;
-
-  // only show the sign out button after a short delay
-  setTimeout(() => setShowSignOutButton(true), 250);
 
   // load the existing wallet if singed in
   useEffect(() => {
@@ -146,6 +152,7 @@ const WalletComp: React.FC = () => {
               now < state.expiration
             ) {
               // set local auth state
+              setLoginClicked(true);
               setAuthState(state);
             } else {
               // clear expired auth state
@@ -170,11 +177,17 @@ const WalletComp: React.FC = () => {
 
           // show the sign in CTA unless a provider request is present that indicates
           // an sign in has already been initiated by the user
-          if (providerRequest?.type === "signInRequest") {
+          if (inProgressAuthState) {
+            // continue an in progress authentication UX if the state has been
+            // retrieved from the session.
+            setIsNewUser(false);
+            return;
+          } else if (providerRequest?.type === "signInRequest") {
             // set new user status for the sign in request
             setIsNewUser(providerRequest.params[0]);
           } else if (!providerRequest) {
-            // show sign in CTA since no provider request
+            // show sign in CTA since no provider request is detected and there
+            // is not an in progress authentication.
             setShowSignInCta(true);
 
             // check whether there are popups that need focus
@@ -184,6 +197,11 @@ const WalletComp: React.FC = () => {
 
           // set empty auth state
           setAuthState({emailAddress: "", password: ""});
+          return;
+        }
+
+        // if there is a claim in progress return at this point
+        if (signInState.custodyState.state === CustodyState.CLAIMING) {
           return;
         }
 
@@ -199,35 +217,45 @@ const WalletComp: React.FC = () => {
           }
         }
 
-        // clear any previously in progress auth state
-        setAuthState({emailAddress: "", password: ""});
+        // ensure we don't show basic mode to prevent flicker
+        setIsBasicDisabled(true);
 
-        // query addresses belonging to accounts
-        const accountEvmAddresses = [
-          ...new Set(
-            signInState.assets
-              ?.map(a => {
-                return {
-                  address: a.address,
-                  networkId: a.blockchainAsset.blockchain.networkId,
-                };
-              })
-              .filter(a => isEthAddress(a.address)),
-          ),
-        ];
-
-        // ensure an EVM address is available
-        if (accountEvmAddresses.length === 0) {
-          return;
+        // clear auth state if necessary
+        if (authState?.emailAddress) {
+          setAuthState({emailAddress: "", password: ""});
         }
-        setAuthAddress(accountEvmAddresses[0].address);
-        await localStorageWrapper.setItem(
-          DomainProfileKeys.AuthAddress,
-          accountEvmAddresses[0].address,
-        );
 
-        // clear the sign in CTA
-        setShowSignInCta(false);
+        // set auth address if necessary
+        if (!authAddress) {
+          // query addresses belonging to accounts
+          const accountEvmAddresses = [
+            ...new Set(
+              signInState.assets
+                ?.map(a => {
+                  return {
+                    address: a.address,
+                    networkId: a.blockchainAsset.blockchain.networkId,
+                  };
+                })
+                .filter(a => isEthAddress(a.address)),
+            ),
+          ];
+
+          // ensure an EVM address is available
+          if (accountEvmAddresses.length === 0) {
+            return;
+          }
+          setAuthAddress(accountEvmAddresses[0].address);
+          await localStorageWrapper.setItem(
+            DomainProfileKeys.AuthAddress,
+            accountEvmAddresses[0].address,
+          );
+        }
+
+        // clear the sign in CTA if necessary
+        if (showSignInCta) {
+          setShowSignInCta(false);
+        }
       } catch (e: any) {
         Logger.error(e, "Popup", "error loading wallet in extension popup");
         await handleLogout(false);
@@ -238,13 +266,19 @@ const WalletComp: React.FC = () => {
     void loadWallet();
   }, [isMounted, authComplete, walletState]);
 
-  // prompt for permissions if required
+  // prompt for permissions once the user has take custody of the wallet. When
+  // in custody mode we do not need additional permission.
   useEffect(() => {
+    // skip if the CTA is already shown
     if (showPermissionCta) {
       return;
     }
+    // skip if XMTP not yet setup
+    if (!isChatReady) {
+      return;
+    }
     setShowPermissionCta(authAddress !== "" && !isPermissionGranted);
-  }, [authAddress, isPermissionGranted, showPermissionCta]);
+  }, [authAddress, isPermissionGranted, showPermissionCta, isChatReady]);
 
   // resolve the domain for wallet address
   useEffect(() => {
@@ -286,6 +320,16 @@ const WalletComp: React.FC = () => {
     void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
+  // determine whether to show the sign in cta
+  useEffect(() => {
+    if (!showSignInCta || !preferences) {
+      return;
+    }
+    if (preferences.HasExistingWallet) {
+      void handleSignIn();
+    }
+  }, [showSignInCta, preferences]);
+
   // ensure XMTP is initialized once the page is finished loading
   useEffect(() => {
     if (!authAddress || !isLoaded || isChatReady) {
@@ -321,6 +365,9 @@ const WalletComp: React.FC = () => {
   }, [authState]);
 
   const handleAuthComplete = async () => {
+    // set the complete flag
+    setAuthComplete(true);
+
     // cleanup state from authentication attempt
     await chromeStorageRemove(StorageSyncKey.AuthState, "session");
 
@@ -345,15 +392,17 @@ const WalletComp: React.FC = () => {
 
     // ensure XMTP is ready
     await handlePrepareXmtp();
-
-    // set the complete flag
-    setAuthComplete(true);
   };
 
-  const handleAuthStart = async (emailAddress: string, password: string) => {
+  const handleAuthStart = async (
+    emailAddress: string,
+    password: string,
+    loginState: TokenRefreshResponse,
+  ) => {
     const s: AuthState = {
       emailAddress,
       password,
+      loginState,
       expiration: new Date().getTime() + FIVE_MINUTES,
     };
     setAuthState(s);
@@ -396,11 +445,30 @@ const WalletComp: React.FC = () => {
     // create a notification to indicate sign in was successful
     await createNotification(
       `signIn${Date.now()}`,
-      t("wallet.title"),
+      theme.wallet.title,
       t("wallet.readyToUse"),
       undefined,
       2,
     );
+  };
+
+  const handleCreateWallet = async () => {
+    // ensure user is signed out
+    await handleLogout(false, false);
+
+    // set state to start creating a wallet
+    setIsNewUser(true);
+    setLoginClicked(true);
+    setShowSignInCta(false);
+  };
+
+  const handleSignIn = async () => {
+    // ensure user is signed out
+    await handleLogout(false, false);
+
+    // set state to prompt user for username and password
+    setIsNewUser(false);
+    setShowSignInCta(false);
   };
 
   const handleLogout = async (close = true, showCta = true) => {
@@ -409,13 +477,14 @@ const WalletComp: React.FC = () => {
     await chromeStorageClear("session");
     await chromeStorageClear("sync");
 
-    // switch back to sign in CTA view if requested
+    // clear auth state when showing sign in CTA
     if (showCta) {
-      setShowSignInCta(true);
       setAuthState(undefined);
+      setShowSignInCta(true);
     }
 
     // reset identity variable state
+    setIsBasicDisabled(!showCta);
     setAuthAddress("");
     setAuthDomain("");
     setAuthAvatar(undefined);
@@ -571,6 +640,11 @@ const WalletComp: React.FC = () => {
       return;
     }
 
+    // do not prompt for this mode until XMTP has been setup
+    if (!isChatReady) {
+      return;
+    }
+
     // ask the user about compatibility mode if there is already another
     // wallet extension installed on this browser
     if (window.ethereum || config.ALWAYS_PROMPT_COMPATIBILITY_MODE === "true") {
@@ -699,23 +773,27 @@ const WalletComp: React.FC = () => {
   };
 
   return showSignInCta ? (
-    <SignInCta onSignInClick={() => handleLogout(false)} />
+    preferences?.HasExistingWallet ? (
+      <Paper className={classes.container} />
+    ) : (
+      <SignInCta
+        onCreateWalletClicked={handleCreateWallet}
+        onSignInClicked={handleSignIn}
+      />
+    )
   ) : showPermissionCta ? (
     <PermissionCta onPermissionGranted={handlePermissionGranted} />
   ) : showSettings ? (
     <Preferences onClose={handleClosePreferences} />
-  ) : (
+  ) : isLoaded ? (
     <Paper className={classes.container}>
-      {!authAddress && (
-        <Header
-          title={t("wallet.title")}
-          subTitle={t("manage.cryptoWalletDescriptionShort")}
-        />
+      {isBasicMode && (
+        <Header title={theme.wallet.title} subTitle={theme.wallet.subTitle} />
       )}
       {(config.NODE_ENV as AppEnv) !== "production" && (
         <Box
           className={
-            authAddress
+            !isBasicMode
               ? classes.testNetContainerLeft
               : classes.testNetContainerRight
           }
@@ -728,55 +806,43 @@ const WalletComp: React.FC = () => {
           />
         </Box>
       )}
-      <Box
-        className={classes.walletContainer}
-        sx={{
-          display: isLoaded ? "flex" : "none",
-        }}
-      >
-        {authState && preferences ? (
-          <Wallet
-            mode={authAddress ? "portfolio" : "basic"}
-            address={authAddress}
-            domain={authDomain}
-            emailAddress={authState.emailAddress}
-            recoveryPhrase={authState.password}
-            avatarUrl={authAvatar}
-            showMessages={messagingEnabled}
-            isNewUser={isNewUser}
-            disableInlineEducation
-            disableBasicHeader
-            fullScreenModals
-            forceRememberOnDevice
-            onLoginInitiated={handleAuthStart}
-            onLogout={handleLogout}
-            onError={() => handleLogout(false, false)}
-            onDisconnect={isConnected ? handleDisconnect : undefined}
-            onSettingsClick={handleShowPreferences}
-            onMessagesClick={handleMessagesClicked}
-            onMessagePopoutClick={handleMessagePopoutClick}
-            onUpdate={async (_t: DomainProfileTabType) => {
-              await handleAuthComplete();
-            }}
-            setButtonComponent={setAuthButton}
-            setAuthAddress={setAuthAddress}
-          />
-        ) : (
-          showSignOutButton && (
-            <Box className={classes.fullHeightCentered}>
-              <Button variant="text" onClick={() => handleLogout(false)}>
-                {t("header.signOut")}
-              </Button>
-            </Box>
-          )
-        )}
-        {!authAddress && (
+      <Box className={classes.walletContainer}>
+        <Wallet
+          mode={isBasicMode ? "basic" : "portfolio"}
+          address={authAddress}
+          domain={authDomain}
+          emailAddress={authState?.emailAddress}
+          recoveryPhrase={authState?.password}
+          avatarUrl={authAvatar}
+          showMessages={messagingEnabled}
+          isNewUser={isNewUser}
+          loginClicked={loginClicked}
+          loginState={authState?.loginState}
+          disableBasicHeader
+          fullScreenModals
+          forceRememberOnDevice
+          onLoginInitiated={handleAuthStart}
+          onLogout={() => handleLogout(true, false)}
+          onError={() => handleLogout(false, false)}
+          onDisconnect={isConnected ? handleDisconnect : undefined}
+          onSettingsClick={handleShowPreferences}
+          onMessagesClick={handleMessagesClicked}
+          onMessagePopoutClick={handleMessagePopoutClick}
+          onUpdate={async (_t: DomainProfileTabType) => {
+            await handleAuthComplete();
+          }}
+          setButtonComponent={setAuthButton}
+          setAuthAddress={setAuthAddress}
+        />
+        {showFooter && (
           <Box display="flex" flexDirection="column" width="100%">
             {authButton}
           </Box>
         )}
       </Box>
     </Paper>
+  ) : (
+    <Paper className={classes.container} />
   );
 };
 

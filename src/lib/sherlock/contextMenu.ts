@@ -189,6 +189,7 @@ export class ContextMenu {
       const defaultPreferences = getDefaultPreferences();
       this.preferences.Scanning = {
         Enabled: true,
+        AllowOrigins: defaultPreferences.Scanning.AllowOrigins,
         IgnoreOrigins: defaultPreferences.Scanning.IgnoreOrigins,
       };
     }
@@ -201,8 +202,13 @@ export class ContextMenu {
       );
       this.preferences.Scanning.Enabled = true;
       this.preferences.Scanning.IgnoreOrigins = ignoreOrigins;
+      this.preferences.Scanning.AllowOrigins.push(origin.toLowerCase());
     } else {
       // disable sherlock
+      const allowOrigins = this.preferences.Scanning.AllowOrigins.filter(
+        h => !h.toLowerCase().includes(origin.toLowerCase()),
+      );
+      this.preferences.Scanning.AllowOrigins = allowOrigins;
       this.preferences.Scanning.IgnoreOrigins.push(origin.toLowerCase());
     }
 
@@ -213,10 +219,20 @@ export class ContextMenu {
 
   isSherlockDisabled(origin: string) {
     return (
+      // scanning globally disabled
       !this.preferences?.Scanning?.Enabled ||
+      // host on the ignore list
       this.preferences.Scanning.IgnoreOrigins?.find(h =>
         origin.toLowerCase().includes(h.toLowerCase()),
-      )
+      ) ||
+      // host not on the allow list
+      !this.preferences.Scanning.AllowOrigins?.find(h => {
+        if (origin.toLowerCase().includes(h.toLowerCase())) {
+          return true;
+        }
+        const rH = new RegExp(h);
+        return rH.test(origin.toLowerCase());
+      })
     );
   }
 

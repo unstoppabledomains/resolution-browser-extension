@@ -7,6 +7,7 @@ export interface WalletPreferences {
   OverrideMetamask: boolean;
   Scanning: {
     Enabled: boolean;
+    AllowOrigins: string[];
     IgnoreOrigins: string[];
   };
   TwoFactorAuth: {

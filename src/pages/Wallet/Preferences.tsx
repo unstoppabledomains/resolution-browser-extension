@@ -3,21 +3,22 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
-import {useFlags} from "launchdarkly-react-client-sdk";
 import Markdown from "markdown-to-jsx";
 import React, {useEffect, useState} from "react";
 
 import {
   DomainProfileKeys,
+  LightDarkToggle,
   Link,
   Modal,
   localStorageWrapper,
+  useCustomTheme,
   useFireblocksAccessToken,
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
+import {WalletPreference} from "@unstoppabledomains/ui-components/components/Wallet/WalletPreference";
 
 import config from "../../config";
 import useConnections from "../../hooks/useConnections";
@@ -33,7 +34,6 @@ import {
 import {prepareXmtpInBackground} from "../../lib/xmtp/state";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import MainScreen from "../Legacy/MainScreen";
-import {TwoFactorModal} from "./TwoFactorModal";
 
 interface PreferencesProps {
   onClose: () => void;
@@ -42,13 +42,12 @@ interface PreferencesProps {
 export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
-  const flags = useFlags();
   const getAccessToken = useFireblocksAccessToken();
   const {preferences, setPreferences} = usePreferences();
   const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
   const [account, setAccount] = useState<string>();
-  const [isTwoFactorOpen, setIsTwoFactorOpen] = useState(false);
+  const theme = useCustomTheme();
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -93,25 +92,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     preferences.Scanning.Enabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
-  };
-
-  const handleTwoFactorClicked = () => {
-    if (!preferences) {
-      return;
-    }
-
-    // initialize scanning preferences if required
-    if (!preferences.TwoFactorAuth) {
-      const defaultPreferences = getDefaultPreferences();
-      preferences.TwoFactorAuth = defaultPreferences.TwoFactorAuth;
-    }
-
-    // open the two-factor modal
-    setIsTwoFactorOpen(true);
-  };
-
-  const handleTwoFactorClose = () => {
-    setIsTwoFactorOpen(false);
   };
 
   const handleMessaging = async (
@@ -167,27 +147,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
             </Box>
           ) : (
             <Box className={classes.contentContainer} mb={1} mt={-3}>
-              {flags.extensionEnableTotp && (
-                <PreferenceSection
-                  title="Two-Factor Authentication"
-                  description="Two-factor authentication (2FA) is highly recommended to ensure your wallet is secure. Use any authenticator app, such as Google Authenticator."
-                >
-                  <Button
-                    className={classes.button}
-                    onClick={handleTwoFactorClicked}
-                    variant={
-                      preferences?.TwoFactorAuth?.Enabled
-                        ? "outlined"
-                        : "contained"
-                    }
-                  >
-                    {preferences?.TwoFactorAuth?.Enabled
-                      ? "Disable 2FA"
-                      : "Enable 2FA"}
-                  </Button>
-                </PreferenceSection>
-              )}
-              <PreferenceSection
+              <WalletPreference
                 title={t("extension.sherlockAssistant")}
                 description={t("extension.sherlockAssistantDescription")}
               >
@@ -195,13 +155,16 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("extension.sherlockAssistant")}`}
                   control={
                     <Checkbox
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       checked={preferences?.Scanning?.Enabled}
                       onChange={handleSherlockAssistant}
                     />
                   }
                 />
-              </PreferenceSection>
-              <PreferenceSection
+              </WalletPreference>
+              <WalletPreference
                 title={t("extension.compatibilityMode")}
                 description={t("extension.compatibilityModeDescription")}
               >
@@ -209,6 +172,9 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("extension.compatibilityMode")}`}
                   control={
                     <Checkbox
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       checked={preferences?.OverrideMetamask}
                       onChange={handleCompatibilityMode}
                     />
@@ -224,6 +190,11 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                       </Typography>
                       <Box display="flex" justifyContent="right">
                         <Button
+                          color={
+                            theme.palette.mode === "light"
+                              ? "primary"
+                              : "secondary"
+                          }
                           variant="text"
                           onClick={handleRefreshParent}
                           className={classes.actionButton}
@@ -234,8 +205,8 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     </Alert>
                   </Box>
                 )}
-              </PreferenceSection>
-              <PreferenceSection
+              </WalletPreference>
+              <WalletPreference
                 title={t("extension.walletConnections")}
                 description={
                   connections && Object.keys(connections).length > 0
@@ -247,13 +218,20 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   Object.keys(connections)
                     .sort((a, b) => a.localeCompare(b))
                     .map(site => (
-                      <Link href={`https://${site}`} target="_blank">
+                      <Link
+                        className={classes.link}
+                        href={`https://${site}`}
+                        target="_blank"
+                      >
                         <Typography variant="caption">{site}</Typography>
                       </Link>
                     ))}
                 {connections && Object.keys(connections).length > 0 && (
                   <Box display="flex" width="100%" mt={1} mb={2}>
                     <Button
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       variant="outlined"
                       onClick={handleDisconnectAll}
                       className={classes.button}
@@ -264,8 +242,14 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     </Button>
                   </Box>
                 )}
-              </PreferenceSection>
-              <PreferenceSection
+              </WalletPreference>
+              <WalletPreference
+                title={t("extension.displayMode")}
+                description={t("extension.displayModeDescription")}
+              >
+                <LightDarkToggle />
+              </WalletPreference>
+              <WalletPreference
                 title={t("push.messages")}
                 description={t("push.description")}
               >
@@ -273,27 +257,30 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   label={`${t("manage.enable")} ${t("push.messages")}`}
                   control={
                     <Checkbox
+                      color={
+                        theme.palette.mode === "light" ? "primary" : "secondary"
+                      }
                       checked={preferences?.MessagingEnabled}
                       onChange={handleMessaging}
                     />
                   }
                 />
-              </PreferenceSection>
-              <PreferenceSection
+              </WalletPreference>
+              <WalletPreference
                 title={t("extension.decentralizedBrowsing")}
                 description={t("extension.decentralizedBrowsingDescription")}
               >
                 <Box display="flex" width="100%" mt={1}>
                   <MainScreen hideUserId />
                 </Box>
-              </PreferenceSection>
+              </WalletPreference>
               {account && (
-                <PreferenceSection
+                <WalletPreference
                   title={t("common.account")}
                   description={account}
                 />
               )}
-              <PreferenceSection
+              <WalletPreference
                 title={t("extension.version")}
                 description={`${getManifestVersion()} (${config.NODE_ENV})`}
               />
@@ -301,45 +288,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
           )}
         </Box>
       </Modal>
-      {isTwoFactorOpen && preferences && (
-        <TwoFactorModal
-          open={isTwoFactorOpen}
-          onClose={handleTwoFactorClose}
-          preferences={preferences}
-          setPreferences={setPreferences}
-        />
-      )}
-    </Box>
-  );
-};
-
-interface PreferenceSectionProps {
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-}
-
-export const PreferenceSection: React.FC<PreferenceSectionProps> = ({
-  title,
-  description,
-  children,
-}) => {
-  return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="left"
-      justifyContent="left"
-      textAlign="left"
-      width="100%"
-      mt={3}
-    >
-      <Typography variant="h6">{title}</Typography>
-      <Divider />
-      <Typography variant="body2" mb={1} mt={1}>
-        {description}
-      </Typography>
-      {children}
     </Box>
   );
 };

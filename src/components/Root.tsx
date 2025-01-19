@@ -1,7 +1,9 @@
 import Box from "@mui/material/Box";
+import type {Theme} from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import {LDProvider} from "launchdarkly-react-client-sdk";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {
   RouterProvider,
   createMemoryRouter,
@@ -12,8 +14,12 @@ import {
   BaseProvider,
   DomainConfigProvider,
   UnstoppableMessagingProvider,
+  getTheme,
 } from "@unstoppabledomains/ui-components";
-import {lightTheme} from "@unstoppabledomains/ui-kit/styles";
+import {
+  ThemeMode,
+  WalletType,
+} from "@unstoppabledomains/ui-components/styles/theme";
 
 import config from "../config";
 import usePreferences from "../hooks/usePreferences";
@@ -142,6 +148,41 @@ const Root: React.FC = () => (
 
 function RootApp() {
   const {userId} = useUserId();
+  const isDarkModeSystemDefault = useMediaQuery("(prefers-color-scheme: dark)");
+  const [themeName, setThemeName] = useState<WalletType>();
+  const [themeMode, setThemeMode] = useState<ThemeMode>();
+  const [theme, setTheme] = useState<Theme>();
+  const themeModeKey = "themeMode";
+
+  // set theme state
+  useEffect(() => {
+    // initialize the theme name
+    const name = config.THEME ? config.THEME : "udme";
+    setThemeName(name);
+
+    // initialize the theme mode
+    const userDefinedMode = localStorage.getItem(themeModeKey);
+    const mode = userDefinedMode
+      ? userDefinedMode === "dark"
+        ? "dark"
+        : "light"
+      : isDarkModeSystemDefault
+        ? "dark"
+        : "light";
+    setThemeMode(mode);
+
+    // set initial theme
+    setTheme(getTheme(name, mode));
+  }, [isDarkModeSystemDefault]);
+
+  // dynamically set the page theme
+  useEffect(() => {
+    if (!themeName || !themeMode) {
+      return;
+    }
+    localStorage.setItem(themeModeKey, themeMode);
+    setTheme(getTheme(themeName, themeMode));
+  }, [themeName, themeMode]);
 
   if (!userId) {
     return <div />;
@@ -149,7 +190,7 @@ function RootApp() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BaseProvider theme={lightTheme}>
+      <BaseProvider theme={theme} mode={themeMode} setMode={setThemeMode}>
         <UnstoppableMessagingProvider>
           <DomainConfigProvider>
             <LDProvider
