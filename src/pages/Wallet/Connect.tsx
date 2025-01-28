@@ -100,7 +100,7 @@ const Connect: React.FC = () => {
 
   // wallet state
   const [walletState] = useFireblocksState();
-  const {web3Deps, setWeb3Deps, setMessageToSign, setTxToSign} =
+  const {web3Deps, setWeb3Deps, showPinCta, setMessageToSign, setTxToSign} =
     useWeb3Context();
   const fireblocksMessageSigner = useFireblocksMessageSigner();
   const {preferences} = usePreferences();
@@ -122,6 +122,9 @@ const Connect: React.FC = () => {
   const [connectionStateMessage, setConnectionStateMessage] = useState<any>();
   const [connectionState, setConnectionState] = useState<ConnectionState>();
 
+  // session lock state
+  const isSessionUnlocked = showPinCta === false;
+
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
   // this method is used to cancel the listener so the handler doesn't fire.
@@ -129,7 +132,13 @@ const Connect: React.FC = () => {
 
   useEffect(() => {
     // wait for required fields to be loaded
-    if (!isMounted() || !preferences || !connections || isLoaded) {
+    if (
+      !isMounted() ||
+      !preferences ||
+      !connections ||
+      isLoaded ||
+      !isSessionUnlocked
+    ) {
       return;
     }
 
@@ -254,7 +263,7 @@ const Connect: React.FC = () => {
       }
     };
     void loadWallet();
-  }, [isMounted, connections, preferences, walletState]);
+  }, [isMounted, connections, preferences, walletState, isSessionUnlocked]);
 
   useEffect(() => {
     // only register listeners with valid web3deps
@@ -826,139 +835,149 @@ const Connect: React.FC = () => {
   // show wallet connect information
   return (
     <Paper className={classes.container}>
-      <Box className={cx(classes.walletContainer, classes.contentContainer)}>
-        {connectionState && RENDER_CONTENT_STATES.includes(connectionState) && (
-          <Box className={classes.contentContainer}>
-            <Typography variant="h4">{t("wallet.signMessage")}</Typography>
-            {web3Deps?.unstoppableWallet?.connectedApp && (
-              <SignForDappHeader
-                name={web3Deps.unstoppableWallet.connectedApp.name}
-                iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
-                actionText={
-                  connectionState === ConnectionState.PERMISSIONS
-                    ? t("extension.connectRequest")
-                    : connectionState === ConnectionState.SWITCH_CHAIN
-                      ? t("extension.connectToChain", {
-                          chainName: connectionStateMessage.params[0].chainName,
-                        })
-                      : connectionState === ConnectionState.SOLANA_SIGN_MESSAGE
-                        ? t("wallet.signMessageAction")
-                        : connectionState === ConnectionState.SOLANA_SIGN_TX
-                          ? t("wallet.signTxAction")
-                          : t("extension.connect")
-                }
-              />
-            )}
-            <Grid container className={classes.connectContainer} mt={3}>
-              {web3Deps?.unstoppableWallet?.connectedApp && (
-                <>
+      {isSessionUnlocked && (
+        <Box className={cx(classes.walletContainer, classes.contentContainer)}>
+          {connectionState &&
+            RENDER_CONTENT_STATES.includes(connectionState) && (
+              <Box className={classes.contentContainer}>
+                <Typography variant="h4">{t("wallet.signMessage")}</Typography>
+                {web3Deps?.unstoppableWallet?.connectedApp && (
+                  <SignForDappHeader
+                    name={web3Deps.unstoppableWallet.connectedApp.name}
+                    iconUrl={web3Deps.unstoppableWallet.connectedApp.iconUrl}
+                    actionText={
+                      connectionState === ConnectionState.PERMISSIONS
+                        ? t("extension.connectRequest")
+                        : connectionState === ConnectionState.SWITCH_CHAIN
+                          ? t("extension.connectToChain", {
+                              chainName:
+                                connectionStateMessage.params[0].chainName,
+                            })
+                          : connectionState ===
+                              ConnectionState.SOLANA_SIGN_MESSAGE
+                            ? t("wallet.signMessageAction")
+                            : connectionState === ConnectionState.SOLANA_SIGN_TX
+                              ? t("wallet.signTxAction")
+                              : t("extension.connect")
+                    }
+                  />
+                )}
+                <Grid container className={classes.connectContainer} mt={3}>
+                  {web3Deps?.unstoppableWallet?.connectedApp && (
+                    <>
+                      <Grid item xs={6}>
+                        <Typography className={classes.connectContainerTitle}>
+                          {t("manage.website")}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography className={classes.connectContainerValue}>
+                          {web3Deps.unstoppableWallet.connectedApp.hostUrl}
+                        </Typography>
+                      </Grid>
+                    </>
+                  )}
                   <Grid item xs={6}>
                     <Typography className={classes.connectContainerTitle}>
-                      {t("manage.website")}
+                      {t("auth.walletAddress")}
                     </Typography>
                   </Grid>
                   <Grid item xs={6}>
                     <Typography className={classes.connectContainerValue}>
-                      {web3Deps.unstoppableWallet.connectedApp.hostUrl}
+                      {truncateAddress(getAccount()?.address)}
                     </Typography>
                   </Grid>
-                </>
-              )}
-              <Grid item xs={6}>
-                <Typography className={classes.connectContainerTitle}>
-                  {t("auth.walletAddress")}
-                </Typography>
-              </Grid>
-              <Grid item xs={6}>
-                <Typography className={classes.connectContainerValue}>
-                  {truncateAddress(getAccount()?.address)}
-                </Typography>
-              </Grid>
-            </Grid>
-            {(isSimulating || simulationResult) && (
-              <Box display="flex" alignItems="center">
-                <Typography margin={1} variant="subtitle1">
-                  {t("wallet.simulationTitle")}
-                </Typography>
-                <Tooltip title={t("wallet.simulationDescription")}>
-                  <InfoOutlinedIcon color="info" fontSize="small" />
-                </Tooltip>
+                </Grid>
+                {(isSimulating || simulationResult) && (
+                  <Box display="flex" alignItems="center">
+                    <Typography margin={1} variant="subtitle1">
+                      {t("wallet.simulationTitle")}
+                    </Typography>
+                    <Tooltip title={t("wallet.simulationDescription")}>
+                      <InfoOutlinedIcon color="info" fontSize="small" />
+                    </Tooltip>
+                  </Box>
+                )}
+                {isSimulating && (
+                  <Skeleton
+                    height="50px"
+                    variant="rectangular"
+                    className={classes.connectContainer}
+                  />
+                )}
+                {simulationResult && (
+                  <Grid container className={classes.connectContainer}>
+                    {simulationResult.errorMessage ||
+                    simulationResult.results.length === 0 ? (
+                      <Grid item xs={12}>
+                        <Typography mb={1}>
+                          {t("wallet.simulationError")}
+                        </Typography>
+                      </Grid>
+                    ) : (
+                      simulationResult.results.map((r, i) => (
+                        <Grid container key={`simulation-result-${i}`}>
+                          <Grid item xs={6}>
+                            <Typography
+                              className={classes.connectContainerTitle}
+                            >
+                              <Box display="flex" alignItems="center">
+                                <Avatar
+                                  className={classes.connectContainerIcon}
+                                  src={r.metadata?.tokenLogo}
+                                />
+                                <Typography>{r.metadata?.tokenName}</Typography>
+                              </Box>
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography
+                              color={r.delta > 0 ? "green" : "red"}
+                              className={classes.connectContainerValue}
+                            >
+                              {r.delta > 0 ? "+" : ""}
+                              {r.delta}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      ))
+                    )}
+                  </Grid>
+                )}
+                {connectionState === ConnectionState.SOLANA_SIGN_MESSAGE && (
+                  <>
+                    <Typography mt={3} variant="body1">
+                      {t("wallet.signMessageSubtitle")}:
+                    </Typography>
+                    <Box className={classes.messageContainer}>
+                      <Markdown>
+                        {new TextDecoder().decode(
+                          fetcher.b64Decode(connectionStateMessage.params[0]),
+                        )}
+                      </Markdown>
+                    </Box>
+                  </>
+                )}
               </Box>
             )}
-            {isSimulating && (
-              <Skeleton
-                height="50px"
-                variant="rectangular"
-                className={classes.connectContainer}
-              />
-            )}
-            {simulationResult && (
-              <Grid container className={classes.connectContainer}>
-                {simulationResult.errorMessage ||
-                simulationResult.results.length === 0 ? (
-                  <Grid item xs={12}>
-                    <Typography mb={1}>
-                      {t("wallet.simulationError")}
-                    </Typography>
-                  </Grid>
-                ) : (
-                  simulationResult.results.map((r, i) => (
-                    <Grid container key={`simulation-result-${i}`}>
-                      <Grid item xs={6}>
-                        <Typography className={classes.connectContainerTitle}>
-                          <Box display="flex" alignItems="center">
-                            <Avatar
-                              className={classes.connectContainerIcon}
-                              src={r.metadata?.tokenLogo}
-                            />
-                            <Typography>{r.metadata?.tokenName}</Typography>
-                          </Box>
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography
-                          color={r.delta > 0 ? "green" : "red"}
-                          className={classes.connectContainerValue}
-                        >
-                          {r.delta > 0 ? "+" : ""}
-                          {r.delta}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  ))
-                )}
-              </Grid>
-            )}
-            {connectionState === ConnectionState.SOLANA_SIGN_MESSAGE && (
-              <>
-                <Typography mt={3} variant="body1">
-                  {t("wallet.signMessageSubtitle")}:
-                </Typography>
-                <Box className={classes.messageContainer}>
-                  <Markdown>
-                    {new TextDecoder().decode(
-                      fetcher.b64Decode(connectionStateMessage.params[0]),
-                    )}
-                  </Markdown>
+          {connectionState &&
+            RENDER_CONTENT_STATES.includes(connectionState) && (
+              <Box className={classes.contentContainer}>
+                {renderButton()}
+                <Box mt={1} className={classes.contentContainer}>
+                  <Button
+                    onClick={handleCancel}
+                    disabled={!isLoaded || isSigning || isSimulating}
+                    fullWidth
+                    variant={errorMessage ? "contained" : "outlined"}
+                  >
+                    {t("common.cancel")}
+                  </Button>
                 </Box>
-              </>
+              </Box>
             )}
-          </Box>
-        )}
-        <Box className={classes.contentContainer}>
-          {renderButton()}
-          <Box mt={1} className={classes.contentContainer}>
-            <Button
-              onClick={handleCancel}
-              disabled={!isLoaded || isSigning || isSimulating}
-              fullWidth
-              variant={errorMessage ? "contained" : "outlined"}
-            >
-              {t("common.cancel")}
-            </Button>
-          </Box>
         </Box>
-      </Box>
+      )}
     </Paper>
   );
 };

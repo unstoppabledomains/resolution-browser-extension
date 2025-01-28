@@ -19,6 +19,7 @@ import {
   getBootstrapState,
   isEthAddress,
   localStorageWrapper,
+  notifyEvent,
   useCustomTheme,
   useFireblocksAccessToken,
   useFireblocksState,
@@ -391,7 +392,13 @@ const WalletComp: React.FC = () => {
     }
 
     // ensure XMTP is ready
-    await handlePrepareXmtp();
+    try {
+      await handlePrepareXmtp();
+    } catch (e) {
+      notifyEvent(e, "warning", "Messaging", "Background", {
+        msg: "error preparing XMTP",
+      });
+    }
   };
 
   const handleAuthStart = async (

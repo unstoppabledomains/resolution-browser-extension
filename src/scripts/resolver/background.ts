@@ -18,12 +18,13 @@ export const waitForSupportedDomains = async () => {
   await refreshRules();
 
   // schedule a timer to check for updates periodically
-  await chrome.alarms.create("refreshRules", {
+  const alarmName = "refreshRules";
+  await chrome.alarms.create(alarmName, {
     delayInMinutes: SUPPORTED_DOMAIN_REFRESH_MINUTES,
     periodInMinutes: SUPPORTED_DOMAIN_REFRESH_MINUTES,
   });
   chrome.alarms.onAlarm.addListener(async (alarm: chrome.alarms.Alarm) => {
-    if (alarm.name === "refreshRules") {
+    if (alarm.name === alarmName) {
       await refreshRules();
     }
   });
