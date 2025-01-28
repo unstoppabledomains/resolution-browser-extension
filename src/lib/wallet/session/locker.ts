@@ -29,15 +29,22 @@ export const waitForSessionLock = async () => {
 };
 
 const checkSessionLock = async () => {
+  // retrieve wallet state from chrome storage
+  const rawState = await chrome.storage.local.get(FireblocksStateKey);
+  if (!rawState[FireblocksStateKey]) {
+    return;
+  }
+  const state = JSON.parse(rawState[FireblocksStateKey]);
+
+  // check whether session is already locked
+  const clientState = getBootstrapState(state);
+  if (clientState?.lockedRefreshToken) {
+    return;
+  }
+
+  // check whether session needs to be locked
   if (await isLocked()) {
     try {
-      // retrieve wallet state from chrome storage
-      const rawState = await chrome.storage.local.get(FireblocksStateKey);
-      if (!rawState[FireblocksStateKey]) {
-        return;
-      }
-      const state = JSON.parse(rawState[FireblocksStateKey]);
-
       // create wrapper method to set wallet state
       const setState = async (v: Record<string, Record<string, string>>) => {
         await chrome.storage.local.set({
@@ -45,13 +52,10 @@ const checkSessionLock = async () => {
         });
       };
 
-      // check whether session is already locked
-      const clientState = getBootstrapState(state);
-      if (clientState?.lockedRefreshToken) {
-        return;
-      }
-
       // lock the session
+      notifyEvent("locking session", "warning", "Extension", "Background", {
+        meta: {timestamp: new Date().toString()},
+      });
       await lock(state, setState);
     } catch (e) {
       notifyEvent(e, "warning", "Extension", "Background");
