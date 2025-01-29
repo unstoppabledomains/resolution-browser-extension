@@ -1,3 +1,8 @@
+## 3.1.49
+* Introduce session lock feature to enhance security
+* Settings panel styling updates
+* Security center styling updates
+
 ## 3.1.48
 * Minor UX improvements
 

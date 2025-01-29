@@ -6345,9 +6345,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@npm:0.0.23, @unstoppabledomains/config@npm:latest":
-  version: 0.0.23
-  resolution: "@unstoppabledomains/config@npm:0.0.23"
+"@unstoppabledomains/config@npm:0.0.25, @unstoppabledomains/config@npm:latest":
+  version: 0.0.25
+  resolution: "@unstoppabledomains/config@npm:0.0.25"
   dependencies:
     "@bugsnag/browser-performance": ^2.2.0
     "@bugsnag/js": ^7.16.2
@@ -6356,7 +6356,7 @@ __metadata:
     "@types/lodash.merge": ^4.6.7
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
-  checksum: 0e4208d9e5da7130dad5d2d05a46eb2d9ce6594876706c1dce0a749611f54ca9c12b0436d92e5a87f7424a5685f59bdbde7f5fc07f244446441d2a36e6339d3c
+  checksum: fb489e2c63b2a9c31a9be04ee19165f0a9245e6f9d739c1c2be73d811a9f17889d55fa4388578d28cebb8c67c3671d518b5f0f96bae72b95ce680680dda4f629
   languageName: node
   linkType: hard
 
@@ -6373,9 +6373,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.7":
-  version: 0.0.53-browser-extension.7
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.7"
+"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.8":
+  version: 0.0.53-browser-extension.8
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.8"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6476,7 +6476,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 740327a93daef59905740780fe7b67a93f628660ce0c58f0262852502aea1169782b8ce59d0a219a89c42a12d9c0f4b87e8f5767004afcb92897ed9930d2b0d9
+  checksum: b3dcb83d4c17cea495b670669c2c764e8a4bc11ea69985522843e03e44f3e78169c46cbf2b97cc0c635a195478ca20a7bc393a170f19d277187bf7938acd7c6a
   languageName: node
   linkType: hard
 
@@ -14871,6 +14871,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwt-decode@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jwt-decode@npm:4.0.0"
+  checksum: 390e2edcb31a92e86c8cbdd1edeea4c0d62acd371f8a8f0a8878e499390c0ecf4c658b365c4e941e4ef37d0170e4ca650aaa49f99a45c0b9695a235b210154b0
+  languageName: node
+  linkType: hard
+
 "keccak@npm:3.0.2":
   version: 3.0.2
   resolution: "keccak@npm:3.0.2"
@@ -21180,8 +21187,8 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
-    "@unstoppabledomains/config": 0.0.23
-    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.7
+    "@unstoppabledomains/config": 0.0.25
+    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.8
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
@@ -21223,6 +21230,7 @@ __metadata:
     jest-extended: ^4.0.2
     jest-fetch-mock: ^3.0.3
     jest-transform-css: ^6.0.1
+    jwt-decode: ^4.0.0
     launchdarkly-react-client-sdk: ^3.3.2
     nodemon: ^3.1.4
     notistack: ^3.0.1

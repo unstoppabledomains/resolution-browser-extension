@@ -87,13 +87,20 @@ export const waitForXmtpMessages = async (xmtpKey?: string) => {
     // wait for messages
     void waitForMessages();
 
-    // check every so often for messaging enablement
-    const interval = setInterval(async () => {
-      const isEnabled = await assertMessagingEnabled();
-      if (!isEnabled) {
-        clearInterval(interval);
+    // periodically check sign in status
+    const xmtpAlarmName = "xmtpStatus";
+    await chrome.alarms.create(xmtpAlarmName, {
+      delayInMinutes: 1,
+      periodInMinutes: 1,
+    });
+    chrome.alarms.onAlarm.addListener(async (alarm: chrome.alarms.Alarm) => {
+      if (alarm.name === xmtpAlarmName) {
+        const isEnabled = await assertMessagingEnabled();
+        if (!isEnabled) {
+          await chrome.alarms.clear(xmtpAlarmName);
+        }
       }
-    }, 5000);
+    });
   });
 };
 

@@ -1,4 +1,5 @@
 import {ContextMenu} from "../lib/sherlock/contextMenu";
+import {waitForSessionLock} from "../lib/wallet/session/locker";
 import {waitForXmtpMessages} from "../lib/xmtp/listener";
 import "../subscripts/onInstalled";
 import {
@@ -34,3 +35,8 @@ void contextMenu.waitForEvents();
  * XMTP listener
  ********************************** */
 void waitForXmtpMessages();
+
+/** *********************************
+ * Session lock listener
+ ********************************** */
+void waitForSessionLock();
