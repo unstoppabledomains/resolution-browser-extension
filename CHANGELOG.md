@@ -1,3 +1,8 @@
+## 3.1.50
+* Automatically update balance changes
+* Add share wallet button
+* Move optional permissions CTAs into settings panel
+
 ## 3.1.49
 * Introduce session lock feature to enhance security
 * Settings panel styling updates

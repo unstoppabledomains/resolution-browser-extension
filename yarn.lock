@@ -6373,9 +6373,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.8":
-  version: 0.0.53-browser-extension.8
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.8"
+"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.9":
+  version: 0.0.53-browser-extension.9
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.9"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6468,6 +6468,7 @@ __metadata:
     tss-react: ^4.0.0
     typescript: 5.0.4
     uns: "git+https://github.com/unstoppabledomains/uns.git#v0.8.35"
+    use-async-effect: ^2.2.7
     usehooks-ts: ^2.9.1
     wagmi: ^1.4.12
     web3: ^4.11.1
@@ -6476,7 +6477,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: b3dcb83d4c17cea495b670669c2c764e8a4bc11ea69985522843e03e44f3e78169c46cbf2b97cc0c635a195478ca20a7bc393a170f19d277187bf7938acd7c6a
+  checksum: 0160e09e26981ab1dfad97f32958275dcbb1586101e60c414f116420fb538024c1d2bf0c1d2589f8b38184bb6860c15fb726ee1d4d126ebf310fe48422f9d7eb
   languageName: node
   linkType: hard
 
@@ -21188,7 +21189,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
     "@unstoppabledomains/config": 0.0.25
-    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.8
+    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.9
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
