@@ -18,7 +18,8 @@ export enum BadgeColor {
 
 export enum PermissionType {
   Notifications = "notifications",
-  ContextMenu = "contextMenus",
+  ContextMenus = "contextMenus",
+  DeclarativeNetRequest = "declarativeNetRequestWithHostAccess",
   Tabs = "tabs",
 }
 
@@ -50,6 +51,7 @@ export const requestOptionalPermissions = async (
   // request permissions if not already granted
   return await chrome.permissions.request({
     permissions,
+    origins: ["<all_urls>"],
   });
 };
 

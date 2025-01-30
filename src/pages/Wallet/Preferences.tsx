@@ -58,6 +58,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const [account, setAccount] = useState<string>();
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
   const [isContextMenuEnabled, setIsContextMenuEnabled] = useState(false);
+  const [isBrowsingEnabled, setIsBrowsingEnabled] = useState(false);
   const theme = useCustomTheme();
 
   useAsyncEffect(async () => {
@@ -67,7 +68,13 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     );
     setIsContextMenuEnabled(
       await hasOptionalPermissions([
-        PermissionType.ContextMenu,
+        PermissionType.ContextMenus,
+        PermissionType.Tabs,
+      ]),
+    );
+    setIsBrowsingEnabled(
+      await hasOptionalPermissions([
+        PermissionType.DeclarativeNetRequest,
         PermissionType.Tabs,
       ]),
     );
@@ -154,7 +161,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     if (event.target.checked) {
       if (
         await requestOptionalPermissions([
-          PermissionType.ContextMenu,
+          PermissionType.ContextMenus,
           PermissionType.Tabs,
         ])
       ) {
@@ -162,10 +169,31 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
       }
     } else {
       await removeOptionalPermissions([
-        PermissionType.ContextMenu,
+        PermissionType.ContextMenus,
         PermissionType.Tabs,
       ]);
       setIsContextMenuEnabled(false);
+    }
+  };
+
+  const handleDecentralizedBrowsing = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.checked) {
+      if (
+        await requestOptionalPermissions([
+          PermissionType.DeclarativeNetRequest,
+          PermissionType.Tabs,
+        ])
+      ) {
+        setIsBrowsingEnabled(true);
+      }
+    } else {
+      await removeOptionalPermissions([
+        PermissionType.DeclarativeNetRequest,
+        PermissionType.Tabs,
+      ]);
+      setIsBrowsingEnabled(false);
     }
   };
 
@@ -269,6 +297,28 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                         }
                         checked={preferences?.MessagingEnabled}
                         onChange={handleMessaging}
+                      />
+                    }
+                  />
+                </WalletPreference>
+                <WalletPreference
+                  title={t("extension.decentralizedBrowsing")}
+                  description={t("extension.decentralizedBrowsingDescription")}
+                  statusElement={renderStatus(
+                    isBrowsingEnabled ? t("common.on") : t("common.off"),
+                  )}
+                >
+                  <FormControlLabel
+                    label={`${t("manage.enable")} ${t("extension.decentralizedBrowsing")}`}
+                    control={
+                      <Checkbox
+                        color={
+                          theme.palette.mode === "light"
+                            ? "primary"
+                            : "secondary"
+                        }
+                        checked={isBrowsingEnabled}
+                        onChange={handleDecentralizedBrowsing}
                       />
                     }
                   />

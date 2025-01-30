@@ -28,6 +28,22 @@ export const waitForSupportedDomains = async () => {
       await refreshRules();
     }
   });
+
+  // listen for required permission to become available
+  if (!chrome.declarativeNetRequest) {
+    Logger.log(
+      "Waiting for declarativeNetRequest permission to be available...",
+    );
+    chrome.permissions.onAdded.addListener(async p => {
+      if (
+        p?.permissions?.includes("declarativeNetRequest") ||
+        p?.permissions?.includes("declarativeNetRequestWithHostAccess")
+      ) {
+        Logger.log("Detected declarativeNetRequest permission!");
+        await waitForSupportedDomains();
+      }
+    });
+  }
 };
 
 const refreshRules = async () => {
@@ -39,7 +55,12 @@ const refreshRules = async () => {
 };
 
 const getRules = async () => {
-  return await chrome.declarativeNetRequest.getDynamicRules();
+  try {
+    return await chrome.declarativeNetRequest.getDynamicRules();
+  } catch (e) {
+    Logger.log("declarativeNetRequest permission not available");
+  }
+  return undefined;
 };
 
 const getDomainRule = (domain: string) => {
@@ -48,6 +69,9 @@ const getDomainRule = (domain: string) => {
 
 const deleteAllRules = async () => {
   const rules = await getRules();
+  if (!rules) {
+    return;
+  }
   const ruleIds = rules.map(rule => rule.id);
   if (ruleIds.length > 0) {
     await chrome.declarativeNetRequest.updateDynamicRules({
@@ -64,6 +88,9 @@ const updateDomainRules = async (domains: string[]): Promise<string[]> => {
   Logger.log("Checking HTTP rules...");
   const newDomains: string[] = [];
   const existingRules = await getRules();
+  if (!existingRules) {
+    return [];
+  }
   domains.map(d => {
     if (
       !existingRules.find(r => r.condition.regexFilter === getDomainRule(d))
