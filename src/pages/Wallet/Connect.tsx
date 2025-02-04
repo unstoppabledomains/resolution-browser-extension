@@ -1,4 +1,6 @@
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LockClockOutlinedIcon from "@mui/icons-material/LockClockOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import LoadingButton from "@mui/lab/LoadingButton";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -20,6 +22,7 @@ import web3 from "web3";
 
 import {
   CreateTransaction,
+  Modal,
   ReactSigner,
   SignForDappHeader,
   getBootstrapState,
@@ -29,8 +32,13 @@ import {
   useTranslationContext,
   useWeb3Context,
 } from "@unstoppabledomains/ui-components";
+import {getTransactionLockStatus} from "@unstoppabledomains/ui-components/actions/fireBlocksActions";
+import SetupTxLockModal from "@unstoppabledomains/ui-components/components/Wallet/SetupTxLockModal";
 import useFireblocksMessageSigner from "@unstoppabledomains/ui-components/hooks/useFireblocksMessageSigner";
-import type {BootstrapState} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
+import type {
+  BootstrapState,
+  TransactionLockStatusResponse,
+} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 import {signTransaction} from "@unstoppabledomains/ui-components/lib/wallet/solana/transaction";
 import {Alert, Button, Typography} from "@unstoppabledomains/ui-kit";
 
@@ -100,8 +108,17 @@ const Connect: React.FC = () => {
 
   // wallet state
   const [walletState] = useFireblocksState();
-  const {web3Deps, setWeb3Deps, showPinCta, setMessageToSign, setTxToSign} =
-    useWeb3Context();
+  const {
+    web3Deps,
+    setWeb3Deps,
+    showPinCta,
+    setMessageToSign,
+    setTxToSign,
+    txLockStatus,
+    setTxLockStatus,
+    accessToken,
+    setAccessToken,
+  } = useWeb3Context();
   const fireblocksMessageSigner = useFireblocksMessageSigner();
   const {preferences} = usePreferences();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -130,7 +147,7 @@ const Connect: React.FC = () => {
   // this method is used to cancel the listener so the handler doesn't fire.
   let removeBeforeUnloadListener: () => void;
 
-  useEffect(() => {
+  useAsyncEffect(async () => {
     // wait for required fields to be loaded
     if (
       !isMounted() ||
@@ -148,121 +165,121 @@ const Connect: React.FC = () => {
       return;
     }
 
-    const loadWallet = async () => {
-      try {
-        const signInState = getBootstrapState(walletState);
-        if (!signInState) {
-          // check fireblocks state in chrome storage, and wait for a value to
-          // be present if it is found to prevent unnecessary redirect.
-          if (await chromeStorageGet(StorageSyncKey.FireblocksState, "local")) {
-            return;
-          }
-
-          // redirect to wallet sign in page
-          navigate("/wallet");
+    try {
+      const signInState = getBootstrapState(walletState);
+      if (!signInState) {
+        // check fireblocks state in chrome storage, and wait for a value to
+        // be present if it is found to prevent unnecessary redirect.
+        if (await chromeStorageGet(StorageSyncKey.FireblocksState, "local")) {
           return;
         }
 
-        // build list of EVM addresses
-        const evmAddresses = [
-          ...new Set(
-            signInState.assets
-              ?.map(a => {
-                return {
-                  address: a.address,
-                  networkId: a.blockchainAsset.blockchain.networkId,
-                };
-              })
-              .filter(a => isEthAddress(a.address)),
-          ),
-        ];
-
-        // build list of Solana addresses
-        const solanaAddresses = [
-          ...new Set(
-            signInState.assets
-              ?.map(a => {
-                return {
-                  address: a.address,
-                  networkId: "solana",
-                };
-              })
-              .filter(a => {
-                try {
-                  return PublicKey.isOnCurve(a.address);
-                } catch (e) {
-                  return false;
-                }
-              }),
-          ),
-        ];
-
-        if (evmAddresses.length === 0 && solanaAddresses.length === 0) {
-          return;
-        }
-        setAccountAssets(signInState);
-        setAccountAddresses([...evmAddresses, ...solanaAddresses]);
-
-        // retrieve the source tab information if available, used to show the name
-        // and logo of the calling application
-        let connectionSource: chrome.tabs.Tab | undefined;
-        const queryStringArgs = queryString.parse(window.location.search);
-        if (queryStringArgs && Object.keys(queryStringArgs).length > 0) {
-          if (queryStringArgs.source) {
-            try {
-              connectionSource = JSON.parse(queryStringArgs.source as string);
-            } catch (e: any) {
-              Logger.error(
-                e,
-                "Popup",
-                "unable to retrieve connection source tab",
-              );
-            }
-          }
-        }
-
-        // determine app connection status
-        const connectedHostname = connectionSource?.url
-          ? new URL(connectionSource.url).hostname
-          : undefined;
-        setIsConnected(
-          connectedHostname !== undefined &&
-            Object.keys(connections).filter(
-              c => c.toLowerCase() === connectedHostname,
-            ).length > 0,
-        );
-
-        // set web3 dependencies for connected wallet to enable prompts to
-        // sign messages
-        const defaultAccount = evmAddresses[0];
-        const signer = new ReactSigner(defaultAccount.address, {
-          setMessage: setMessageToSign,
-          setTx: setTxToSign,
-        }) as unknown as Signer;
-        setWeb3Deps({
-          signer,
-          address: defaultAccount.address,
-          unstoppableWallet: {
-            addresses: evmAddresses.map(a => a.address),
-            promptForSignatures: true,
-            fullScreenModal: true,
-            connectedApp:
-              connectionSource?.favIconUrl && connectedHostname
-                ? {
-                    name: connectedHostname,
-                    hostUrl: connectedHostname,
-                    iconUrl: connectionSource.favIconUrl,
-                  }
-                : undefined,
-          },
-        });
-      } catch (e: any) {
-        Logger.error(e, "Popup", "error loading wallet in connect popup");
-      } finally {
-        setIsLoaded(true);
+        // redirect to wallet sign in page
+        navigate("/wallet");
+        return;
       }
-    };
-    void loadWallet();
+
+      // build list of EVM addresses
+      const evmAddresses = [
+        ...new Set(
+          signInState.assets
+            ?.map(a => {
+              return {
+                address: a.address,
+                networkId: a.blockchainAsset.blockchain.networkId,
+              };
+            })
+            .filter(a => isEthAddress(a.address)),
+        ),
+      ];
+
+      // build list of Solana addresses
+      const solanaAddresses = [
+        ...new Set(
+          signInState.assets
+            ?.map(a => {
+              return {
+                address: a.address,
+                networkId: "solana",
+              };
+            })
+            .filter(a => {
+              try {
+                return PublicKey.isOnCurve(a.address);
+              } catch (e) {
+                return false;
+              }
+            }),
+        ),
+      ];
+
+      if (evmAddresses.length === 0 && solanaAddresses.length === 0) {
+        return;
+      }
+      setAccountAssets(signInState);
+      setAccountAddresses([...evmAddresses, ...solanaAddresses]);
+
+      // retrieve an access token
+      setAccessToken(await getAccessToken());
+
+      // retrieve the source tab information if available, used to show the name
+      // and logo of the calling application
+      let connectionSource: chrome.tabs.Tab | undefined;
+      const queryStringArgs = queryString.parse(window.location.search);
+      if (queryStringArgs && Object.keys(queryStringArgs).length > 0) {
+        if (queryStringArgs.source) {
+          try {
+            connectionSource = JSON.parse(queryStringArgs.source as string);
+          } catch (e: any) {
+            Logger.error(
+              e,
+              "Popup",
+              "unable to retrieve connection source tab",
+            );
+          }
+        }
+      }
+
+      // determine app connection status
+      const connectedHostname = connectionSource?.url
+        ? new URL(connectionSource.url).hostname
+        : undefined;
+      setIsConnected(
+        connectedHostname !== undefined &&
+          Object.keys(connections).filter(
+            c => c.toLowerCase() === connectedHostname,
+          ).length > 0,
+      );
+
+      // set web3 dependencies for connected wallet to enable prompts to
+      // sign messages
+      const defaultAccount = evmAddresses[0];
+      const signer = new ReactSigner(defaultAccount.address, {
+        setMessage: setMessageToSign,
+        setTx: setTxToSign,
+      }) as unknown as Signer;
+      setWeb3Deps({
+        signer,
+        address: defaultAccount.address,
+        unstoppableWallet: {
+          addresses: evmAddresses.map(a => a.address),
+          promptForSignatures: true,
+          fullScreenModal: true,
+          connectedApp:
+            connectionSource?.favIconUrl && connectedHostname
+              ? {
+                  name: connectedHostname,
+                  hostUrl: connectedHostname,
+                  iconUrl: connectionSource.favIconUrl,
+                }
+              : undefined,
+        },
+      });
+    } catch (e: any) {
+      Logger.error(e, "Popup", "error loading wallet in connect popup");
+    } finally {
+      setIsLoaded(true);
+    }
   }, [isMounted, connections, preferences, walletState, isSessionUnlocked]);
 
   useEffect(() => {
@@ -421,6 +438,13 @@ const Connect: React.FC = () => {
       await handleSimulateSolanaTx();
     }
   }, [connectionStateMessage]);
+
+  useAsyncEffect(async () => {
+    if (!accessToken) {
+      return;
+    }
+    setTxLockStatus(await getTransactionLockStatus(accessToken));
+  }, [accessToken]);
 
   const getAccount = (chainId?: number | string) => {
     // if chainID is not specified, determine the default
@@ -650,11 +674,10 @@ const Connect: React.FC = () => {
     const broadcastTx = connectionStateMessage.params[1] as boolean;
 
     // validate account
-    if (!account) {
+    if (!account || !accessToken) {
       return;
     }
 
-    const accessToken = await getAccessToken();
     const signedTx = await signTransaction(
       tx,
       account.address,
@@ -680,11 +703,10 @@ const Connect: React.FC = () => {
       const tx = deserializeTxB58(connectionStateMessage.params[0]);
 
       // validate account
-      if (!account) {
+      if (!account || !accessToken) {
         return;
       }
 
-      const accessToken = await getAccessToken();
       setSimulationResult(
         await simulateTransaction(accessToken, account.address, tx),
       );
@@ -788,6 +810,13 @@ const Connect: React.FC = () => {
       );
     }
     return;
+  };
+
+  const handleUnlockComplete = (
+    mode: "MANUAL" | "TIME",
+    status: TransactionLockStatusResponse,
+  ) => {
+    setTxLockStatus(status);
   };
 
   const renderButton = () => {
@@ -976,6 +1005,43 @@ const Connect: React.FC = () => {
                 </Box>
               </Box>
             )}
+          {txLockStatus?.enabled && accessToken && (
+            <Modal open={true} onClose={() => {}} isConfirmation noModalHeader>
+              <Box className={classes.contentContainer}>
+                <Box mb={2}>
+                  {txLockStatus?.validUntil &&
+                  txLockStatus.validUntil > Date.now() ? (
+                    <LockClockOutlinedIcon className={classes.walletIcon} />
+                  ) : (
+                    <LockOutlinedIcon className={classes.walletIcon} />
+                  )}
+                </Box>
+                <Typography variant="h6" mb={3}>
+                  {t("wallet.txLockManualStatus")}
+                </Typography>
+                {txLockStatus?.validUntil &&
+                txLockStatus.validUntil > Date.now() ? (
+                  <Box display="flex" textAlign="left" alignItems="start">
+                    <Alert severity="warning">
+                      <Markdown>
+                        {t("wallet.txLockTimeStatus", {
+                          date: new Date(
+                            txLockStatus.validUntil,
+                          ).toLocaleString(),
+                        })}
+                      </Markdown>
+                    </Alert>
+                  </Box>
+                ) : (
+                  <SetupTxLockModal
+                    accessToken={accessToken}
+                    onClose={() => {}}
+                    onComplete={handleUnlockComplete}
+                  />
+                )}
+              </Box>
+            </Modal>
+          )}
         </Box>
       )}
     </Paper>
