@@ -2,7 +2,6 @@ import Bluebird from "bluebird";
 import rgbHex from "rgb-hex";
 
 import config from "../config";
-import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
 import {
   StorageSyncKey,
   chromeStorageClear,
@@ -241,13 +240,13 @@ export const openSidePanel = async (opts?: {
       }
 
       // build the URL used to open the side panel
-      const sidePanelUrl = `${chrome.runtime.getURL(`index.html${opts?.address ? `?${XMTP_CONVERSATION_FLAG}=${opts.address}` : ""}`)}#messages`;
+      const sidePanelUrl = `${chrome.runtime.getURL(`index.html`)}#wallet`;
 
       // open the side panel and set the URL concurrently, to avoid a timing
       // bug in the chrome user gesture flag handling
       await Promise.all([
         chrome.sidePanel.open({windowId}),
-        chrome.sidePanel.setOptions({enabled: true, path: sidePanelUrl}),
+        chrome.sidePanel.setOptions({path: sidePanelUrl}),
       ]);
       return true;
     } catch (e: any) {

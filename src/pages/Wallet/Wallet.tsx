@@ -4,7 +4,6 @@ import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import {useSnackbar} from "notistack";
-import queryString from "query-string";
 import React, {useEffect, useState} from "react";
 import useIsMounted from "react-is-mounted-hook";
 import {useNavigate} from "react-router-dom";
@@ -81,7 +80,7 @@ const WalletComp: React.FC = () => {
   const {classes} = useExtensionStyles();
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
-  const {preferences, setPreferences, refreshPreferences} = usePreferences();
+  const {preferences, refreshPreferences} = usePreferences();
   const {isChatReady, setIsChatReady, setOpenChat, setIsChatOpen} =
     useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
@@ -563,30 +562,17 @@ const WalletComp: React.FC = () => {
   };
 
   const handleMessagePopoutClick = async (address?: string) => {
-    await openSidePanel({address});
-  };
-
-  const handleMessagesClicked = async () => {
-    // determine if a window ID was provided in the query string args
-    const queryStringArgs = queryString.parse(window.location.search);
-    const windowId = queryStringArgs?.parentWindowId
-      ? parseInt(queryStringArgs.parentWindowId as string, 10)
-      : undefined;
-
-    // attempt to open a side panel and close the current popup
-    if (await openSidePanel({windowId})) {
-      handleClose();
-      return;
-    }
-
-    // simply show the chat in current window if opening the side
-    // panel didn't work for some reason
+    setOpenChat(address);
     setIsChatOpen(true);
   };
 
-  const handleRefreshParent = async () => {
-    closeSnackbar(SnackbarKey.Success);
-    await sendMessageToClient("refreshRequest");
+  const handleMessagesClicked = async () => {
+    setIsChatOpen(true);
+  };
+
+  const handleSidePanelClicked = async () => {
+    await openSidePanel();
+    handleClose();
   };
 
   const handleDisconnect = async () => {
@@ -607,6 +593,10 @@ const WalletComp: React.FC = () => {
   const handleClosePreferences = async () => {
     await refreshPreferences();
     setShowSettings(false);
+  };
+
+  const isInSidePanel = () => {
+    return window.innerHeight > 600;
   };
 
   return showSignInCta ? (
@@ -661,6 +651,9 @@ const WalletComp: React.FC = () => {
           onError={() => handleLogout(false, false)}
           onDisconnect={isConnected ? handleDisconnect : undefined}
           onSettingsClick={handleShowPreferences}
+          onSidePanelClick={
+            !isInSidePanel() ? handleSidePanelClicked : undefined
+          }
           onMessagesClick={handleMessagesClicked}
           onMessagePopoutClick={handleMessagePopoutClick}
           onUpdate={async (_t: DomainProfileTabType) => {

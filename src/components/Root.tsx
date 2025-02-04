@@ -29,7 +29,6 @@ import Extension from "../pages/Legacy/Extension";
 import Loading from "../pages/Loading/Loading";
 import OnUpdated from "../pages/OnUpdated";
 import Connect from "../pages/Wallet/Connect";
-import {MessageSidePanel} from "../pages/Wallet/MessageSidePanel";
 import Wallet from "../pages/Wallet/Wallet";
 import ConnectionProvider from "../providers/ConnectionProvider";
 
@@ -71,9 +70,6 @@ const EntryPoint: React.FC = () => {
         return;
       case "#connect":
         navigate("/connect");
-        return;
-      case "#messages":
-        navigate("/messages");
         return;
       case "#wallet":
         navigate("/wallet");
@@ -132,11 +128,6 @@ const router = createMemoryRouter([
     // Application connect request popup
     path: "/connect",
     Component: Connect,
-  },
-  {
-    // Messaging side panel
-    path: "/messages",
-    Component: MessageSidePanel,
   },
 ]);
 
