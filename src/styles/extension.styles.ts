@@ -33,7 +33,8 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     marginBottom: theme.spacing(-2),
   },
   messageContainer: {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.getContrastText(theme.palette.background.default),
     border: `1px solid ${theme.palette.neutralShades[theme.palette.mode === "light" ? 400 : 800]}`,
     borderRadius: theme.shape.borderRadius,
     paddingLeft: theme.spacing(1),
