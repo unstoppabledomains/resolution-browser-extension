@@ -5,8 +5,10 @@ import {makeStyles} from "@unstoppabledomains/ui-kit/styles";
 
 export const useExtensionStyles = makeStyles()((theme: Theme) => ({
   container: {
-    width: "400px",
-    height: "600px",
+    minWidth: "400px",
+    minHeight: "600px",
+    width: "calc(100vw)",
+    height: "calc(100vh)",
     padding: theme.spacing(2),
     display: "flex",
     flexDirection: "column",
@@ -17,7 +19,7 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     overflow: "hidden",
   },
   preferenceContainer: {
-    height: "500px",
+    height: "calc(100vh - 100px)",
     overflow: "auto",
   },
   contentContainer: {
@@ -31,7 +33,8 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     marginBottom: theme.spacing(-2),
   },
   messageContainer: {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.getContrastText(theme.palette.background.default),
     border: `1px solid ${theme.palette.neutralShades[theme.palette.mode === "light" ? 400 : 800]}`,
     borderRadius: theme.shape.borderRadius,
     paddingLeft: theme.spacing(1),

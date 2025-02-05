@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import Markdown from "markdown-to-jsx";
 import React, {useEffect, useState} from "react";
 import {titleCase} from "title-case";
+import useAsyncEffect from "use-async-effect";
 
 import {
   DomainProfileKeys,
@@ -26,7 +27,14 @@ import config from "../../config";
 import useConnections from "../../hooks/useConnections";
 import usePreferences from "../../hooks/usePreferences";
 import {StorageSyncKey, chromeStorageGet} from "../../lib/chromeStorage";
-import {getManifestVersion, setIcon} from "../../lib/runtime";
+import {
+  PermissionType,
+  getManifestVersion,
+  hasOptionalPermissions,
+  removeOptionalPermissions,
+  requestOptionalPermissions,
+  setIcon,
+} from "../../lib/runtime";
 import {clearAllConnectedSites} from "../../lib/wallet/evm/connection";
 import {sendMessageToClient} from "../../lib/wallet/message";
 import {
@@ -48,13 +56,28 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
   const [account, setAccount] = useState<string>();
+  const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
+  const [isContextMenuEnabled, setIsContextMenuEnabled] = useState(false);
+  const [isBrowsingEnabled, setIsBrowsingEnabled] = useState(false);
   const theme = useCustomTheme();
 
-  useEffect(() => {
-    const loadAccount = async () => {
-      setAccount(await chromeStorageGet(StorageSyncKey.Account));
-    };
-    void loadAccount();
+  useAsyncEffect(async () => {
+    setAccount(await chromeStorageGet(StorageSyncKey.Account));
+    setIsNotificationEnabled(
+      await hasOptionalPermissions([PermissionType.Notifications]),
+    );
+    setIsContextMenuEnabled(
+      await hasOptionalPermissions([
+        PermissionType.ContextMenus,
+        PermissionType.Tabs,
+      ]),
+    );
+    setIsBrowsingEnabled(
+      await hasOptionalPermissions([
+        PermissionType.DeclarativeNetRequest,
+        PermissionType.Tabs,
+      ]),
+    );
   }, []);
 
   const handleCompatibilityMode = async (
@@ -116,6 +139,61 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
         const accessToken = await getAccessToken();
         await prepareXmtpInBackground(accessToken, address);
       }
+    }
+  };
+
+  const handleNotifications = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.checked) {
+      if (await requestOptionalPermissions([PermissionType.Notifications])) {
+        setIsNotificationEnabled(true);
+      }
+    } else {
+      await removeOptionalPermissions([PermissionType.Notifications]);
+      setIsNotificationEnabled(false);
+    }
+  };
+
+  const handleContextMenu = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.checked) {
+      if (
+        await requestOptionalPermissions([
+          PermissionType.ContextMenus,
+          PermissionType.Tabs,
+        ])
+      ) {
+        setIsContextMenuEnabled(true);
+      }
+    } else {
+      await removeOptionalPermissions([
+        PermissionType.ContextMenus,
+        PermissionType.Tabs,
+      ]);
+      setIsContextMenuEnabled(false);
+    }
+  };
+
+  const handleDecentralizedBrowsing = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.checked) {
+      if (
+        await requestOptionalPermissions([
+          PermissionType.DeclarativeNetRequest,
+          PermissionType.Tabs,
+        ])
+      ) {
+        setIsBrowsingEnabled(true);
+      }
+    } else {
+      await removeOptionalPermissions([
+        PermissionType.DeclarativeNetRequest,
+        PermissionType.Tabs,
+      ]);
+      setIsBrowsingEnabled(false);
     }
   };
 
@@ -200,6 +278,108 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   />
                 </WalletPreference>
                 <WalletPreference
+                  title={t("push.messages")}
+                  description={t("push.description")}
+                  statusElement={renderStatus(
+                    preferences?.MessagingEnabled
+                      ? t("common.on")
+                      : t("common.off"),
+                  )}
+                >
+                  <FormControlLabel
+                    label={`${t("manage.enable")} ${t("push.messages")}`}
+                    control={
+                      <Checkbox
+                        color={
+                          theme.palette.mode === "light"
+                            ? "primary"
+                            : "secondary"
+                        }
+                        checked={preferences?.MessagingEnabled}
+                        onChange={handleMessaging}
+                      />
+                    }
+                  />
+                </WalletPreference>
+                <WalletPreference
+                  title={t("extension.decentralizedBrowsing")}
+                  description={t("extension.decentralizedBrowsingDescription")}
+                  statusElement={renderStatus(
+                    isBrowsingEnabled ? t("common.on") : t("common.off"),
+                  )}
+                >
+                  <FormControlLabel
+                    label={`${t("manage.enable")} ${t("extension.decentralizedBrowsing")}`}
+                    control={
+                      <Checkbox
+                        color={
+                          theme.palette.mode === "light"
+                            ? "primary"
+                            : "secondary"
+                        }
+                        checked={isBrowsingEnabled}
+                        onChange={handleDecentralizedBrowsing}
+                      />
+                    }
+                  />
+                </WalletPreference>
+                <WalletPreference
+                  title={t("extension.displayMode")}
+                  description={t("extension.displayModeDescription")}
+                  statusElement={renderStatus(titleCase(theme.palette.mode))}
+                >
+                  <LightDarkToggle />
+                </WalletPreference>
+                <WalletPreference
+                  title={t("common.notifications")}
+                  description={t("extension.notificationsDescription")}
+                  statusElement={renderStatus(
+                    isNotificationEnabled ? t("common.on") : t("common.off"),
+                  )}
+                >
+                  <FormControlLabel
+                    label={`${t("manage.enable")} ${t("common.notifications")}`}
+                    control={
+                      <Checkbox
+                        color={
+                          theme.palette.mode === "light"
+                            ? "primary"
+                            : "secondary"
+                        }
+                        checked={isNotificationEnabled}
+                        onChange={handleNotifications}
+                      />
+                    }
+                  />
+                </WalletPreference>
+                <WalletPreference
+                  title={t("extension.rightClickMenu")}
+                  description={t("extension.rightClickMenuDescription")}
+                  statusElement={renderStatus(
+                    isContextMenuEnabled ? t("common.on") : t("common.off"),
+                  )}
+                >
+                  <FormControlLabel
+                    label={`${t("manage.enable")} ${t("extension.rightClickMenu")}`}
+                    control={
+                      <Checkbox
+                        color={
+                          theme.palette.mode === "light"
+                            ? "primary"
+                            : "secondary"
+                        }
+                        checked={isContextMenuEnabled}
+                        onChange={handleContextMenu}
+                      />
+                    }
+                  />
+                </WalletPreference>
+              </Box>
+              <Box mt={4}>
+                <Typography variant="h6" mb={1}>
+                  {t("common.advanced")}
+                </Typography>
+                <WalletPreference
                   title={t("extension.compatibilityMode")}
                   description={t("extension.compatibilityModeDescription")}
                   statusElement={renderStatus(
@@ -247,37 +427,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                       </Alert>
                     </Box>
                   )}
-                </WalletPreference>
-                <WalletPreference
-                  title={t("extension.displayMode")}
-                  description={t("extension.displayModeDescription")}
-                  statusElement={renderStatus(titleCase(theme.palette.mode))}
-                >
-                  <LightDarkToggle />
-                </WalletPreference>
-                <WalletPreference
-                  title={t("push.messages")}
-                  description={t("push.description")}
-                  statusElement={renderStatus(
-                    preferences?.MessagingEnabled
-                      ? t("common.on")
-                      : t("common.off"),
-                  )}
-                >
-                  <FormControlLabel
-                    label={`${t("manage.enable")} ${t("push.messages")}`}
-                    control={
-                      <Checkbox
-                        color={
-                          theme.palette.mode === "light"
-                            ? "primary"
-                            : "secondary"
-                        }
-                        checked={preferences?.MessagingEnabled}
-                        onChange={handleMessaging}
-                      />
-                    }
-                  />
                 </WalletPreference>
                 <WalletPreference
                   title={t("extension.walletConnections")}

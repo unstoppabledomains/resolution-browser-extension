@@ -25,7 +25,7 @@
     }
   },
   "side_panel": {
-    "default_path": "index.html#messages"
+    "default_path": "index.html#wallet"
   },
   "background": {
     "service_worker": "./scripts/background.ts",
@@ -60,15 +60,14 @@
       "resources": ["./scripts/contentIsolated.ts", "index.html", "icon/*", "icon/udme/*", "icon/upio/*"]
     }
   ],
-  "host_permissions": ["<all_urls>"],
   "permissions": [
     "alarms",
-    "declarativeNetRequest",
     "sidePanel",
     "storage"
   ],
   "optional_permissions": [
     "contextMenus",
+    "declarativeNetRequestWithHostAccess",
     "notifications",
     "tabs"
   ]

@@ -2,7 +2,6 @@ import Bluebird from "bluebird";
 import rgbHex from "rgb-hex";
 
 import config from "../config";
-import {XMTP_CONVERSATION_FLAG} from "../types/wallet/messages";
 import {
   StorageSyncKey,
   chromeStorageClear,
@@ -16,35 +15,43 @@ export enum BadgeColor {
   Green = "#4caf50",
 }
 
-const permissions = ["contextMenus", "notifications", "tabs"];
+export enum PermissionType {
+  Notifications = "notifications",
+  ContextMenus = "contextMenus",
+  DeclarativeNetRequest = "declarativeNetRequestWithHostAccess",
+  Tabs = "tabs",
+}
 
-export const hasOptionalPermissions = async (): Promise<boolean> => {
+export const hasOptionalPermissions = async (
+  permissions: PermissionType[],
+): Promise<boolean> => {
   return await chrome.permissions.contains({permissions});
 };
 
-export const requestOptionalPermissions = async (): Promise<boolean> => {
+export const removeOptionalPermissions = async (
+  permissions: PermissionType[],
+): Promise<void> => {
   // determine if permissions are already granted
-  if (await hasOptionalPermissions()) {
+  const hasPermission = await hasOptionalPermissions(permissions);
+  if (!hasPermission) {
+    return;
+  }
+  await chrome.permissions.remove({permissions});
+};
+
+export const requestOptionalPermissions = async (
+  permissions: PermissionType[],
+): Promise<boolean> => {
+  // determine if permissions are already granted
+  if (await hasOptionalPermissions(permissions)) {
     return true;
   }
 
   // request permissions if not already granted
-  const isGranted = await chrome.permissions.request({
+  return await chrome.permissions.request({
     permissions,
+    origins: ["<all_urls>"],
   });
-
-  // show a notification when permissions granted
-  if (isGranted) {
-    // create a notification to indicate sign in was successful
-    await createNotification(
-      `permissions${Date.now()}`,
-      "Unstoppable Domains",
-      "Your wallet is ready to use! Click to open.",
-      undefined,
-      2,
-    );
-  }
-  return isGranted;
 };
 
 export const getManifestVersion = () => {
@@ -233,13 +240,13 @@ export const openSidePanel = async (opts?: {
       }
 
       // build the URL used to open the side panel
-      const sidePanelUrl = `${chrome.runtime.getURL(`index.html${opts?.address ? `?${XMTP_CONVERSATION_FLAG}=${opts.address}` : ""}`)}#messages`;
+      const sidePanelUrl = `${chrome.runtime.getURL(`index.html`)}#wallet`;
 
       // open the side panel and set the URL concurrently, to avoid a timing
       // bug in the chrome user gesture flag handling
       await Promise.all([
         chrome.sidePanel.open({windowId}),
-        chrome.sidePanel.setOptions({enabled: true, path: sidePanelUrl}),
+        chrome.sidePanel.setOptions({path: sidePanelUrl}),
       ]);
       return true;
     } catch (e: any) {

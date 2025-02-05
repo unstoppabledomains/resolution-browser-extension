@@ -19,7 +19,7 @@ enum MenuType {
   Sherlock = "sherlock",
   Connection = "connection",
   SelectedText = "selectedText",
-  Messages = "messages",
+  SidePanel = "sidePanel",
 }
 
 // messageListener wraps a context menu instance and handles message events
@@ -66,8 +66,8 @@ export class ContextMenu {
 
     // add message menu item
     chrome.contextMenus.create({
-      id: `${MenuType.Messages}-${origin}`,
-      title: "Open messages",
+      id: `${MenuType.SidePanel}-${origin}`,
+      title: "Open side panel",
       documentUrlPatterns: [`${origin}/*`],
     });
 
@@ -114,7 +114,7 @@ export class ContextMenu {
         this.remove(origin, MenuType.Connection);
         this.remove(origin, MenuType.Sherlock);
         this.remove(origin, MenuType.SelectedText);
-        this.remove(origin, MenuType.Messages);
+        this.remove(origin, MenuType.SidePanel);
       }
 
       // create new context menu item
@@ -161,8 +161,8 @@ export class ContextMenu {
       case MenuType.Connection:
         await this.handleDisconnectMenu(menuOptions[1]);
         break;
-      case MenuType.Messages:
-        await this.handleMessageMenu();
+      case MenuType.SidePanel:
+        await this.handleSidePanelMenu();
         break;
       case MenuType.SelectedText:
         await this.handleFindDomainMenu(info);
@@ -171,10 +171,10 @@ export class ContextMenu {
   }
 
   /* **********************
-   * Messages menu handling
+   * Side panel menu handling
    * ********************* */
 
-  async handleMessageMenu() {
+  async handleSidePanelMenu() {
     await openSidePanel({windowId: currentFocussedWindowId});
   }
 

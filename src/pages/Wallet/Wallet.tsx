@@ -4,7 +4,6 @@ import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import {useSnackbar} from "notistack";
-import queryString from "query-string";
 import React, {useEffect, useState} from "react";
 import useIsMounted from "react-is-mounted-hook";
 import {useNavigate} from "react-router-dom";
@@ -43,10 +42,8 @@ import {Logger} from "../../lib/logger";
 import {initializeBrowserSettings} from "../../lib/resolver/settings";
 import {
   BadgeColor,
-  createNotification,
   focusExtensionWindows,
   getBadgeCount,
-  hasOptionalPermissions,
   openSidePanel,
   setBadgeCount,
   setIcon,
@@ -65,7 +62,6 @@ import {
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {AuthState, FIVE_MINUTES} from "../../types/wallet/auth";
 import {ResponseType, getResponseType} from "../../types/wallet/provider";
-import {PermissionCta} from "./PermissionCta";
 import {Preferences} from "./Preferences";
 import {SignInCta} from "./SignInCta";
 
@@ -84,7 +80,7 @@ const WalletComp: React.FC = () => {
   const {classes} = useExtensionStyles();
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
-  const {preferences, setPreferences, refreshPreferences} = usePreferences();
+  const {preferences, refreshPreferences} = usePreferences();
   const {isChatReady, setIsChatReady, setOpenChat, setIsChatOpen} =
     useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
@@ -97,9 +93,7 @@ const WalletComp: React.FC = () => {
   const [authState, setAuthState] = useState<AuthState>();
   const [authButton, setAuthButton] = useState<React.ReactNode>();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isPermissionGranted, setIsPermissionGranted] = useState(false);
   const [isBasicDisabled, setIsBasicDisabled] = useState(false);
-  const [showPermissionCta, setShowPermissionCta] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSignInCta, setShowSignInCta] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
@@ -132,10 +126,6 @@ const WalletComp: React.FC = () => {
 
     const loadWallet = async () => {
       try {
-        // check required permissions for wallet features
-        const isGranted = await hasOptionalPermissions();
-        setIsPermissionGranted(isGranted);
-
         // retrieve state of logged in wallet (if any)
         const signInState = getBootstrapState(walletState);
         if (!signInState) {
@@ -267,20 +257,6 @@ const WalletComp: React.FC = () => {
     void loadWallet();
   }, [isMounted, authComplete, walletState]);
 
-  // prompt for permissions once the user has take custody of the wallet. When
-  // in custody mode we do not need additional permission.
-  useEffect(() => {
-    // skip if the CTA is already shown
-    if (showPermissionCta) {
-      return;
-    }
-    // skip if XMTP not yet setup
-    if (!isChatReady) {
-      return;
-    }
-    setShowPermissionCta(authAddress !== "" && !isPermissionGranted);
-  }, [authAddress, isPermissionGranted, showPermissionCta, isChatReady]);
-
   // resolve the domain for wallet address
   useEffect(() => {
     if (!authAddress) {
@@ -316,9 +292,6 @@ const WalletComp: React.FC = () => {
     // update messaging status
     setMessagingEnabled(preferences.MessagingEnabled);
     setIsNewUser(!preferences.HasExistingWallet);
-
-    // take appropriate action on compatibility mode settings
-    void handleCompatibilitySettings();
   }, [preferences, authComplete]);
 
   // determine whether to show the sign in cta
@@ -379,13 +352,6 @@ const WalletComp: React.FC = () => {
       if (providerRequest.type === "signInRequest") {
         // clear badge count
         await setBadgeCount(0);
-
-        // show the permission CTA and leave the window open if optional
-        // permissions are not yet granted
-        if (!isPermissionGranted) {
-          setShowPermissionCta(true);
-          return;
-        }
         return;
       }
       navigate("/connect");
@@ -441,22 +407,6 @@ const WalletComp: React.FC = () => {
 
     // sign into the XMTP account
     await prepareXmtpInBackground(accessToken, authAddress);
-  };
-
-  const handlePermissionGranted = async () => {
-    // complete the sign wallet sign in state
-    setIsPermissionGranted(true);
-    setShowPermissionCta(false);
-    setAuthComplete(true);
-
-    // create a notification to indicate sign in was successful
-    await createNotification(
-      `signIn${Date.now()}`,
-      theme.wallet.title,
-      t("wallet.readyToUse"),
-      undefined,
-      2,
-    );
   };
 
   const handleCreateWallet = async () => {
@@ -612,151 +562,17 @@ const WalletComp: React.FC = () => {
   };
 
   const handleMessagePopoutClick = async (address?: string) => {
-    await openSidePanel({address});
-  };
-
-  const handleMessagesClicked = async () => {
-    // determine if a window ID was provided in the query string args
-    const queryStringArgs = queryString.parse(window.location.search);
-    const windowId = queryStringArgs?.parentWindowId
-      ? parseInt(queryStringArgs.parentWindowId as string, 10)
-      : undefined;
-
-    // attempt to open a side panel and close the current popup
-    if (await openSidePanel({windowId})) {
-      handleClose();
-      return;
-    }
-
-    // simply show the chat in current window if opening the side
-    // panel didn't work for some reason (e.g. permissions)
+    setOpenChat(address);
     setIsChatOpen(true);
   };
 
-  // handleCompatibilitySettings determines whether to automatically apply the
-  // compatibility mode, or ask the user in a CTA
-  const handleCompatibilitySettings = async () => {
-    // check whether setting is already applied
-    if (preferences?.OverrideMetamask) {
-      return;
-    }
-
-    // check whether this is a wallet connect request, as the snackbar notification
-    // is very distracting to an operation
-    if (getProviderRequest()) {
-      return;
-    }
-
-    // do not prompt for this mode until XMTP has been setup
-    if (!isChatReady) {
-      return;
-    }
-
-    // ask the user about compatibility mode if there is already another
-    // wallet extension installed on this browser
-    if (window.ethereum || config.ALWAYS_PROMPT_COMPATIBILITY_MODE === "true") {
-      // check whether CTA has already been shown
-      const hasAlreadyShownCta = await chromeStorageGet(
-        StorageSyncKey.CompatibilityModeCta,
-        "local",
-      );
-      if (hasAlreadyShownCta) {
-        return;
-      }
-
-      // wait a few moments before showing the CTA so the has a chance to show base
-      // wallet elements and not overwhelm the user
-      await sleep(12000);
-
-      // show the CTA
-      enqueueSnackbar(
-        <Typography variant="body2">
-          {t("extension.compatibilityModeCta")}
-        </Typography>,
-        {
-          variant: "info",
-          key: SnackbarKey.CTA,
-          persist: true,
-          action: (
-            <Box display="flex" width="100%">
-              <Button
-                variant="text"
-                size="small"
-                color="primary"
-                className={classes.actionButton}
-                onClick={() => closeSnackbar(SnackbarKey.CTA)}
-              >
-                Not now
-              </Button>
-              <Button
-                variant="text"
-                size="small"
-                color="primary"
-                className={classes.actionButton}
-                onClick={handleEnableCompatibilityMode}
-              >
-                {t("manage.enable")}
-              </Button>
-            </Box>
-          ),
-        },
-      );
-
-      // remember that the CTA has been shown
-      await chromeStorageSet(
-        StorageSyncKey.CompatibilityModeCta,
-        "true",
-        "local",
-      );
-    } else {
-      // automatically enable if there are no other wallet extension
-      // installed on this browser
-      await handleEnableCompatibilityMode();
-    }
+  const handleMessagesClicked = async () => {
+    setIsChatOpen(true);
   };
 
-  const handleEnableCompatibilityMode = async () => {
-    if (!preferences) {
-      return;
-    }
-
-    // set the compatibility mode preference
-    preferences.OverrideMetamask = true;
-    setPreferences({...preferences});
-    await setWalletPreferences(preferences);
-
-    // close existing snackbar and wait a moment
-    closeSnackbar(SnackbarKey.CTA);
-    await sleep(500);
-
-    // notify user of successful enablement
-    enqueueSnackbar(
-      <Typography variant="body2">
-        {t("extension.compatibilityModeEnabled")}
-      </Typography>,
-      {
-        key: SnackbarKey.Success,
-        variant: "warning",
-        action: (
-          <Box display="flex" width="100%">
-            <Button
-              variant="text"
-              size="small"
-              color="primary"
-              className={classes.actionButton}
-              onClick={handleRefreshParent}
-            >
-              {t("extension.refreshNow")}
-            </Button>
-          </Box>
-        ),
-      },
-    );
-  };
-
-  const handleRefreshParent = async () => {
-    closeSnackbar(SnackbarKey.Success);
-    await sendMessageToClient("refreshRequest");
+  const handleSidePanelClicked = async () => {
+    await openSidePanel();
+    handleClose();
   };
 
   const handleDisconnect = async () => {
@@ -779,6 +595,10 @@ const WalletComp: React.FC = () => {
     setShowSettings(false);
   };
 
+  const isInSidePanel = () => {
+    return window.innerHeight > 600;
+  };
+
   return showSignInCta ? (
     preferences?.HasExistingWallet ? (
       <Paper className={classes.container} />
@@ -788,8 +608,6 @@ const WalletComp: React.FC = () => {
         onSignInClicked={handleSignIn}
       />
     )
-  ) : showPermissionCta ? (
-    <PermissionCta onPermissionGranted={handlePermissionGranted} />
   ) : showSettings ? (
     <Preferences onClose={handleClosePreferences} />
   ) : isLoaded ? (
@@ -833,6 +651,9 @@ const WalletComp: React.FC = () => {
           onError={() => handleLogout(false, false)}
           onDisconnect={isConnected ? handleDisconnect : undefined}
           onSettingsClick={handleShowPreferences}
+          onSidePanelClick={
+            !isInSidePanel() ? handleSidePanelClicked : undefined
+          }
           onMessagesClick={handleMessagesClicked}
           onMessagePopoutClick={handleMessagePopoutClick}
           onUpdate={async (_t: DomainProfileTabType) => {
