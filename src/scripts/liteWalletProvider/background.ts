@@ -9,7 +9,7 @@ import config from "../../config";
 import {StorageSyncKey, chromeStorageSet} from "../../lib/chromeStorage";
 import {Logger} from "../../lib/logger";
 import {getDomainProfile, getResolution} from "../../lib/resolver/resolver";
-import {setBadgeCount, setIcon} from "../../lib/runtime";
+import {getWindow, setBadgeCount, setIcon} from "../../lib/runtime";
 import {
   getConnectedSite,
   getConnectedSites,
@@ -249,7 +249,7 @@ export const openPopupWindow = async (
   host?: string,
   popupResponseHandler?: (response: ProviderEventResponse) => void,
 ) => {
-  const parentWindow = await chrome.windows.get(windowId);
+  const parentWindow = await getWindow(windowId);
 
   // lookup the parent window
   // popup window dimensions

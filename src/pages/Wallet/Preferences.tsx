@@ -168,10 +168,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
         setIsContextMenuEnabled(true);
       }
     } else {
-      await removeOptionalPermissions([
-        PermissionType.ContextMenus,
-        PermissionType.Tabs,
-      ]);
+      await removeOptionalPermissions([PermissionType.ContextMenus]);
       setIsContextMenuEnabled(false);
     }
   };
@@ -189,10 +186,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
         setIsBrowsingEnabled(true);
       }
     } else {
-      await removeOptionalPermissions([
-        PermissionType.DeclarativeNetRequest,
-        PermissionType.Tabs,
-      ]);
+      await removeOptionalPermissions([PermissionType.DeclarativeNetRequest]);
       setIsBrowsingEnabled(false);
     }
   };
