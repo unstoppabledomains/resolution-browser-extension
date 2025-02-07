@@ -60,6 +60,7 @@
       "resources": ["./scripts/contentIsolated.ts", "index.html", "icon/*", "icon/udme/*", "icon/upio/*"]
     }
   ],
+  "host_permissions": ["<all_urls>"],
   "permissions": [
     "alarms",
     "sidePanel",

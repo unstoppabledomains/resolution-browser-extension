@@ -64,6 +64,15 @@ export const getManifestVersion = () => {
   return undefined;
 };
 
+export const getWindow = async (windowId: number) => {
+  try {
+    return await chrome.windows.get(windowId);
+  } catch (e) {
+    // ignore error
+  }
+  return undefined;
+};
+
 export const setIcon = async (
   variant: "default" | "connected",
   tabId?: number,
