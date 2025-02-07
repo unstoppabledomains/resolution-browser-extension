@@ -1,3 +1,6 @@
+## 3.1.51
+* Improved onboarding UX
+
 ## 3.1.50
 * Automatically update balance changes
 * Add share wallet button
