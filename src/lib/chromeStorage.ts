@@ -13,6 +13,9 @@ export enum StorageSyncKey {
   XmtpKey = "XmtpKey",
   XmtpNotifications = "XmtpNotifications",
   FireblocksState = "fireblocks-state",
+  BannerAppPermissions = "banner-app-permissions",
+  BannerDecentralizedBrowsing = "banner-decentralized-browsing",
+  BannerNotifications = "banner-notifications",
 }
 
 type StorageType = "local" | "session" | "sync";

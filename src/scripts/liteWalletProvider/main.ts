@@ -1137,54 +1137,62 @@ const solanaWalletProvider = new SolanaWalletProvider(
   },
 );
 
-// register the Solana provider using the Wallet Standard (https://github.com/wallet-standard/wallet-standard)
-initialize(solanaWalletProvider);
-Logger.log("Registered Solana provider");
+const registerProviders = (walletPreferences: WalletPreferences) => {
+  // register the Solana provider using the Wallet Standard (https://github.com/wallet-standard/wallet-standard)
+  initialize(solanaWalletProvider);
+  Logger.log("Registered Solana provider");
 
-// EIP-6963: announce the EVM provider
-announceProvider({
-  info: {
-    icon: `data:image/png;base64,${LOGO_BASE_64}`,
-    ...config.extension,
-  },
-  provider: proxyProvider as ExternalProvider,
-});
-Logger.log("Announced Ethereum provider");
+  // EIP-6963: announce the EVM provider
+  announceProvider({
+    info: {
+      icon: `data:image/png;base64,${LOGO_BASE_64}`,
+      ...config.extension,
+    },
+    provider: proxyProvider as ExternalProvider,
+  });
+  Logger.log("Announced Ethereum provider");
 
-// EIP-1193: attach the EVM provider to global window object
-// as window.unstoppable by default
-window[WINDOW_PROPERTY_NAME] = proxyProvider;
-Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
+  // EIP-1193: attach the EVM provider to global window object
+  // as window.unstoppable by default
+  window[WINDOW_PROPERTY_NAME] = proxyProvider;
+  Logger.log("Injected Ethereum provider", `window.${WINDOW_PROPERTY_NAME}`);
 
-// Optionally override the window.ethereum global property if the
-// provider is created with the metamask flag. Initializing the
-// extension in this way can interfere with other extensions and
-// make the inaccessible to the user.
-void evmWalletProvider.getPreferences().then(walletPreferences => {
+  // Optionally override the window.ethereum global property if the
+  // provider is created with the metamask flag. Initializing the
+  // extension in this way can interfere with other extensions and
+  // make the inaccessible to the user.
   if (walletPreferences.OverrideMetamask) {
     window.ethereum = proxyProvider as ExternalProvider;
     Logger.log("Injected Ethereum provider", "window.ethereum");
   }
   window.dispatchEvent(new Event("ethereum#initialized"));
-});
 
-// Backwards compatibility for legacy connections
-shimWeb3(proxyProvider as unknown as MetaMaskInpageProvider);
+  // Backwards compatibility for legacy connections
+  shimWeb3(proxyProvider as unknown as MetaMaskInpageProvider);
 
-// listen for events that should be handled by the provider
-ClientSideMessageTypes.map(messageType => {
-  document.addEventListener(messageType, () => {
-    if (isClientSideRequestType(messageType)) {
-      switch (messageType) {
-        case "refreshRequest":
-          window.location.reload();
-          break;
-        case "disconnectRequest":
-          if (window.unstoppable) {
-            void window.unstoppable.requestDisconnect();
-          }
-          break;
+  // listen for events that should be handled by the provider
+  ClientSideMessageTypes.map(messageType => {
+    document.addEventListener(messageType, () => {
+      if (isClientSideRequestType(messageType)) {
+        switch (messageType) {
+          case "refreshRequest":
+            window.location.reload();
+            break;
+          case "disconnectRequest":
+            if (window.unstoppable) {
+              void window.unstoppable.requestDisconnect();
+            }
+            break;
+        }
       }
-    }
+    });
   });
+};
+
+// register provider if necessary permissions available, otherwise wait for
+// the permission to be available and callback later
+void evmWalletProvider.getPreferences().then(walletPreferences => {
+  if (walletPreferences.AppConnectionsEnabled) {
+    registerProviders(walletPreferences);
+  }
 });

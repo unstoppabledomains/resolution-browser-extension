@@ -1,7 +1,8 @@
 ## 3.1.50
 * Automatically update balance changes
 * Add share wallet button
-* Move optional permissions CTAs into settings panel
+* Reduce permissions required to install extension
+* Use dynamic optional permission request CTAs
 
 ## 3.1.49
 * Introduce session lock feature to enhance security

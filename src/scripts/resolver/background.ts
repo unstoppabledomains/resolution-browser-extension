@@ -39,8 +39,12 @@ export const waitForSupportedDomains = async () => {
         p?.permissions?.includes("declarativeNetRequest") ||
         p?.permissions?.includes("declarativeNetRequestWithHostAccess")
       ) {
-        Logger.log("Detected declarativeNetRequest permission!");
-        await waitForSupportedDomains();
+        try {
+          Logger.log("Detected declarativeNetRequest permission!");
+          chrome.runtime.reload();
+        } catch (e) {
+          Logger.warn("Error in declarativeNetRequest callback", e);
+        }
       }
     });
   }
@@ -70,6 +74,7 @@ const getDomainRule = (domain: string) => {
 const deleteAllRules = async () => {
   const rules = await getRules();
   if (!rules) {
+    Logger.log("No dynamic rules detected");
     return;
   }
   const ruleIds = rules.map(rule => rule.id);

@@ -1,12 +1,18 @@
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import {useSnackbar} from "notistack";
 import React, {useEffect, useState} from "react";
 import useIsMounted from "react-is-mounted-hook";
 import {useNavigate} from "react-router-dom";
+import useAsyncEffect from "use-async-effect";
 
 import {AppEnv} from "@unstoppabledomains/config";
 import {
@@ -25,6 +31,7 @@ import {
   useTranslationContext,
   useUnstoppableMessaging,
 } from "@unstoppabledomains/ui-components";
+import {WalletBanner} from "@unstoppabledomains/ui-components/components/Wallet/WalletBanner";
 import {TokenRefreshResponse} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 
 import Header from "../../components/Header";
@@ -42,9 +49,12 @@ import {Logger} from "../../lib/logger";
 import {initializeBrowserSettings} from "../../lib/resolver/settings";
 import {
   BadgeColor,
+  PermissionType,
   focusExtensionWindows,
   getBadgeCount,
+  hasOptionalPermissions,
   openSidePanel,
+  requestOptionalPermissions,
   setBadgeCount,
   setIcon,
 } from "../../lib/runtime";
@@ -97,6 +107,7 @@ const WalletComp: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showSignInCta, setShowSignInCta] = useState(false);
   const [messagingEnabled, setMessagingEnabled] = useState(false);
+  const [banner, setBanner] = useState<React.ReactNode>();
 
   // indicates that the display mode is basic (or portfolio)
   const showFooter = !authAddress || !authComplete;
@@ -281,13 +292,16 @@ const WalletComp: React.FC = () => {
   }, [authAddress]);
 
   // complete page load steps after sign in confirmed
-  useEffect(() => {
+  useAsyncEffect(async () => {
     if (!preferences || !authComplete) {
       return;
     }
 
     // handle message notifications if necessary
-    void handleUnreadMessages();
+    await handleUnreadMessages();
+
+    // refresh banner
+    await handleRefreshBanner();
 
     // update messaging status
     setMessagingEnabled(preferences.MessagingEnabled);
@@ -337,6 +351,160 @@ const WalletComp: React.FC = () => {
       void chromeStorageSet(StorageSyncKey.Account, authState.emailAddress);
     }
   }, [authState]);
+
+  const handleRefreshBanner = async () => {
+    // check app connections banner
+    const isAppConnectionEnabled = await hasOptionalPermissions([
+      PermissionType.Tabs,
+    ]);
+    const isAppConnectionCleared = await chromeStorageGet<number>(
+      StorageSyncKey.BannerAppPermissions,
+    );
+    if (!isAppConnectionEnabled && !isAppConnectionCleared) {
+      setBanner(
+        <Tooltip arrow title={t("extension.appConnectionsDescription")}>
+          <Box>
+            <WalletBanner
+              icon={<SettingsOutlinedIcon fontSize="small" />}
+              action={
+                <Box display="flex">
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() =>
+                      handleEnableAppPermission(
+                        StorageSyncKey.BannerAppPermissions,
+                        [PermissionType.Tabs],
+                      )
+                    }
+                  >
+                    <CheckIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() =>
+                      handleEnableAppPermission(
+                        StorageSyncKey.BannerAppPermissions,
+                      )
+                    }
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              }
+            >
+              {t("manage.enable")} {t("extension.appConnections").toLowerCase()}
+              ?
+            </WalletBanner>
+          </Box>
+        </Tooltip>,
+      );
+      return;
+    }
+
+    // check decentralized browsing banner
+    const isBrowsingEnabled = await hasOptionalPermissions([
+      PermissionType.DeclarativeNetRequest,
+    ]);
+    const isBrowsingCleared = await chromeStorageGet<number>(
+      StorageSyncKey.BannerDecentralizedBrowsing,
+    );
+    if (!isBrowsingEnabled && !isBrowsingCleared) {
+      setBanner(
+        <Tooltip arrow title={t("extension.decentralizedBrowsingDescription")}>
+          <Box>
+            <WalletBanner
+              icon={<SettingsOutlinedIcon fontSize="small" />}
+              action={
+                <Box display="flex">
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() =>
+                      handleEnableAppPermission(
+                        StorageSyncKey.BannerDecentralizedBrowsing,
+                        [PermissionType.DeclarativeNetRequest],
+                      )
+                    }
+                  >
+                    <CheckIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() =>
+                      handleEnableAppPermission(
+                        StorageSyncKey.BannerDecentralizedBrowsing,
+                      )
+                    }
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              }
+            >
+              {t("manage.enable")}{" "}
+              {t("extension.decentralizedBrowsing").toLowerCase()}?
+            </WalletBanner>
+          </Box>
+        </Tooltip>,
+      );
+      return;
+    }
+
+    // check notifications banner
+    const isNotificationEnabled = await hasOptionalPermissions([
+      PermissionType.Notifications,
+    ]);
+    const isNotificationCleared = await chromeStorageGet<number>(
+      StorageSyncKey.BannerNotifications,
+    );
+    if (!isNotificationEnabled && !isNotificationCleared) {
+      setBanner(
+        <Tooltip arrow title={t("extension.notificationsDescription")}>
+          <Box>
+            <WalletBanner
+              icon={<SettingsOutlinedIcon fontSize="small" />}
+              action={
+                <Box display="flex">
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() =>
+                      handleEnableAppPermission(
+                        StorageSyncKey.BannerNotifications,
+                        [PermissionType.Notifications],
+                      )
+                    }
+                  >
+                    <CheckIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    onClick={() =>
+                      handleEnableAppPermission(
+                        StorageSyncKey.BannerNotifications,
+                      )
+                    }
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+              }
+            >
+              {t("manage.enable")} {t("common.notifications").toLowerCase()}?
+            </WalletBanner>
+          </Box>
+        </Tooltip>,
+      );
+      return;
+    }
+
+    // no banner required
+    setBanner(undefined);
+  };
 
   const handleAuthComplete = async () => {
     // set the complete flag
@@ -510,6 +678,17 @@ const WalletComp: React.FC = () => {
     window.close();
   };
 
+  const handleEnableAppPermission = async (
+    key: StorageSyncKey,
+    request?: PermissionType[],
+  ) => {
+    await chromeStorageSet(key, Date.now());
+    if (request) {
+      await requestOptionalPermissions(request);
+    }
+    await handleRefreshBanner();
+  };
+
   const handleUnreadMessages = async () => {
     // determine if there is an unread message badge
     const badgeCount = await getBadgeCount(BadgeColor.Blue);
@@ -643,6 +822,7 @@ const WalletComp: React.FC = () => {
           isNewUser={isNewUser}
           loginClicked={loginClicked}
           loginState={authState?.loginState}
+          banner={banner}
           disableBasicHeader
           fullScreenModals
           forceRememberOnDevice

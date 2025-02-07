@@ -59,6 +59,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
   const [isContextMenuEnabled, setIsContextMenuEnabled] = useState(false);
   const [isBrowsingEnabled, setIsBrowsingEnabled] = useState(false);
+  const [isAppConnectionEnabled, setIsAppConnectionEnabled] = useState(false);
   const theme = useCustomTheme();
 
   useAsyncEffect(async () => {
@@ -67,16 +68,13 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
       await hasOptionalPermissions([PermissionType.Notifications]),
     );
     setIsContextMenuEnabled(
-      await hasOptionalPermissions([
-        PermissionType.ContextMenus,
-        PermissionType.Tabs,
-      ]),
+      await hasOptionalPermissions([PermissionType.ContextMenus]),
     );
     setIsBrowsingEnabled(
-      await hasOptionalPermissions([
-        PermissionType.DeclarativeNetRequest,
-        PermissionType.Tabs,
-      ]),
+      await hasOptionalPermissions([PermissionType.DeclarativeNetRequest]),
+    );
+    setIsAppConnectionEnabled(
+      await hasOptionalPermissions([PermissionType.Tabs]),
     );
   }, []);
 
@@ -191,6 +189,20 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     }
   };
 
+  const handleAppConnections = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (event.target.checked) {
+      if (await requestOptionalPermissions([PermissionType.Tabs])) {
+        setIsAppConnectionEnabled(true);
+      }
+    } else {
+      await removeOptionalPermissions([PermissionType.Tabs]);
+      await handleDisconnectAll();
+      setIsAppConnectionEnabled(false);
+    }
+  };
+
   const handleDisconnectAll = async () => {
     // handle disconnect internally
     await clearAllConnectedSites();
@@ -248,6 +260,50 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
               </Typography>
               <Box>
                 <WalletPreference
+                  title={t("extension.appConnections")}
+                  description={t("extension.appConnectionsDescription")}
+                  statusElement={renderStatus(
+                    isAppConnectionEnabled ? t("common.on") : t("common.off"),
+                  )}
+                >
+                  <FormControlLabel
+                    label={`${t("manage.enable")} ${t("extension.appConnections")}`}
+                    control={
+                      <Checkbox
+                        color={
+                          theme.palette.mode === "light"
+                            ? "primary"
+                            : "secondary"
+                        }
+                        checked={isAppConnectionEnabled}
+                        onChange={handleAppConnections}
+                      />
+                    }
+                  />
+                </WalletPreference>
+                <WalletPreference
+                  title={t("extension.decentralizedBrowsing")}
+                  description={`${t("extension.decentralizedBrowsingDescription")}${!isBrowsingEnabled ? " This **extension will be automatically restarted** when you enable decentralized browsing." : ""}`}
+                  statusElement={renderStatus(
+                    isBrowsingEnabled ? t("common.on") : t("common.off"),
+                  )}
+                >
+                  <FormControlLabel
+                    label={`${t("manage.enable")} ${t("extension.decentralizedBrowsing")}`}
+                    control={
+                      <Checkbox
+                        color={
+                          theme.palette.mode === "light"
+                            ? "primary"
+                            : "secondary"
+                        }
+                        checked={isBrowsingEnabled}
+                        onChange={handleDecentralizedBrowsing}
+                      />
+                    }
+                  />
+                </WalletPreference>
+                <WalletPreference
                   title={t("extension.sherlockAssistant")}
                   description={t("extension.sherlockAssistantDescription")}
                   statusElement={renderStatus(
@@ -291,28 +347,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                         }
                         checked={preferences?.MessagingEnabled}
                         onChange={handleMessaging}
-                      />
-                    }
-                  />
-                </WalletPreference>
-                <WalletPreference
-                  title={t("extension.decentralizedBrowsing")}
-                  description={t("extension.decentralizedBrowsingDescription")}
-                  statusElement={renderStatus(
-                    isBrowsingEnabled ? t("common.on") : t("common.off"),
-                  )}
-                >
-                  <FormControlLabel
-                    label={`${t("manage.enable")} ${t("extension.decentralizedBrowsing")}`}
-                    control={
-                      <Checkbox
-                        color={
-                          theme.palette.mode === "light"
-                            ? "primary"
-                            : "secondary"
-                        }
-                        checked={isBrowsingEnabled}
-                        onChange={handleDecentralizedBrowsing}
                       />
                     }
                   />
@@ -422,50 +456,52 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                     </Box>
                   )}
                 </WalletPreference>
-                <WalletPreference
-                  title={t("extension.walletConnections")}
-                  description={
-                    connections && Object.keys(connections).length > 0
-                      ? t("extension.walletConnectionsDescription")
-                      : t("extension.noWalletConnections")
-                  }
-                  statusElement={renderStatus(
-                    connections && Object.keys(connections).length > 0
-                      ? String(Object.keys(connections).length)
-                      : t("common.none"),
-                  )}
-                >
-                  {connections &&
-                    Object.keys(connections)
-                      .sort((a, b) => a.localeCompare(b))
-                      .map(site => (
-                        <Link
-                          className={classes.link}
-                          href={`https://${site}`}
-                          target="_blank"
+                {isAppConnectionEnabled && (
+                  <WalletPreference
+                    title={t("extension.walletConnections")}
+                    description={
+                      connections && Object.keys(connections).length > 0
+                        ? t("extension.walletConnectionsDescription")
+                        : t("extension.noWalletConnections")
+                    }
+                    statusElement={renderStatus(
+                      connections && Object.keys(connections).length > 0
+                        ? String(Object.keys(connections).length)
+                        : t("common.none"),
+                    )}
+                  >
+                    {connections &&
+                      Object.keys(connections)
+                        .sort((a, b) => a.localeCompare(b))
+                        .map(site => (
+                          <Link
+                            className={classes.link}
+                            href={`https://${site}`}
+                            target="_blank"
+                          >
+                            <Typography variant="caption">{site}</Typography>
+                          </Link>
+                        ))}
+                    {connections && Object.keys(connections).length > 0 && (
+                      <Box display="flex" width="100%" mt={1} mb={2}>
+                        <Button
+                          color={
+                            theme.palette.mode === "light"
+                              ? "primary"
+                              : "secondary"
+                          }
+                          variant="outlined"
+                          onClick={handleDisconnectAll}
+                          className={classes.button}
+                          fullWidth
+                          size="small"
                         >
-                          <Typography variant="caption">{site}</Typography>
-                        </Link>
-                      ))}
-                  {connections && Object.keys(connections).length > 0 && (
-                    <Box display="flex" width="100%" mt={1} mb={2}>
-                      <Button
-                        color={
-                          theme.palette.mode === "light"
-                            ? "primary"
-                            : "secondary"
-                        }
-                        variant="outlined"
-                        onClick={handleDisconnectAll}
-                        className={classes.button}
-                        fullWidth
-                        size="small"
-                      >
-                        {t("header.disconnectAll")}
-                      </Button>
-                    </Box>
-                  )}
-                </WalletPreference>
+                          {t("header.disconnectAll")}
+                        </Button>
+                      </Box>
+                    )}
+                  </WalletPreference>
+                )}
                 <WalletPreference
                   title={t("extension.version")}
                   statusElement={renderStatus(

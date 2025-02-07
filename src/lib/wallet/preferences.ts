@@ -6,6 +6,7 @@ import {
   chromeStorageSet,
 } from "../chromeStorage";
 import {Logger} from "../logger";
+import {PermissionType, hasOptionalPermissions} from "../runtime";
 
 export const getWalletPreferences = async (): Promise<WalletPreferences> => {
   const defaultPreferences = getDefaultPreferences();
@@ -17,6 +18,11 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
     if (preferences) {
       // base preferences stored in browser config
       const basePreferences: WalletPreferences = JSON.parse(preferences);
+
+      // permission based preferences
+      basePreferences.AppConnectionsEnabled = await hasOptionalPermissions([
+        PermissionType.Tabs,
+      ]);
 
       // normalize preferences before returning
       if (basePreferences.MessagingEnabled === undefined) {
@@ -51,6 +57,7 @@ export const getDefaultPreferences = (): WalletPreferences => {
     DefaultView: "wallet",
     VersionInfo: config.VERSION_DESCRIPTION,
     MessagingEnabled: true,
+    AppConnectionsEnabled: false,
     Scanning: {
       Enabled: true,
       AllowOrigins: [

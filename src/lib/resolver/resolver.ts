@@ -17,6 +17,7 @@ const resolverCache = new LRUCache<string, any>({
 // getSupportedTlds retrieves all non-ICANN domains supported by Unstoppable Domains
 export const getSupportedTlds = async (): Promise<string[]> => {
   // retrieve from cache if available
+  Logger.log("Checking supported TLDs...");
   const cachedValue = resolverCache.get(tldCacheKey);
   if (cachedValue && Array.isArray(cachedValue)) {
     return cachedValue;
