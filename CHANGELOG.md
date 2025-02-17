@@ -1,3 +1,7 @@
+## 3.1.52
+* Allow user to search for tokens in swap panel
+* Sort swap tokens by popularity
+
 ## 3.1.51
 * Improved onboarding UX
 
