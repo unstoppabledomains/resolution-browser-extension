@@ -1,3 +1,12 @@
+# Unstoppable Domains Browser Extension
+
+Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
+
+## 3.1.53
+* Automatically refresh tokens if extension is idle for long periods of time
+* Fix bug when selecting certain tokens to send from the home screen
+* Fix bug related to selecting swap tokens identified by contract address
+
 ## 3.1.52
 * Allow user to search for tokens in swap panel
 * Sort swap tokens by popularity
