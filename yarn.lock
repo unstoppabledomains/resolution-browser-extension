@@ -2221,6 +2221,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keyv/serialize@npm:^1.0.2":
+  version: 1.0.3
+  resolution: "@keyv/serialize@npm:1.0.3"
+  dependencies:
+    buffer: ^6.0.3
+  checksum: 5f7b90e8ae76d2a1850a1982cf382aea3ff7cef1f82bea793657e47d8f700609597f317607de07245b40c30b764a19fc7d4efa177d4dc42f6ed4d0a7b5f4e173
+  languageName: node
+  linkType: hard
+
 "@kurkle/color@npm:^0.3.0":
   version: 0.3.2
   resolution: "@kurkle/color@npm:0.3.2"
@@ -6373,9 +6382,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.15":
-  version: 0.0.53-browser-extension.15
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.15"
+"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.16":
+  version: 0.0.53-browser-extension.16
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.16"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6431,6 +6440,7 @@ __metadata:
     humanize-plus: ^1.8.2
     is-ipfs: ^8.0.4
     js-base64: ^3.7.5
+    keyv: ^5.2.3
     lodash: ^4.17.21
     lodash.merge: ^4.6.2
     markdown-to-jsx: ^7.4.1
@@ -6477,7 +6487,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 756989cb815d89b353e6a3751ca1e651d7df49568f5304b3a6d37890c15cbe5aa3db084342b312e8064da0f3732d54a332512647600f4a64b8ade1f913c574c0
+  checksum: 9c35f98f5dbef753480c90ea2e51a2372f20eea7205b0d19dc5b09bcf7a226f285c542485f3debf7d261df709de6e3dc50d5b098d2e219c49050207588b71cce
   languageName: node
   linkType: hard
 
@@ -14912,6 +14922,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"keyv@npm:^5.2.3":
+  version: 5.2.3
+  resolution: "keyv@npm:5.2.3"
+  dependencies:
+    "@keyv/serialize": ^1.0.2
+  checksum: b317a71550431ba6238bc8c71ce9ab263560df2227ca7933f7a3f18f0fa1a931312b02951cbcce9d316689709f67c5e4a4095e8e6b9aa13d19ce82c5dd7293e2
+  languageName: node
+  linkType: hard
+
 "keyvaluestorage-interface@npm:^1.0.0":
   version: 1.0.0
   resolution: "keyvaluestorage-interface@npm:1.0.0"
@@ -21189,7 +21208,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
     "@unstoppabledomains/config": 0.0.25
-    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.15
+    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.16
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
