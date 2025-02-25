@@ -2,6 +2,9 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+## 3.1.54
+* New token detail page
+
 ## 3.1.53
 * Automatically refresh tokens if extension is idle for long periods of time
 * Fix bug when selecting certain tokens to send from the home screen
