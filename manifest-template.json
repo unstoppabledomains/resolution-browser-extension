@@ -64,12 +64,12 @@
   "permissions": [
     "alarms",
     "sidePanel",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "optional_permissions": [
     "contextMenus",
     "declarativeNetRequestWithHostAccess",
-    "notifications",
-    "tabs"
+    "notifications"
   ]
 }
