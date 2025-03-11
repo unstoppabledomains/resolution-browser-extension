@@ -6,6 +6,7 @@ Release build history can be found on [GitHub](https://github.com/unstoppabledom
 * Add an advanced swap mode with more options for power users
 * Link to token details after a successful swap
 * Update the token detail page with manual refresh button
+* Make the "tabs" permission required to enable app connections by default
 
 ## 3.1.54
 * New token detail page
