@@ -2,6 +2,11 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+## 3.1.55
+* Add an advanced swap mode with more options for power users
+* Link to token details after a successful swap
+* Update the token detail page with manual refresh button
+
 ## 3.1.54
 * New token detail page
 
