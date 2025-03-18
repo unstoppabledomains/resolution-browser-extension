@@ -2,6 +2,9 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+## 3.1.57
+* Add a collectibles tab to wallet home screen
+
 ## 3.1.56
 * Use secure cloud storage for wallet preferences for better cross-device UX
 * Add manual refresh button to home screen
