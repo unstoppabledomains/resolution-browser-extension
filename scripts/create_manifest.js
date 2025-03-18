@@ -29,10 +29,10 @@ switch (theme) {
     templateStr = templateStr.replace(/<description>/g, "A crypto wallet for domainers: easily interact with onchain identities, assets and apps.");
     break;
   case "upio":
-    templateStr = templateStr.replace(/<name>/g, "UP.io Wallet");
+    templateStr = templateStr.replace(/<name>/g, "UP.io - watch your crypto grow up");
     templateStr = templateStr.replace(/<short_name>/g, "UP.io");
     templateStr = templateStr.replace(/<website>/g, "up.io");
-    templateStr = templateStr.replace(/<description>/g, "Watch your crypto grow up");
+    templateStr = templateStr.replace(/<description>/g, "Manage your digital assets with confidence while enjoying a user-friendly experience. Supports Bitcoin, Solana, Ethereum, Base and Polygon.");
     break;
 }
 
