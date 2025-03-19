@@ -3,6 +3,7 @@ import numeral from "numeral";
 import config from "@unstoppabledomains/config";
 import {TokenType, getSortedTokens} from "@unstoppabledomains/ui-components";
 
+import {WINDOW_PROPERTY_NAME} from "../../config";
 import {Logger} from "../logger";
 import {createElementFromHtml, isStyleInjected} from "./styles";
 import {ResolutionData, SHERLOCK_ICON, UD_PLACEHOLDER_ID} from "./types";
@@ -123,7 +124,9 @@ export const createPopup = (r: ResolutionData) => {
   void onVisible(nameContainer, async () => {
     try {
       // load the domain profile data when card is shown
-      const profileData = await window.unstoppable.getDomainProfile(r.domain);
+      const profileData = await window[WINDOW_PROPERTY_NAME].getDomainProfile(
+        r.domain,
+      );
       if (!profileData?.profile) {
         onchainDiv.textContent = "Onchain data not found";
         return;

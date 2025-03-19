@@ -68,7 +68,7 @@ const Header: React.FC<Props> = ({
               component="img"
               className={classes.logo}
               src={iconPath}
-              alt="Unstoppable domains logo"
+              alt="Logo"
             />
           ) : (
             <IconPlate size={50} variant="info">

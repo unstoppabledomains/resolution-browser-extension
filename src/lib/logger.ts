@@ -4,7 +4,8 @@ import {BugsnagErrorClasses, notifyBugsnag} from "@unstoppabledomains/config";
 import config from "../config";
 import {getManifestVersion} from "./runtime";
 
-const PREFIX = "Unstoppable Domains";
+// prefix all log messages with the extension name
+const PREFIX = config.extension.name;
 
 export class Logger {
   // standardized log messages

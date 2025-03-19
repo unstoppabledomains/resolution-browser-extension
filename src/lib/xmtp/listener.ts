@@ -6,6 +6,7 @@ import truncateMiddle from "truncate-middle";
 
 import config from "@unstoppabledomains/config";
 
+import extensionConfig from "../../config";
 import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 import {
   StorageSyncKey,
@@ -116,7 +117,7 @@ const waitForMessages = async () => {
   // notify the user of their signed in status
   await createNotification(
     "xmtp-chat-initialized",
-    "Unstoppable Domains",
+    extensionConfig.extension.name,
     "Your inbox is ready to use, powered by XMTP. Click to chat with friends.",
     undefined,
     2,
