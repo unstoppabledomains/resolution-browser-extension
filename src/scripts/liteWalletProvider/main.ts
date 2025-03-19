@@ -1195,5 +1195,7 @@ const registerProviders = (walletPreferences: WalletPreferences) => {
 void evmWalletProvider.getPreferences().then(walletPreferences => {
   if (walletPreferences.AppConnectionsEnabled) {
     registerProviders(walletPreferences);
+  } else {
+    Logger.log("App connections disabled");
   }
 });
