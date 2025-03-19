@@ -19,3 +19,4 @@ src/manifest.json
 .env.production
 .yarn
 tsconfig.tsbuildinfo
+src/index.html

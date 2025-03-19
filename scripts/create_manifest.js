@@ -35,7 +35,7 @@ switch (theme) {
     manifestTemplateStr = manifestTemplateStr.replace(/<description>/g, "A crypto wallet for domainers: easily interact with onchain identities, assets and apps.");
     break;
   case "upio":
-    manifestTemplateStr = manifestTemplateStr.replace(/<name>/g, "UP.io - watch your crypto grow up");
+    manifestTemplateStr = manifestTemplateStr.replace(/<name>/g, "UP.io – Watch your crypto grow up");
     manifestTemplateStr = manifestTemplateStr.replace(/<short_name>/g, "UP.io");
     manifestTemplateStr = manifestTemplateStr.replace(/<website>/g, "up.io");
     manifestTemplateStr = manifestTemplateStr.replace(/<description>/g, "Securely manage your digital assets with confidence and ease. Swap and trade tokens on Bitcoin, Ethereum, Solana, Base & Polygon.");
