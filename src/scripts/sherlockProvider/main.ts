@@ -1,12 +1,13 @@
 import {isDomainValidForManagement} from "@unstoppabledomains/ui-components";
 
+import {WINDOW_PROPERTY_NAME} from "../../config";
 import {Logger} from "../../lib/logger";
 import {ContextMenu} from "../../lib/sherlock/contextMenu";
 import {isEthAddress, isPartialAddress} from "../../lib/sherlock/matcher";
 import {scanForResolutions} from "../../lib/sherlock/scanner";
 
 // check preferences to ensure desired behavior
-void window.unstoppable?.getPreferences().then(preferences => {
+void window[WINDOW_PROPERTY_NAME]?.getPreferences().then(preferences => {
   // broadcast an event indicating this tab needs context menu update
   const contextMenu = new ContextMenu(preferences);
   contextMenu.broadcastTab();

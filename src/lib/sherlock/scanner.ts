@@ -1,5 +1,6 @@
 import {isDomainValidForManagement} from "@unstoppabledomains/ui-components";
 
+import {WINDOW_PROPERTY_NAME} from "../../config";
 import {Logger} from "../logger";
 import {fromPartialAddress, isEthAddress, isPartialAddress} from "./matcher";
 import {createPopup} from "./popup";
@@ -41,7 +42,8 @@ const resolve = async (
 
   try {
     // resolve the name and return if found
-    const resolvedValue = await window.unstoppable.getResolution(addressOrName);
+    const resolvedValue =
+      await window[WINDOW_PROPERTY_NAME].getResolution(addressOrName);
     if (resolvedValue?.address && resolvedValue?.domain) {
       return resolvedValue;
     }

@@ -45,7 +45,8 @@ import {SolanaWalletProvider} from "../solanaWalletProvider/provider";
 
 declare global {
   interface Window {
-    [WINDOW_PROPERTY_NAME]: LiteWalletProvider;
+    unstoppable: LiteWalletProvider;
+    upio: LiteWalletProvider;
     ethereum?: ExternalProvider;
   }
 }
@@ -1179,8 +1180,8 @@ const registerProviders = (walletPreferences: WalletPreferences) => {
             window.location.reload();
             break;
           case "disconnectRequest":
-            if (window.unstoppable) {
-              void window.unstoppable.requestDisconnect();
+            if (window[WINDOW_PROPERTY_NAME]) {
+              void window[WINDOW_PROPERTY_NAME].requestDisconnect();
             }
             break;
         }
