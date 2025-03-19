@@ -2,6 +2,9 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+## 3.1.58
+* Update UP.io manifest
+
 ## 3.1.57
 * Add a collectibles tab to wallet home screen
 
