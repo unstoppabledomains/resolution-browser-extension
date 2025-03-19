@@ -5,9 +5,25 @@ import {Logger} from "../../lib/logger";
 import {ContextMenu} from "../../lib/sherlock/contextMenu";
 import {isEthAddress, isPartialAddress} from "../../lib/sherlock/matcher";
 import {scanForResolutions} from "../../lib/sherlock/scanner";
+import {sleep} from "../../lib/wallet/sleep";
 
 // check preferences to ensure desired behavior
-void window[WINDOW_PROPERTY_NAME]?.getPreferences().then(preferences => {
+const waitForPreferences = async () => {
+  let i = 0;
+  while (!window[WINDOW_PROPERTY_NAME]) {
+    await sleep(1000);
+    i++;
+    if (i > 30) {
+      Logger.log("Preferences not available after 30 seconds");
+      return undefined;
+    }
+  }
+  Logger.log("Retrieved wallet preferences");
+  return await window[WINDOW_PROPERTY_NAME].getPreferences();
+};
+
+// wait for the preferences to be available and then create a context menu
+void waitForPreferences()?.then(preferences => {
   // broadcast an event indicating this tab needs context menu update
   const contextMenu = new ContextMenu(preferences);
   contextMenu.broadcastTab();
