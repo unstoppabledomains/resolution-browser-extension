@@ -32,7 +32,7 @@ switch (theme) {
     templateStr = templateStr.replace(/<name>/g, "UP.io - watch your crypto grow up");
     templateStr = templateStr.replace(/<short_name>/g, "UP.io");
     templateStr = templateStr.replace(/<website>/g, "up.io");
-    templateStr = templateStr.replace(/<description>/g, "Manage your digital assets with confidence while enjoying a user-friendly experience. Supports Bitcoin, Solana, Ethereum, Base and Polygon.");
+    templateStr = templateStr.replace(/<description>/g, "Securely manage your digital assets with confidence and ease. Swap and trade tokens on Bitcoin, Ethereum, Solana, Base & Polygon.");
     break;
 }
 
