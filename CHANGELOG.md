@@ -5,6 +5,7 @@ Release build history can be found on [GitHub](https://github.com/unstoppabledom
 ## 3.1.58
 * Update UP.io manifest
 * Add unique package names for UP.io and Unstoppable Domains app versions
+* Add namespace to provider background events
 
 ## 3.1.57
 * Add a collectibles tab to wallet home screen
