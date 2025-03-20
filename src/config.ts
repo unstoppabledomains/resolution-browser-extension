@@ -6,21 +6,40 @@ export const THEME_NAME = env.THEME as string;
 export default {
   ...env,
   extension: {
-    name: THEME_NAME === "upio" ? "UP.io" : "Unstoppable Domains",
+    name: `${THEME_NAME === "upio" ? "UP.io" : "Unstoppable Domains"}${env.NODE_ENV === "staging" ? " (staging)" : ""}`,
     uuid:
       THEME_NAME === "upio"
-        ? "58b76146-0f32-41cd-8a91-5343a3e3872f"
-        : "8aee37d6-523f-4b49-b9f3-2fcde7dd5431",
+        ? env.NODE_ENV === "staging"
+          ? "54704de2-26ab-4e6a-a386-88ceabeb77cd"
+          : "58b76146-0f32-41cd-8a91-5343a3e3872f"
+        : env.NODE_ENV === "staging"
+          ? "21ad664d-7094-493b-9590-c8294d2184dc"
+          : "8aee37d6-523f-4b49-b9f3-2fcde7dd5431",
     rdns:
       THEME_NAME === "upio"
-        ? "com.unstoppabledomains.upIo"
-        : "com.unstoppabledomains.liteWallet",
+        ? env.NODE_ENV === "staging"
+          ? "com.unstoppabledomains.upIoStaging"
+          : "com.unstoppabledomains.upIo"
+        : env.NODE_ENV === "staging"
+          ? "com.unstoppabledomains.liteWalletStaging"
+          : "com.unstoppabledomains.liteWallet",
   },
 };
 
 // the EIP-1193 window property name to inject into DOM
-export const WINDOW_PROPERTY_NAME =
-  THEME_NAME === "upio" ? "upio" : "unstoppable";
+export type WINDOW_PROPERTY_TYPE =
+  | "upio"
+  | "upioStaging"
+  | "unstoppable"
+  | "unstoppableStaging";
+export const WINDOW_PROPERTY_NAME: WINDOW_PROPERTY_TYPE =
+  THEME_NAME === "upio"
+    ? env.NODE_ENV === "staging"
+      ? "upioStaging"
+      : "upio"
+    : env.NODE_ENV === "staging"
+      ? "unstoppableStaging"
+      : "unstoppable";
 
 // derived from icons/96.png, the recommended size for wallet icons
 export const LOGO_BASE_64 =

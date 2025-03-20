@@ -46,7 +46,9 @@ import {SolanaWalletProvider} from "../solanaWalletProvider/provider";
 declare global {
   interface Window {
     unstoppable: LiteWalletProvider;
+    unstoppableStaging: LiteWalletProvider;
     upio: LiteWalletProvider;
+    upioStaging: LiteWalletProvider;
     ethereum?: ExternalProvider;
   }
 }
