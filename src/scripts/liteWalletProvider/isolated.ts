@@ -1,3 +1,4 @@
+import config from "../../config";
 import {
   ExternalMessageTypes,
   InternalMessageTypes,
@@ -26,9 +27,13 @@ import {
           isInternalRequestType(messageType)
         ) {
           document.dispatchEvent(
-            new ProviderEvent(getResponseType(messageType), {
-              detail: response,
-            }),
+            new ProviderEvent(
+              getResponseType(messageType),
+              config.extension.rdns,
+              {
+                detail: response,
+              },
+            ),
           );
         }
       },

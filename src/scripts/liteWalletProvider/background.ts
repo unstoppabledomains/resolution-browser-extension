@@ -98,7 +98,7 @@ export const backgroundEventListener = (
   }
 
   // log the incoming external event
-  Logger.log("Handling event start", JSON.stringify(request));
+  Logger.log("Observed event", JSON.stringify(request));
 
   // handle external request types
   if (isExternalRequestType(request.type)) {
@@ -111,6 +111,24 @@ export const backgroundEventListener = (
         // retrieve the hostname parameter from the request params, which can safely be
         // popped from the list since no other callers expect it
         const requestHost = request.params.pop();
+
+        // retrieve the target namespace from the request params, which can safely be
+        // popped from the list since no other callers expect it
+        const namespace = request.params.pop();
+
+        // validate the namespace matches the current background runtime, otherwise
+        // the request can be ignored
+        if (namespace !== config.extension.rdns) {
+          Logger.warn(
+            "Ignoring event from unknown namespace",
+            JSON.stringify({namespace, request}),
+          );
+          return;
+        }
+        Logger.log(
+          "Handling event from namespace",
+          JSON.stringify({namespace, request}),
+        );
 
         // scan the active tabs for the expected hostname of the calling application. This
         // data is used for context in the wallet extension popup window
