@@ -203,12 +203,14 @@ export interface ProviderDomainProfileResponse {
 export class ProviderEvent extends CustomEvent<ProviderEventParams> {
   constructor(
     typeName: ExternalRequestType | InternalRequestType | ResponseType,
+    namespace: string,
     init?: ProviderEventInit,
   ) {
     if (isExternalRequestType(typeName)) {
-      // append hostname to params
+      // append namespace and hostname to params
       const initParams = (init ? init.detail : []) as any[];
-      initParams.push(window.location.hostname);
+      initParams.push(namespace); // used to identify the specific extension instance
+      initParams.push(window.location.hostname); // used to identify the calling app
       init = {
         detail: initParams,
       };

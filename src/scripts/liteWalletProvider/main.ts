@@ -281,7 +281,9 @@ class LiteWalletProvider extends EventEmitter {
   async getPreferences(): Promise<WalletPreferences> {
     const fetcher = () =>
       new Promise<WalletPreferences>((resolve, reject) => {
-        document.dispatchEvent(new ProviderEvent("getPreferencesRequest"));
+        document.dispatchEvent(
+          new ProviderEvent("getPreferencesRequest", config.extension.rdns),
+        );
         this.addEventListener(
           "getPreferencesResponse",
           (event: ProviderResponse) => {
@@ -326,7 +328,11 @@ class LiteWalletProvider extends EventEmitter {
       return await new Promise<SerializedPublicDomainProfileData>(
         (resolve, reject) => {
           document.dispatchEvent(
-            new ProviderEvent("getDomainProfileRequest", {detail: [domain]}),
+            new ProviderEvent(
+              "getDomainProfileRequest",
+              config.extension.rdns,
+              {detail: [domain]},
+            ),
           );
           this.addEventListener(
             "getDomainProfileResponse",
@@ -371,7 +377,9 @@ class LiteWalletProvider extends EventEmitter {
       // retrieve the resolution data
       return await new Promise<ResolutionData>((resolve, reject) => {
         document.dispatchEvent(
-          new ProviderEvent("getResolutionRequest", {detail: [addressOrName]}),
+          new ProviderEvent("getResolutionRequest", config.extension.rdns, {
+            detail: [addressOrName],
+          }),
         );
         this.addEventListener(
           "getResolutionResponse",
@@ -460,12 +468,16 @@ class LiteWalletProvider extends EventEmitter {
 
   private handleQueueUpdate(count: number) {
     document.dispatchEvent(
-      new ProviderEvent("queueRequest", {detail: [count]}),
+      new ProviderEvent("queueRequest", config.extension.rdns, {
+        detail: [count],
+      }),
     );
   }
 
   private handleClosePopup() {
-    document.dispatchEvent(new ProviderEvent("closeWindowRequest"));
+    document.dispatchEvent(
+      new ProviderEvent("closeWindowRequest", config.extension.rdns),
+    );
   }
 
   private handleConnected(
@@ -502,7 +514,9 @@ class LiteWalletProvider extends EventEmitter {
     // a method to retrieve account data
     const fetcher = () =>
       new Promise<string>((resolve, reject) => {
-        document.dispatchEvent(new ProviderEvent("accountRequest"));
+        document.dispatchEvent(
+          new ProviderEvent("accountRequest", config.extension.rdns),
+        );
         this.addEventListener("accountResponse", (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(
@@ -594,7 +608,9 @@ class LiteWalletProvider extends EventEmitter {
   ) {
     const rpcResponse = new Promise((resolve, reject) => {
       document.dispatchEvent(
-        new ProviderEvent("rpcRequest", {detail: [chainId, method, ...params]}),
+        new ProviderEvent("rpcRequest", config.extension.rdns, {
+          detail: [chainId, method, ...params],
+        }),
       );
       this.addEventListener("rpcResponse", (event: ProviderResponse) => {
         if (event.detail.error) {
@@ -630,7 +646,9 @@ class LiteWalletProvider extends EventEmitter {
     // a method to retrieve chain ID data
     const fetcher = () =>
       new Promise<number>((resolve, reject) => {
-        document.dispatchEvent(new ProviderEvent("chainIdRequest"));
+        document.dispatchEvent(
+          new ProviderEvent("chainIdRequest", config.extension.rdns),
+        );
         this.addEventListener("chainIdResponse", (event: ProviderResponse) => {
           if (event.detail.error) {
             reject(
@@ -670,7 +688,9 @@ class LiteWalletProvider extends EventEmitter {
 
     // connect to account
     const accountResponse = new Promise((resolve, reject) => {
-      document.dispatchEvent(new ProviderEvent("selectAccountRequest"));
+      document.dispatchEvent(
+        new ProviderEvent("selectAccountRequest", config.extension.rdns),
+      );
       this.addEventListener(
         "selectAccountResponse",
         (event: ProviderResponse) => {
@@ -706,7 +726,7 @@ class LiteWalletProvider extends EventEmitter {
   private async handleRequestPermissions(params: any[]) {
     return await new Promise((resolve, reject) => {
       document.dispatchEvent(
-        new ProviderEvent("requestPermissionsRequest", {
+        new ProviderEvent("requestPermissionsRequest", config.extension.rdns, {
           detail: params,
         }),
       );
@@ -759,7 +779,7 @@ class LiteWalletProvider extends EventEmitter {
     // if the chain is not available
     return await new Promise((resolve, reject) => {
       document.dispatchEvent(
-        new ProviderEvent("switchChainRequest", {
+        new ProviderEvent("switchChainRequest", config.extension.rdns, {
           detail: [{chainId: requestedChainId}],
         }),
       );
@@ -832,7 +852,7 @@ class LiteWalletProvider extends EventEmitter {
     return await new Promise((resolve, reject) => {
       // send the message signing event
       document.dispatchEvent(
-        new ProviderEvent("signMessageRequest", {
+        new ProviderEvent("signMessageRequest", config.extension.rdns, {
           // parameters are expected to be sent as first element of
           // the detail array
           detail: [messageToSign],
@@ -938,7 +958,7 @@ class LiteWalletProvider extends EventEmitter {
     return await new Promise((resolve, reject) => {
       // send the typed message signing event
       document.dispatchEvent(
-        new ProviderEvent("signTypedMessageRequest", {
+        new ProviderEvent("signTypedMessageRequest", config.extension.rdns, {
           detail: params,
         }),
       );
@@ -996,7 +1016,7 @@ class LiteWalletProvider extends EventEmitter {
     return await new Promise((resolve, reject) => {
       // send the prepared transaction signing event
       document.dispatchEvent(
-        new ProviderEvent("sendTransactionRequest", {
+        new ProviderEvent("sendTransactionRequest", config.extension.rdns, {
           // parameters are expected to be sent as first element of
           // the detail array
           detail: [normalizedParams],
@@ -1041,7 +1061,7 @@ class LiteWalletProvider extends EventEmitter {
     return await new Promise((resolve, reject) => {
       // send the message signing event
       document.dispatchEvent(
-        new ProviderEvent("signSolanaMessageRequest", {
+        new ProviderEvent("signSolanaMessageRequest", config.extension.rdns, {
           detail: [messageToSign],
         }),
       );
@@ -1084,9 +1104,13 @@ class LiteWalletProvider extends EventEmitter {
     return await new Promise((resolve, reject) => {
       // send the transaction event
       document.dispatchEvent(
-        new ProviderEvent("signSolanaTransactionRequest", {
-          detail: [txToSign, txSendOption],
-        }),
+        new ProviderEvent(
+          "signSolanaTransactionRequest",
+          config.extension.rdns,
+          {
+            detail: [txToSign, txSendOption],
+          },
+        ),
       );
       this.addEventListener(
         "signSolanaTransactionResponse",

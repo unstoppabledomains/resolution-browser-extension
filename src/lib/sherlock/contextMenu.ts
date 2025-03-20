@@ -1,5 +1,6 @@
 import config from "@unstoppabledomains/config";
 
+import extensionConfig from "../../config";
 import {currentFocussedWindowId} from "../../scripts/liteWalletProvider/background";
 import {WalletPreferences} from "../../types/wallet/preferences";
 import {ProviderEvent, ProviderRequest} from "../../types/wallet/provider";
@@ -95,7 +96,7 @@ export class ContextMenu {
       return;
     }
     document.dispatchEvent(
-      new ProviderEvent("newTabRequest", {
+      new ProviderEvent("newTabRequest", extensionConfig.extension.rdns, {
         detail: [window.location.origin.toLowerCase()],
       }),
     );
