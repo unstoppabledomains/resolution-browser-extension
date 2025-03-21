@@ -67,6 +67,17 @@ export const backgroundEventListener = (
   _sender: chrome.runtime.MessageSender,
   popupResponseHandler: (response: ProviderEventResponse) => void,
 ) => {
+  // validate the request parameters include the runtime namespace
+  const isRequest =
+    isExternalRequestType(request.type) || isInternalRequestType(request.type);
+  if (isRequest && !request.params?.includes(config.extension.rdns)) {
+    Logger.warn(
+      "Ignoring event from unknown namespace",
+      JSON.stringify({request}),
+    );
+    return false;
+  }
+
   // handle incoming internal event
   if (isInternalRequestType(request.type)) {
     switch (request.type) {
@@ -115,20 +126,7 @@ export const backgroundEventListener = (
         // retrieve the target namespace from the request params, which can safely be
         // popped from the list since no other callers expect it
         const namespace = request.params.pop();
-
-        // validate the namespace matches the current background runtime, otherwise
-        // the request can be ignored
-        if (namespace !== config.extension.rdns) {
-          Logger.warn(
-            "Ignoring event from unknown namespace",
-            JSON.stringify({namespace, request}),
-          );
-          return;
-        }
-        Logger.log(
-          "Handling event from namespace",
-          JSON.stringify({namespace, request}),
-        );
+        Logger.log("Handling event", JSON.stringify({namespace, request}));
 
         // scan the active tabs for the expected hostname of the calling application. This
         // data is used for context in the wallet extension popup window
@@ -543,9 +541,12 @@ const handleFetchResolution = async (
 };
 
 const handleQueueUpdate = async (request: ProviderRequest) => {
+  // validate the request parameters
   if (!request?.params || request.params.length === 0) {
     return;
   }
+
+  // update the badge count
   try {
     const count = parseInt(request.params[0], 10);
     await setBadgeCount(count);
