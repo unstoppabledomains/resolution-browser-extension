@@ -70,12 +70,14 @@ export const backgroundEventListener = (
   // validate the request parameters include the runtime namespace
   const isRequest =
     isExternalRequestType(request.type) || isInternalRequestType(request.type);
-  if (isRequest && !request.params?.includes(config.extension.rdns)) {
-    Logger.warn(
-      "Ignoring event from unknown namespace",
-      JSON.stringify({request}),
-    );
-    return false;
+  if (isRequest) {
+    if (!Array.isArray(request.params) || !request.params.includes(config.extension.rdns)) {
+      Logger.warn(
+        "Ignoring event from unknown namespace",
+        JSON.stringify({request}),
+      );
+      return false;
+    }
   }
 
   // handle incoming internal event
