@@ -1,3 +1,4 @@
+import config from "../../config";
 import {
   ClientSideRequestType,
   InternalRequestType,
@@ -18,8 +19,10 @@ export const sendMessageToBackground = async <T>(
   data?: T,
 ) => {
   Logger.log("Sending message to background", type);
+  const params = data ? [data] : [];
+  params.push(config.extension.rdns as any);
   await chrome.runtime.sendMessage({
     type,
-    params: data ? [data] : undefined,
+    params,
   });
 };

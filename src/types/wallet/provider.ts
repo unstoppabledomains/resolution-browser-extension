@@ -206,7 +206,7 @@ export class ProviderEvent extends CustomEvent<ProviderEventParams> {
     namespace: string,
     init?: ProviderEventInit,
   ) {
-    if (isExternalRequestType(typeName)) {
+    if (isExternalRequestType(typeName) || isInternalRequestType(typeName)) {
       // append namespace and hostname to params
       const initParams = (init ? init.detail : []) as any[];
       initParams.push(namespace); // used to identify the specific extension instance

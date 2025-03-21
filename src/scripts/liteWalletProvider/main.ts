@@ -287,6 +287,16 @@ class LiteWalletProvider extends EventEmitter {
         this.addEventListener(
           "getPreferencesResponse",
           (event: ProviderResponse) => {
+            // validate the event response
+            if (!event?.detail) {
+              Logger.warn(
+                "Ignoring unknown response type",
+                JSON.stringify(event),
+              );
+              return false;
+            }
+
+            // process the event response
             if (event.detail.error) {
               reject(
                 new EthereumProviderError(
@@ -304,6 +314,9 @@ class LiteWalletProvider extends EventEmitter {
                 ),
               );
             }
+
+            // event handling was successful
+            return true;
           },
         );
       });
@@ -337,6 +350,16 @@ class LiteWalletProvider extends EventEmitter {
           this.addEventListener(
             "getDomainProfileResponse",
             (event: ProviderResponse) => {
+              // validate the event response
+              if (!event?.detail) {
+                Logger.warn(
+                  "Ignoring unknown response type",
+                  JSON.stringify(event),
+                );
+                return false;
+              }
+
+              // process the event response
               if (event.detail.error) {
                 reject(
                   new EthereumProviderError(
@@ -355,6 +378,9 @@ class LiteWalletProvider extends EventEmitter {
                   ),
                 );
               }
+
+              // event handling was successful
+              return true;
             },
           );
         },
@@ -384,6 +410,16 @@ class LiteWalletProvider extends EventEmitter {
         this.addEventListener(
           "getResolutionResponse",
           (event: ProviderResponse) => {
+            // validate the event response
+            if (!event?.detail) {
+              Logger.warn(
+                "Ignoring unknown response type",
+                JSON.stringify(event),
+              );
+              return false;
+            }
+
+            // process the event response
             if (event.detail.error) {
               reject(
                 new EthereumProviderError(
@@ -408,6 +444,9 @@ class LiteWalletProvider extends EventEmitter {
                 ),
               );
             }
+
+            // event handling was successful
+            return true;
           },
         );
       });
@@ -518,6 +557,16 @@ class LiteWalletProvider extends EventEmitter {
           new ProviderEvent("accountRequest", config.extension.rdns),
         );
         this.addEventListener("accountResponse", (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -539,6 +588,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         });
       });
 
@@ -613,6 +665,13 @@ class LiteWalletProvider extends EventEmitter {
         }),
       );
       this.addEventListener("rpcResponse", (event: ProviderResponse) => {
+        // validate the event response
+        if (!event?.detail) {
+          Logger.warn("Ignoring unknown response type", JSON.stringify(event));
+          return false;
+        }
+
+        // process the event response
         if (event.detail.error) {
           reject(
             new EthereumProviderError(
@@ -630,6 +689,9 @@ class LiteWalletProvider extends EventEmitter {
             ),
           );
         }
+
+        // event handling was successful
+        return true;
       });
     });
 
@@ -650,6 +712,16 @@ class LiteWalletProvider extends EventEmitter {
           new ProviderEvent("chainIdRequest", config.extension.rdns),
         );
         this.addEventListener("chainIdResponse", (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -671,6 +743,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         });
       });
 
@@ -694,6 +769,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "selectAccountResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -715,6 +800,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -733,6 +821,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "requestPermissionsResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -754,6 +852,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -786,6 +887,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "switchChainResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -807,6 +918,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -861,6 +975,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "signMessageResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -878,6 +1002,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -965,6 +1092,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "signTypedMessageResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -982,6 +1119,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -1025,6 +1165,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "sendTransactionResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -1042,6 +1192,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -1068,6 +1221,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "signSolanaMessageResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -1085,6 +1248,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -1115,6 +1281,16 @@ class LiteWalletProvider extends EventEmitter {
       this.addEventListener(
         "signSolanaTransactionResponse",
         (event: ProviderResponse) => {
+          // validate the event response
+          if (!event?.detail) {
+            Logger.warn(
+              "Ignoring unknown response type",
+              JSON.stringify(event),
+            );
+            return false;
+          }
+
+          // process the event response
           if (event.detail.error) {
             reject(
               new EthereumProviderError(
@@ -1132,6 +1308,9 @@ class LiteWalletProvider extends EventEmitter {
               ),
             );
           }
+
+          // event handling was successful
+          return true;
         },
       );
     });
@@ -1139,12 +1318,17 @@ class LiteWalletProvider extends EventEmitter {
 
   private addEventListener(
     eventType: ResponseType,
-    listener: (event: ProviderResponse) => void,
+    listener: (event: ProviderResponse) => boolean,
   ) {
     const listenerWrapper = (event: any) => {
-      document.removeEventListener(eventType, listenerWrapper);
-      listener(event);
+      if (listener(event)) {
+        Logger.log("Removing event listener", eventType);
+        document.removeEventListener(eventType, listenerWrapper);
+        return;
+      }
+      Logger.log("Still waiting for event", eventType);
     };
+    Logger.log("Adding event listener", eventType);
     document.addEventListener(eventType, listenerWrapper);
   }
 }
