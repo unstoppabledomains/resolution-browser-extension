@@ -110,6 +110,10 @@ const WalletComp: React.FC = () => {
   const showFooter = !authAddress || !authComplete;
   const isBasicMode = showFooter && !loginClicked && !isBasicDisabled;
 
+  // determines if sign-in is complete
+  const signInState = getBootstrapState(walletState);
+  const isSignInComplete = authComplete || signInState?.custodyState;
+
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
   // this method is used to cancel the listener so the handler doesn't fire.
@@ -135,7 +139,6 @@ const WalletComp: React.FC = () => {
     const loadWallet = async () => {
       try {
         // retrieve state of logged in wallet (if any)
-        const signInState = getBootstrapState(walletState);
         if (!signInState) {
           // check for and validate in progress sign in auth state
           let inProgressAuthState = await chromeStorageGet<string>(
@@ -791,7 +794,10 @@ const WalletComp: React.FC = () => {
       {isBasicMode && (
         <Header title={theme.wallet.title} subTitle={theme.wallet.subTitle} />
       )}
-      <Box className={classes.walletContainer} mt={showFooter ? 7 : undefined}>
+      <Box
+        className={classes.walletContainer}
+        mt={showFooter && !!authButton && !isSignInComplete ? 6.4 : undefined}
+      >
         <Wallet
           mode={isBasicMode ? "basic" : "portfolio"}
           address={authAddress}
@@ -804,8 +810,8 @@ const WalletComp: React.FC = () => {
           loginClicked={loginClicked}
           loginState={authState?.loginState}
           banner={banner}
-          disableSignInHeader
           disableBasicHeader
+          disableSignInHeader={showFooter && !!authButton && !isSignInComplete}
           fullScreenModals
           forceRememberOnDevice
           onLoginInitiated={handleAuthStart}
