@@ -3,6 +3,7 @@
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
 ## 3.1.58
+* UP.io beta branding
 * Update UP.io manifest
 * Add unique package names for UP.io and Unstoppable Domains app versions
 * Add namespace to provider background events

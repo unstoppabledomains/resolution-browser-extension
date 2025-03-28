@@ -102,6 +102,9 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
     height: "100%",
     justifyContent: "space-between",
   },
+  primaryText: {
+    color: theme.palette.wallet.text.primary,
+  },
   walletIcon: {
     width: "75px",
     height: "75px",
@@ -122,6 +125,9 @@ export const useExtensionStyles = makeStyles()((theme: Theme) => ({
   },
   button: {
     marginTop: theme.spacing(1),
+  },
+  buttonPrimary: {
+    color: theme.palette.white,
   },
   actionButton: {
     color: theme.palette.common.white,

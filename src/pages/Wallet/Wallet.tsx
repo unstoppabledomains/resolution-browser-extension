@@ -3,7 +3,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Tooltip from "@mui/material/Tooltip";
@@ -14,7 +13,6 @@ import useIsMounted from "react-is-mounted-hook";
 import {useNavigate} from "react-router-dom";
 import useAsyncEffect from "use-async-effect";
 
-import {AppEnv} from "@unstoppabledomains/config";
 import {
   CustodyState,
   DomainProfileKeys,
@@ -35,7 +33,6 @@ import {WalletBanner} from "@unstoppabledomains/ui-components/components/Wallet/
 import {TokenRefreshResponse} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 
 import Header from "../../components/Header";
-import config from "../../config";
 import useConnections from "../../hooks/useConnections";
 import usePreferences from "../../hooks/usePreferences";
 import {
@@ -113,6 +110,10 @@ const WalletComp: React.FC = () => {
   const showFooter = !authAddress || !authComplete;
   const isBasicMode = showFooter && !loginClicked && !isBasicDisabled;
 
+  // determines if sign-in is complete
+  const signInState = getBootstrapState(walletState);
+  const isSignInComplete = authComplete || signInState?.custodyState;
+
   // method to remove the window close listener, used to catch the situation
   // where user closes the window. If the window is closed by expected means,
   // this method is used to cancel the listener so the handler doesn't fire.
@@ -138,7 +139,6 @@ const WalletComp: React.FC = () => {
     const loadWallet = async () => {
       try {
         // retrieve state of logged in wallet (if any)
-        const signInState = getBootstrapState(walletState);
         if (!signInState) {
           // check for and validate in progress sign in auth state
           let inProgressAuthState = await chromeStorageGet<string>(
@@ -365,6 +365,8 @@ const WalletComp: React.FC = () => {
         <Tooltip arrow title={t("extension.appConnectionsDescription")}>
           <Box>
             <WalletBanner
+              backgroundColor={theme.palette.primary.main}
+              textColor={theme.palette.white}
               icon={<SettingsOutlinedIcon fontSize="small" />}
               action={
                 <Box display="flex">
@@ -415,6 +417,8 @@ const WalletComp: React.FC = () => {
         <Tooltip arrow title={t("extension.decentralizedBrowsingDescription")}>
           <Box>
             <WalletBanner
+              backgroundColor={theme.palette.primary.main}
+              textColor={theme.palette.white}
               icon={<SettingsOutlinedIcon fontSize="small" />}
               action={
                 <Box display="flex">
@@ -465,6 +469,8 @@ const WalletComp: React.FC = () => {
         <Tooltip arrow title={t("extension.notificationsDescription")}>
           <Box>
             <WalletBanner
+              backgroundColor={theme.palette.primary.main}
+              textColor={theme.palette.white}
               icon={<SettingsOutlinedIcon fontSize="small" />}
               action={
                 <Box display="flex">
@@ -794,23 +800,10 @@ const WalletComp: React.FC = () => {
       {isBasicMode && (
         <Header title={theme.wallet.title} subTitle={theme.wallet.subTitle} />
       )}
-      {(config.NODE_ENV as AppEnv) !== "production" && (
-        <Box
-          className={
-            !isBasicMode
-              ? classes.testNetContainerLeft
-              : classes.testNetContainerRight
-          }
-        >
-          <Chip
-            variant="filled"
-            label={config.NODE_ENV}
-            color="warning"
-            size="small"
-          />
-        </Box>
-      )}
-      <Box className={classes.walletContainer}>
+      <Box
+        className={classes.walletContainer}
+        mt={showFooter && !!authButton && !isSignInComplete ? 6.4 : undefined}
+      >
         <Wallet
           mode={isBasicMode ? "basic" : "portfolio"}
           address={authAddress}
@@ -824,6 +817,7 @@ const WalletComp: React.FC = () => {
           loginState={authState?.loginState}
           banner={banner}
           disableBasicHeader
+          disableSignInHeader={showFooter && !!authButton && !isSignInComplete}
           fullScreenModals
           forceRememberOnDevice
           onLoginInitiated={handleAuthStart}

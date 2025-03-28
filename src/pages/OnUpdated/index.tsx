@@ -1,7 +1,6 @@
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Markdown from "markdown-to-jsx";
@@ -9,7 +8,6 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import useAsyncEffect from "use-async-effect";
 
-import {AppEnv} from "@unstoppabledomains/config";
 import {
   WalletIcon,
   getBootstrapState,
@@ -17,7 +15,6 @@ import {
   useFireblocksState,
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
-import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
 
 import config from "../../config";
 import usePreferences from "../../hooks/usePreferences";
@@ -76,9 +73,7 @@ const OnUpdated: React.FC = () => {
         <Box
           className={cx(classes.contentContainer, classes.fullHeightCentered)}
         >
-          <IconPlate size={85} variant="info">
-            <WalletIcon />
-          </IconPlate>
+          <WalletIcon size={85} boxShadow={true} beta={true} />
           <Typography variant="h4" mt={2}>
             {t("extension.welcomeToVersion", {
               version: getManifestVersion() || "dev",
@@ -89,16 +84,6 @@ const OnUpdated: React.FC = () => {
               <Markdown>{config.VERSION_DESCRIPTION}</Markdown>
             </Typography>
           </Paper>
-          {(config.NODE_ENV as AppEnv) !== "production" && (
-            <Box mt={2}>
-              <Chip
-                variant="filled"
-                label={config.NODE_ENV}
-                color="warning"
-                size="small"
-              />
-            </Box>
-          )}
         </Box>
         <Box className={classes.contentContainer}>
           {isSignedOut && (
