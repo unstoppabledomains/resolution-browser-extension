@@ -3,7 +3,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Tooltip from "@mui/material/Tooltip";
@@ -14,7 +13,6 @@ import useIsMounted from "react-is-mounted-hook";
 import {useNavigate} from "react-router-dom";
 import useAsyncEffect from "use-async-effect";
 
-import {AppEnv} from "@unstoppabledomains/config";
 import {
   CustodyState,
   DomainProfileKeys,
@@ -35,7 +33,6 @@ import {WalletBanner} from "@unstoppabledomains/ui-components/components/Wallet/
 import {TokenRefreshResponse} from "@unstoppabledomains/ui-components/lib/types/fireBlocks";
 
 import Header from "../../components/Header";
-import config from "../../config";
 import useConnections from "../../hooks/useConnections";
 import usePreferences from "../../hooks/usePreferences";
 import {
@@ -794,23 +791,7 @@ const WalletComp: React.FC = () => {
       {isBasicMode && (
         <Header title={theme.wallet.title} subTitle={theme.wallet.subTitle} />
       )}
-      {(config.NODE_ENV as AppEnv) !== "production" && (
-        <Box
-          className={
-            !isBasicMode
-              ? classes.testNetContainerLeft
-              : classes.testNetContainerRight
-          }
-        >
-          <Chip
-            variant="filled"
-            label={config.NODE_ENV}
-            color="warning"
-            size="small"
-          />
-        </Box>
-      )}
-      <Box className={classes.walletContainer}>
+      <Box className={classes.walletContainer} mt={showFooter ? 7 : undefined}>
         <Wallet
           mode={isBasicMode ? "basic" : "portfolio"}
           address={authAddress}
@@ -823,6 +804,7 @@ const WalletComp: React.FC = () => {
           loginClicked={loginClicked}
           loginState={authState?.loginState}
           banner={banner}
+          disableSignInHeader
           disableBasicHeader
           fullScreenModals
           forceRememberOnDevice

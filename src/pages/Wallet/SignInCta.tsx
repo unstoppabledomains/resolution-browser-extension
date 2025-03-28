@@ -1,19 +1,14 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import React from "react";
 
-import {AppEnv} from "@unstoppabledomains/config";
 import {
   WalletIcon,
-  useCustomTheme,
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
-import IconPlate from "@unstoppabledomains/ui-kit/icons/IconPlate";
 
-import config from "../../config";
 import {useExtensionStyles} from "../../styles/extension.styles";
 
 interface SignInCtaProps {
@@ -27,7 +22,6 @@ export const SignInCta: React.FC<SignInCtaProps> = ({
 }) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
-  const theme = useCustomTheme();
 
   return (
     <Paper className={classes.container}>
@@ -35,29 +29,22 @@ export const SignInCta: React.FC<SignInCtaProps> = ({
         <Box
           className={cx(classes.contentContainer, classes.fullHeightCentered)}
         >
-          <IconPlate size={100} variant="info">
-            <WalletIcon />
-          </IconPlate>
-          <Typography variant="h4" mt={3}>
-            {theme.wallet.title}
+          <WalletIcon size={100} boxShadow={true} beta={true} />
+          <Typography
+            className={classes.primaryText}
+            variant="body1"
+            mt={5}
+            mr={2}
+            ml={2}
+          >
+            {t("manage.cryptoWalletDescription")}
           </Typography>
-          <Typography variant="body1" mt={1} mb={2}>
-            {theme.wallet.subTitle}
-          </Typography>
-          {(config.NODE_ENV as AppEnv) !== "production" && (
-            <Chip
-              variant="filled"
-              label={config.NODE_ENV}
-              color="warning"
-              size="small"
-            />
-          )}
         </Box>
         <Box className={classes.contentContainer}>
           <Button
             variant="contained"
             fullWidth
-            className={classes.button}
+            className={cx(classes.button, classes.buttonPrimary)}
             onClick={onCreateWalletClicked}
           >
             {t("wallet.createWallet")}

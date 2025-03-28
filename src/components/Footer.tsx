@@ -1,5 +1,4 @@
 import HomeIcon from "@mui/icons-material/Home";
-import WalletIcon from "@mui/icons-material/Wallet";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
@@ -48,12 +47,7 @@ const Footer: React.FC = () => {
     <Box sx={styles.main}>
       <Grid container wrap="nowrap">
         <Grid item xs zeroMinWidth>
-          <Button
-            onClick={handleEnableWallet}
-            variant="text"
-            size="small"
-            startIcon={<WalletIcon />}
-          >
+          <Button onClick={handleEnableWallet} variant="text" size="small">
             Enable wallet
           </Button>
         </Grid>
