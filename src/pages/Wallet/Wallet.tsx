@@ -365,6 +365,8 @@ const WalletComp: React.FC = () => {
         <Tooltip arrow title={t("extension.appConnectionsDescription")}>
           <Box>
             <WalletBanner
+              backgroundColor={theme.palette.primary.main}
+              textColor={theme.palette.white}
               icon={<SettingsOutlinedIcon fontSize="small" />}
               action={
                 <Box display="flex">
@@ -415,6 +417,8 @@ const WalletComp: React.FC = () => {
         <Tooltip arrow title={t("extension.decentralizedBrowsingDescription")}>
           <Box>
             <WalletBanner
+              backgroundColor={theme.palette.primary.main}
+              textColor={theme.palette.white}
               icon={<SettingsOutlinedIcon fontSize="small" />}
               action={
                 <Box display="flex">
@@ -465,6 +469,8 @@ const WalletComp: React.FC = () => {
         <Tooltip arrow title={t("extension.notificationsDescription")}>
           <Box>
             <WalletBanner
+              backgroundColor={theme.palette.primary.main}
+              textColor={theme.palette.white}
               icon={<SettingsOutlinedIcon fontSize="small" />}
               action={
                 <Box display="flex">
