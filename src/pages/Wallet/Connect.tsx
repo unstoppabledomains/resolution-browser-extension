@@ -397,8 +397,6 @@ const Connect: React.FC = () => {
           case "newTabRequest":
           case "queueRequest":
           case "signInRequest":
-          case "xmtpReadyRequest":
-          case "prepareXmtpRequest":
             return;
           default:
             // other unsupported method types can be ignored, but we'll show

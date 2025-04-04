@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.58.3",
+  "version": "3.1.59",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -45,7 +45,9 @@
     "viem@^1.0.0": "patch:viem@patch%3Aviem@npm%253A2.7.15%23./.yarn/patches/viem-npm-2.7.15-13d124cded.patch%3A%3Aversion=2.7.15&hash=b64194&locator=ud-extension%2540workspace%253A.#./.yarn/patches/viem-patch-396c1adec8.patch",
     "viem@^2.1.1": "patch:viem@patch%3Aviem@npm%253A2.7.15%23./.yarn/patches/viem-npm-2.7.15-13d124cded.patch%3A%3Aversion=2.7.15&hash=b64194&locator=ud-extension%2540workspace%253A.#./.yarn/patches/viem-patch-396c1adec8.patch",
     "@fireblocks/ncw-js-sdk@12.5.0-ext.3": "patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@patch%253A@fireblocks/ncw-js-sdk@npm%25253A12.5.0-ext.3%2523./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%253A%253Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%252540workspace%25253A.%23./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch%3A%3Aversion=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-c4aaba07ee.patch",
-    "@xmtp/content-type-remote-attachment@^1.1.9": "patch:@xmtp/content-type-remote-attachment@npm%3A1.1.9#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-1.1.9-0f06635638.patch"
+    "@xmtp/content-type-remote-attachment@^1.1.9": "patch:@xmtp/content-type-remote-attachment@npm%3A1.1.9#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-1.1.9-0f06635638.patch",
+    "@xmtp/browser-sdk@^1.1.4": "patch:@xmtp/browser-sdk@npm%3A1.1.4#./.yarn/patches/@xmtp-browser-sdk-npm-1.1.4-e737882b2e.patch",
+    "@xmtp/content-type-remote-attachment@^2.0.1": "patch:@xmtp/content-type-remote-attachment@npm%3A2.0.1#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.1-5138413ea5.patch"
   },
   "dependencies": {
     "@metamask/providers": "^17.1.2",
@@ -53,7 +55,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@unstoppabledomains/config": "0.0.26",
-    "@unstoppabledomains/ui-components": "0.0.53-browser-extension.26",
+    "@unstoppabledomains/ui-components": "0.0.53-browser-extension.27",
     "@unstoppabledomains/ui-kit": "0.3.24",
     "abitype": "^1.0.6",
     "async-mutex": "^0.5.0",

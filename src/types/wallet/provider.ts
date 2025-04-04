@@ -101,8 +101,6 @@ export const InternalMessageTypes = [
   "newTabRequest",
   "queueRequest",
   "signInRequest",
-  "xmtpReadyRequest",
-  "prepareXmtpRequest",
   "rpcRequest",
 ] as const;
 export type InternalRequestType = (typeof InternalMessageTypes)[number];
@@ -144,7 +142,6 @@ export type ResponseType =
   | "getPreferencesResponse"
   | "getDomainProfileResponse"
   | "getResolutionResponse"
-  | "prepareXmtpResponse"
   | "rpcResponse"
 
   // Solana types
