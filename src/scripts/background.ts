@@ -1,6 +1,5 @@
 import {ContextMenu} from "../lib/sherlock/contextMenu";
 import {waitForSessionLock} from "../lib/wallet/session/locker";
-import {waitForXmtpMessages} from "../lib/xmtp/listener";
 import "../subscripts/onInstalled";
 import {
   backgroundEventListener,
@@ -30,11 +29,6 @@ chrome.tabs.onUpdated.addListener(tabUpdatedEventListener);
  ********************************** */
 const contextMenu = new ContextMenu();
 void contextMenu.waitForEvents();
-
-/** *********************************
- * XMTP listener
- ********************************** */
-void waitForXmtpMessages();
 
 /** *********************************
  * Session lock listener

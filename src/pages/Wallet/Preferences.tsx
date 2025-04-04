@@ -7,18 +7,15 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Markdown from "markdown-to-jsx";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {titleCase} from "title-case";
 import useAsyncEffect from "use-async-effect";
 
 import {
-  DomainProfileKeys,
   LightDarkToggle,
   Link,
   Modal,
-  localStorageWrapper,
   useCustomTheme,
-  useFireblocksAccessToken,
   useTranslationContext,
 } from "@unstoppabledomains/ui-components";
 import {WalletPreference} from "@unstoppabledomains/ui-components/components/Wallet/WalletPreference";
@@ -41,7 +38,6 @@ import {
   getDefaultPreferences,
   setWalletPreferences,
 } from "../../lib/wallet/preferences";
-import {prepareXmtpInBackground} from "../../lib/xmtp/state";
 import {useExtensionStyles} from "../../styles/extension.styles";
 
 interface PreferencesProps {
@@ -51,7 +47,6 @@ interface PreferencesProps {
 export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
   const {classes, cx} = useExtensionStyles();
   const [t] = useTranslationContext();
-  const getAccessToken = useFireblocksAccessToken();
   const {preferences, setPreferences} = usePreferences();
   const {connections, setConnections} = useConnections();
   const [compatModeSuccess, setCompatModeSuccess] = useState(false);
@@ -127,17 +122,6 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     preferences.MessagingEnabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
-
-    // sign the user in if enabling
-    if (preferences.MessagingEnabled) {
-      const address = await localStorageWrapper.getItem(
-        DomainProfileKeys.AuthAddress,
-      );
-      if (address) {
-        const accessToken = await getAccessToken();
-        await prepareXmtpInBackground(accessToken, address);
-      }
-    }
   };
 
   const handleNotifications = async (

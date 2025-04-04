@@ -22,7 +22,6 @@ import {
   getBootstrapState,
   isEthAddress,
   localStorageWrapper,
-  notifyEvent,
   useCustomTheme,
   useFireblocksAccessToken,
   useFireblocksState,
@@ -61,11 +60,6 @@ import {
   setWalletPreferences,
 } from "../../lib/wallet/preferences";
 import {getProviderRequest, getXmtpChatAddress} from "../../lib/wallet/request";
-import {sleep} from "../../lib/wallet/sleep";
-import {
-  notifyXmtpServiceWorker,
-  prepareXmtpInBackground,
-} from "../../lib/xmtp/state";
 import {useExtensionStyles} from "../../styles/extension.styles";
 import {AuthState, FIVE_MINUTES} from "../../types/wallet/auth";
 import {ResponseType, getResponseType} from "../../types/wallet/provider";
@@ -318,16 +312,6 @@ const WalletComp: React.FC = () => {
     }
   }, [showSignInCta, preferences]);
 
-  // ensure XMTP is initialized once the page is finished loading
-  useEffect(() => {
-    if (!authAddress || !isLoaded || isChatReady) {
-      return;
-    }
-
-    // prepare XMTP for use
-    void handlePrepareXmtp();
-  }, [authAddress, isChatReady, isLoaded]);
-
   // open XMTP chat panel if requested
   useEffect(() => {
     if (!authAddress || !isChatReady) {
@@ -340,9 +324,6 @@ const WalletComp: React.FC = () => {
       setOpenChat(xmtpChatAddress);
       return;
     }
-
-    // wait for XMTP to be ready and notify the service worker
-    void notifyXmtpServiceWorker(authAddress);
   }, [authAddress, isChatReady]);
 
   // ensure the sign-in email address is recorded in account state
@@ -530,15 +511,6 @@ const WalletComp: React.FC = () => {
       }
       navigate("/connect");
     }
-
-    // ensure XMTP is ready
-    try {
-      await handlePrepareXmtp();
-    } catch (e) {
-      notifyEvent(e, "warning", "Messaging", "Background", {
-        msg: "error preparing XMTP",
-      });
-    }
   };
 
   const handleAuthStart = async (
@@ -558,29 +530,6 @@ const WalletComp: React.FC = () => {
       JSON.stringify(s),
       "session",
     );
-  };
-
-  const handlePrepareXmtp = async () => {
-    // wait for XMTP to be ready
-    chrome.storage.local.onChanged.addListener(changes => {
-      if (changes[StorageSyncKey.XmtpKey]) {
-        setIsChatReady(true);
-        setMessagingEnabled(true);
-      }
-    });
-
-    // wait a few seconds to avoid a sign in race condition
-    await sleep(2000);
-
-    // validate the access token can be retrieved
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
-      await handleLogout(false);
-      return;
-    }
-
-    // sign into the XMTP account
-    await prepareXmtpInBackground(accessToken, authAddress);
   };
 
   const handleCreateWallet = async () => {

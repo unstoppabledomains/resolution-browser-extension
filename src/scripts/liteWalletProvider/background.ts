@@ -17,8 +17,6 @@ import {
 } from "../../lib/wallet/evm/connection";
 import {getWalletPreferences} from "../../lib/wallet/preferences";
 import {sleep} from "../../lib/wallet/sleep";
-import {waitForXmtpMessages} from "../../lib/xmtp/listener";
-import {prepareXmtpAccount} from "../../lib/xmtp/prepare";
 import {ConnectedSite} from "../../types/wallet/connection";
 import {
   NotConnectedError,
@@ -71,7 +69,10 @@ export const backgroundEventListener = (
   const isRequest =
     isExternalRequestType(request.type) || isInternalRequestType(request.type);
   if (isRequest) {
-    if (!Array.isArray(request.params) || !request.params.includes(config.extension.rdns)) {
+    if (
+      !Array.isArray(request.params) ||
+      !request.params.includes(config.extension.rdns)
+    ) {
       Logger.warn(
         "Ignoring event from unknown namespace",
         JSON.stringify({request}),
@@ -94,14 +95,6 @@ export const backgroundEventListener = (
         break;
       case "queueRequest":
         void handleQueueUpdate(request);
-        break;
-      case "prepareXmtpRequest":
-        void handlePrepareXmtp(request, popupResponseHandler);
-        break;
-      case "xmtpReadyRequest":
-        if (request.params && request.params.length > 0) {
-          void waitForXmtpMessages(request.params[0]);
-        }
         break;
       case "rpcRequest":
         void handleRpcRequest(request, popupResponseHandler);
@@ -393,26 +386,6 @@ const handleFetchDomainProfile = async (
     type: getResponseType("getDomainProfileRequest"),
     profile: profileData,
   });
-};
-
-const handlePrepareXmtp = async (
-  request: ProviderRequest,
-  popupResponseHandler: (response: ProviderEventResponse) => void,
-) => {
-  // validate params are present
-  if (!request?.params || request.params.length === 0) {
-    return;
-  }
-
-  // parse the parameters and prepare the account
-  const params = JSON.parse(request.params[0]);
-  if (params?.accessToken && params.address) {
-    await prepareXmtpAccount(params.accessToken, params.address);
-    handleResponse(popupResponseHandler, {
-      type: getResponseType("prepareXmtpRequest"),
-      address: params.address,
-    });
-  }
 };
 
 const handleRpcRequest = async (
