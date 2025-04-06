@@ -5,6 +5,7 @@ Release build history can be found on [GitHub](https://github.com/unstoppabledom
 ## 3.1.59
 * Upgrade to XMTP v3
 * Introduce dedicated chat tab
+* Update connect icon
 
 ## 3.1.58
 * UP.io beta branding
