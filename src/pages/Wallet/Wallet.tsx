@@ -334,7 +334,7 @@ const WalletComp: React.FC = () => {
   }, [authState]);
 
   const handleRefreshBanner = async () => {
-    // check app connections banner
+    // All modes - check app connections banner
     const isAppConnectionEnabled = await hasOptionalPermissions([
       PermissionType.Tabs,
     ]);
@@ -386,14 +386,18 @@ const WalletComp: React.FC = () => {
       return;
     }
 
-    // check decentralized browsing banner
+    // UD.me mode - check decentralized browsing banner
     const isBrowsingEnabled = await hasOptionalPermissions([
       PermissionType.DeclarativeNetRequest,
     ]);
     const isBrowsingCleared = await chromeStorageGet<number>(
       StorageSyncKey.BannerDecentralizedBrowsing,
     );
-    if (!isBrowsingEnabled && !isBrowsingCleared) {
+    if (
+      !isBrowsingEnabled &&
+      !isBrowsingCleared &&
+      theme.wallet.type === "udme"
+    ) {
       setBanner(
         <Tooltip arrow title={t("extension.decentralizedBrowsingDescription")}>
           <Box>
@@ -438,14 +442,18 @@ const WalletComp: React.FC = () => {
       return;
     }
 
-    // check notifications banner
+    // UD.me mode - check notifications banner
     const isNotificationEnabled = await hasOptionalPermissions([
       PermissionType.Notifications,
     ]);
     const isNotificationCleared = await chromeStorageGet<number>(
       StorageSyncKey.BannerNotifications,
     );
-    if (!isNotificationEnabled && !isNotificationCleared) {
+    if (
+      !isNotificationEnabled &&
+      !isNotificationCleared &&
+      theme.wallet.type === "udme"
+    ) {
       setBanner(
         <Tooltip arrow title={t("extension.notificationsDescription")}>
           <Box>
