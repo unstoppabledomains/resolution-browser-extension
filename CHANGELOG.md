@@ -4,6 +4,7 @@ Release build history can be found on [GitHub](https://github.com/unstoppabledom
 
 ## 3.1.60
 * Large transfer protection with 2FA
+* Update support landing page link
 
 ## 3.1.59
 * Upgrade to XMTP v3
