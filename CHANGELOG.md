@@ -2,6 +2,9 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+## 3.1.60
+* Large transfer protection with 2FA
+
 ## 3.1.59
 * Upgrade to XMTP v3
 * Introduce dedicated chat tab
