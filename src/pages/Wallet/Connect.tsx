@@ -118,7 +118,7 @@ const Connect: React.FC = () => {
     setTxLockStatus,
     accessToken,
     setAccessToken,
-  } = useWeb3Context();
+  } = useWeb3Context({enforcePin: true});
   const fireblocksMessageSigner = useFireblocksMessageSigner();
   const {preferences} = usePreferences();
   const [errorMessage, setErrorMessage] = useState<string>();
