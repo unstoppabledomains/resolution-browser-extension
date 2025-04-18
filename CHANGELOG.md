@@ -6,6 +6,7 @@ Release build history can be found on [GitHub](https://github.com/unstoppabledom
 * Large transfer protection with 2FA
 * Update support landing page link
 * Fix Solana transaction creation bug
+* Fix wallet connection bug when session is locked
 
 ## 3.1.59
 * Upgrade to XMTP v3
