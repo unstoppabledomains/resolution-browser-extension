@@ -6389,9 +6389,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.30":
-  version: 0.0.53-browser-extension.30
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.30"
+"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.31":
+  version: 0.0.53-browser-extension.31
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.31"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6428,8 +6428,8 @@ __metadata:
     "@unstoppabledomains/resolution": ^8.5.0
     "@web3-react/core": ^8.2.2
     "@web3-storage/w3up-client": ^12.0.0
-    "@xmtp/browser-sdk": ^1.1.4
-    "@xmtp/content-type-remote-attachment": ^2.0.1
+    "@xmtp/browser-sdk": ^2.0.7
+    "@xmtp/content-type-remote-attachment": ^2.0.2
     abitype: ^1.0.6
     bip322-js: ^1.1.0
     bitcoin-address-validation: ^2.2.3
@@ -6492,7 +6492,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 8e887aae7323add2a5592078b6efe0f6cd0c25dbe22e8de95159da0c2e3f3775c4feee321d8d678f396f0e4b6b1d3bb632e531aa8ad0c67523504c1b46348a73
+  checksum: af7c79714ccfcc52f3f849db19531d2914095b5299affd5d55a582751a527aacc7b53380d9bb122f2c33362549ce23543a655ebd9f55e48504d3be468ff1780d
   languageName: node
   linkType: hard
 
@@ -7320,81 +7320,56 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/browser-sdk@npm:1.1.4":
-  version: 1.1.4
-  resolution: "@xmtp/browser-sdk@npm:1.1.4"
+"@xmtp/browser-sdk@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "@xmtp/browser-sdk@npm:2.0.7"
   dependencies:
-    "@xmtp/content-type-group-updated": ^2.0.1
-    "@xmtp/content-type-primitives": ^2.0.1
-    "@xmtp/content-type-text": ^2.0.1
+    "@xmtp/content-type-group-updated": ^2.0.2
+    "@xmtp/content-type-primitives": ^2.0.2
+    "@xmtp/content-type-text": ^2.0.2
     "@xmtp/proto": ^3.78.0
-    "@xmtp/wasm-bindings": ^1.1.3
+    "@xmtp/wasm-bindings": 1.2.0-dev.b600c5c
     uuid: ^11.1.0
-  checksum: 9672ccf86a6259a519515458ff87ebc02a0c4d774b253d6cc16738d91bcb97606beb04147e9a5f9d094d4831c414a85fdb7c48b724c07ffa5639ac2163329948
+  checksum: 8f09f7f6af1e6dc6b8be836b31a0151da30105b09fc8514d1ed8e77e733e07ef2c32cc6920ee506a03abe6137712df6edac08b20b9f4d0fe10896f8455075f58
   languageName: node
   linkType: hard
 
-"@xmtp/browser-sdk@patch:@xmtp/browser-sdk@npm%3A1.1.4#./.yarn/patches/@xmtp-browser-sdk-npm-1.1.4-e737882b2e.patch::locator=ud-extension%40workspace%3A.":
-  version: 1.1.4
-  resolution: "@xmtp/browser-sdk@patch:@xmtp/browser-sdk@npm%3A1.1.4#./.yarn/patches/@xmtp-browser-sdk-npm-1.1.4-e737882b2e.patch::version=1.1.4&hash=dc9041&locator=ud-extension%40workspace%3A."
+"@xmtp/content-type-group-updated@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-group-updated@npm:2.0.2"
   dependencies:
-    "@xmtp/content-type-group-updated": ^2.0.1
-    "@xmtp/content-type-primitives": ^2.0.1
-    "@xmtp/content-type-text": ^2.0.1
+    "@xmtp/content-type-primitives": ^2.0.2
     "@xmtp/proto": ^3.78.0
-    "@xmtp/wasm-bindings": ^1.1.3
-    uuid: ^11.1.0
-  checksum: c81f84ae42e6eb336ad18544c1ef2aaa95aab1909b0ad79a27ebf7c835ae06d041f5649474ff0a4e7994d7c5e8153dd75d7bd1f9df009b2db4ff04455f47c0d3
+  checksum: 88ffce220ab1b1112e002d39e85ed8493629c354587732fd17a39e6757abe94d3390c4f183f683f0360888ae94fcafe9bdf422920d7fd28baf15aa9c3cdb6330
   languageName: node
   linkType: hard
 
-"@xmtp/content-type-group-updated@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@xmtp/content-type-group-updated@npm:2.0.1"
-  dependencies:
-    "@xmtp/content-type-primitives": ^2.0.1
-    "@xmtp/proto": ^3.78.0
-  checksum: dfb099f00fdef5787821a36c4bcfbd801a95d76ed5585c339dac38a0f1fe841e66837390b154a6fa32d4e2f05b152c1db027f761cbf9a0fb2d23750d2cc4891c
-  languageName: node
-  linkType: hard
-
-"@xmtp/content-type-primitives@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@xmtp/content-type-primitives@npm:2.0.1"
+"@xmtp/content-type-primitives@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-primitives@npm:2.0.2"
   dependencies:
     "@xmtp/proto": ^3.78.0
-  checksum: a3d8d8a23e140399f3a88c31ddc6177a3f53e4685ae918ccf174cc78e695fc2b8cb464af1b35cfd83b2a6731356d11cf4eb19277bf9f1b7c00f4bb63d135159a
+  checksum: 4e3581ef9e23864bf741705d6011613c6c0b2670b7431f55033769514f0879ff4573d1b442a858cbdd4ee1e493d6fe070ebe8cbd9577a505cd89d2d89e085f97
   languageName: node
   linkType: hard
 
-"@xmtp/content-type-remote-attachment@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@xmtp/content-type-remote-attachment@npm:2.0.1"
+"@xmtp/content-type-remote-attachment@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-remote-attachment@npm:2.0.2"
   dependencies:
     "@noble/secp256k1": ^2.2.3
-    "@xmtp/content-type-primitives": ^2.0.1
+    "@xmtp/content-type-primitives": ^2.0.2
     "@xmtp/proto": ^3.78.0
-  checksum: 24b0fd1e27d033458fa9483c403b4c6ff32f19a547ea6691914314058b2d51b250b5510309e7a2df411002f3513a295452d40e9d0c57026cf8fa4bb02c7b0a60
+  checksum: 6d4cad9c1217c5466e70850240f8dd7fbc99871263b63ab5fbd4418b9d576493ff78a1e246d4dbcb6ac1c41da391eb6e1c81bb30afb3934979fbe0f41c3eb98c
   languageName: node
   linkType: hard
 
-"@xmtp/content-type-remote-attachment@patch:@xmtp/content-type-remote-attachment@npm%3A2.0.1#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.1-5138413ea5.patch::locator=ud-extension%40workspace%3A.":
-  version: 2.0.1
-  resolution: "@xmtp/content-type-remote-attachment@patch:@xmtp/content-type-remote-attachment@npm%3A2.0.1#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.1-5138413ea5.patch::version=2.0.1&hash=20eda5&locator=ud-extension%40workspace%3A."
+"@xmtp/content-type-text@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-text@npm:2.0.2"
   dependencies:
-    "@noble/secp256k1": ^2.2.3
-    "@xmtp/content-type-primitives": ^2.0.1
-    "@xmtp/proto": ^3.78.0
-  checksum: 39ca2f876dc171139703b869c4ad0524427585517805cb4445e637dd35ac0238340b5c0b3d65845c8836a1b0551dab55380a15cb263c37126faad406d916b71d
-  languageName: node
-  linkType: hard
-
-"@xmtp/content-type-text@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@xmtp/content-type-text@npm:2.0.1"
-  dependencies:
-    "@xmtp/content-type-primitives": ^2.0.1
-  checksum: a44271aee2f9cafe9ca4721ff7fa86288e2c9be4188b998d9780528781a279fbeb29d99df56fb4442eaf5235a5547b50112348e8e3de54ed6038f71a76f28aab
+    "@xmtp/content-type-primitives": ^2.0.2
+  checksum: 8443ca0c19f95382fdd7345cc8b810f9d1476b206aaec8dbedd1ae36a0e7d997e25d04de6616e8779bf14d8de59a8aa8658ca29014dc0bf71f354069d4d4c959
   languageName: node
   linkType: hard
 
@@ -7410,10 +7385,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/wasm-bindings@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "@xmtp/wasm-bindings@npm:1.1.3"
-  checksum: 3a71e3f6ecdce7e2bc4675c1d41a99610195a842ac04c09b419432687ab2d3dd71746aae2fb9fc7d5546769a5747a3e5022d2b1f4ec520ed03b55255237cb21d
+"@xmtp/wasm-bindings@npm:1.2.0-dev.b600c5c":
+  version: 1.2.0-dev.b600c5c
+  resolution: "@xmtp/wasm-bindings@npm:1.2.0-dev.b600c5c"
+  checksum: d96a78458e2eaeeed9ce0a9bc61c92d593c7fd5483df479ccb5c7b486cf4ef72066e0b5567f745500b2363e295fe061d2281a4a27ef927ff16e4e3deea006ab3
   languageName: node
   linkType: hard
 
@@ -21179,7 +21154,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
     "@unstoppabledomains/config": 0.0.27
-    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.30
+    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.31
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0

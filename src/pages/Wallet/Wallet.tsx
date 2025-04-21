@@ -559,6 +559,15 @@ const WalletComp: React.FC = () => {
     setShowSignInCta(false);
   };
 
+  const handleUseExistingAccount = async (emailAddress: string) => {
+    // ensure user is signed out
+    await handleLogout(false, true);
+    setAuthState({
+      emailAddress,
+      password: "",
+    });
+  };
+
   const handleLogout = async (close = true, showCta = true) => {
     // clear extension storage
     await chromeStorageClear("local");
@@ -780,6 +789,7 @@ const WalletComp: React.FC = () => {
           onLoginInitiated={handleAuthStart}
           onLogout={() => handleLogout(true, false)}
           onError={() => handleLogout(false, false)}
+          onUseExistingAccount={handleUseExistingAccount}
           onDisconnect={isConnected ? handleDisconnect : undefined}
           onSettingsClick={handleShowPreferences}
           onSidePanelClick={
