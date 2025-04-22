@@ -23,7 +23,6 @@ import {
   isEthAddress,
   localStorageWrapper,
   useCustomTheme,
-  useFireblocksAccessToken,
   useFireblocksState,
   useTranslationContext,
   useUnstoppableMessaging,
@@ -77,13 +76,11 @@ const WalletComp: React.FC = () => {
   const navigate = useNavigate();
   const theme = useCustomTheme();
   const [walletState] = useFireblocksState();
-  const getAccessToken = useFireblocksAccessToken();
   const {classes} = useExtensionStyles();
   const {enqueueSnackbar, closeSnackbar} = useSnackbar();
   const [t] = useTranslationContext();
   const {preferences, refreshPreferences} = usePreferences();
-  const {isChatReady, setIsChatReady, setOpenChat, setIsChatOpen} =
-    useUnstoppableMessaging();
+  const {isChatReady, setOpenChat, setIsChatOpen} = useUnstoppableMessaging();
   const {isConnected, disconnect} = useConnections();
   const [isNewUser, setIsNewUser] = useState<boolean>();
   const [loginClicked, setLoginClicked] = useState<boolean>();
@@ -561,7 +558,7 @@ const WalletComp: React.FC = () => {
 
   const handleUseExistingAccount = async (emailAddress: string) => {
     // ensure user is signed out
-    await handleLogout(false, true);
+    await handleLogout(true, false);
     setAuthState({
       emailAddress,
       password: "",
