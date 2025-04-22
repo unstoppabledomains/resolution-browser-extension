@@ -1,6 +1,6 @@
 {
   "name": "ud-extension",
-  "version": "3.1.60.5",
+  "version": "3.1.61",
   "license": "MIT",
   "author": {
     "email": "eng@unstoppabledomains.com",
@@ -47,7 +47,8 @@
     "@fireblocks/ncw-js-sdk@12.5.0-ext.3": "patch:@fireblocks/ncw-js-sdk@patch%3A@fireblocks/ncw-js-sdk@patch%253A@fireblocks/ncw-js-sdk@npm%25253A12.5.0-ext.3%2523./.yarn/patches/@fireblocks-ncw-js-sdk-npm-12.5.0-ext.3-139ddbcdba.patch%253A%253Aversion=12.5.0-ext.3&hash=fe0425&locator=ud-extension%252540workspace%25253A.%23./.yarn/patches/@fireblocks-ncw-js-sdk-patch-9ca5cfdf37.patch%3A%3Aversion=12.5.0-ext.3&hash=e0e1df&locator=ud-extension%2540workspace%253A.#./.yarn/patches/@fireblocks-ncw-js-sdk-patch-c4aaba07ee.patch",
     "@xmtp/content-type-remote-attachment@^1.1.9": "patch:@xmtp/content-type-remote-attachment@npm%3A1.1.9#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-1.1.9-0f06635638.patch",
     "@xmtp/browser-sdk@^1.1.4": "patch:@xmtp/browser-sdk@npm%3A1.1.4#./.yarn/patches/@xmtp-browser-sdk-npm-1.1.4-e737882b2e.patch",
-    "@xmtp/content-type-remote-attachment@^2.0.1": "patch:@xmtp/content-type-remote-attachment@npm%3A2.0.1#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.1-5138413ea5.patch"
+    "@xmtp/content-type-remote-attachment@^2.0.1": "patch:@xmtp/content-type-remote-attachment@npm%3A2.0.1#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.1-5138413ea5.patch",
+    "@xmtp/content-type-remote-attachment@^2.0.2": "patch:@xmtp/content-type-remote-attachment@npm%3A2.0.2#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.2-f8c7a3f48d.patch"
   },
   "dependencies": {
     "@metamask/providers": "^17.1.2",
