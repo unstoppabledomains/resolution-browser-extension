@@ -2,6 +2,9 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+## 3.1.61
+* Fix XMTP bug that prevents service worker from starting
+
 ## 3.1.60
 * Large transfer protection with 2FA
 * Update support landing page link
