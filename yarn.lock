@@ -7353,7 +7353,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/content-type-remote-attachment@npm:^2.0.2":
+"@xmtp/content-type-remote-attachment@npm:2.0.2":
   version: 2.0.2
   resolution: "@xmtp/content-type-remote-attachment@npm:2.0.2"
   dependencies:
@@ -7361,6 +7361,17 @@ __metadata:
     "@xmtp/content-type-primitives": ^2.0.2
     "@xmtp/proto": ^3.78.0
   checksum: 6d4cad9c1217c5466e70850240f8dd7fbc99871263b63ab5fbd4418b9d576493ff78a1e246d4dbcb6ac1c41da391eb6e1c81bb30afb3934979fbe0f41c3eb98c
+  languageName: node
+  linkType: hard
+
+"@xmtp/content-type-remote-attachment@patch:@xmtp/content-type-remote-attachment@npm%3A2.0.2#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.2-f8c7a3f48d.patch::locator=ud-extension%40workspace%3A.":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-remote-attachment@patch:@xmtp/content-type-remote-attachment@npm%3A2.0.2#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.2-f8c7a3f48d.patch::version=2.0.2&hash=20eda5&locator=ud-extension%40workspace%3A."
+  dependencies:
+    "@noble/secp256k1": ^2.2.3
+    "@xmtp/content-type-primitives": ^2.0.2
+    "@xmtp/proto": ^3.78.0
+  checksum: 5dbc70b9bcef4821cb41f4f31ab420c480d63277b61277ae410362b52672b0e2f20961ed6978fd58595a87330b4f7b9ea733f806651c2bf40031d9c066b0e3f7
   languageName: node
   linkType: hard
 
