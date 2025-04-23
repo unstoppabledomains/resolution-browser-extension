@@ -4,6 +4,7 @@ Release build history can be found on [GitHub](https://github.com/unstoppabledom
 
 ## 3.1.61
 * Fix XMTP bug that prevents service worker from starting
+* Clear connection request badge notifications when extension is opened
 
 ## 3.1.60
 * Large transfer protection with 2FA

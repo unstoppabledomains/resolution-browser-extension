@@ -288,6 +288,9 @@ const WalletComp: React.FC = () => {
       return;
     }
 
+    // handle unhandled connection badges
+    await handleConnectionBadges();
+
     // handle message notifications if necessary
     await handleUnreadMessages();
 
@@ -656,6 +659,17 @@ const WalletComp: React.FC = () => {
       await requestOptionalPermissions(request);
     }
     await handleRefreshBanner();
+  };
+
+  const handleConnectionBadges = async () => {
+    // determine if there is an unhandled connection request badge
+    const badgeCount = await getBadgeCount(BadgeColor.Green);
+    if (badgeCount === 0) {
+      return;
+    }
+
+    // clear the badge count
+    await setBadgeCount(0, BadgeColor.Green);
   };
 
   const handleUnreadMessages = async () => {
