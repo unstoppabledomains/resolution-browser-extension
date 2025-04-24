@@ -3,6 +3,7 @@
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
 ## 3.1.61
+* Fix MagicEden transaction signing bug
 * Fix XMTP bug that prevents service worker from starting
 * Clear connection request badge notifications when extension is opened
 

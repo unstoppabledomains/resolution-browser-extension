@@ -30,7 +30,10 @@ export type SolanaChain = (typeof SOLANA_CHAINS)[number];
  * Check if a chain corresponds with one of the Solana clusters.
  */
 export function isSolanaChain(chain: IdentifierString): chain is SolanaChain {
-  return SOLANA_CHAINS.includes(chain as SolanaChain);
+  return (
+    SOLANA_CHAINS.includes(chain as SolanaChain) ||
+    chain.toLowerCase().startsWith("solana")
+  );
 }
 
 export const deserializeTxB58 = (
