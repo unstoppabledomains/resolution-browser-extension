@@ -227,7 +227,7 @@ export class SolanaWallet implements Wallet {
       const {minContextSlot, preflightCommitment, skipPreflight, maxRetries} =
         options || {};
       if (account !== this.#account) throw new Error("invalid account");
-      if (!isSolanaChain(chain)) throw new Error("invalid chain");
+      if (!isSolanaChain(chain)) throw new Error(`invalid chain: ${chain}`);
 
       const {signature} = await this.#provider.signAndSendTransaction(
         VersionedTransaction.deserialize(transaction),
