@@ -6389,9 +6389,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.34":
-  version: 0.0.53-browser-extension.34
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.34"
+"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.35":
+  version: 0.0.53-browser-extension.35
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.35"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6428,7 +6428,7 @@ __metadata:
     "@unstoppabledomains/resolution": ^8.5.0
     "@web3-react/core": ^8.2.2
     "@web3-storage/w3up-client": ^12.0.0
-    "@xmtp/browser-sdk": ^2.0.7
+    "@xmtp/browser-sdk": ^2.0.12
     "@xmtp/content-type-remote-attachment": ^2.0.2
     abitype: ^1.0.6
     bip322-js: ^1.1.0
@@ -6492,7 +6492,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: aeee9c969b971687a54fa86ca07fa3f917a4a06ad975c843c875fccfba080fa081e2a13dee53aeca88ead67532618cab07bc9d9ed3e9833801c990f5f417478f
+  checksum: 7764a50a6e181958c6628fe02a3518d77b188ba4cb739a32f0a6967b9d5cb7a25d0a121f3983f412f7dc4143da0107f0136cfca26fab056f22460d2933fa9f38
   languageName: node
   linkType: hard
 
@@ -7320,17 +7320,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/browser-sdk@npm:^2.0.7":
-  version: 2.0.7
-  resolution: "@xmtp/browser-sdk@npm:2.0.7"
+"@xmtp/browser-sdk@npm:^2.0.12":
+  version: 2.0.12
+  resolution: "@xmtp/browser-sdk@npm:2.0.12"
   dependencies:
     "@xmtp/content-type-group-updated": ^2.0.2
     "@xmtp/content-type-primitives": ^2.0.2
     "@xmtp/content-type-text": ^2.0.2
     "@xmtp/proto": ^3.78.0
-    "@xmtp/wasm-bindings": 1.2.0-dev.b600c5c
+    "@xmtp/wasm-bindings": 1.1.7
     uuid: ^11.1.0
-  checksum: 8f09f7f6af1e6dc6b8be836b31a0151da30105b09fc8514d1ed8e77e733e07ef2c32cc6920ee506a03abe6137712df6edac08b20b9f4d0fe10896f8455075f58
+  checksum: e8d9e1e6833c57ed865536cbe7b871ddebade256473f0de953895c567e5f201023478dcef2160d5ed011768eb332a12a412302e0f98f34e0344d136c36806860
   languageName: node
   linkType: hard
 
@@ -7396,10 +7396,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/wasm-bindings@npm:1.2.0-dev.b600c5c":
-  version: 1.2.0-dev.b600c5c
-  resolution: "@xmtp/wasm-bindings@npm:1.2.0-dev.b600c5c"
-  checksum: d96a78458e2eaeeed9ce0a9bc61c92d593c7fd5483df479ccb5c7b486cf4ef72066e0b5567f745500b2363e295fe061d2281a4a27ef927ff16e4e3deea006ab3
+"@xmtp/wasm-bindings@npm:1.1.7":
+  version: 1.1.7
+  resolution: "@xmtp/wasm-bindings@npm:1.1.7"
+  checksum: d968bf70626d7ffda0143a98fd757cd03f9002041c4a2b80c7c9f1e8486b4f7ad4e94fe1e620a4fd4b9052c29495615cb68d5458ce92bb0dc2dd39df30d1dcb5
   languageName: node
   linkType: hard
 
@@ -21165,7 +21165,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
     "@unstoppabledomains/config": 0.0.27
-    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.34
+    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.35
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
