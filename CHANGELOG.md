@@ -4,6 +4,7 @@ Release build history can be found on [GitHub](https://github.com/unstoppabledom
 
 ## 3.1.62
 * Support to transfer NFTs on EVM and Solana blockchains
+* Update XMTP version
 
 ## 3.1.61
 * Fix MagicEden transaction signing bug
