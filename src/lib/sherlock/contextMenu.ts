@@ -189,7 +189,7 @@ export class ContextMenu {
     if (!this.preferences.Sherlock?.IgnoreOrigins) {
       const defaultPreferences = getDefaultPreferences();
       this.preferences.Sherlock = {
-        Enabled: true,
+        Enabled: defaultPreferences.Sherlock.Enabled,
         AllowOrigins: defaultPreferences.Sherlock.AllowOrigins,
         IgnoreOrigins: defaultPreferences.Sherlock.IgnoreOrigins,
       };
