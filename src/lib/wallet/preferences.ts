@@ -28,12 +28,12 @@ export const getWalletPreferences = async (): Promise<WalletPreferences> => {
       if (basePreferences.MessagingEnabled === undefined) {
         basePreferences.MessagingEnabled = defaultPreferences.MessagingEnabled;
       }
-      if (basePreferences.Scanning === undefined) {
-        basePreferences.Scanning = defaultPreferences.Scanning;
+      if (basePreferences.Sherlock === undefined) {
+        basePreferences.Sherlock = defaultPreferences.Sherlock;
       }
-      if (basePreferences.Scanning.AllowOrigins === undefined) {
-        basePreferences.Scanning.AllowOrigins =
-          defaultPreferences.Scanning.AllowOrigins;
+      if (basePreferences.Sherlock.AllowOrigins === undefined) {
+        basePreferences.Sherlock.AllowOrigins =
+          defaultPreferences.Sherlock.AllowOrigins;
       }
       if (basePreferences.TwoFactorAuth === undefined) {
         basePreferences.TwoFactorAuth = defaultPreferences.TwoFactorAuth;
@@ -58,8 +58,8 @@ export const getDefaultPreferences = (): WalletPreferences => {
     VersionInfo: config.VERSION_DESCRIPTION,
     MessagingEnabled: true,
     AppConnectionsEnabled: false,
-    Scanning: {
-      Enabled: true,
+    Sherlock: {
+      Enabled: false, // disabled by default
       AllowOrigins: [
         // enable X by default
         "https://x.com",

@@ -186,31 +186,31 @@ export class ContextMenu {
   async handleSherlockMenu(origin: string) {
     // retrieve current preferences and initialize if needed
     this.preferences = await getWalletPreferences();
-    if (!this.preferences.Scanning?.IgnoreOrigins) {
+    if (!this.preferences.Sherlock?.IgnoreOrigins) {
       const defaultPreferences = getDefaultPreferences();
-      this.preferences.Scanning = {
-        Enabled: true,
-        AllowOrigins: defaultPreferences.Scanning.AllowOrigins,
-        IgnoreOrigins: defaultPreferences.Scanning.IgnoreOrigins,
+      this.preferences.Sherlock = {
+        Enabled: defaultPreferences.Sherlock.Enabled,
+        AllowOrigins: defaultPreferences.Sherlock.AllowOrigins,
+        IgnoreOrigins: defaultPreferences.Sherlock.IgnoreOrigins,
       };
     }
 
     // update current preferences
     if (this.isSherlockDisabled(origin)) {
       // enable sherlock
-      const ignoreOrigins = this.preferences.Scanning.IgnoreOrigins.filter(
+      const ignoreOrigins = this.preferences.Sherlock.IgnoreOrigins.filter(
         h => !h.toLowerCase().includes(origin.toLowerCase()),
       );
-      this.preferences.Scanning.Enabled = true;
-      this.preferences.Scanning.IgnoreOrigins = ignoreOrigins;
-      this.preferences.Scanning.AllowOrigins.push(origin.toLowerCase());
+      this.preferences.Sherlock.Enabled = true;
+      this.preferences.Sherlock.IgnoreOrigins = ignoreOrigins;
+      this.preferences.Sherlock.AllowOrigins.push(origin.toLowerCase());
     } else {
       // disable sherlock
-      const allowOrigins = this.preferences.Scanning.AllowOrigins.filter(
+      const allowOrigins = this.preferences.Sherlock.AllowOrigins.filter(
         h => !h.toLowerCase().includes(origin.toLowerCase()),
       );
-      this.preferences.Scanning.AllowOrigins = allowOrigins;
-      this.preferences.Scanning.IgnoreOrigins.push(origin.toLowerCase());
+      this.preferences.Sherlock.AllowOrigins = allowOrigins;
+      this.preferences.Sherlock.IgnoreOrigins.push(origin.toLowerCase());
     }
 
     // update menu and store preferences
@@ -221,13 +221,13 @@ export class ContextMenu {
   isSherlockDisabled(origin: string) {
     return (
       // scanning globally disabled
-      !this.preferences?.Scanning?.Enabled ||
+      !this.preferences?.Sherlock?.Enabled ||
       // host on the ignore list
-      this.preferences.Scanning.IgnoreOrigins?.find(h =>
+      this.preferences.Sherlock.IgnoreOrigins?.find(h =>
         origin.toLowerCase().includes(h.toLowerCase()),
       ) ||
       // host not on the allow list
-      !this.preferences.Scanning.AllowOrigins?.find(h => {
+      !this.preferences.Sherlock.AllowOrigins?.find(h => {
         if (origin.toLowerCase().includes(h.toLowerCase())) {
           return true;
         }

@@ -100,13 +100,13 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
     }
 
     // initialize scanning preferences if required
-    if (!preferences.Scanning) {
+    if (!preferences.Sherlock) {
       const defaultPreferences = getDefaultPreferences();
-      preferences.Scanning = defaultPreferences.Scanning;
+      preferences.Sherlock = defaultPreferences.Sherlock;
     }
 
     // set the sherlock assistant preference
-    preferences.Scanning.Enabled = event.target.checked;
+    preferences.Sherlock.Enabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
   };
@@ -291,7 +291,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                   title={t("extension.sherlockAssistant")}
                   description={t("extension.sherlockAssistantDescription")}
                   statusElement={renderStatus(
-                    preferences?.Scanning?.Enabled
+                    preferences?.Sherlock?.Enabled
                       ? t("common.on")
                       : t("common.off"),
                   )}
@@ -305,7 +305,7 @@ export const Preferences: React.FC<PreferencesProps> = ({onClose}) => {
                             ? "primary"
                             : "secondary"
                         }
-                        checked={preferences?.Scanning?.Enabled}
+                        checked={preferences?.Sherlock?.Enabled}
                         onChange={handleSherlockAssistant}
                       />
                     }
