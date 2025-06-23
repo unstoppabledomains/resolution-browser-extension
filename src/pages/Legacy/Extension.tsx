@@ -44,13 +44,13 @@ const Extension: React.FC = () => {
     }
 
     // initialize scanning preferences if required
-    if (!preferences.Scanning) {
+    if (!preferences.Sherlock) {
       const defaultPreferences = getDefaultPreferences();
-      preferences.Scanning = defaultPreferences.Scanning;
+      preferences.Sherlock = defaultPreferences.Sherlock;
     }
 
     // set the sherlock assistant preference
-    preferences.Scanning.Enabled = event.target.checked;
+    preferences.Sherlock.Enabled = event.target.checked;
     setPreferences({...preferences});
     await setWalletPreferences(preferences);
   };
@@ -75,7 +75,7 @@ const Extension: React.FC = () => {
                     label={`${t("manage.enable")} ${t("extension.sherlockAssistant")}`}
                     control={
                       <Checkbox
-                        checked={preferences?.Scanning?.Enabled}
+                        checked={preferences?.Sherlock?.Enabled}
                         onChange={handleSherlockAssistant}
                       />
                     }

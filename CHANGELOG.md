@@ -2,6 +2,9 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+## 3.1.63
+* Disable the Sherlock feature by default
+
 ## 3.1.62
 * Support to transfer NFTs on EVM and Solana blockchains
 * Update XMTP version

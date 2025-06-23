@@ -6,7 +6,7 @@ export interface WalletPreferences {
   MessagingEnabled: boolean;
   AppConnectionsEnabled: boolean;
   OverrideMetamask: boolean;
-  Scanning: {
+  Sherlock: {
     Enabled: boolean;
     AllowOrigins: string[];
     IgnoreOrigins: string[];
