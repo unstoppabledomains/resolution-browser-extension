@@ -23,7 +23,6 @@ const config: InitialOptionsTsJest = {
   moduleDirectories: ["node_modules", "<rootDir>/server"],
   testPathIgnorePatterns: ["/node_modules/", "/build/"],
   moduleNameMapper: {
-    ["@bugsnag/(.*)"]: "<rootDir>/tests/mocks/empty.js",
     ["viem/chains"]: "<rootDir>/tests/mocks/empty.js",
     ["@xmtp/(.*)"]: "<rootDir>/tests/mocks/empty.js",
     ["@uauth/(.*)"]: "<rootDir>/tests/mocks/empty.js",
