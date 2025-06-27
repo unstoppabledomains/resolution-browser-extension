@@ -2,7 +2,7 @@
 
 **The Unstoppable Domains Browser Extension** enables access to onchain applications and domains, facilitating a secure and user-driven experience. The extension includes an integrated wallet with support for multiple blockchains such as Bitcoin, Ethereum, Base, Polygon and Solana. Using the wallet, users can manage their onchain assets directly from the browser and interact with onchain applications. 
 
-Additionally, the extension integrates with decentralized storage networks such as IPFS to resolve domain names stored on the blockchain, such as `.crypto` and `.eth`, directly within the browser.
+Additionally, the extension integrates with decentralized storage networks such as IPFS to resolve domain names stored on the blockchain, such as `.crypto` and `.eth`, directly within your browser.
 
 ## Getting Started
 
