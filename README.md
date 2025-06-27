@@ -8,7 +8,7 @@ Additionally, the extension integrates with decentralized storage networks such 
 
 ### Prerequisites
 
-Ensure that you have `node` (version 16) and `yarn` installed on your machine. If not, you can install it via [Yarn's official documentation](https://classic.yarnpkg.com/en/docs/install).
+Ensure that `node` (version 16) and `yarn` are installed on your machine. If not, you can install it via [Yarn's official documentation](https://classic.yarnpkg.com/en/docs/install).
 
 ### Running locally
 
