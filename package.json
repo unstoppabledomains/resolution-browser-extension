@@ -51,8 +51,9 @@
     "@xmtp/content-type-remote-attachment@^2.0.2": "patch:@xmtp/content-type-remote-attachment@npm%3A2.0.2#./.yarn/patches/@xmtp-content-type-remote-attachment-npm-2.0.2-f8c7a3f48d.patch",
     "lodash": "^4.17.23",
     "nanoid": "^3.3.8",
-    "qs": "^6.14.2",
-    "elliptic": "^6.6.1"
+    "qs": "6.14.2",
+    "elliptic": "^6.6.1",
+    "side-channel": "1.0.6"
   },
   "dependencies": {
     "@metamask/providers": "^17.1.2",
