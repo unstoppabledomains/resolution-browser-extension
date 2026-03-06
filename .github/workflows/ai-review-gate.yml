@@ -1,22 +1,13 @@
 name: AI Review Gate
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - labeled
-      - unlabeled
   pull_request_review:
-    types:
-      - submitted
-      - dismissed
+    types: [submitted]
 
 permissions:
   contents: read
   pull-requests: write
-  issues: write
+  issues: write  # required for ai-review-approved label
 
 jobs:
   ai-review-gate:
