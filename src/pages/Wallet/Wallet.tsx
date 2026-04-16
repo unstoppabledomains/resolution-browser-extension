@@ -789,8 +789,6 @@ const WalletComp: React.FC = () => {
           recoveryPhrase={authState?.password}
           avatarUrl={authAvatar}
           showMessages={messagingEnabled}
-          isNewUser={isNewUser}
-          loginClicked={loginClicked}
           loginState={authState?.loginState}
           banner={banner}
           disableBasicHeader
