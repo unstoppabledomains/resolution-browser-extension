@@ -2,6 +2,10 @@
 
 Release build history can be found on [GitHub](https://github.com/unstoppabledomains/resolution-browser-extension/releases).
 
+# 3.1.65
+* Add migration tool to enable users to export keys to another wallet
+* Bump package dependencies
+
 ## 3.1.64
 * Bump package dependencies
 

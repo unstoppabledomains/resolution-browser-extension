@@ -6612,7 +6612,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/config@npm:0.0.28, @unstoppabledomains/config@npm:latest":
+"@unstoppabledomains/config@npm:0.0.29":
+  version: 0.0.29
+  resolution: "@unstoppabledomains/config@npm:0.0.29"
+  dependencies:
+    "@types/lodash": ^4.14.199
+    "@types/lodash.merge": ^4.6.7
+    lodash: ^4.17.21
+    lodash.merge: ^4.6.2
+  checksum: 97717ca502e1513fd79fe2b1d95c7d4386a206ef9c8d6dd93a0db148967b3cf8ec39ea1fe484142d41b638d02468a4d3afeca4f428e34fdbc665de677b698c40
+  languageName: node
+  linkType: hard
+
+"@unstoppabledomains/config@npm:latest":
   version: 0.0.28
   resolution: "@unstoppabledomains/config@npm:0.0.28"
   dependencies:
@@ -6637,9 +6649,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.38":
-  version: 0.0.53-browser-extension.38
-  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.38"
+"@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.39":
+  version: 0.0.53-browser-extension.39
+  resolution: "@unstoppabledomains/ui-components@npm:0.0.53-browser-extension.39"
   dependencies:
     "@braintree/sanitize-url": ^6.0.4
     "@emotion/server": ^11.4.0
@@ -6741,7 +6753,7 @@ __metadata:
     "@unstoppabledomains/ui-kit": ^0.3.24
     notistack: ^2.0.5
     react-query: ^3.39.3
-  checksum: 5974ce4206d467181012c4a1c9b37b86e95d353d972d8bdfd33588208592bf92280d1cde8755f5f8bc5b9a2744dc8f7cdb1ff00f5c63a8f46fdabec9c85e8ff0
+  checksum: 996bd48504fb7b7ba563b8eaec0c3f8173a9f3ed83026a3192983fa6ab408a285787064e5a2c9f817f13bd3e4f1e750d192fd6fe6c65208e79219e208f1e6507
   languageName: node
   linkType: hard
 
@@ -21274,8 +21286,8 @@ __metadata:
     "@types/react-dom": ^17.0.0
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@typescript-eslint/parser": ^5.39.0
-    "@unstoppabledomains/config": 0.0.28
-    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.38
+    "@unstoppabledomains/config": 0.0.29
+    "@unstoppabledomains/ui-components": 0.0.53-browser-extension.39
     "@unstoppabledomains/ui-kit": 0.3.24
     abitype: ^1.0.6
     assert: ^2.1.0
